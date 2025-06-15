@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
+import { HelmetProvider } from 'react-helmet-async';
 import { Trade, TagGroup, SubTag, ChartYAxisMetric, ChartXAxisMetric, AppDateRange, TradeDirectionFilterSelection } from './types';
 import { TradeForm } from './components/trades/TradeForm';
 import { TradeList } from './components/trades/TradeList';
@@ -17,6 +18,7 @@ import { PlusCircleIcon, ChartBarIcon, TagIcon, TableCellsIcon, DocumentTextIcon
 import { Modal } from './components/ui/Modal';
 import { Button } from './components/ui/Button';
 import { NotificationPopup } from './components/ui/NotificationPopup';
+import { SEO } from './components/SEO';
 
 // Helper to normalize CSV headers for detection
 const normalizeHeader = (header: string): string => header.toLowerCase().replace(/\s+/g, '').replace(/\//g, '');
@@ -322,181 +324,184 @@ const App: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-900 text-gray-100 p-4 flex flex-col space-y-6">
-      <header className="flex justify-between items-center">
-        <h1 className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-pink-500 to-red-500">Trade Report Card</h1>
-        <div className="flex space-x-2">
-          <Button
-            onClick={openTradeForm}
-            variant="primary"
-            className="bg-green-500 hover:bg-green-600"
-            leftIcon={<PlusCircleIcon className="w-5 h-5"/>}
-          >
-           Add Trade
-          </Button>
-          <Button
-            onClick={triggerFileInput}
-            variant="secondary"
-            leftIcon={<DocumentArrowUpIcon className="w-5 h-5"/>}
-          >
-            Import CSV
-          </Button>
-          <input 
-            type="file" 
-            ref={fileInputRef} 
-            onChange={handleFileUpload} 
-            accept=".csv" 
-            className="hidden" 
-          />
-          <Button
-            onClick={() => setIsTagManagerModalOpen(true)}
-            variant="secondary"
-            className="bg-indigo-500 hover:bg-indigo-600"
-            leftIcon={<TagIcon className="w-5 h-5"/>}
-          >
-            Manage Tags
-          </Button>
-          <Button
-            onClick={() => setIsSettingsModalOpen(true)}
-            variant="secondary"
-            className="bg-gray-500 hover:bg-gray-600"
-            leftIcon={<CogIcon className="w-5 h-5"/>}
-          >
-            Settings
-          </Button>
-        </div>
-      </header>
-
-      {isTradeFormModalOpen && (
-        <Modal title={editingTrade ? "Edit Trade" : "Add New Trade"} onClose={() => { setIsTradeFormModalOpen(false); setEditingTrade(null); }}>
-          <TradeForm 
-            onSubmit={editingTrade ? handleUpdateTrade : handleAddTrade} 
-            tagGroups={tagGroups} 
-            tradeToEdit={editingTrade} 
-          />
-        </Modal>
-      )}
-
-      {isTagManagerModalOpen && (
-        <Modal title="Manage Tags" onClose={() => setIsTagManagerModalOpen(false)}>
-          <TagManager 
-            tagGroups={tagGroups} 
-            onAddGroup={handleAddTagGroup} 
-            onAddSubTag={handleAddSubTag}
-            onUpdateSubTagColor={handleUpdateSubTagColor}
-          />
-        </Modal>
-      )}
-
-      {isSettingsModalOpen && (
-        <Modal title="Application Settings" onClose={() => setIsSettingsModalOpen(false)}>
-          <div className="text-gray-300">
-            <p>Settings panel is under construction.</p>
-            <p className="mt-4">Future options might include:</p>
-            <ul className="list-disc list-inside mt-2 text-sm">
-              <li>Theme customization</li>
-              <li>Default values for trade form</li>
-              <li>Data export options (JSON, CSV)</li>
-              <li>Clearing all application data</li>
-            </ul>
-          </div>
-        </Modal>
-      )}
-
-      {showImportConfirmation && importNotification && (
-        <NotificationPopup
-          title={importNotification.title}
-          message={importNotification.message}
-          details={importNotification.details}
-          onClose={() => {
-            setShowImportConfirmation(false);
-            setImportNotification(null);
-          }}
-          duration={5000} // 5 seconds
-        />
-      )}
-      
-      <main className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-1 space-y-6">
-          <div className="bg-gray-800 p-6 rounded-xl shadow-2xl">
-            <h2 className="text-2xl font-semibold mb-4 text-purple-400 flex items-center"><AdjustmentsHorizontalIcon className="w-6 h-6 mr-2" />Controls</h2>
-            <ChartControls
-              yAxisMetric={yAxisMetric}
-              setYAxisMetric={setYAxisMetric}
-              xAxisMetric={xAxisMetric}
-              setXAxisMetric={setXAxisMetric}
-              dateRange={chartDateRange}
-              setDateRange={setChartDateRange}
-              compareDateRange={compareDateRange}
-              setCompareDateRange={setCompareDateRange}
-              tagGroups={tagGroups}
-              selectedTags={selectedTagsForChart}
-              setSelectedTags={setSelectedTagsForChart}
-              tagComparisonMode={tagComparisonMode}
-              setTagComparisonMode={setTagComparisonMode}
-              directionFilter={directionFilter}
-              setDirectionFilter={setDirectionFilter}
+    <HelmetProvider>
+      <SEO />
+      <div className="min-h-screen bg-gray-900 text-gray-100 p-4 flex flex-col space-y-6">
+        <header className="flex justify-between items-center">
+          <h1 className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-pink-500 to-red-500">Trade Report Card</h1>
+          <div className="flex space-x-2">
+            <Button
+              onClick={openTradeForm}
+              variant="primary"
+              className="bg-green-500 hover:bg-green-600"
+              leftIcon={<PlusCircleIcon className="w-5 h-5"/>}
+            >
+             Add Trade
+            </Button>
+            <Button
+              onClick={triggerFileInput}
+              variant="secondary"
+              leftIcon={<DocumentArrowUpIcon className="w-5 h-5"/>}
+            >
+              Import CSV
+            </Button>
+            <input 
+              type="file" 
+              ref={fileInputRef} 
+              onChange={handleFileUpload} 
+              accept=".csv" 
+              className="hidden" 
             />
+            <Button
+              onClick={() => setIsTagManagerModalOpen(true)}
+              variant="secondary"
+              className="bg-indigo-500 hover:bg-indigo-600"
+              leftIcon={<TagIcon className="w-5 h-5"/>}
+            >
+              Manage Tags
+            </Button>
+            <Button
+              onClick={() => setIsSettingsModalOpen(true)}
+              variant="secondary"
+              className="bg-gray-500 hover:bg-gray-600"
+              leftIcon={<CogIcon className="w-5 h-5"/>}
+            >
+              Settings
+            </Button>
           </div>
+        </header>
 
-          <div className="bg-gray-800 p-6 rounded-xl shadow-2xl">
-            <h2 className="text-2xl font-semibold mb-4 text-pink-400 flex items-center"><TableCellsIcon className="w-6 h-6 mr-2" />Daily Summary</h2>
-            <div className="mb-4">
-              <label htmlFor="daily-summary-date" className="block text-sm font-medium text-gray-300 mb-1">Select Date for Summary:</label>
-              <input
-                type="date"
-                id="daily-summary-date"
-                value={selectedDate}
-                onChange={(e) => setSelectedDate(e.target.value)}
-                className="w-full bg-gray-700 border border-gray-600 text-gray-100 sm:text-sm rounded-lg focus:ring-purple-500 focus:border-purple-500 p-2.5"
+        {isTradeFormModalOpen && (
+          <Modal title={editingTrade ? "Edit Trade" : "Add New Trade"} onClose={() => { setIsTradeFormModalOpen(false); setEditingTrade(null); }}>
+            <TradeForm 
+              onSubmit={editingTrade ? handleUpdateTrade : handleAddTrade} 
+              tagGroups={tagGroups} 
+              tradeToEdit={editingTrade} 
+            />
+          </Modal>
+        )}
+
+        {isTagManagerModalOpen && (
+          <Modal title="Manage Tags" onClose={() => setIsTagManagerModalOpen(false)}>
+            <TagManager 
+              tagGroups={tagGroups} 
+              onAddGroup={handleAddTagGroup} 
+              onAddSubTag={handleAddSubTag}
+              onUpdateSubTagColor={handleUpdateSubTagColor}
+            />
+          </Modal>
+        )}
+
+        {isSettingsModalOpen && (
+          <Modal title="Application Settings" onClose={() => setIsSettingsModalOpen(false)}>
+            <div className="text-gray-300">
+              <p>Settings panel is under construction.</p>
+              <p className="mt-4">Future options might include:</p>
+              <ul className="list-disc list-inside mt-2 text-sm">
+                <li>Theme customization</li>
+                <li>Default values for trade form</li>
+                <li>Data export options (JSON, CSV)</li>
+                <li>Clearing all application data</li>
+              </ul>
+            </div>
+          </Modal>
+        )}
+
+        {showImportConfirmation && importNotification && (
+          <NotificationPopup
+            title={importNotification.title}
+            message={importNotification.message}
+            details={importNotification.details}
+            onClose={() => {
+              setShowImportConfirmation(false);
+              setImportNotification(null);
+            }}
+            duration={5000} // 5 seconds
+          />
+        )}
+        
+        <main className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="lg:col-span-1 space-y-6">
+            <div className="bg-gray-800 p-6 rounded-xl shadow-2xl">
+              <h2 className="text-2xl font-semibold mb-4 text-purple-400 flex items-center"><AdjustmentsHorizontalIcon className="w-6 h-6 mr-2" />Controls</h2>
+              <ChartControls
+                yAxisMetric={yAxisMetric}
+                setYAxisMetric={setYAxisMetric}
+                xAxisMetric={xAxisMetric}
+                setXAxisMetric={setXAxisMetric}
+                dateRange={chartDateRange}
+                setDateRange={setChartDateRange}
+                compareDateRange={compareDateRange}
+                setCompareDateRange={setCompareDateRange}
+                tagGroups={tagGroups}
+                selectedTags={selectedTagsForChart}
+                setSelectedTags={setSelectedTagsForChart}
+                tagComparisonMode={tagComparisonMode}
+                setTagComparisonMode={setTagComparisonMode}
+                directionFilter={directionFilter}
+                setDirectionFilter={setDirectionFilter}
               />
             </div>
-            <DailySummary trades={tradesForDailySummary} />
-             {directionFilter !== 'all' && <p className="text-xs text-gray-400 mt-2">Showing summary for {directionFilter} trades only.</p>}
-          </div>
-          
-          <TagPerformance 
-            trades={trades} 
-            tagGroups={tagGroups} 
-            chartDateRange={chartDateRange} 
-            directionFilter={directionFilter} 
-          />
 
-          {pieChartData.length > 0 && (
             <div className="bg-gray-800 p-6 rounded-xl shadow-2xl">
-              <h2 className="text-2xl font-semibold mb-4 text-red-400 flex items-center"><ChartBarIcon className="w-6 h-6 mr-2" />Tag Distribution</h2>
-               <PieChartRenderer data={pieChartData} />
-               <p className="text-xs text-gray-400 mt-2 text-center">
-                For trades in selected date range{directionFilter !== 'all' ? ` (${directionFilter} only)` : ''}.
-               </p>
+              <h2 className="text-2xl font-semibold mb-4 text-pink-400 flex items-center"><TableCellsIcon className="w-6 h-6 mr-2" />Daily Summary</h2>
+              <div className="mb-4">
+                <label htmlFor="daily-summary-date" className="block text-sm font-medium text-gray-300 mb-1">Select Date for Summary:</label>
+                <input
+                  type="date"
+                  id="daily-summary-date"
+                  value={selectedDate}
+                  onChange={(e) => setSelectedDate(e.target.value)}
+                  className="w-full bg-gray-700 border border-gray-600 text-gray-100 sm:text-sm rounded-lg focus:ring-purple-500 focus:border-purple-500 p-2.5"
+                />
+              </div>
+              <DailySummary trades={tradesForDailySummary} />
+               {directionFilter !== 'all' && <p className="text-xs text-gray-400 mt-2">Showing summary for {directionFilter} trades only.</p>}
             </div>
-          )}
-        </div>
-
-        <div className="lg:col-span-2 space-y-6">
-          <div className="bg-gray-800 p-6 rounded-xl shadow-2xl min-h-[400px]">
-             <h2 className="text-2xl font-semibold mb-4 text-green-400 flex items-center"><ChartBarIcon className="w-6 h-6 mr-2" />Performance Chart</h2>
-            <LineChartRenderer 
-              data={chartData} 
-              comparisonData={comparisonChartData} 
-              yAxisMetric={yAxisMetric} 
-              xAxisMetric={xAxisMetric} 
-            />
-          </div>
-
-          <div className="bg-gray-800 p-6 rounded-xl shadow-2xl">
-             <h2 className="text-2xl font-semibold mb-4 text-teal-400 flex items-center"><DocumentTextIcon className="w-6 h-6 mr-2" />Trade Log</h2>
-            <TradeList 
+            
+            <TagPerformance 
               trades={trades} 
               tagGroups={tagGroups} 
-              onDeleteTrade={handleDeleteTrade} 
-              onEditTrade={handleEditTrade}
-              onTradeTagChange={handleTradeTagChange}
+              chartDateRange={chartDateRange} 
+              directionFilter={directionFilter} 
             />
+
+            {pieChartData.length > 0 && (
+              <div className="bg-gray-800 p-6 rounded-xl shadow-2xl">
+                <h2 className="text-2xl font-semibold mb-4 text-red-400 flex items-center"><ChartBarIcon className="w-6 h-6 mr-2" />Tag Distribution</h2>
+                 <PieChartRenderer data={pieChartData} />
+                 <p className="text-xs text-gray-400 mt-2 text-center">
+                  For trades in selected date range{directionFilter !== 'all' ? ` (${directionFilter} only)` : ''}.
+                 </p>
+              </div>
+            )}
           </div>
-        </div>
-      </main>
-    </div>
+
+          <div className="lg:col-span-2 space-y-6">
+            <div className="bg-gray-800 p-6 rounded-xl shadow-2xl min-h-[400px]">
+               <h2 className="text-2xl font-semibold mb-4 text-green-400 flex items-center"><ChartBarIcon className="w-6 h-6 mr-2" />Performance Chart</h2>
+              <LineChartRenderer 
+                data={chartData} 
+                comparisonData={comparisonChartData} 
+                yAxisMetric={yAxisMetric} 
+                xAxisMetric={xAxisMetric} 
+              />
+            </div>
+
+            <div className="bg-gray-800 p-6 rounded-xl shadow-2xl">
+               <h2 className="text-2xl font-semibold mb-4 text-teal-400 flex items-center"><DocumentTextIcon className="w-6 h-6 mr-2" />Trade Log</h2>
+              <TradeList 
+                trades={trades} 
+                tagGroups={tagGroups} 
+                onDeleteTrade={handleDeleteTrade} 
+                onEditTrade={handleEditTrade}
+                onTradeTagChange={handleTradeTagChange}
+              />
+            </div>
+          </div>
+        </main>
+      </div>
+    </HelmetProvider>
   );
 };
 
