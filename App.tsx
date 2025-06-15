@@ -8,10 +8,11 @@ import { TagPerformance } from './components/tags/TagPerformance'; // New Import
 import { LineChartRenderer } from './components/charts/LineChartRenderer';
 import { PieChartRenderer } from './components/charts/PieChartRenderer';
 import { ChartControls } from './components/charts/ChartControls';
-import { INITIAL_TAG_COLORS } from './constants';
+import { DEFAULT_CHART_COLOR, COMPARISON_CHART_COLOR, LONG_TRADE_COLOR, SHORT_TRADE_COLOR } from './constants';
 import { processChartData, filterTradesByDateAndTags } from './utils/chartDataProcessor';
 import { parseCSVToTrades as parseBrokerExportCSV } from './utils/csvImporter';
 import { parseQuantowerCSVToTrades } from './utils/quantowerCsvImporter';
+import { getRandomColor, resetColorUsage } from './utils/colorGenerator';
 import { PlusCircleIcon, ChartBarIcon, TagIcon, TableCellsIcon, DocumentTextIcon, AdjustmentsHorizontalIcon, DocumentArrowUpIcon, CogIcon, AcademicCapIcon } from './components/ui/Icons'; // Added AcademicCapIcon for consistency if used directly in App.tsx
 import { Modal } from './components/ui/Modal';
 import { Button } from './components/ui/Button';
@@ -143,13 +144,12 @@ const App: React.FC = () => {
   };
 
   const handleAddSubTag = (groupId: string, subTagName: string) => {
-    setTagGroups(prev => prev.map(group => {
+    setTagGroups((prev: TagGroup[]) => prev.map((group: TagGroup) => {
       if (group.id === groupId) {
-        const nextColorIndex = group.subtags.length % INITIAL_TAG_COLORS.length;
         const newSubTag: SubTag = { 
           id: Date.now().toString(), 
           name: subTagName, 
-          color: INITIAL_TAG_COLORS[nextColorIndex],
+          color: getRandomColor(),
           groupId
         };
         return { ...group, subtags: [...group.subtags, newSubTag] };
@@ -159,11 +159,11 @@ const App: React.FC = () => {
   };
 
   const handleUpdateSubTagColor = (groupId: string, subTagId: string, color: string) => {
-    setTagGroups(prev => prev.map(group => {
+    setTagGroups((prev: TagGroup[]) => prev.map((group: TagGroup) => {
       if (group.id === groupId) {
         return {
           ...group,
-          subtags: group.subtags.map(st => st.id === subTagId ? { ...st, color } : st)
+          subtags: group.subtags.map((st: SubTag) => st.id === subTagId ? { ...st, color } : st)
         };
       }
       return group;
@@ -171,7 +171,7 @@ const App: React.FC = () => {
   };
 
   const handleTradeTagChange = (tradeId: string, groupId: string, subTagId: string | null) => {
-    setTrades(prevTrades => prevTrades.map(trade => {
+    setTrades((prevTrades: Trade[]) => prevTrades.map((trade: Trade) => {
       if (trade.id === tradeId) {
         const newTags = { ...trade.tags };
         if (subTagId) {

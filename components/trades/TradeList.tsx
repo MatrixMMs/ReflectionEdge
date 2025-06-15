@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { Trade, TagGroup, SubTag } from '../../types';
 import { Button } from '../ui/Button';
@@ -66,7 +65,7 @@ const TradeCard: React.FC<{
     setSpeechError(null); // Clear error on save
   };
 
-  const handleRecordButtonClick = () => {
+  const handleRecordButtonClick = async () => {
     if (!speechApiSupported) return;
     setSpeechError(null); // Clear previous errors
 
@@ -83,73 +82,144 @@ const TradeCard: React.FC<{
       }
       // States will be updated by onend/onerror
     } else {
-      speechRecognitionRef.current = new SpeechRecognitionAPI();
-      const recognition = speechRecognitionRef.current;
-      recognition.continuous = false;
-      recognition.interimResults = false;
-      recognition.lang = 'en-US';
-
-      recognition.onstart = () => {
-        setIsRecording(true);
-        setIsProcessing(false);
-        setSpeechError(null);
-      };
-
-      recognition.onresult = (event: any) => {
-        const transcript = event.results[0][0].transcript;
-        setCurrentJournal(prev => prev.trim() ? prev + ' ' + transcript : transcript);
-      };
-
-      recognition.onerror = (event: any) => {
-        console.error('Speech recognition error:', event.error, event.message);
-        let errorMessage = "Speech recognition failed.";
-        if (event.error === 'network') {
-          errorMessage = "Network error. Please check your internet connection and try again.";
-        } else if (event.error === 'no-speech') {
-          errorMessage = "No speech detected. Please try again.";
-        } else if (event.error === 'audio-capture') {
-          errorMessage = "Audio capture failed. Ensure microphone is connected and permissions are granted.";
-        } else if (event.error === 'not-allowed' || event.error === 'service-not-allowed') {
-            errorMessage = "Microphone access denied. Please enable microphone permissions in your browser settings.";
-        }
-        setSpeechError(errorMessage);
-        setIsRecording(false);
-        setIsProcessing(false);
-        if (speechRecognitionRef.current) {
-            speechRecognitionRef.current.onstart = null;
-            speechRecognitionRef.current.onresult = null;
-            speechRecognitionRef.current.onerror = null;
-            speechRecognitionRef.current.onend = null;
-            speechRecognitionRef.current = null;
-        }
-      };
-
-      recognition.onend = () => {
-        setIsRecording(false);
-        setIsProcessing(false);
-        if (speechRecognitionRef.current) { // Check if not already nulled by onerror
-            speechRecognitionRef.current.onstart = null;
-            speechRecognitionRef.current.onresult = null;
-            speechRecognitionRef.current.onerror = null;
-            speechRecognitionRef.current.onend = null;
-            speechRecognitionRef.current = null;
-        }
-      };
-      
-      setIsProcessing(true);
       try {
+        // Check internet connection first
+        if (!navigator.onLine) {
+          setSpeechError("No internet connection. Please check your network and try again.");
+          return;
+        }
+
+        // Request microphone permission explicitly
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        stream.getTracks().forEach(track => track.stop()); // Stop the stream immediately after getting permission
+
+        // Create new instance each time to avoid stale state
+        if (speechRecognitionRef.current) {
+          speechRecognitionRef.current.stop();
+          speechRecognitionRef.current = null;
+        }
+
+        speechRecognitionRef.current = new SpeechRecognitionAPI();
+        const recognition = speechRecognitionRef.current;
+        
+        // Configure recognition settings
+        recognition.continuous = true;
+        recognition.interimResults = true;
+        recognition.lang = 'en-US';
+        recognition.maxAlternatives = 1;
+
+        // Add connection state change listener
+        window.addEventListener('online', () => {
+          if (isRecording && speechRecognitionRef.current) {
+            try {
+              speechRecognitionRef.current.start();
+            } catch (e) {
+              console.error("Error restarting recognition after reconnection:", e);
+            }
+          }
+        });
+
+        recognition.onstart = () => {
+          setIsRecording(true);
+          setIsProcessing(false);
+          setSpeechError(null);
+        };
+
+        recognition.onresult = (event: any) => {
+          try {
+            const transcript = Array.from(event.results)
+              .map((result: any) => result[0].transcript)
+              .join(' ');
+            setCurrentJournal(prev => prev.trim() ? prev + ' ' + transcript : transcript);
+          } catch (e) {
+            console.error("Error processing speech result:", e);
+          }
+        };
+
+        recognition.onerror = (event: any) => {
+          console.error('Speech recognition error:', event.error, event.message);
+          let errorMessage = "Speech recognition failed.";
+          
+          if (event.error === 'network') {
+            errorMessage = "Network error. Please check your internet connection and try again.";
+            // Try to restart recognition after a short delay
+            setTimeout(() => {
+              if (speechRecognitionRef.current) {
+                try {
+                  speechRecognitionRef.current.start();
+                } catch (e) {
+                  console.error("Error restarting recognition:", e);
+                }
+              }
+            }, 1000);
+          } else if (event.error === 'no-speech') {
+            errorMessage = "No speech detected. Please try again.";
+          } else if (event.error === 'audio-capture') {
+            errorMessage = "Audio capture failed. Ensure microphone is connected and permissions are granted.";
+          } else if (event.error === 'not-allowed' || event.error === 'service-not-allowed') {
+            errorMessage = "Microphone access denied. Please enable microphone permissions in your browser settings.";
+          } else if (event.error === 'aborted') {
+            errorMessage = "Recording was aborted. Please try again.";
+          } else if (event.error === 'audio') {
+            errorMessage = "Audio error. Please check your microphone and try again.";
+          } else if (event.error === 'language-not-supported') {
+            errorMessage = "Language not supported. Please try again.";
+          }
+
+          setSpeechError(errorMessage);
+          
+          // Only stop recording for non-network errors
+          if (event.error !== 'network') {
+            setIsRecording(false);
+            setIsProcessing(false);
+            if (speechRecognitionRef.current) {
+              speechRecognitionRef.current.onstart = null;
+              speechRecognitionRef.current.onresult = null;
+              speechRecognitionRef.current.onerror = null;
+              speechRecognitionRef.current.onend = null;
+              speechRecognitionRef.current = null;
+            }
+          }
+        };
+
+        recognition.onend = () => {
+          // Only stop if we're not trying to restart due to network error
+          if (!speechRecognitionRef.current?.onerror) {
+            setIsRecording(false);
+            setIsProcessing(false);
+            if (speechRecognitionRef.current) {
+              speechRecognitionRef.current.onstart = null;
+              speechRecognitionRef.current.onresult = null;
+              speechRecognitionRef.current.onerror = null;
+              speechRecognitionRef.current.onend = null;
+              speechRecognitionRef.current = null;
+            }
+          }
+        };
+        
+        setIsProcessing(true);
         recognition.start();
       } catch (e: any) {
         console.error("Error starting speech recognition:", e);
-        setSpeechError("Could not start speech recognition. " + (e.message || ""));
+        let errorMessage = "Could not start speech recognition.";
+        if (e.name === 'NotAllowedError') {
+          errorMessage = "Microphone access denied. Please enable microphone permissions in your browser settings.";
+        } else if (e.name === 'NotFoundError') {
+          errorMessage = "No microphone found. Please connect a microphone and try again.";
+        } else if (e.name === 'NetworkError') {
+          errorMessage = "Network error. Please check your internet connection and try again.";
+        } else {
+          errorMessage += " " + (e.message || "");
+        }
+        setSpeechError(errorMessage);
         setIsProcessing(false);
         setIsRecording(false);
-         if (speechRecognitionRef.current) {
-            speechRecognitionRef.current.onstart = null;
-            speechRecognitionRef.current.onresult = null;
-            speechRecognitionRef.current.onerror = null;
-            speechRecognitionRef.current.onend = null;
-            speechRecognitionRef.current = null;
+        if (speechRecognitionRef.current) {
+          speechRecognitionRef.current.onstart = null;
+          speechRecognitionRef.current.onresult = null;
+          speechRecognitionRef.current.onerror = null;
+          speechRecognitionRef.current.onend = null;
+          speechRecognitionRef.current = null;
         }
       }
     }
