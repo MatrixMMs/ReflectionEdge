@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { Trade, TagGroup, SubTag, ChartYAxisMetric, ChartXAxisMetric, AppDateRange, TradeDirectionFilterSelection } from './types';
 import { TradeForm } from './components/trades/TradeForm';
@@ -11,7 +10,7 @@ import { PieChartRenderer } from './components/charts/PieChartRenderer';
 import { ChartControls } from './components/charts/ChartControls';
 import { INITIAL_TAG_COLORS } from './constants';
 import { processChartData, filterTradesByDateAndTags } from './utils/chartDataProcessor';
-import { parseCSVToTrades as parseBrokerExportCSV } from './utils/csvImporter'; 
+import { parseCSVToTrades as parseBrokerExportCSV } from './utils/csvImporter';
 import { parseQuantowerCSVToTrades } from './utils/quantowerCsvImporter';
 import { PlusCircleIcon, ChartBarIcon, TagIcon, TableCellsIcon, DocumentTextIcon, AdjustmentsHorizontalIcon, DocumentArrowUpIcon, CogIcon, AcademicCapIcon } from './components/ui/Icons'; // Added AcademicCapIcon for consistency if used directly in App.tsx
 import { Modal } from './components/ui/Modal';
@@ -22,21 +21,54 @@ import { NotificationPopup } from './components/ui/NotificationPopup';
 const normalizeHeader = (header: string): string => header.toLowerCase().replace(/\s+/g, '').replace(/\//g, '');
 
 const App: React.FC = () => {
-  const [trades, setTrades] = useState<Trade[]>(() => {
-    const savedTrades = localStorage.getItem('trades');
-    return savedTrades 
-      ? JSON.parse(savedTrades).map((t: any) => ({
-          ...t, 
-          direction: t.direction || 'long',
-          symbol: t.symbol || '',
-          contracts: t.contracts || 0,
-        })) 
-      : [];
-  });
-  const [tagGroups, setTagGroups] = useState<TagGroup[]>(() => {
-    const savedTagGroups = localStorage.getItem('tagGroups');
-    return savedTagGroups ? JSON.parse(savedTagGroups) : [];
-  });
+  const STORAGE_VERSION = '1.0';
+  const STORAGE_KEY = 'trade-report-card-data';
+
+  const loadStoredData = () => {
+    try {
+      const storedData = localStorage.getItem(STORAGE_KEY);
+      if (storedData) {
+        const { version, trades: storedTrades, tagGroups: storedTagGroups } = JSON.parse(storedData);
+        if (version === STORAGE_VERSION) {
+          return {
+            trades: storedTrades.map((t: any) => ({
+              ...t,
+              direction: t.direction || 'long',
+              symbol: t.symbol || '',
+              contracts: t.contracts || 0,
+              timeIn: t.timeIn || '',
+              timeOut: t.timeOut || '',
+              date: t.date || new Date().toISOString().split('T')[0],
+              tags: t.tags || {},
+              journal: t.journal || '',
+            })),
+            tagGroups: storedTagGroups || []
+          };
+        }
+      }
+    } catch (error) {
+      console.error('Error loading stored data:', error);
+    }
+    return { trades: [], tagGroups: [] };
+  };
+
+  const saveData = (trades: Trade[], tagGroups: TagGroup[]) => {
+    try {
+      const dataToStore = {
+        version: STORAGE_VERSION,
+        trades,
+        tagGroups
+      };
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(dataToStore));
+    } catch (error) {
+      console.error('Error saving data:', error);
+    }
+  };
+
+  const { trades: initialTrades, tagGroups: initialTagGroups } = loadStoredData();
+
+  const [trades, setTrades] = useState<Trade[]>(initialTrades);
+  const [tagGroups, setTagGroups] = useState<TagGroup[]>(initialTagGroups);
 
   const [selectedDate, setSelectedDate] = useState<string>(new Date().toISOString().split('T')[0]);
   const [chartDateRange, setChartDateRange] = useState<AppDateRange>({
@@ -67,12 +99,8 @@ const App: React.FC = () => {
 
 
   useEffect(() => {
-    localStorage.setItem('trades', JSON.stringify(trades));
-  }, [trades]);
-
-  useEffect(() => {
-    localStorage.setItem('tagGroups', JSON.stringify(tagGroups));
-  }, [tagGroups]);
+    saveData(trades, tagGroups);
+  }, [trades, tagGroups]);
 
   const handleAddTrade = (trade: Omit<Trade, 'id' | 'timeInTrade'>) => {
     const timeInTrade = (new Date(trade.timeOut).getTime() - new Date(trade.timeIn).getTime()) / (1000 * 60); 
