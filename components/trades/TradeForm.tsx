@@ -378,7 +378,7 @@ export const TradeForm: React.FC<TradeFormProps> = ({ onSubmit, onCancel, initia
           />
         </div>
       </div>
-
+      
       <div>
         <label className="block text-sm font-medium text-gray-300 mb-1">Tags</label>
         <div className="space-y-3 max-h-48 overflow-y-auto pr-2">

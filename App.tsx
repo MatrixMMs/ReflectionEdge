@@ -485,8 +485,10 @@ const App: React.FC = () => {
 
   return (
     <div className={`min-h-screen ${theme === 'dark' ? 'bg-gray-900 text-gray-100' : 'bg-gray-100 text-gray-900'} p-4 flex flex-col space-y-6`}>
-      <header className="flex justify-between items-center">
-        <h1 className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-pink-500 to-red-500">Trade Report Card</h1>
+      <header className="flex justify-between items-center pb-4 overflow-visible">
+        <h1 className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-pink-500 to-red-500 leading-normal" style={{paddingBottom: '0.25em'}}>
+          Reflection Edge
+        </h1>
         <div className="flex space-x-2">
           <Button
             onClick={openTradeForm}
