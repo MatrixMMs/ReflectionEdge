@@ -34,7 +34,8 @@ export const TagManager: React.FC<TagManagerProps> = ({ tagGroups, onAddGroup, o
   };
 
   const isDefaultGroup = (groupId: string) => {
-    return DEFAULT_TAG_GROUPS.some(group => group.id === groupId);
+    // Only lock 'feeling' and 'market' groups, not 'setup' or 'market_condition'
+    return groupId === 'feeling' || groupId === 'market';
   };
 
   return (

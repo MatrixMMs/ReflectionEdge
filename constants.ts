@@ -21,23 +21,25 @@ export const SHORT_TRADE_COLOR = '#F2385A'; // Bright Red
 // Default tag groups and their subtags
 export const DEFAULT_TAG_GROUPS = [
   {
-    id: 'feeling',
-    name: 'How do you feel?',
+    id: 'setup',
+    name: 'Setup',
     subtags: [
-      { id: 'calm', name: 'Calm', color: '#4ECDC4', groupId: 'feeling' },
-      { id: 'anxious', name: 'Anxious', color: '#FF6B6B', groupId: 'feeling' },
-      { id: 'focused', name: 'Focused', color: '#45B7D1', groupId: 'feeling' },
-      { id: 'greedy', name: 'Greedy', color: '#FED766', groupId: 'feeling' },
-      { id: 'angry', name: 'Angry', color: '#F2385A', groupId: 'feeling' },
-      { id: 'scared', name: 'Scared', color: '#8A6FBF', groupId: 'feeling' },
+      { id: 'failed_auction', name: 'Failed Auction', color: '#FF6B6B', groupId: 'setup' },
+      { id: 'momentum', name: 'Momentum', color: '#4ECDC4', groupId: 'setup' },
+      { id: 'stop_runs', name: 'Stop Runs', color: '#45B7D1', groupId: 'setup' },
+      { id: 'trend', name: 'Trend', color: '#FED766', groupId: 'setup' }
     ]
   },
   {
-    id: 'market',
-    name: 'How do you think the market was?',
+    id: 'market_condition',
+    name: 'Market Condition',
     subtags: [
-      { id: 'clear', name: 'Clear', color: '#52D681', groupId: 'market' },
-      { id: 'confused', name: 'Confused', color: '#F79256', groupId: 'market' },
+      { id: 'wide_balance', name: 'Wide Balance', color: '#52D681', groupId: 'market_condition' },
+      { id: 'trend', name: 'Trend', color: '#F79256', groupId: 'market_condition' },
+      { id: 'tight_range', name: 'Tight Range', color: '#8A6FBF', groupId: 'market_condition' },
+      { id: 'erratic', name: 'Erratic', color: '#F2385A', groupId: 'market_condition' },
+      { id: 'low_volume', name: 'Low Volume', color: '#34D399', groupId: 'market_condition' },
+      { id: 'high_volume', name: 'High Volume', color: '#726A95', groupId: 'market_condition' }
     ]
   }
 ];
