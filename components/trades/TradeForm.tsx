@@ -1,13 +1,13 @@
-
 import React, { useState, useEffect } from 'react';
 import { Trade, TagGroup, TradeDirection } from '../../types';
 import { Input, Textarea } from '../ui/Input';
 import { Button } from '../ui/Button';
+import { PlusCircleIcon, XMarkIcon } from '../ui/Icons';
 
 interface TradeFormProps {
-  onSubmit: (trade: Omit<Trade, 'id' | 'timeInTrade'> | Trade) => void;
+  onSubmit: (trade: Omit<Trade, 'id' | 'timeInTrade'>) => void;
   tagGroups: TagGroup[];
-  tradeToEdit?: Trade | null;
+  tradeToEdit?: Trade;
 }
 
 export const TradeForm: React.FC<TradeFormProps> = ({ onSubmit, tagGroups, tradeToEdit }) => {
@@ -21,21 +21,26 @@ export const TradeForm: React.FC<TradeFormProps> = ({ onSubmit, tagGroups, trade
   const [timeOut, setTimeOut] = useState('');
   const [profit, setProfit] = useState('');
   const [journal, setJournal] = useState('');
-  const [tags, setTags] = useState<{ [key: string]: string }>({});
+  const [selectedTags, setSelectedTags] = useState<{ [groupId: string]: string[] }>({});
 
   useEffect(() => {
     if (tradeToEdit) {
       setDate(tradeToEdit.date);
-      setDirection(tradeToEdit.direction || 'long');
-      setSymbol(tradeToEdit.symbol || '');
-      setContracts(tradeToEdit.contracts?.toString() || '');
+      setDirection(tradeToEdit.direction);
+      setSymbol(tradeToEdit.symbol);
+      setContracts(tradeToEdit.contracts.toString());
       setEntry(tradeToEdit.entry.toString());
       setExit(tradeToEdit.exit.toString());
-      setTimeIn(tradeToEdit.timeIn.split('T')[1]?.substring(0,5) || ''); // HH:mm from ISO
-      setTimeOut(tradeToEdit.timeOut.split('T')[1]?.substring(0,5) || ''); // HH:mm from ISO
+      setTimeIn(tradeToEdit.timeIn);
+      setTimeOut(tradeToEdit.timeOut);
       setProfit(tradeToEdit.profit.toString());
       setJournal(tradeToEdit.journal);
-      setTags(tradeToEdit.tags || {});
+      // Convert the tags object to our internal format
+      const convertedTags = Object.entries(tradeToEdit.tags).reduce((acc, [groupId, subtagId]) => ({
+        ...acc,
+        [groupId]: [subtagId]
+      }), {} as { [groupId: string]: string[] });
+      setSelectedTags(convertedTags);
     } else {
       // Reset form for new trade
       setDate(new Date().toISOString().split('T')[0]);
@@ -44,107 +49,237 @@ export const TradeForm: React.FC<TradeFormProps> = ({ onSubmit, tagGroups, trade
       setContracts('');
       setEntry('');
       setExit('');
-      const now = new Date();
-      const defaultTimeIn = now.toTimeString().substring(0,5); // HH:MM
-      now.setMinutes(now.getMinutes() + 15);
-      const defaultTimeOut = now.toTimeString().substring(0,5); // HH:MM
-      setTimeIn(defaultTimeIn);
-      setTimeOut(defaultTimeOut);
+      setTimeIn('');
+      setTimeOut('');
       setProfit('');
       setJournal('');
-      setTags({});
+      setSelectedTags({});
     }
   }, [tradeToEdit]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!symbol.trim() || !contracts || parseFloat(contracts) <= 0 || !entry || !exit || !profit || !timeIn || !timeOut || !date) {
-      alert("Please fill in all required fields. Ensure Symbol is not empty and Contracts/Shares is a positive number.\nRequired: Date, Direction, Symbol, Contracts/Shares, Entry, Exit, Time In, Time Out, Profit.");
-      return;
-    }
-    
+
     const fullTimeIn = `${date}T${timeIn}:00.000Z`;
     const fullTimeOut = `${date}T${timeOut}:00.000Z`;
 
-    const tradeData = {
+    // Convert our internal tag format to the expected format
+    const convertedTags = Object.entries(selectedTags).reduce((acc, [groupId, subtagIds]) => {
+      // Take the first selected subtag for each group
+      if (subtagIds.length > 0) {
+        acc[groupId] = subtagIds[0];
+      }
+      return acc;
+    }, {} as { [groupId: string]: string });
+
+    const tradeData: Omit<Trade, 'id' | 'timeInTrade'> = {
       date,
       direction,
-      symbol: symbol.trim(),
-      contracts: parseFloat(contracts),
+      symbol: symbol.toUpperCase(),
+      contracts: parseInt(contracts),
       entry: parseFloat(entry),
       exit: parseFloat(exit),
       timeIn: fullTimeIn,
       timeOut: fullTimeOut,
       profit: parseFloat(profit),
       journal,
-      tags,
+      tags: convertedTags
     };
 
-    if (tradeToEdit) {
-      onSubmit({ ...tradeToEdit, ...tradeData });
-    } else {
-      onSubmit(tradeData as Omit<Trade, 'id' | 'timeInTrade'>);
-    }
+    onSubmit(tradeData);
+    resetForm();
   };
 
-  const handleTagChange = (groupId: string, subTagId: string) => {
-    setTags(prev => ({ ...prev, [groupId]: subTagId }));
+  const resetForm = () => {
+    setDate(new Date().toISOString().split('T')[0]);
+    setDirection('long');
+    setSymbol('');
+    setContracts('');
+    setEntry('');
+    setExit('');
+    setTimeIn('');
+    setTimeOut('');
+    setProfit('');
+    setJournal('');
+    setSelectedTags({});
+  };
+
+  const handleTagSelection = (groupId: string, subtagId: string) => {
+    setSelectedTags(prev => {
+      const currentTags = prev[groupId] || [];
+      const newTags = currentTags.includes(subtagId)
+        ? currentTags.filter(id => id !== subtagId)
+        : [...currentTags, subtagId];
+      
+      return {
+        ...prev,
+        [groupId]: newTags
+      };
+    });
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6 text-gray-200">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <Input label="Date" type="date" value={date} onChange={e => setDate(e.target.value)} required />
+    <form onSubmit={handleSubmit} className="space-y-4 bg-gray-800 p-6 rounded-lg">
+      <div className="grid grid-cols-2 gap-4">
         <div>
-          <label htmlFor="trade-direction" className="block text-sm font-medium text-gray-300 mb-1">Direction</label>
-          <select
-            id="trade-direction"
-            value={direction}
-            onChange={e => setDirection(e.target.value as TradeDirection)}
-            className="w-full bg-gray-700 border border-gray-600 text-gray-100 sm:text-sm rounded-lg focus:ring-purple-500 focus:border-purple-500 p-2.5"
+          <label className="block text-sm font-medium text-gray-300 mb-1">Date</label>
+          <Input
+            type="date"
+            value={date}
+            onChange={e => setDate(e.target.value)}
             required
-          >
-            <option value="long">Long</option>
-            <option value="short">Short</option>
-          </select>
+          />
         </div>
-        <Input label="Symbol / Ticker" type="text" placeholder="e.g., AAPL, BTC/USD" value={symbol} onChange={e => setSymbol(e.target.value)} required />
-        <Input label="Contracts / Shares" type="number" placeholder="e.g., 100, 1.5" value={contracts} onChange={e => setContracts(e.target.value)} required step="any" min="0.00000001" />
-        <Input label="Entry Price" type="number" placeholder="e.g., 120.50" value={entry} onChange={e => setEntry(e.target.value)} required step="any" />
-        <Input label="Exit Price" type="number" placeholder="e.g., 122.00" value={exit} onChange={e => setExit(e.target.value)} required step="any" />
-        <Input label="Time In" type="time" value={timeIn} onChange={e => setTimeIn(e.target.value)} required />
-        <Input label="Time Out" type="time" value={timeOut} onChange={e => setTimeOut(e.target.value)} required />
-        <Input label="Profit/Loss" type="number" placeholder="e.g., 150.75 or -50.20" value={profit} onChange={e => setProfit(e.target.value)} required step="any" className="md:col-span-2"/>
+        <div>
+          <label className="block text-sm font-medium text-gray-300 mb-1">Direction</label>
+          <div className="flex space-x-2">
+            <Button
+              type="button"
+              variant={direction === 'long' ? 'primary' : 'secondary'}
+              onClick={() => setDirection('long')}
+              className="flex-1"
+            >
+              Long
+            </Button>
+            <Button
+              type="button"
+              variant={direction === 'short' ? 'primary' : 'secondary'}
+              onClick={() => setDirection('short')}
+              className="flex-1"
+            >
+              Short
+            </Button>
+          </div>
+        </div>
       </div>
-      
+
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <label className="block text-sm font-medium text-gray-300 mb-1">Symbol</label>
+          <Input
+            type="text"
+            value={symbol}
+            onChange={e => setSymbol(e.target.value)}
+            placeholder="e.g., AAPL"
+            required
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-300 mb-1">Contracts</label>
+          <Input
+            type="number"
+            value={contracts}
+            onChange={e => setContracts(e.target.value)}
+            placeholder="0"
+            required
+          />
+        </div>
+      </div>
+
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <label className="block text-sm font-medium text-gray-300 mb-1">Entry Price</label>
+          <Input
+            type="number"
+            step="0.01"
+            value={entry}
+            onChange={e => setEntry(e.target.value)}
+            placeholder="0.00"
+            required
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-300 mb-1">Exit Price</label>
+          <Input
+            type="number"
+            step="0.01"
+            value={exit}
+            onChange={e => setExit(e.target.value)}
+            placeholder="0.00"
+            required
+          />
+        </div>
+      </div>
+
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <label className="block text-sm font-medium text-gray-300 mb-1">Time In</label>
+          <Input
+            type="time"
+            value={timeIn}
+            onChange={e => setTimeIn(e.target.value)}
+            required
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-300 mb-1">Time Out</label>
+          <Input
+            type="time"
+            value={timeOut}
+            onChange={e => setTimeOut(e.target.value)}
+            required
+          />
+        </div>
+      </div>
+
       <div>
-        <h3 className="text-lg font-medium mb-2 text-purple-400">Tags</h3>
-        {tagGroups.length === 0 && <p className="text-sm text-gray-400">No tag groups created yet. Go to "Manage Tags" to add some.</p>}
+        <label className="block text-sm font-medium text-gray-300 mb-1">Tags</label>
         <div className="space-y-3 max-h-48 overflow-y-auto pr-2">
           {tagGroups.map(group => (
-            <div key={group.id}>
-              <label className="block text-sm font-medium text-gray-300 mb-1">{group.name}</label>
-              <select
-                value={tags[group.id] || ''}
-                onChange={e => handleTagChange(group.id, e.target.value)}
-                className="w-full bg-gray-700 border border-gray-600 text-gray-100 sm:text-sm rounded-lg focus:ring-purple-500 focus:border-purple-500 p-2.5"
-              >
-                <option value="">Select {group.name}...</option>
+            <div key={group.id} className="bg-gray-700 p-3 rounded-lg">
+              <h4 className="text-sm font-medium text-purple-300 mb-2">{group.name}</h4>
+              <div className="flex flex-wrap gap-2">
                 {group.subtags.map(subtag => (
-                  <option key={subtag.id} value={subtag.id} style={{backgroundColor: subtag.color, color: '#FFFFFF'}} className="text-white">
-                    {subtag.name}
-                  </option>
+                  <button
+                    key={subtag.id}
+                    type="button"
+                    onClick={() => handleTagSelection(group.id, subtag.id)}
+                    className={`px-3 py-1 rounded-full text-sm flex items-center space-x-1 transition-colors ${
+                      selectedTags[group.id]?.includes(subtag.id)
+                        ? 'bg-purple-600 text-white'
+                        : 'bg-gray-600 text-gray-300 hover:bg-gray-500'
+                    }`}
+                  >
+                    <div 
+                      className="w-2 h-2 rounded-full" 
+                      style={{ backgroundColor: subtag.color }}
+                    />
+                    <span>{subtag.name}</span>
+                  </button>
                 ))}
-              </select>
+              </div>
             </div>
           ))}
         </div>
       </div>
 
-      <Textarea label="Journal / Notes" placeholder="Thoughts on this trade..." value={journal} onChange={e => setJournal(e.target.value)} />
-      
-      <div className="flex justify-end pt-4">
-        <Button type="submit" variant="primary">
+      <div>
+        <label className="block text-sm font-medium text-gray-300 mb-1">Profit/Loss</label>
+        <Input
+          type="number"
+          step="0.01"
+          value={profit}
+          onChange={e => setProfit(e.target.value)}
+          placeholder="0.00"
+          required
+        />
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-gray-300 mb-1">Journal</label>
+        <Textarea
+          value={journal}
+          onChange={e => setJournal(e.target.value)}
+          placeholder="Add any additional notes about the trade..."
+          rows={3}
+        />
+      </div>
+
+      <div className="flex justify-end space-x-3">
+        <Button type="button" variant="secondary" onClick={resetForm}>
+          Reset
+        </Button>
+        <Button type="submit" variant="primary" leftIcon={<PlusCircleIcon className="w-5 h-5"/>}>
           {tradeToEdit ? 'Update Trade' : 'Add Trade'}
         </Button>
       </div>

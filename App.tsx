@@ -8,7 +8,7 @@ import { TagPerformance } from './components/tags/TagPerformance'; // New Import
 import { LineChartRenderer } from './components/charts/LineChartRenderer';
 import { PieChartRenderer } from './components/charts/PieChartRenderer';
 import { ChartControls } from './components/charts/ChartControls';
-import { DEFAULT_CHART_COLOR, COMPARISON_CHART_COLOR, LONG_TRADE_COLOR, SHORT_TRADE_COLOR } from './constants';
+import { DEFAULT_CHART_COLOR, COMPARISON_CHART_COLOR, LONG_TRADE_COLOR, SHORT_TRADE_COLOR, DEFAULT_TAG_GROUPS } from './constants';
 import { processChartData, filterTradesByDateAndTags } from './utils/chartDataProcessor';
 import { parseCSVToTrades as parseBrokerExportCSV } from './utils/csvImporter';
 import { parseQuantowerCSVToTrades } from './utils/quantowerCsvImporter';
@@ -31,6 +31,15 @@ const App: React.FC = () => {
       if (storedData) {
         const { version, trades: storedTrades, tagGroups: storedTagGroups } = JSON.parse(storedData);
         if (version === STORAGE_VERSION) {
+          // Merge stored tag groups with default tag groups
+          const mergedTagGroups = [...DEFAULT_TAG_GROUPS];
+          storedTagGroups.forEach((storedGroup: TagGroup) => {
+            // Only add non-default tag groups
+            if (!DEFAULT_TAG_GROUPS.some(defaultGroup => defaultGroup.id === storedGroup.id)) {
+              mergedTagGroups.push(storedGroup);
+            }
+          });
+
           return {
             trades: storedTrades.map((t: any) => ({
               ...t,
@@ -43,14 +52,14 @@ const App: React.FC = () => {
               tags: t.tags || {},
               journal: t.journal || '',
             })),
-            tagGroups: storedTagGroups || []
+            tagGroups: mergedTagGroups
           };
         }
       }
     } catch (error) {
       console.error('Error loading stored data:', error);
     }
-    return { trades: [], tagGroups: [] };
+    return { trades: [], tagGroups: DEFAULT_TAG_GROUPS };
   };
 
   const saveData = (trades: Trade[], tagGroups: TagGroup[]) => {
@@ -140,11 +149,23 @@ const App: React.FC = () => {
   };
 
   const handleAddTagGroup = (name: string) => {
+    // Check if a tag group with this name already exists
+    if (tagGroups.some(group => group.name.toLowerCase() === name.toLowerCase())) {
+      alert('A tag group with this name already exists.');
+      return;
+    }
     setTagGroups(prev => [...prev, { id: Date.now().toString(), name, subtags: [] }]);
   };
 
   const handleAddSubTag = (groupId: string, subTagName: string) => {
-    setTagGroups((prev: TagGroup[]) => prev.map((group: TagGroup) => {
+    // Check if this is a default tag group
+    const isDefaultGroup = DEFAULT_TAG_GROUPS.some(group => group.id === groupId);
+    if (isDefaultGroup) {
+      alert('Cannot add subtags to default tag groups.');
+      return;
+    }
+
+    setTagGroups(prev => prev.map(group => {
       if (group.id === groupId) {
         const newSubTag: SubTag = { 
           id: Date.now().toString(), 
@@ -321,6 +342,15 @@ const App: React.FC = () => {
     setIsTradeFormModalOpen(true);
   }
 
+  const handleDeleteTagGroup = (groupId: string) => {
+    // Check if this is a default tag group
+    if (DEFAULT_TAG_GROUPS.some(group => group.id === groupId)) {
+      alert('Cannot delete default tag groups.');
+      return;
+    }
+    setTagGroups(prev => prev.filter(group => group.id !== groupId));
+  };
+
   return (
     <div className="min-h-screen bg-gray-900 text-gray-100 p-4 flex flex-col space-y-6">
       <header className="flex justify-between items-center">
@@ -384,6 +414,7 @@ const App: React.FC = () => {
             onAddGroup={handleAddTagGroup} 
             onAddSubTag={handleAddSubTag}
             onUpdateSubTagColor={handleUpdateSubTagColor}
+            onDeleteGroup={handleDeleteTagGroup}
           />
         </Modal>
       )}

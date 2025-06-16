@@ -1,19 +1,20 @@
-
 import React, { useState } from 'react';
 import { TagGroup, SubTag } from '../../types';
 import { Input } from '../ui/Input';
 import { Button } from '../ui/Button';
 import { ColorPicker } from '../ui/ColorPicker';
-import { PlusCircleIcon } from '../ui/Icons';
+import { PlusCircleIcon, TrashIcon } from '../ui/Icons';
+import { DEFAULT_TAG_GROUPS } from '../../constants';
 
 interface TagManagerProps {
   tagGroups: TagGroup[];
   onAddGroup: (name: string) => void;
   onAddSubTag: (groupId: string, subTagName: string) => void;
   onUpdateSubTagColor: (groupId: string, subTagId: string, color: string) => void;
+  onDeleteGroup: (groupId: string) => void;
 }
 
-export const TagManager: React.FC<TagManagerProps> = ({ tagGroups, onAddGroup, onAddSubTag, onUpdateSubTagColor }) => {
+export const TagManager: React.FC<TagManagerProps> = ({ tagGroups, onAddGroup, onAddSubTag, onUpdateSubTagColor, onDeleteGroup }) => {
   const [newGroupName, setNewGroupName] = useState('');
   const [newSubTagName, setNewSubTagName] = useState<{ [groupId: string]: string }>({});
 
@@ -32,6 +33,10 @@ export const TagManager: React.FC<TagManagerProps> = ({ tagGroups, onAddGroup, o
     }
   };
 
+  const isDefaultGroup = (groupId: string) => {
+    return DEFAULT_TAG_GROUPS.some(group => group.id === groupId);
+  };
+
   return (
     <div className="space-y-6 text-gray-200">
       <div>
@@ -41,40 +46,65 @@ export const TagManager: React.FC<TagManagerProps> = ({ tagGroups, onAddGroup, o
             type="text" 
             value={newGroupName} 
             onChange={e => setNewGroupName(e.target.value)} 
-            placeholder="e.g., How I Feel, Trade Setup"
+            placeholder="e.g., Strategy, Time of Day"
             className="flex-grow"
           />
           <Button onClick={handleAddGroup} variant="primary" size="md" leftIcon={<PlusCircleIcon className="w-5 h-5"/>}>Add Group</Button>
         </div>
       </div>
 
-      {tagGroups.length === 0 && <p className="text-sm text-gray-400">No tag groups yet. Add one above to get started!</p>}
-      
-      <div className="space-y-4 max-h-96 overflow-y-auto pr-2">
+      <div className="space-y-4">
+        <h3 className="text-lg font-semibold text-purple-400">Existing Tag Groups</h3>
+        {tagGroups.length === 0 && <p className="text-sm text-gray-400">No tag groups yet. Add one above to get started!</p>}
         {tagGroups.map(group => (
-          <div key={group.id} className="bg-gray-700 p-4 rounded-lg shadow">
-            <h4 className="text-md font-semibold mb-3 text-pink-400">{group.name}</h4>
-            <ul className="space-y-2 mb-3">
+          <div key={group.id} className="bg-gray-800 p-4 rounded-lg">
+            <div className="flex justify-between items-center mb-2">
+              <h4 className="text-md font-medium text-purple-300">
+                {group.name}
+                {isDefaultGroup(group.id) && (
+                  <span className="ml-2 text-xs text-gray-400">(Default)</span>
+                )}
+              </h4>
+              {!isDefaultGroup(group.id) && (
+                <Button 
+                  onClick={() => onDeleteGroup(group.id)} 
+                  variant="ghost" 
+                  size="sm"
+                  className="text-red-500 hover:text-red-400"
+                >
+                  <TrashIcon className="w-5 h-5" />
+                </Button>
+              )}
+            </div>
+            <div className="space-y-2">
               {group.subtags.map(subtag => (
-                <li key={subtag.id} className="flex items-center justify-between text-sm bg-gray-600 p-2 rounded">
-                  <span style={{ color: subtag.color }} className="font-medium">{subtag.name}</span>
-                  <ColorPicker 
-                    initialColor={subtag.color} 
-                    onChange={color => onUpdateSubTagColor(group.id, subtag.id, color)}
+                <div key={subtag.id} className="flex items-center space-x-2">
+                  <div 
+                    className="w-4 h-4 rounded-full" 
+                    style={{ backgroundColor: subtag.color }}
                   />
-                </li>
+                  <span className="text-sm">{subtag.name}</span>
+                </div>
               ))}
-              {group.subtags.length === 0 && <p className="text-xs text-gray-500 italic">No sub-tags yet in this group.</p>}
-            </ul>
-            <div className="flex space-x-2">
-              <Input
-                type="text"
-                value={newSubTagName[group.id] || ''}
-                onChange={e => setNewSubTagName(prev => ({ ...prev, [group.id]: e.target.value }))}
-                placeholder="New sub-tag name"
-                className="flex-grow text-sm"
-              />
-              <Button onClick={() => handleAddSubTag(group.id)} variant="secondary" size="sm" leftIcon={<PlusCircleIcon className="w-4 h-4"/>}>Add Sub-tag</Button>
+              {!isDefaultGroup(group.id) && (
+                <div className="flex space-x-2 mt-2">
+                  <Input
+                    type="text"
+                    value={newSubTagName[group.id] || ''}
+                    onChange={e => setNewSubTagName(prev => ({ ...prev, [group.id]: e.target.value }))}
+                    placeholder="New subtag name"
+                    className="flex-grow"
+                  />
+                  <Button 
+                    onClick={() => handleAddSubTag(group.id)} 
+                    variant="secondary" 
+                    size="sm"
+                    leftIcon={<PlusCircleIcon className="w-4 h-4"/>}
+                  >
+                    Add
+                  </Button>
+                </div>
+              )}
             </div>
           </div>
         ))}
