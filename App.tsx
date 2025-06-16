@@ -17,31 +17,9 @@ import { PlusCircleIcon, ChartBarIcon, TagIcon, TableCellsIcon, DocumentTextIcon
 import { Modal } from './components/ui/Modal';
 import { Button } from './components/ui/Button';
 import { NotificationPopup } from './components/ui/NotificationPopup';
-import { Settings } from './components/ui/Settings';
-import { TagDistribution } from './components/tags/TagDistribution';
 
 // Helper to normalize CSV headers for detection
 const normalizeHeader = (header: string): string => header.toLowerCase().replace(/\s+/g, '').replace(/\//g, '');
-
-interface SettingsProps {
-  onExport: () => void;
-  onImport: (data: string) => boolean;
-  onThemeChange: (theme: 'light' | 'dark') => void;
-  currentTheme: 'light' | 'dark';
-  onClearData: () => void;
-}
-
-interface Shortcut {
-  action: string;
-  key: string;
-  description: string;
-}
-
-const DEFAULT_SHORTCUTS: Shortcut[] = [
-  { action: 'newTrade', key: 'n', description: 'New Trade' },
-  { action: 'manageTags', key: 't', description: 'Manage Tags' },
-  { action: 'importCsv', key: 'i', description: 'Import CSV' }
-];
 
 const App: React.FC = () => {
   const STORAGE_VERSION = '1.0';
@@ -62,27 +40,18 @@ const App: React.FC = () => {
             }
           });
 
-          // Ensure each trade has all required fields
-          const processedTrades = storedTrades.map((t: any) => ({
-            id: t.id || crypto.randomUUID(),
-            date: t.date || new Date().toISOString().split('T')[0],
-            symbol: t.symbol || '',
-            contracts: t.contracts || 0,
-            entry: t.entry || 0,
-            exit: t.exit || 0,
-            timeIn: t.timeIn || new Date().toISOString(),
-            timeOut: t.timeOut || new Date().toISOString(),
-            timeInTrade: t.timeInTrade || 0,
-            profit: t.profit || 0,
-            tags: t.tags || {},
-            journal: t.journal || '',
-            direction: t.direction || 'long',
-            isFavorite: t.isFavorite || false,
-            screenshots: t.screenshots || []
-          }));
-
           return {
-            trades: processedTrades,
+            trades: storedTrades.map((t: any) => ({
+              ...t,
+              direction: t.direction || 'long',
+              symbol: t.symbol || '',
+              contracts: t.contracts || 0,
+              timeIn: t.timeIn || '',
+              timeOut: t.timeOut || '',
+              date: t.date || new Date().toISOString().split('T')[0],
+              tags: t.tags || {},
+              journal: t.journal || '',
+            })),
             tagGroups: mergedTagGroups
           };
         }
@@ -91,6 +60,19 @@ const App: React.FC = () => {
       console.error('Error loading stored data:', error);
     }
     return { trades: [], tagGroups: DEFAULT_TAG_GROUPS };
+  };
+
+  const saveData = (trades: Trade[], tagGroups: TagGroup[]) => {
+    try {
+      const dataToStore = {
+        version: STORAGE_VERSION,
+        trades,
+        tagGroups
+      };
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(dataToStore));
+    } catch (error) {
+      console.error('Error saving data:', error);
+    }
   };
 
   const { trades: initialTrades, tagGroups: initialTagGroups } = loadStoredData();
@@ -125,43 +107,10 @@ const App: React.FC = () => {
   const [importNotification, setImportNotification] = useState<{ title: string; message: string; details?: string } | null>(null);
   const [sessionImportCount, setSessionImportCount] = useState(0);
 
-  const [theme, setTheme] = useState<'light' | 'dark'>(() => {
-    const savedTheme = localStorage.getItem('theme');
-    return (savedTheme as 'light' | 'dark') || 'dark';
-  });
-
-  const [shortcuts, setShortcuts] = useState<Shortcut[]>(() => {
-    const savedShortcuts = localStorage.getItem('shortcuts');
-    return savedShortcuts ? JSON.parse(savedShortcuts) : DEFAULT_SHORTCUTS;
-  });
 
   useEffect(() => {
-    document.documentElement.classList.toggle('dark', theme === 'dark');
-    localStorage.setItem('theme', theme);
-  }, [theme]);
-
-  useEffect(() => {
-    try {
-      const dataToStore = {
-        version: STORAGE_VERSION,
-        trades,
-        tagGroups
-      };
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(dataToStore));
-    } catch (error) {
-      console.error('Error saving data:', error);
-    }
+    saveData(trades, tagGroups);
   }, [trades, tagGroups]);
-
-  useEffect(() => {
-    localStorage.setItem('shortcuts', JSON.stringify(shortcuts));
-  }, [shortcuts]);
-
-  const handleShortcutChange = (action: string, newKey: string) => {
-    setShortcuts(prev => prev.map(shortcut => 
-      shortcut.action === action ? { ...shortcut, key: newKey } : shortcut
-    ));
-  };
 
   const handleAddTrade = (trade: Omit<Trade, 'id' | 'timeInTrade'>) => {
     const timeInTrade = (new Date(trade.timeOut).getTime() - new Date(trade.timeIn).getTime()) / (1000 * 60); 
@@ -178,28 +127,17 @@ const App: React.FC = () => {
   };
 
   const handleUpdateTrade = (updatedTrade: Trade) => {
-    // Ensure all required fields are present with default values if missing
-    const tradeWithDefaults = {
-      ...updatedTrade,
+    const timeInTrade = (new Date(updatedTrade.timeOut).getTime() - new Date(updatedTrade.timeIn).getTime()) / (1000 * 60);
+    setTrades(prev => prev.map(t => t.id === updatedTrade.id ? {
+      ...updatedTrade, 
+      timeInTrade, 
       direction: updatedTrade.direction || 'long',
       symbol: updatedTrade.symbol || '',
-      contracts: updatedTrade.contracts || 0,
-      entry: updatedTrade.entry || 0,
-      exit: updatedTrade.exit || 0,
-      timeIn: updatedTrade.timeIn || new Date().toISOString(),
-      timeOut: updatedTrade.timeOut || new Date().toISOString(),
-      profit: updatedTrade.profit || 0,
-      tags: updatedTrade.tags || {},
-      journal: updatedTrade.journal || '',
-      isFavorite: updatedTrade.isFavorite || false,
-      screenshots: updatedTrade.screenshots || [],
-      timeInTrade: updatedTrade.timeInTrade || 0
-    };
-
-    setTrades(prev => prev.map(t => t.id === updatedTrade.id ? tradeWithDefaults : t));
+      contracts: updatedTrade.contracts || 0
+    } : t));
     setIsTradeFormModalOpen(false);
     setEditingTrade(null);
-  };
+  }
 
   const handleDeleteTrade = (tradeId: string) => {
     setTrades(prev => prev.filter(t => t.id !== tradeId));
@@ -413,82 +351,10 @@ const App: React.FC = () => {
     setTagGroups(prev => prev.filter(group => group.id !== groupId));
   };
 
-  const handleExport = () => {
-    const data = {
-      version: STORAGE_VERSION,
-      trades,
-      tagGroups
-    };
-    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `trade-report-card-${new Date().toISOString().split('T')[0]}.json`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-  };
-
-  const handleImport = (data: string) => {
-    try {
-      const importedData = JSON.parse(data);
-      if (importedData.version === STORAGE_VERSION) {
-        setTrades(importedData.trades);
-        setTagGroups(importedData.tagGroups);
-        return true;
-      } else {
-        throw new Error('Incompatible data version');
-      }
-    } catch (error) {
-      console.error('Error importing data:', error);
-      throw error;
-    }
-  };
-
-  const handleClearData = () => {
-    if (window.confirm('Are you sure you want to clear all data? This action cannot be undone.')) {
-      setTrades([]);
-      setTagGroups([]);
-      localStorage.removeItem('trades');
-      localStorage.removeItem('tagGroups');
-    }
-  };
-
-  // Update keyboard shortcuts handler
-  useEffect(() => {
-    const handleKeyPress = (e: KeyboardEvent) => {
-      if (e.ctrlKey || e.metaKey) {
-        const key = e.key.toLowerCase();
-        const shortcut = shortcuts.find(s => s.key === key);
-        
-        if (shortcut) {
-          e.preventDefault();
-          switch (shortcut.action) {
-            case 'newTrade':
-              setIsTradeFormModalOpen(true);
-              break;
-            case 'manageTags':
-              setIsTagManagerModalOpen(true);
-              break;
-            case 'importCsv':
-              triggerFileInput();
-              break;
-          }
-        }
-      }
-    };
-
-    window.addEventListener('keydown', handleKeyPress);
-    return () => window.removeEventListener('keydown', handleKeyPress);
-  }, [shortcuts]);
-
   return (
-    <div className={`min-h-screen ${theme === 'dark' ? 'bg-gray-900 text-gray-100' : 'bg-gray-100 text-gray-900'} p-4 flex flex-col space-y-6`}>
-      <header className="flex justify-between items-center pb-4 overflow-visible">
-        <h1 className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-pink-500 to-red-500 leading-normal" style={{paddingBottom: '0.25em'}}>
-          Reflection Edge
-        </h1>
+    <div className="min-h-screen bg-gray-900 text-gray-100 p-4 flex flex-col space-y-6">
+      <header className="flex justify-between items-center">
+        <h1 className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-pink-500 to-red-500">Trade Report Card</h1>
         <div className="flex space-x-2">
           <Button
             onClick={openTradeForm}
@@ -533,11 +399,10 @@ const App: React.FC = () => {
 
       {isTradeFormModalOpen && (
         <Modal title={editingTrade ? "Edit Trade" : "Add New Trade"} onClose={() => { setIsTradeFormModalOpen(false); setEditingTrade(null); }}>
-          <TradeForm
-            onSubmit={editingTrade ? handleUpdateTrade : handleAddTrade}
-            onCancel={() => { setIsTradeFormModalOpen(false); setEditingTrade(null); }}
-            tagGroups={tagGroups}
-            tradeToEdit={editingTrade}
+          <TradeForm 
+            onSubmit={editingTrade ? handleUpdateTrade : handleAddTrade} 
+            tagGroups={tagGroups} 
+            tradeToEdit={editingTrade} 
           />
         </Modal>
       )}
@@ -556,15 +421,16 @@ const App: React.FC = () => {
 
       {isSettingsModalOpen && (
         <Modal title="Application Settings" onClose={() => setIsSettingsModalOpen(false)}>
-          <Settings
-            onExport={handleExport}
-            onImport={handleImport}
-            onThemeChange={setTheme}
-            currentTheme={theme}
-            onClearData={handleClearData}
-            shortcuts={shortcuts}
-            onShortcutChange={handleShortcutChange}
-          />
+          <div className="text-gray-300">
+            <p>Settings panel is under construction.</p>
+            <p className="mt-4">Future options might include:</p>
+            <ul className="list-disc list-inside mt-2 text-sm">
+              <li>Theme customization</li>
+              <li>Default values for trade form</li>
+              <li>Data export options (JSON, CSV)</li>
+              <li>Clearing all application data</li>
+            </ul>
+          </div>
         </Modal>
       )}
 
@@ -627,12 +493,15 @@ const App: React.FC = () => {
             directionFilter={directionFilter} 
           />
 
-          <TagDistribution
-            trades={trades}
-            tagGroups={tagGroups}
-            chartDateRange={chartDateRange}
-            directionFilter={directionFilter}
-          />
+          {pieChartData.length > 0 && (
+            <div className="bg-gray-800 p-6 rounded-xl shadow-2xl">
+              <h2 className="text-2xl font-semibold mb-4 text-red-400 flex items-center"><ChartBarIcon className="w-6 h-6 mr-2" />Tag Distribution</h2>
+               <PieChartRenderer data={pieChartData} />
+               <p className="text-xs text-gray-400 mt-2 text-center">
+                For trades in selected date range{directionFilter !== 'all' ? ` (${directionFilter} only)` : ''}.
+               </p>
+            </div>
+          )}
         </div>
 
         <div className="lg:col-span-2 space-y-6">

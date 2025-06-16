@@ -34,7 +34,7 @@ export const DEFAULT_TAG_GROUPS = [
   },
   {
     id: 'market',
-    name: 'Was the market clear?',
+    name: 'How do you think the market was?',
     subtags: [
       { id: 'clear', name: 'Clear', color: '#52D681', groupId: 'market' },
       { id: 'confused', name: 'Confused', color: '#F79256', groupId: 'market' },

@@ -1,3 +1,4 @@
+
 export type TradeDirection = 'long' | 'short';
 export type TradeDirectionFilterSelection = 'all' | 'long' | 'short';
 
@@ -10,13 +11,11 @@ export interface Trade {
   exit: number;
   timeIn: string; // ISO string or HH:mm
   timeOut: string; // ISO string or HH:mm
-  timeInTrade: number; // Changed from string to number
+  timeInTrade: number; // in minutes
   profit: number;
   tags: { [tagGroupId: string]: string }; // { tagGroupId: subTagId }
   journal: string;
   direction: TradeDirection;
-  isFavorite: boolean;
-  screenshots: { url: string; fileName: string; }[];
 }
 
 export interface SubTag {
