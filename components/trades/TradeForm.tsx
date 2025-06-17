@@ -31,8 +31,8 @@ export const TradeForm: React.FC<TradeFormProps> = ({ onSubmit, tagGroups, trade
       setContracts(tradeToEdit.contracts.toString());
       setEntry(tradeToEdit.entry.toString());
       setExit(tradeToEdit.exit.toString());
-      setTimeIn(tradeToEdit.timeIn);
-      setTimeOut(tradeToEdit.timeOut);
+      setTimeIn(tradeToEdit.timeIn ? new Date(tradeToEdit.timeIn).toISOString().substr(11, 5) : '');
+      setTimeOut(tradeToEdit.timeOut ? new Date(tradeToEdit.timeOut).toISOString().substr(11, 5) : '');
       setProfit(tradeToEdit.profit.toString());
       setJournal(tradeToEdit.journal);
       // Convert the tags object to our internal format

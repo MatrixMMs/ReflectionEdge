@@ -313,28 +313,35 @@ const App: React.FC = () => {
 
   const allSubTags = useMemo(() => tagGroups.flatMap(g => g.subtags), [tagGroups]);
 
-  const pieChartData = useMemo(() => {
+  const pieChartDataByGroup = useMemo(() => {
     let tradesInDateRange = trades.filter(trade => 
-        new Date(trade.date) >= new Date(chartDateRange.start) && new Date(trade.date) <= new Date(chartDateRange.end)
+      new Date(trade.date) >= new Date(chartDateRange.start) && new Date(trade.date) <= new Date(chartDateRange.end)
     );
     if (directionFilter !== 'all') {
-        tradesInDateRange = tradesInDateRange.filter(trade => trade.direction === directionFilter);
+      tradesInDateRange = tradesInDateRange.filter(trade => trade.direction === directionFilter);
     }
 
-    const tagCounts: { [subTagId: string]: number } = {};
-    tradesInDateRange.forEach(trade => {
-      Object.values(trade.tags).forEach(subTagId => {
-        tagCounts[subTagId] = (tagCounts[subTagId] || 0) + 1;
+    // For each group, count subtags
+    const result: { [groupId: string]: { groupName: string, data: { name: string, value: number, fill: string }[] } } = {};
+    tagGroups.forEach(group => {
+      const tagCounts: { [subTagId: string]: number } = {};
+      tradesInDateRange.forEach(trade => {
+        const subTagId = trade.tags[group.id];
+        if (subTagId) tagCounts[subTagId] = (tagCounts[subTagId] || 0) + 1;
       });
+      const data = group.subtags
+        .filter(subTag => tagCounts[subTag.id] > 0)
+        .map(subTag => ({
+          name: subTag.name,
+          value: tagCounts[subTag.id],
+          fill: subTag.color,
+        }));
+      if (data.length > 0) {
+        result[group.id] = { groupName: group.name, data };
+      }
     });
-    return allSubTags
-      .filter(subTag => tagCounts[subTag.id] > 0)
-      .map(subTag => ({
-        name: subTag.name,
-        value: tagCounts[subTag.id],
-        fill: subTag.color,
-      }));
-  }, [trades, chartDateRange, allSubTags, directionFilter]);
+    return result;
+  }, [trades, chartDateRange, tagGroups, directionFilter]);
 
 
   const openTradeForm = () => {
@@ -400,9 +407,15 @@ const App: React.FC = () => {
       {isTradeFormModalOpen && (
         <Modal title={editingTrade ? "Edit Trade" : "Add New Trade"} onClose={() => { setIsTradeFormModalOpen(false); setEditingTrade(null); }}>
           <TradeForm 
-            onSubmit={editingTrade ? handleUpdateTrade : handleAddTrade} 
+            onSubmit={editingTrade 
+              ? (tradeData) => {
+                  if (editingTrade) {
+                    handleUpdateTrade({ ...editingTrade, ...tradeData });
+                  }
+                }
+              : handleAddTrade} 
             tagGroups={tagGroups} 
-            tradeToEdit={editingTrade} 
+            tradeToEdit={editingTrade || undefined} 
           />
         </Modal>
       )}
@@ -493,15 +506,19 @@ const App: React.FC = () => {
             directionFilter={directionFilter} 
           />
 
-          {pieChartData.length > 0 && (
-            <div className="bg-gray-800 p-6 rounded-xl shadow-2xl">
-              <h2 className="text-2xl font-semibold mb-4 text-red-400 flex items-center"><ChartBarIcon className="w-6 h-6 mr-2" />Tag Distribution</h2>
-               <PieChartRenderer data={pieChartData} />
-               <p className="text-xs text-gray-400 mt-2 text-center">
+          {/* Replace single pie chart with one per tag group */}
+          {Object.values(pieChartDataByGroup).map(groupData => (
+            <div key={groupData.groupName} className="bg-gray-800 p-6 rounded-xl shadow-2xl mb-6">
+              <h2 className="text-2xl font-semibold mb-4 text-red-400 flex items-center">
+                <ChartBarIcon className="w-6 h-6 mr-2" />
+                {groupData.groupName} Tag Distribution
+              </h2>
+              <PieChartRenderer data={groupData.data} />
+              <p className="text-xs text-gray-400 mt-2 text-center">
                 For trades in selected date range{directionFilter !== 'all' ? ` (${directionFilter} only)` : ''}.
-               </p>
+              </p>
             </div>
-          )}
+          ))}
         </div>
 
         <div className="lg:col-span-2 space-y-6">
