@@ -27,7 +27,8 @@ export const DEFAULT_TAG_GROUPS = [
       { id: 'failed_auction', name: 'Failed Auction', color: '#FF6B6B', groupId: 'setup' },
       { id: 'momentum', name: 'Momentum', color: '#4ECDC4', groupId: 'setup' },
       { id: 'stop_runs', name: 'Stop Runs', color: '#45B7D1', groupId: 'setup' },
-      { id: 'trend', name: 'Trend', color: '#FED766', groupId: 'setup' }
+      { id: 'trend', name: 'Trend', color: '#FED766', groupId: 'setup' },
+      { id: 'mean_reversion', name: 'Mean Reversion', color: '#FF00FF', groupId: 'setup' }
     ]
   },
   {

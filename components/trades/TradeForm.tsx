@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Trade, TagGroup, TradeDirection } from '../../types';
+import { Trade, TagGroup, TradeDirection, PlaybookEntry } from '../../types';
 import { Input, Textarea } from '../ui/Input';
 import { Button } from '../ui/Button';
 import { PlusCircleIcon, XMarkIcon } from '../ui/Icons';
@@ -7,10 +7,11 @@ import { PlusCircleIcon, XMarkIcon } from '../ui/Icons';
 interface TradeFormProps {
   onSubmit: (trade: Omit<Trade, 'id' | 'timeInTrade'>) => void;
   tagGroups: TagGroup[];
+  playbookEntries: PlaybookEntry[];
   tradeToEdit?: Trade;
 }
 
-export const TradeForm: React.FC<TradeFormProps> = ({ onSubmit, tagGroups, tradeToEdit }) => {
+export const TradeForm: React.FC<TradeFormProps> = ({ onSubmit, tagGroups, playbookEntries, tradeToEdit }) => {
   const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
   const [direction, setDirection] = useState<TradeDirection>('long');
   const [symbol, setSymbol] = useState('');
@@ -22,6 +23,7 @@ export const TradeForm: React.FC<TradeFormProps> = ({ onSubmit, tagGroups, trade
   const [profit, setProfit] = useState('');
   const [journal, setJournal] = useState('');
   const [selectedTags, setSelectedTags] = useState<{ [groupId: string]: string[] }>({});
+  const [selectedStrategy, setSelectedStrategy] = useState<string>('');
 
   useEffect(() => {
     if (tradeToEdit) {
@@ -35,6 +37,7 @@ export const TradeForm: React.FC<TradeFormProps> = ({ onSubmit, tagGroups, trade
       setTimeOut(tradeToEdit.timeOut ? new Date(tradeToEdit.timeOut).toISOString().substr(11, 5) : '');
       setProfit(tradeToEdit.profit.toString());
       setJournal(tradeToEdit.journal);
+      setSelectedStrategy(tradeToEdit.strategyId || '');
       // Convert the tags object to our internal format
       const convertedTags = Object.entries(tradeToEdit.tags).reduce((acc, [groupId, subtagId]) => ({
         ...acc,
@@ -54,6 +57,7 @@ export const TradeForm: React.FC<TradeFormProps> = ({ onSubmit, tagGroups, trade
       setProfit('');
       setJournal('');
       setSelectedTags({});
+      setSelectedStrategy('');
     }
   }, [tradeToEdit]);
 
@@ -72,10 +76,10 @@ export const TradeForm: React.FC<TradeFormProps> = ({ onSubmit, tagGroups, trade
       return acc;
     }, {} as { [groupId: string]: string });
 
-    const tradeData: Omit<Trade, 'id' | 'timeInTrade'> = {
+    onSubmit({
       date,
       direction,
-      symbol: symbol.toUpperCase(),
+      symbol,
       contracts: parseInt(contracts),
       entry: parseFloat(entry),
       exit: parseFloat(exit),
@@ -83,11 +87,9 @@ export const TradeForm: React.FC<TradeFormProps> = ({ onSubmit, tagGroups, trade
       timeOut: fullTimeOut,
       profit: parseFloat(profit),
       journal,
-      tags: convertedTags
-    };
-
-    onSubmit(tradeData);
-    resetForm();
+      tags: convertedTags,
+      strategyId: selectedStrategy || undefined
+    });
   };
 
   const resetForm = () => {
@@ -102,6 +104,7 @@ export const TradeForm: React.FC<TradeFormProps> = ({ onSubmit, tagGroups, trade
     setProfit('');
     setJournal('');
     setSelectedTags({});
+    setSelectedStrategy('');
   };
 
   const handleTagSelection = (groupId: string, subtagId: string) => {
@@ -132,24 +135,15 @@ export const TradeForm: React.FC<TradeFormProps> = ({ onSubmit, tagGroups, trade
         </div>
         <div>
           <label className="block text-sm font-medium text-gray-300 mb-1">Direction</label>
-          <div className="flex space-x-2">
-            <Button
-              type="button"
-              variant={direction === 'long' ? 'primary' : 'secondary'}
-              onClick={() => setDirection('long')}
-              className="flex-1"
-            >
-              Long
-            </Button>
-            <Button
-              type="button"
-              variant={direction === 'short' ? 'primary' : 'secondary'}
-              onClick={() => setDirection('short')}
-              className="flex-1"
-            >
-              Short
-            </Button>
-          </div>
+          <select
+            value={direction}
+            onChange={e => setDirection(e.target.value as TradeDirection)}
+            className="w-full bg-gray-700 border border-gray-600 text-gray-100 rounded p-2"
+            required
+          >
+            <option value="long">Long</option>
+            <option value="short">Short</option>
+          </select>
         </div>
       </div>
 
@@ -160,7 +154,7 @@ export const TradeForm: React.FC<TradeFormProps> = ({ onSubmit, tagGroups, trade
             type="text"
             value={symbol}
             onChange={e => setSymbol(e.target.value)}
-            placeholder="e.g., AAPL"
+            placeholder="e.g., ES"
             required
           />
         </div>
@@ -223,38 +217,7 @@ export const TradeForm: React.FC<TradeFormProps> = ({ onSubmit, tagGroups, trade
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-300 mb-1">Tags</label>
-        <div className="space-y-3 max-h-48 overflow-y-auto pr-2">
-          {tagGroups.map(group => (
-            <div key={group.id} className="bg-gray-700 p-3 rounded-lg">
-              <h4 className="text-sm font-medium text-purple-300 mb-2">{group.name}</h4>
-              <div className="flex flex-wrap gap-2">
-                {group.subtags.map(subtag => (
-                  <button
-                    key={subtag.id}
-                    type="button"
-                    onClick={() => handleTagSelection(group.id, subtag.id)}
-                    className={`px-3 py-1 rounded-full text-sm flex items-center space-x-1 transition-colors ${
-                      selectedTags[group.id]?.includes(subtag.id)
-                        ? 'bg-purple-600 text-white'
-                        : 'bg-gray-600 text-gray-300 hover:bg-gray-500'
-                    }`}
-                  >
-                    <div 
-                      className="w-2 h-2 rounded-full" 
-                      style={{ backgroundColor: subtag.color }}
-                    />
-                    <span>{subtag.name}</span>
-                  </button>
-                ))}
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      <div>
-        <label className="block text-sm font-medium text-gray-300 mb-1">Profit/Loss</label>
+        <label className="block text-sm font-medium text-gray-300 mb-1">P&L</label>
         <Input
           type="number"
           step="0.01"
@@ -266,11 +229,63 @@ export const TradeForm: React.FC<TradeFormProps> = ({ onSubmit, tagGroups, trade
       </div>
 
       <div>
+        <label className="block text-sm font-medium text-gray-300 mb-1">Strategy</label>
+        <select
+          value={selectedStrategy}
+          onChange={e => setSelectedStrategy(e.target.value)}
+          className="w-full bg-gray-700 border border-gray-600 text-gray-100 rounded p-2"
+        >
+          <option value="">Select a strategy (optional)</option>
+          {playbookEntries.map(entry => (
+            <option key={entry.id} value={entry.id}>
+              {entry.name}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-gray-300 mb-1">Tags</label>
+        <div className="space-y-2">
+          {tagGroups.map(group => (
+            <div key={group.id}>
+              <span className="font-semibold text-purple-300 text-xs">{group.name}</span>
+              <div className="flex flex-wrap gap-2 mt-1">
+                {group.subtags.map(subtag => (
+                  <button
+                    key={subtag.id}
+                    type="button"
+                    onClick={() => {
+                      setSelectedTags(prev => {
+                        const current = prev[group.id] || [];
+                        const next = current.includes(subtag.id)
+                          ? current.filter(id => id !== subtag.id)
+                          : [...current, subtag.id];
+                        return { ...prev, [group.id]: next };
+                      });
+                    }}
+                    className={`px-3 py-1 rounded-full text-sm flex items-center space-x-1 transition-colors ${
+                      selectedTags[group.id]?.includes(subtag.id)
+                        ? 'bg-purple-600 text-white'
+                        : 'bg-gray-600 text-gray-300 hover:bg-gray-500'
+                    }`}
+                  >
+                    <div className="w-2 h-2 rounded-full" style={{ backgroundColor: subtag.color }} />
+                    <span>{subtag.name}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div>
         <label className="block text-sm font-medium text-gray-300 mb-1">Journal</label>
         <Textarea
           value={journal}
           onChange={e => setJournal(e.target.value)}
-          placeholder="Add any additional notes about the trade..."
+          placeholder="Add your trade notes here..."
           rows={3}
         />
       </div>
