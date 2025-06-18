@@ -58,164 +58,148 @@ export const PatternAnalysisDashboard: React.FC<PatternAnalysisDashboardProps> =
   const getChartData = (): any[] => {
     switch (selectedChartType) {
       case 'hourly':
-        return patternAnalysis.hourlyPatterns.map(pattern => ({
-          name: `${pattern.value}:00`,
-          value: getMetricValue(pattern, selectedMetric),
-          ...pattern,
-        }));
+        return patternAnalysis.hourlyPatterns.map(pattern => {
+          const { value, ...rest } = pattern;
+          return {
+            name: `${pattern.value}:00`,
+            ...rest,
+            value: getMetricValue(pattern, selectedMetric)
+          };
+        });
       case 'daily':
-        return patternAnalysis.dayOfWeekPatterns.map(pattern => ({
-          name: pattern.value,
-          value: getMetricValue(pattern, selectedMetric),
-          ...pattern,
-        }));
+        return patternAnalysis.dayOfWeekPatterns.map(pattern => {
+          const { value, ...rest } = pattern;
+          return {
+            name: pattern.value,
+            ...rest,
+            value: getMetricValue(pattern, selectedMetric)
+          };
+        });
       case 'monthly':
-        return patternAnalysis.monthlyPatterns.map(pattern => ({
-          name: pattern.value,
-          value: getMetricValue(pattern, selectedMetric),
-          ...pattern,
-        }));
+        return patternAnalysis.monthlyPatterns.map(pattern => {
+          const { value, ...rest } = pattern;
+          return {
+            name: pattern.value,
+            ...rest,
+            value: getMetricValue(pattern, selectedMetric)
+          };
+        });
       case 'session':
+        const preMarket = patternAnalysis.sessionAnalysis.preMarket;
+        const regular = patternAnalysis.sessionAnalysis.regular;
+        const afterHours = patternAnalysis.sessionAnalysis.afterHours;
         return [
-          {
-            name: 'Pre-Market',
-            id: patternAnalysis.sessionAnalysis.preMarket.id,
-            type: patternAnalysis.sessionAnalysis.preMarket.type,
-            totalTrades: patternAnalysis.sessionAnalysis.preMarket.totalTrades,
-            winningTrades: patternAnalysis.sessionAnalysis.preMarket.winningTrades,
-            losingTrades: patternAnalysis.sessionAnalysis.preMarket.losingTrades,
-            winRate: patternAnalysis.sessionAnalysis.preMarket.winRate,
-            totalProfit: patternAnalysis.sessionAnalysis.preMarket.totalProfit,
-            averageProfit: patternAnalysis.sessionAnalysis.preMarket.averageProfit,
-            averageLoss: patternAnalysis.sessionAnalysis.preMarket.averageLoss,
-            profitFactor: patternAnalysis.sessionAnalysis.preMarket.profitFactor,
-            maxDrawdown: patternAnalysis.sessionAnalysis.preMarket.maxDrawdown,
-            averageTradeDuration: patternAnalysis.sessionAnalysis.preMarket.averageTradeDuration,
-            value: getMetricValue(patternAnalysis.sessionAnalysis.preMarket, selectedMetric)
-          },
-          {
-            name: 'Regular Hours',
-            id: patternAnalysis.sessionAnalysis.regular.id,
-            type: patternAnalysis.sessionAnalysis.regular.type,
-            totalTrades: patternAnalysis.sessionAnalysis.regular.totalTrades,
-            winningTrades: patternAnalysis.sessionAnalysis.regular.winningTrades,
-            losingTrades: patternAnalysis.sessionAnalysis.regular.losingTrades,
-            winRate: patternAnalysis.sessionAnalysis.regular.winRate,
-            totalProfit: patternAnalysis.sessionAnalysis.regular.totalProfit,
-            averageProfit: patternAnalysis.sessionAnalysis.regular.averageProfit,
-            averageLoss: patternAnalysis.sessionAnalysis.regular.averageLoss,
-            profitFactor: patternAnalysis.sessionAnalysis.regular.profitFactor,
-            maxDrawdown: patternAnalysis.sessionAnalysis.regular.maxDrawdown,
-            averageTradeDuration: patternAnalysis.sessionAnalysis.regular.averageTradeDuration,
-            value: getMetricValue(patternAnalysis.sessionAnalysis.regular, selectedMetric)
-          },
-          {
-            name: 'After Hours',
-            id: patternAnalysis.sessionAnalysis.afterHours.id,
-            type: patternAnalysis.sessionAnalysis.afterHours.type,
-            totalTrades: patternAnalysis.sessionAnalysis.afterHours.totalTrades,
-            winningTrades: patternAnalysis.sessionAnalysis.afterHours.winningTrades,
-            losingTrades: patternAnalysis.sessionAnalysis.afterHours.losingTrades,
-            winRate: patternAnalysis.sessionAnalysis.afterHours.winRate,
-            totalProfit: patternAnalysis.sessionAnalysis.afterHours.totalProfit,
-            averageProfit: patternAnalysis.sessionAnalysis.afterHours.averageProfit,
-            averageLoss: patternAnalysis.sessionAnalysis.afterHours.averageLoss,
-            profitFactor: patternAnalysis.sessionAnalysis.afterHours.profitFactor,
-            maxDrawdown: patternAnalysis.sessionAnalysis.afterHours.maxDrawdown,
-            averageTradeDuration: patternAnalysis.sessionAnalysis.afterHours.averageTradeDuration,
-            value: getMetricValue(patternAnalysis.sessionAnalysis.afterHours, selectedMetric)
-          }
+          { name: 'Pre-Market', ...preMarket, value: getMetricValue(preMarket, selectedMetric) },
+          { name: 'Regular Hours', ...regular, value: getMetricValue(regular, selectedMetric) },
+          { name: 'After Hours', ...afterHours, value: getMetricValue(afterHours, selectedMetric) }
         ];
       default:
         return [];
     }
   };
 
-  const renderBarChart = () => (
-    <ResponsiveContainer width="100%" height={400}>
-      <BarChart data={getChartData()}>
-        <CartesianGrid strokeDasharray="3 3" />
-        <XAxis dataKey="name" />
-        <YAxis />
-        <Tooltip 
-          formatter={(value: any, name: string) => [
-            selectedMetric === 'winRate' ? `${value.toFixed(1)}%` : 
-            selectedMetric === 'profit' ? `$${value.toFixed(2)}` : 
-            selectedMetric === 'profitFactor' ? value.toFixed(2) : value,
-            getMetricLabel(selectedMetric)
-          ]}
-          labelFormatter={(label) => `${label}`}
-        />
-        <Legend />
-        <Bar 
-          dataKey="value" 
-          fill={selectedMetric === 'winRate' ? '#34D399' : 
-                selectedMetric === 'profit' ? '#3B82F6' : 
-                selectedMetric === 'profitFactor' ? '#F59E0B' : '#8B5CF6'}
-        />
-      </BarChart>
-    </ResponsiveContainer>
-  );
-
-  const renderLineChart = () => (
-    <ResponsiveContainer width="100%" height={400}>
-      <LineChart data={getChartData()}>
-        <CartesianGrid strokeDasharray="3 3" />
-        <XAxis dataKey="name" />
-        <YAxis />
-        <Tooltip 
-          formatter={(value: any, name: string) => [
-            selectedMetric === 'winRate' ? `${value.toFixed(1)}%` : 
-            selectedMetric === 'profit' ? `$${value.toFixed(2)}` : 
-            selectedMetric === 'profitFactor' ? value.toFixed(2) : value,
-            getMetricLabel(selectedMetric)
-          ]}
-          labelFormatter={(label) => `${label}`}
-        />
-        <Legend />
-        <Line 
-          type="monotone" 
-          dataKey="value" 
-          stroke={selectedMetric === 'winRate' ? '#34D399' : 
+  const renderBarChart = () => {
+    const data = getChartData();
+    if (!data || data.length === 0) {
+      return <div className="text-center text-gray-500 py-12">No data for this chart type.</div>;
+    }
+    return (
+      <ResponsiveContainer width="100%" height={400}>
+        <BarChart data={data}>
+          <CartesianGrid strokeDasharray="3 3" />
+          <XAxis dataKey="name" />
+          <YAxis />
+          <Tooltip 
+            formatter={(value: any, name: string) => [
+              selectedMetric === 'winRate' ? `${value.toFixed(1)}%` : 
+              selectedMetric === 'profit' ? `$${value.toFixed(2)}` : 
+              selectedMetric === 'profitFactor' ? value.toFixed(2) : value,
+              getMetricLabel(selectedMetric)
+            ]}
+            labelFormatter={(label) => `${label}`}
+          />
+          <Legend />
+          <Bar 
+            dataKey="value" 
+            fill={selectedMetric === 'winRate' ? '#34D399' : 
                   selectedMetric === 'profit' ? '#3B82F6' : 
                   selectedMetric === 'profitFactor' ? '#F59E0B' : '#8B5CF6'}
-          strokeWidth={3}
-          dot={{ fill: selectedMetric === 'winRate' ? '#34D399' : 
-                        selectedMetric === 'profit' ? '#3B82F6' : 
-                        selectedMetric === 'profitFactor' ? '#F59E0B' : '#8B5CF6', strokeWidth: 2, r: 6 }}
-        />
-      </LineChart>
-    </ResponsiveContainer>
-  );
+          />
+        </BarChart>
+      </ResponsiveContainer>
+    );
+  };
 
-  const renderPieChart = () => (
-    <ResponsiveContainer width="100%" height={400}>
-      <PieChart>
-        <Pie
-          data={getChartData()}
-          cx="50%"
-          cy="50%"
-          labelLine={false}
-          label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
-          outerRadius={120}
-          fill="#8884d8"
-          dataKey="value"
-        >
-          {getChartData().map((entry, index) => (
-            <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-          ))}
-        </Pie>
-        <Tooltip 
-          formatter={(value: any, name: string) => [
-            selectedMetric === 'winRate' ? `${value.toFixed(1)}%` : 
-            selectedMetric === 'profit' ? `$${value.toFixed(2)}` : 
-            selectedMetric === 'profitFactor' ? value.toFixed(2) : value,
-            getMetricLabel(selectedMetric)
-          ]}
-        />
-      </PieChart>
-    </ResponsiveContainer>
-  );
+  const renderLineChart = () => {
+    const data = getChartData();
+    if (!data || data.length === 0) {
+      return <div className="text-center text-gray-500 py-12">No data for this chart type.</div>;
+    }
+    return (
+      <ResponsiveContainer width="100%" height={400}>
+        <LineChart data={data}>
+          <CartesianGrid strokeDasharray="3 3" />
+          <XAxis dataKey="name" />
+          <YAxis />
+          <Tooltip 
+            formatter={(value: any, name: string) => [
+              selectedMetric === 'winRate' ? `${value.toFixed(1)}%` : 
+              selectedMetric === 'profit' ? `$${value.toFixed(2)}` : 
+              selectedMetric === 'profitFactor' ? value.toFixed(2) : value,
+              getMetricLabel(selectedMetric)
+            ]}
+            labelFormatter={(label) => `${label}`}
+          />
+          <Legend />
+          <Line 
+            type="monotone" 
+            dataKey="value" 
+            stroke={selectedMetric === 'winRate' ? '#34D399' : 
+                    selectedMetric === 'profit' ? '#3B82F6' : 
+                    selectedMetric === 'profitFactor' ? '#F59E0B' : '#8B5CF6'}
+            strokeWidth={3}
+            dot={{ fill: selectedMetric === 'winRate' ? '#34D399' : 
+                          selectedMetric === 'profit' ? '#3B82F6' : 
+                          selectedMetric === 'profitFactor' ? '#F59E0B' : '#8B5CF6', strokeWidth: 2, r: 6 }}
+          />
+        </LineChart>
+      </ResponsiveContainer>
+    );
+  };
+
+  const renderPieChart = () => {
+    const data = getChartData();
+    if (!data || data.length === 0) {
+      return <div className="text-center text-gray-500 py-12">No data for this chart type.</div>;
+    }
+    return (
+      <ResponsiveContainer width="100%" height={400}>
+        <PieChart>
+          <Pie
+            data={data}
+            dataKey="value"
+            cx="50%"
+            cy="50%"
+            labelLine={false}
+            label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+            outerRadius={120}
+          >
+            {data.map((entry, index) => (
+              <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+            ))}
+          </Pie>
+          <Tooltip 
+            formatter={(value: any, name: string) => [
+              selectedMetric === 'winRate' ? `${value.toFixed(1)}%` : 
+              selectedMetric === 'profit' ? `$${value.toFixed(2)}` : 
+              selectedMetric === 'profitFactor' ? value.toFixed(2) : value,
+              getMetricLabel(selectedMetric)
+            ]}
+          />
+        </PieChart>
+      </ResponsiveContainer>
+    );
+  };
 
   const renderHeatmap = () => {
     // Create 24x7 heatmap data (hours x days)
@@ -272,6 +256,10 @@ export const PatternAnalysisDashboard: React.FC<PatternAnalysisDashboardProps> =
   };
 
   const renderChart = () => {
+    const data = getChartData();
+    if (!data || data.length === 0) {
+      return <div className="text-center text-gray-500 py-12">No data for this chart type.</div>;
+    }
     switch (selectedChartType) {
       case 'heatmap':
         return renderHeatmap();

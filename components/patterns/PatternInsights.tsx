@@ -198,6 +198,343 @@ export const PatternInsights: React.FC<PatternInsightsProps> = ({ trades }) => {
       });
     }
 
+    // Consistent Winner Patterns (Hours)
+    const consistentWinnerHours = patternAnalysis.hourlyPatterns.filter(p => p.totalTrades >= 5 && p.winRate > 70);
+    if (consistentWinnerHours.length > 0) {
+      const hourLabels = consistentWinnerHours.map(p => `${p.value.toString().padStart(2, '0')}:00`).join(', ');
+      insights.push({
+        id: 'consistent_winner_hours',
+        type: 'positive',
+        title: 'Consistent Winner Hours',
+        description: `These hours have a win rate above 70%: ${hourLabels}`,
+        impact: 'high',
+        recommendation: 'Focus your trading during these hours to maximize your edge.',
+        data: consistentWinnerHours
+      });
+    }
+
+    // Consistent Loser Patterns (Hours)
+    const consistentLoserHours = patternAnalysis.hourlyPatterns.filter(p => p.totalTrades >= 5 && p.winRate < 30);
+    if (consistentLoserHours.length > 0) {
+      const hourLabels = consistentLoserHours.map(p => `${p.value.toString().padStart(2, '0')}:00`).join(', ');
+      insights.push({
+        id: 'consistent_loser_hours',
+        type: 'warning',
+        title: 'Consistent Loser Hours',
+        description: `These hours have a win rate below 30%: ${hourLabels}`,
+        impact: 'high',
+        recommendation: 'Consider avoiding or reviewing your strategy during these hours.',
+        data: consistentLoserHours
+      });
+    }
+
+    // Consistent Winner Patterns (Days)
+    const consistentWinnerDays = patternAnalysis.dayOfWeekPatterns.filter(p => p.totalTrades >= 3 && p.winRate > 70);
+    if (consistentWinnerDays.length > 0) {
+      const dayLabels = consistentWinnerDays.map(p => p.value).join(', ');
+      insights.push({
+        id: 'consistent_winner_days',
+        type: 'positive',
+        title: 'Consistent Winner Days',
+        description: `These days have a win rate above 70%: ${dayLabels}`,
+        impact: 'medium',
+        recommendation: 'Plan your important trades for these days.',
+        data: consistentWinnerDays
+      });
+    }
+
+    // Consistent Loser Patterns (Days)
+    const consistentLoserDays = patternAnalysis.dayOfWeekPatterns.filter(p => p.totalTrades >= 3 && p.winRate < 30);
+    if (consistentLoserDays.length > 0) {
+      const dayLabels = consistentLoserDays.map(p => p.value).join(', ');
+      insights.push({
+        id: 'consistent_loser_days',
+        type: 'warning',
+        title: 'Consistent Loser Days',
+        description: `These days have a win rate below 30%: ${dayLabels}`,
+        impact: 'medium',
+        recommendation: 'Be cautious or reduce trading on these days.',
+        data: consistentLoserDays
+      });
+    }
+
+    // Consistent Winner/Loser Patterns (Sessions)
+    const sessionWinners = [];
+    const sessionLosers = [];
+    if (patternAnalysis.sessionAnalysis.preMarket.totalTrades >= 3) {
+      if (patternAnalysis.sessionAnalysis.preMarket.winRate > 70) sessionWinners.push('Pre-Market');
+      if (patternAnalysis.sessionAnalysis.preMarket.winRate < 30) sessionLosers.push('Pre-Market');
+    }
+    if (patternAnalysis.sessionAnalysis.regular.totalTrades >= 3) {
+      if (patternAnalysis.sessionAnalysis.regular.winRate > 70) sessionWinners.push('Regular');
+      if (patternAnalysis.sessionAnalysis.regular.winRate < 30) sessionLosers.push('Regular');
+    }
+    if (patternAnalysis.sessionAnalysis.afterHours.totalTrades >= 3) {
+      if (patternAnalysis.sessionAnalysis.afterHours.winRate > 70) sessionWinners.push('After Hours');
+      if (patternAnalysis.sessionAnalysis.afterHours.winRate < 30) sessionLosers.push('After Hours');
+    }
+    if (sessionWinners.length > 0) {
+      insights.push({
+        id: 'consistent_winner_sessions',
+        type: 'positive',
+        title: 'Consistent Winner Sessions',
+        description: `These sessions have a win rate above 70%: ${sessionWinners.join(', ')}`,
+        impact: 'medium',
+        recommendation: 'Consider focusing on these sessions for better results.',
+        data: sessionWinners
+      });
+    }
+    if (sessionLosers.length > 0) {
+      insights.push({
+        id: 'consistent_loser_sessions',
+        type: 'warning',
+        title: 'Consistent Loser Sessions',
+        description: `These sessions have a win rate below 30%: ${sessionLosers.join(', ')}`,
+        impact: 'medium',
+        recommendation: 'Review or avoid trading in these sessions.',
+        data: sessionLosers
+      });
+    }
+
+    // High Volume/Activity Periods (Hours)
+    const topActiveHours = [...patternAnalysis.hourlyPatterns]
+      .filter(p => p.totalTrades > 0)
+      .sort((a, b) => b.totalTrades - a.totalTrades)
+      .slice(0, 3);
+    if (topActiveHours.length > 0) {
+      const hourLabels = topActiveHours.map(p => `${p.value.toString().padStart(2, '0')}:00 (${p.totalTrades} trades, ${p.winRate.toFixed(1)}% win)`).join('; ');
+      insights.push({
+        id: 'top_active_hours',
+        type: 'opportunity',
+        title: 'Most Active Hours',
+        description: `Top trading hours: ${hourLabels}`,
+        impact: 'medium',
+        recommendation: 'Review your performance during these high-activity hours to optimize your trading schedule.',
+        data: topActiveHours
+      });
+    }
+
+    // High Volume/Activity Periods (Days)
+    const topActiveDays = [...patternAnalysis.dayOfWeekPatterns]
+      .filter(p => p.totalTrades > 0)
+      .sort((a, b) => b.totalTrades - a.totalTrades)
+      .slice(0, 3);
+    if (topActiveDays.length > 0) {
+      const dayLabels = topActiveDays.map(p => `${p.value} (${p.totalTrades} trades, ${p.winRate.toFixed(1)}% win)`).join('; ');
+      insights.push({
+        id: 'top_active_days',
+        type: 'opportunity',
+        title: 'Most Active Days',
+        description: `Top trading days: ${dayLabels}`,
+        impact: 'medium',
+        recommendation: 'Analyze your trading on these days to identify patterns and opportunities.',
+        data: topActiveDays
+      });
+    }
+
+    // High Volume/Activity Periods (Sessions)
+    const sessionStats = [
+      { name: 'Pre-Market', ...patternAnalysis.sessionAnalysis.preMarket },
+      { name: 'Regular', ...patternAnalysis.sessionAnalysis.regular },
+      { name: 'After Hours', ...patternAnalysis.sessionAnalysis.afterHours }
+    ];
+    const topActiveSessions = sessionStats
+      .filter(s => s.totalTrades > 0)
+      .sort((a, b) => b.totalTrades - a.totalTrades)
+      .slice(0, 2);
+    if (topActiveSessions.length > 0) {
+      const sessionLabels = topActiveSessions.map(s => `${s.name} (${s.totalTrades} trades, ${s.winRate.toFixed(1)}% win)`).join('; ');
+      insights.push({
+        id: 'top_active_sessions',
+        type: 'opportunity',
+        title: 'Most Active Sessions',
+        description: `Top trading sessions: ${sessionLabels}`,
+        impact: 'medium',
+        recommendation: 'Consider focusing on these sessions or reviewing your strategy for high-activity periods.',
+        data: topActiveSessions
+      });
+    }
+
+    // Drawdown Hotspots (Hours)
+    const topDrawdownHours = [...patternAnalysis.hourlyPatterns]
+      .filter(p => p.totalTrades > 0)
+      .sort((a, b) => b.maxDrawdown - a.maxDrawdown)
+      .slice(0, 3);
+    if (topDrawdownHours.length > 0 && topDrawdownHours[0].maxDrawdown > 0) {
+      const hourLabels = topDrawdownHours.map(p => `${p.value.toString().padStart(2, '0')}:00 (Max DD: $${p.maxDrawdown.toFixed(2)})`).join('; ');
+      insights.push({
+        id: 'drawdown_hotspot_hours',
+        type: 'warning',
+        title: 'Drawdown Hotspot Hours',
+        description: `Highest drawdowns occurred during: ${hourLabels}`,
+        impact: 'high',
+        recommendation: 'Exercise extra caution or adjust risk management during these hours.',
+        data: topDrawdownHours
+      });
+    }
+
+    // Drawdown Hotspots (Days)
+    const topDrawdownDays = [...patternAnalysis.dayOfWeekPatterns]
+      .filter(p => p.totalTrades > 0)
+      .sort((a, b) => b.maxDrawdown - a.maxDrawdown)
+      .slice(0, 3);
+    if (topDrawdownDays.length > 0 && topDrawdownDays[0].maxDrawdown > 0) {
+      const dayLabels = topDrawdownDays.map(p => `${p.value} (Max DD: $${p.maxDrawdown.toFixed(2)})`).join('; ');
+      insights.push({
+        id: 'drawdown_hotspot_days',
+        type: 'warning',
+        title: 'Drawdown Hotspot Days',
+        description: `Highest drawdowns occurred on: ${dayLabels}`,
+        impact: 'medium',
+        recommendation: 'Review your trades and risk controls for these days.',
+        data: topDrawdownDays
+      });
+    }
+
+    // Drawdown Hotspots (Sessions)
+    const topDrawdownSessions = [
+      { name: 'Pre-Market', ...patternAnalysis.sessionAnalysis.preMarket },
+      { name: 'Regular', ...patternAnalysis.sessionAnalysis.regular },
+      { name: 'After Hours', ...patternAnalysis.sessionAnalysis.afterHours }
+    ]
+      .filter(s => s.totalTrades > 0)
+      .sort((a, b) => b.maxDrawdown - a.maxDrawdown)
+      .slice(0, 2);
+    if (topDrawdownSessions.length > 0 && topDrawdownSessions[0].maxDrawdown > 0) {
+      const sessionLabels = topDrawdownSessions.map(s => `${s.name} (Max DD: $${s.maxDrawdown.toFixed(2)})`).join('; ');
+      insights.push({
+        id: 'drawdown_hotspot_sessions',
+        type: 'warning',
+        title: 'Drawdown Hotspot Sessions',
+        description: `Highest drawdowns occurred in: ${sessionLabels}`,
+        impact: 'medium',
+        recommendation: 'Be vigilant and consider stricter risk controls in these sessions.',
+        data: topDrawdownSessions
+      });
+    }
+
+    // Tag-Based Performance
+    const tagStats: { [tagKey: string]: { tagGroup: string; tagValue: string; trades: Trade[]; winRate: number; totalTrades: number; profitFactor: number; totalProfit: number; } } = {};
+    trades.forEach(trade => {
+      Object.entries(trade.tags).forEach(([group, value]) => {
+        const key = `${group}:${value}`;
+        if (!tagStats[key]) tagStats[key] = { tagGroup: group, tagValue: value, trades: [], winRate: 0, totalTrades: 0, profitFactor: 0, totalProfit: 0 };
+        tagStats[key].trades.push(trade);
+      });
+    });
+    Object.values(tagStats).forEach(stat => {
+      const wins = stat.trades.filter(t => t.profit > 0).length;
+      const losses = stat.trades.filter(t => t.profit < 0).length;
+      const totalProfit = stat.trades.reduce((sum, t) => sum + t.profit, 0);
+      const totalWinningProfit = stat.trades.filter(t => t.profit > 0).reduce((sum, t) => sum + t.profit, 0);
+      const totalLosingProfit = Math.abs(stat.trades.filter(t => t.profit < 0).reduce((sum, t) => sum + t.profit, 0));
+      stat.totalTrades = stat.trades.length;
+      stat.winRate = stat.trades.length > 0 ? (wins / stat.trades.length) * 100 : 0;
+      stat.profitFactor = totalLosingProfit > 0 ? totalWinningProfit / totalLosingProfit : 0;
+      stat.totalProfit = totalProfit;
+    });
+    const tagStatsArr = Object.values(tagStats).filter(stat => stat.totalTrades >= 3);
+    const bestTags = [...tagStatsArr].sort((a, b) => b.winRate - a.winRate).slice(0, 3);
+    const worstTags = [...tagStatsArr].sort((a, b) => a.winRate - b.winRate).slice(0, 3);
+    if (bestTags.length > 0) {
+      const tagLabels = bestTags.map(stat => `${stat.tagGroup}: ${stat.tagValue} (${stat.winRate.toFixed(1)}% win, ${stat.totalTrades} trades)`).join('; ');
+      insights.push({
+        id: 'best_tags',
+        type: 'positive',
+        title: 'Best Performing Tags',
+        description: `Top tags by win rate: ${tagLabels}`,
+        impact: 'high',
+        recommendation: 'Focus on these tags/strategies to maximize your edge.',
+        data: bestTags
+      });
+    }
+    if (worstTags.length > 0) {
+      const tagLabels = worstTags.map(stat => `${stat.tagGroup}: ${stat.tagValue} (${stat.winRate.toFixed(1)}% win, ${stat.totalTrades} trades)`).join('; ');
+      insights.push({
+        id: 'worst_tags',
+        type: 'warning',
+        title: 'Worst Performing Tags',
+        description: `Lowest performing tags by win rate: ${tagLabels}`,
+        impact: 'high',
+        recommendation: 'Review or avoid these tags/strategies to improve results.',
+        data: worstTags
+      });
+    }
+
+    // Profit/Loss Distribution
+    if (trades.length > 0) {
+      const profits = trades.map(t => t.profit).sort((a, b) => a - b);
+      const mean = profits.reduce((sum, p) => sum + p, 0) / profits.length;
+      const median = profits.length % 2 === 0
+        ? (profits[profits.length / 2 - 1] + profits[profits.length / 2]) / 2
+        : profits[Math.floor(profits.length / 2)];
+      const stdDev = Math.sqrt(profits.reduce((sum, p) => sum + Math.pow(p - mean, 2), 0) / profits.length);
+      const skewness = profits.reduce((sum, p) => sum + Math.pow((p - mean) / stdDev, 3), 0) / profits.length;
+      const outliers = profits.filter(p => Math.abs(p - mean) > 2 * stdDev);
+      let description = `Mean: $${mean.toFixed(2)}, Median: $${median.toFixed(2)}, Std Dev: $${stdDev.toFixed(2)}, Skewness: ${skewness.toFixed(2)}.`;
+      if (outliers.length > 0) {
+        description += ` There are ${outliers.length} outlier trades (>|2σ| from mean).`;
+      }
+      insights.push({
+        id: 'pnl_distribution',
+        type: 'opportunity',
+        title: 'Profit/Loss Distribution',
+        description,
+        impact: 'medium',
+        recommendation: outliers.length > 0
+          ? 'Review outlier trades for risk management or strategy adjustment.'
+          : 'Your trade results are consistent. Maintain your current risk management.',
+        data: { mean, median, stdDev, skewness, outliers }
+      });
+    }
+
+    // Holding Time Patterns (Seconds Granularity)
+    const holdingBuckets = [
+      { label: 'Ultra-Short (<30s)', filter: (t: Trade) => t.timeInTrade * 60 < 30 },
+      { label: 'Short (30s-5min)', filter: (t: Trade) => t.timeInTrade * 60 >= 30 && t.timeInTrade <= 5 },
+      { label: 'Medium (5-15min)', filter: (t: Trade) => t.timeInTrade > 5 && t.timeInTrade <= 15 },
+      { label: 'Long (>30min)', filter: (t: Trade) => t.timeInTrade > 30 }
+    ];
+    const holdingStats = holdingBuckets.map(bucket => {
+      const tradesInBucket = trades.filter(bucket.filter);
+      const wins = tradesInBucket.filter(t => t.profit > 0).length;
+      const losses = tradesInBucket.filter(t => t.profit < 0).length;
+      const totalProfit = tradesInBucket.reduce((sum, t) => sum + t.profit, 0);
+      const totalWinningProfit = tradesInBucket.filter(t => t.profit > 0).reduce((sum, t) => sum + t.profit, 0);
+      const totalLosingProfit = Math.abs(tradesInBucket.filter(t => t.profit < 0).reduce((sum, t) => sum + t.profit, 0));
+      const winRate = tradesInBucket.length > 0 ? (wins / tradesInBucket.length) * 100 : 0;
+      const profitFactor = totalLosingProfit > 0 ? totalWinningProfit / totalLosingProfit : 0;
+      return {
+        label: bucket.label,
+        totalTrades: tradesInBucket.length,
+        winRate,
+        profitFactor,
+        totalProfit
+      };
+    }).filter(stat => stat.totalTrades > 0);
+    if (holdingStats.length > 0) {
+      const best = holdingStats.reduce((a, b) => (b.winRate > a.winRate ? b : a));
+      const worst = holdingStats.reduce((a, b) => (b.winRate < a.winRate ? b : a));
+      insights.push({
+        id: 'best_holding_time',
+        type: 'positive',
+        title: 'Best Holding Time',
+        description: `${best.label} has the highest win rate (${best.winRate.toFixed(1)}%, ${best.totalTrades} trades).`,
+        impact: 'medium',
+        recommendation: 'Consider focusing on this holding time for better results.',
+        data: best
+      });
+      insights.push({
+        id: 'worst_holding_time',
+        type: 'warning',
+        title: 'Worst Holding Time',
+        description: `${worst.label} has the lowest win rate (${worst.winRate.toFixed(1)}%, ${worst.totalTrades} trades).`,
+        impact: 'medium',
+        recommendation: 'Review your strategy for this holding time or consider reducing exposure.',
+        data: worst
+      });
+    }
+
     return insights.sort((a, b) => {
       const impactOrder = { high: 3, medium: 2, low: 1 };
       return impactOrder[b.impact] - impactOrder[a.impact];
