@@ -1,14 +1,14 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Trade, TagGroup, SubTag } from '../../types';
+import { Trade, TagGroup, SubTag, PlaybookEntry } from '../../types';
 import { Button } from '../ui/Button';
 import { TrashIcon, PencilSquareIcon, MicrophoneIcon, StopCircleIcon } from '../ui/Icons';
 import { Modal } from '../ui/Modal';
 import { Textarea } from '../ui/Input';
 
-
 interface TradeListProps {
   trades: Trade[];
   tagGroups: TagGroup[];
+  playbookEntries: PlaybookEntry[];
   onDeleteTrade: (id: string) => void;
   onEditTrade: (trade: Trade) => void;
   onTradeTagChange: (tradeId: string, groupId: string, subTagId: string | null) => void;
@@ -17,218 +17,64 @@ interface TradeListProps {
 const TradeCard: React.FC<{
   trade: Trade;
   tagGroups: TagGroup[];
+  playbookEntries: PlaybookEntry[];
   onDelete: () => void;
   onEdit: () => void;
   onTagChange: (groupId: string, subTagId: string | null) => void;
   onJournalUpdate: (journal: string) => void;
-}> = ({ trade, tagGroups, onDelete, onEdit, onTagChange, onJournalUpdate }) => {
-  const [isJournalModalOpen, setIsJournalModalOpen] = useState(false);
-  const [currentJournal, setCurrentJournal] = useState(trade.journal);
-
+}> = ({ trade, tagGroups, playbookEntries, onDelete, onEdit, onTagChange, onJournalUpdate }) => {
   const [isRecording, setIsRecording] = useState(false);
-  const [isProcessing, setIsProcessing] = useState(false);
-  const [speechApiSupported, setSpeechApiSupported] = useState(true);
-  const [speechError, setSpeechError] = useState<string | null>(null); // New state for speech errors
-  const speechRecognitionRef = useRef<any | null>(null);
+  const [isJournalModalOpen, setIsJournalModalOpen] = useState(false);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const chunksRef = useRef<Blob[]>([]);
 
-  useEffect(() => {
-    const SpeechRecognitionAPI = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-    if (!SpeechRecognitionAPI) {
-      setSpeechApiSupported(false);
+  const startRecording = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const mediaRecorder = new MediaRecorder(stream);
+      mediaRecorderRef.current = mediaRecorder;
+      chunksRef.current = [];
+
+      mediaRecorder.ondataavailable = (e) => {
+        if (e.data.size > 0) {
+          chunksRef.current.push(e.data);
+        }
+      };
+
+      mediaRecorder.onstop = async () => {
+        const audioBlob = new Blob(chunksRef.current, { type: 'audio/webm' });
+        const text = await transcribeAudio(audioBlob);
+        onJournalUpdate(text);
+        setIsJournalModalOpen(true);
+      };
+
+      mediaRecorder.start();
+      setIsRecording(true);
+    } catch (error) {
+      console.error('Error accessing microphone:', error);
+      alert('Could not access microphone. Please check your permissions.');
     }
-    return () => {
-      if (speechRecognitionRef.current && (isRecording || isProcessing)) {
-        speechRecognitionRef.current.stop();
-        speechRecognitionRef.current.onstart = null;
-        speechRecognitionRef.current.onresult = null;
-        speechRecognitionRef.current.onerror = null;
-        speechRecognitionRef.current.onend = null;
-        speechRecognitionRef.current = null;
-        setIsRecording(false);
-        setIsProcessing(false);
-      }
-    };
-  }, [isRecording, isProcessing]);
-
-
-  const getSubTagById = (subTagId: string): SubTag | undefined => {
-    for (const group of tagGroups) {
-      const found = group.subtags.find(st => st.id === subTagId);
-      if (found) return found;
-    }
-    return undefined;
-  };
-  
-  const handleJournalSave = () => {
-    onJournalUpdate(currentJournal);
-    setIsJournalModalOpen(false);
-    setSpeechError(null); // Clear error on save
   };
 
-  const handleRecordButtonClick = async () => {
-    if (!speechApiSupported) return;
-    setSpeechError(null); // Clear previous errors
-
-    const SpeechRecognitionAPI = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-    if (!SpeechRecognitionAPI) {
-      setSpeechApiSupported(false);
-      setSpeechError("Speech Recognition API not supported by your browser.");
-      return;
+  const stopRecording = () => {
+    if (mediaRecorderRef.current && isRecording) {
+      mediaRecorderRef.current.stop();
+      mediaRecorderRef.current.stream.getTracks().forEach(track => track.stop());
+      setIsRecording(false);
     }
+  };
 
-    if (isRecording) {
-      if (speechRecognitionRef.current) {
-        speechRecognitionRef.current.stop();
-      }
-      // States will be updated by onend/onerror
-    } else {
-      try {
-        // Check internet connection first
-        if (!navigator.onLine) {
-          setSpeechError("No internet connection. Please check your network and try again.");
-          return;
-        }
-
-        // Request microphone permission explicitly
-        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-        stream.getTracks().forEach(track => track.stop()); // Stop the stream immediately after getting permission
-
-        // Create new instance each time to avoid stale state
-        if (speechRecognitionRef.current) {
-          speechRecognitionRef.current.stop();
-          speechRecognitionRef.current = null;
-        }
-
-        speechRecognitionRef.current = new SpeechRecognitionAPI();
-        const recognition = speechRecognitionRef.current;
-        
-        // Configure recognition settings
-        recognition.continuous = true;
-        recognition.interimResults = true;
-        recognition.lang = 'en-US';
-        recognition.maxAlternatives = 1;
-
-        // Add connection state change listener
-        window.addEventListener('online', () => {
-          if (isRecording && speechRecognitionRef.current) {
-            try {
-              speechRecognitionRef.current.start();
-            } catch (e) {
-              console.error("Error restarting recognition after reconnection:", e);
-            }
-          }
-        });
-
-        recognition.onstart = () => {
-          setIsRecording(true);
-          setIsProcessing(false);
-          setSpeechError(null);
-        };
-
-        recognition.onresult = (event: any) => {
-          try {
-            const transcript = Array.from(event.results)
-              .map((result: any) => result[0].transcript)
-              .join(' ');
-            setCurrentJournal(prev => prev.trim() ? prev + ' ' + transcript : transcript);
-          } catch (e) {
-            console.error("Error processing speech result:", e);
-          }
-        };
-
-        recognition.onerror = (event: any) => {
-          console.error('Speech recognition error:', event.error, event.message);
-          let errorMessage = "Speech recognition failed.";
-          
-          if (event.error === 'network') {
-            errorMessage = "Network error. Please check your internet connection and try again.";
-            // Try to restart recognition after a short delay
-            setTimeout(() => {
-              if (speechRecognitionRef.current) {
-                try {
-                  speechRecognitionRef.current.start();
-                } catch (e) {
-                  console.error("Error restarting recognition:", e);
-                }
-              }
-            }, 1000);
-          } else if (event.error === 'no-speech') {
-            errorMessage = "No speech detected. Please try again.";
-          } else if (event.error === 'audio-capture') {
-            errorMessage = "Audio capture failed. Ensure microphone is connected and permissions are granted.";
-          } else if (event.error === 'not-allowed' || event.error === 'service-not-allowed') {
-            errorMessage = "Microphone access denied. Please enable microphone permissions in your browser settings.";
-          } else if (event.error === 'aborted') {
-            errorMessage = "Recording was aborted. Please try again.";
-          } else if (event.error === 'audio') {
-            errorMessage = "Audio error. Please check your microphone and try again.";
-          } else if (event.error === 'language-not-supported') {
-            errorMessage = "Language not supported. Please try again.";
-          }
-
-          setSpeechError(errorMessage);
-          
-          // Only stop recording for non-network errors
-          if (event.error !== 'network') {
-            setIsRecording(false);
-            setIsProcessing(false);
-            if (speechRecognitionRef.current) {
-              speechRecognitionRef.current.onstart = null;
-              speechRecognitionRef.current.onresult = null;
-              speechRecognitionRef.current.onerror = null;
-              speechRecognitionRef.current.onend = null;
-              speechRecognitionRef.current = null;
-            }
-          }
-        };
-
-        recognition.onend = () => {
-          // Only stop if we're not trying to restart due to network error
-          if (!speechRecognitionRef.current?.onerror) {
-            setIsRecording(false);
-            setIsProcessing(false);
-            if (speechRecognitionRef.current) {
-              speechRecognitionRef.current.onstart = null;
-              speechRecognitionRef.current.onresult = null;
-              speechRecognitionRef.current.onerror = null;
-              speechRecognitionRef.current.onend = null;
-              speechRecognitionRef.current = null;
-            }
-          }
-        };
-        
-        setIsProcessing(true);
-        recognition.start();
-      } catch (e: any) {
-        console.error("Error starting speech recognition:", e);
-        let errorMessage = "Could not start speech recognition.";
-        if (e.name === 'NotAllowedError') {
-          errorMessage = "Microphone access denied. Please enable microphone permissions in your browser settings.";
-        } else if (e.name === 'NotFoundError') {
-          errorMessage = "No microphone found. Please connect a microphone and try again.";
-        } else if (e.name === 'NetworkError') {
-          errorMessage = "Network error. Please check your internet connection and try again.";
-        } else {
-          errorMessage += " " + (e.message || "");
-        }
-        setSpeechError(errorMessage);
-        setIsProcessing(false);
-        setIsRecording(false);
-        if (speechRecognitionRef.current) {
-          speechRecognitionRef.current.onstart = null;
-          speechRecognitionRef.current.onresult = null;
-          speechRecognitionRef.current.onerror = null;
-          speechRecognitionRef.current.onend = null;
-          speechRecognitionRef.current = null;
-        }
-      }
-    }
+  const transcribeAudio = async (audioBlob: Blob): Promise<string> => {
+    // This is a placeholder for actual transcription logic
+    // In a real app, you would send the audio to a transcription service
+    return "Transcription placeholder";
   };
 
   const tradePnlClass = trade.profit >= 0 ? 'text-green-400' : 'text-red-400';
   const formattedTimeIn = new Date(trade.timeIn).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   const formattedTimeOut = new Date(trade.timeOut).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
+  const strategy = trade.strategyId ? playbookEntries.find(entry => entry.id === trade.strategyId) : null;
 
   return (
     <li className="bg-gray-700 p-4 rounded-lg shadow-lg space-y-3 transition-shadow hover:shadow-purple-500/30">
@@ -236,18 +82,23 @@ const TradeCard: React.FC<{
         <div>
           <p className="text-xl font-bold text-purple-300">{trade.symbol || 'N/A'}</p>
           <p className="text-sm text-gray-400">Date: {trade.date}</p>
-           <p className={`text-xs font-semibold ${trade.direction === 'long' ? 'text-green-300' : 'text-red-300'}`}>
+          <p className={`text-xs font-semibold ${trade.direction === 'long' ? 'text-green-300' : 'text-red-300'}`}>
             Direction: {trade.direction.charAt(0).toUpperCase() + trade.direction.slice(1)}
           </p>
+          {strategy && (
+            <p className="text-xs text-blue-300 mt-1">
+              Strategy: {strategy.name}
+            </p>
+          )}
         </div>
         <div className="flex flex-col items-end">
-            <p className={`text-2xl font-semibold ${tradePnlClass}`}>
-                ${trade.profit.toFixed(2)}
-            </p>
-            <div className="flex space-x-2 mt-1">
-                <Button onClick={onEdit} variant="ghost" size="sm" aria-label="Edit trade"><PencilSquareIcon className="w-5 h-5"/></Button>
-                <Button onClick={onDelete} variant="ghost" size="sm" aria-label="Delete trade"><TrashIcon className="w-5 h-5 text-red-500"/></Button>
-            </div>
+          <p className={`text-2xl font-semibold ${tradePnlClass}`}>
+            ${trade.profit.toFixed(2)}
+          </p>
+          <div className="flex space-x-2 mt-1">
+            <Button onClick={onEdit} variant="ghost" size="sm" aria-label="Edit trade"><PencilSquareIcon className="w-5 h-5"/></Button>
+            <Button onClick={onDelete} variant="ghost" size="sm" aria-label="Delete trade"><TrashIcon className="w-5 h-5 text-red-500"/></Button>
+          </div>
         </div>
       </div>
       <div className="text-sm text-gray-300 grid grid-cols-2 md:grid-cols-3 gap-x-4 gap-y-1">
@@ -258,88 +109,69 @@ const TradeCard: React.FC<{
         <p>Time Out: {formattedTimeOut}</p>
         <p>Duration: {trade.timeInTrade.toFixed(0)} min</p>
       </div>
-
-      <div>
-        <h4 className="text-sm font-medium text-gray-400 mb-1">Tags:</h4>
-        <div className="flex flex-wrap gap-2 mb-2">
-            {Object.entries(trade.tags).map(([groupId, subTagId]) => {
-                const subTag = getSubTagById(subTagId);
-                const group = tagGroups.find(g => g.id === groupId);
-                if (!subTag || !group) return null;
-                return (
-                    <span key={subTag.id} className="px-2 py-0.5 text-xs rounded-full text-white font-medium" style={{ backgroundColor: subTag.color }}>
-                        {group.name}: {subTag.name}
-                    </span>
-                );
-            })}
-            {Object.keys(trade.tags).length === 0 && <span className="text-xs text-gray-500">No tags assigned</span>}
-        </div>
-        {tagGroups.map(group => (
-          <div key={group.id} className="mb-1">
-            <select
-              value={trade.tags[group.id] || ''}
-              onChange={e => onTagChange(group.id, e.target.value || null)}
-              className="w-full bg-gray-600 border border-gray-500 text-gray-100 text-xs rounded-md focus:ring-purple-500 focus:border-purple-500 p-1.5"
-              aria-label={`Select ${group.name}`}
+      <div className="flex flex-wrap gap-2">
+        {tagGroups.map(group => {
+          const subTagId = trade.tags[group.id];
+          if (!subTagId) return null;
+          const subTag = group.subtags.find(st => st.id === subTagId);
+          if (!subTag) return null;
+          return (
+            <button
+              key={group.id}
+              onClick={() => onTagChange(group.id, null)}
+              className="px-2 py-1 rounded-full text-xs flex items-center space-x-1 bg-gray-600 text-gray-300 hover:bg-gray-500"
             >
-              <option value="">-- {group.name} --</option>
-              {group.subtags.map(subtag => (
-                <option key={subtag.id} value={subtag.id} style={{color: subtag.color}}>
-                  {subtag.name}
-                </option>
-              ))}
-            </select>
-          </div>
-        ))}
+              <div className="w-2 h-2 rounded-full" style={{ backgroundColor: subTag.color }} />
+              <span>{subTag.name}</span>
+            </button>
+          );
+        })}
       </div>
-      
-      <div>
-          <Button variant="ghost" size="sm" onClick={() => { setCurrentJournal(trade.journal); setSpeechError(null); setIsJournalModalOpen(true); }}>
-            {trade.journal ? "View/Edit Journal" : "Add Journal"}
+      <div className="flex justify-between items-center">
+        <div className="flex-1">
+          <p className="text-sm text-gray-400">Journal:</p>
+          <p className="text-sm text-gray-300 mt-1">{trade.journal || 'No notes'}</p>
+        </div>
+        <div className="flex space-x-2 ml-4">
+          <Button
+            onClick={isRecording ? stopRecording : startRecording}
+            variant="ghost"
+            size="sm"
+            aria-label={isRecording ? "Stop recording" : "Start recording"}
+          >
+            {isRecording ? <StopCircleIcon className="w-5 h-5 text-red-500" /> : <MicrophoneIcon className="w-5 h-5" />}
           </Button>
+        </div>
       </div>
 
       {isJournalModalOpen && (
-        <Modal title={`Journal for Trade ${trade.symbol} on ${trade.date}`} onClose={() => { setIsJournalModalOpen(false); setSpeechError(null); } }>
-            <Textarea 
-                value={currentJournal}
-                onChange={(e) => setCurrentJournal(e.target.value)}
-                rows={6}
-                className="min-h-[150px]"
-                placeholder="Type or record your trade journal..."
+        <Modal title="Voice Journal" onClose={() => setIsJournalModalOpen(false)}>
+          <div className="space-y-4">
+            <p className="text-sm text-gray-300">
+              Your voice recording has been transcribed. You can edit the text below before saving.
+            </p>
+            <Textarea
+              value={trade.journal}
+              onChange={e => onJournalUpdate(e.target.value)}
+              placeholder="Edit your transcribed notes..."
+              rows={4}
             />
-             {speechError && <p className="text-xs text-red-400 mt-2">{speechError}</p>}
-            <div className="mt-4 flex flex-col sm:flex-row justify-between items-center space-y-2 sm:space-y-0 sm:space-x-2">
-                <div className="flex items-center space-x-2">
-                    {!speechApiSupported ? (
-                        <p className="text-xs text-red-400">Speech input not supported by your browser.</p>
-                    ) : (
-                        <Button 
-                            onClick={handleRecordButtonClick} 
-                            variant="ghost" 
-                            size="sm"
-                            disabled={isProcessing || isRecording}
-                            aria-label={isRecording ? "Stop recording" : "Start recording journal"}
-                        >
-                            {isRecording ? <StopCircleIcon className="w-5 h-5 text-red-500" /> : <MicrophoneIcon className="w-5 h-5" />}
-                            <span className="ml-2">
-                                {isRecording ? "Stop Recording" : isProcessing ? "Starting..." : "Record"}
-                            </span>
-                        </Button>
-                    )}
-                     {isRecording && !isProcessing && <p className="text-xs text-purple-400 animate-pulse">Recording...</p>}
-                </div>
-                <Button onClick={handleJournalSave} variant="primary">Save Journal</Button>
+            <div className="flex justify-end space-x-2">
+              <Button onClick={() => setIsJournalModalOpen(false)} variant="secondary">
+                Cancel
+              </Button>
+              <Button onClick={() => setIsJournalModalOpen(false)} variant="primary">
+                Save
+              </Button>
             </div>
+          </div>
         </Modal>
       )}
     </li>
   );
 };
 
-
-export const TradeList: React.FC<TradeListProps> = ({ trades, tagGroups, onDeleteTrade, onEditTrade, onTradeTagChange }) => {
-  
+export const TradeList: React.FC<TradeListProps> = ({ trades, tagGroups, playbookEntries, onDeleteTrade, onEditTrade, onTradeTagChange }) => {
   const handleJournalUpdate = (tradeId: string, journal: string) => {
     const tradeToUpdate = trades.find(t => t.id === tradeId);
     if (tradeToUpdate) {
@@ -357,18 +189,18 @@ export const TradeList: React.FC<TradeListProps> = ({ trades, tagGroups, onDelet
     return new Date(b.timeIn).getTime() - new Date(a.timeIn).getTime();
   });
 
-
   return (
     <ul className="space-y-4 max-h-[600px] overflow-y-auto pr-2">
       {sortedTrades.map(trade => (
         <TradeCard 
-            key={trade.id}
-            trade={trade}
-            tagGroups={tagGroups}
-            onDelete={() => onDeleteTrade(trade.id)}
-            onEdit={() => onEditTrade(trade)}
-            onTagChange={(groupId, subTagId) => onTradeTagChange(trade.id, groupId, subTagId)}
-            onJournalUpdate={(journal) => handleJournalUpdate(trade.id, journal)}
+          key={trade.id}
+          trade={trade}
+          tagGroups={tagGroups}
+          playbookEntries={playbookEntries}
+          onDelete={() => onDeleteTrade(trade.id)}
+          onEdit={() => onEditTrade(trade)}
+          onTagChange={(groupId, subTagId) => onTradeTagChange(trade.id, groupId, subTagId)}
+          onJournalUpdate={(journal) => handleJournalUpdate(trade.id, journal)}
         />
       ))}
     </ul>

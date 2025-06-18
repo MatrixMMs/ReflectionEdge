@@ -1,4 +1,3 @@
-
 export type TradeDirection = 'long' | 'short';
 export type TradeDirectionFilterSelection = 'all' | 'long' | 'short';
 
@@ -16,6 +15,7 @@ export interface Trade {
   tags: { [tagGroupId: string]: string }; // { tagGroupId: subTagId }
   journal: string;
   direction: TradeDirection;
+  strategyId?: string;
 }
 
 export interface SubTag {
@@ -56,4 +56,15 @@ export interface ProcessedChartData {
 export interface AppDateRange {
   start: string; // YYYY-MM-DD
   end: string;   // YYYY-MM-DD
+}
+
+export interface PlaybookEntry {
+  id: string;
+  name: string;
+  description: string;
+  tags: { [groupId: string]: string[] };
+  checklist?: string[];
+  notes?: string;
+  createdAt: string;
+  updatedAt: string;
 }

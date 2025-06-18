@@ -34,7 +34,7 @@ export const TagManager: React.FC<TagManagerProps> = ({ tagGroups, onAddGroup, o
   };
 
   const isDefaultGroup = (groupId: string) => {
-    // Only lock 'feeling' and 'market' groups, not 'setup' or 'market_condition'
+    // Only lock 'feeling' and 'market' groups
     return groupId === 'feeling' || groupId === 'market';
   };
 
@@ -80,9 +80,9 @@ export const TagManager: React.FC<TagManagerProps> = ({ tagGroups, onAddGroup, o
             <div className="space-y-2">
               {group.subtags.map(subtag => (
                 <div key={subtag.id} className="flex items-center space-x-2">
-                  <div 
-                    className="w-4 h-4 rounded-full" 
-                    style={{ backgroundColor: subtag.color }}
+                  <ColorPicker
+                    initialColor={subtag.color}
+                    onChange={(color) => onUpdateSubTagColor(group.id, subtag.id, color)}
                   />
                   <span className="text-sm">{subtag.name}</span>
                 </div>

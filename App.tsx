@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
-import { Trade, TagGroup, SubTag, ChartYAxisMetric, ChartXAxisMetric, AppDateRange, TradeDirectionFilterSelection } from './types';
+import { Trade, TagGroup, SubTag, ChartYAxisMetric, ChartXAxisMetric, AppDateRange, TradeDirectionFilterSelection, PlaybookEntry } from './types';
 import { TradeForm } from './components/trades/TradeForm';
 import { TradeList } from './components/trades/TradeList';
 import { DailySummary } from './components/trades/DailySummary';
@@ -17,6 +17,8 @@ import { PlusCircleIcon, ChartBarIcon, TagIcon, TableCellsIcon, DocumentTextIcon
 import { Modal } from './components/ui/Modal';
 import { Button } from './components/ui/Button';
 import { NotificationPopup } from './components/ui/NotificationPopup';
+import { PlaybookList } from './components/playbook/PlaybookList';
+import { PlaybookEditor } from './components/playbook/PlaybookEditor';
 
 // Helper to normalize CSV headers for detection
 const normalizeHeader = (header: string): string => header.toLowerCase().replace(/\s+/g, '').replace(/\//g, '');
@@ -29,7 +31,7 @@ const App: React.FC = () => {
     try {
       const storedData = localStorage.getItem(STORAGE_KEY);
       if (storedData) {
-        const { version, trades: storedTrades, tagGroups: storedTagGroups } = JSON.parse(storedData);
+        const { version, trades: storedTrades, tagGroups: storedTagGroups, playbookEntries: storedPlaybookEntries } = JSON.parse(storedData);
         if (version === STORAGE_VERSION) {
           // Merge stored tag groups with default tag groups
           const mergedTagGroups = [...DEFAULT_TAG_GROUPS];
@@ -52,22 +54,24 @@ const App: React.FC = () => {
               tags: t.tags || {},
               journal: t.journal || '',
             })),
-            tagGroups: mergedTagGroups
+            tagGroups: mergedTagGroups,
+            playbookEntries: storedPlaybookEntries || []
           };
         }
       }
     } catch (error) {
       console.error('Error loading stored data:', error);
     }
-    return { trades: [], tagGroups: DEFAULT_TAG_GROUPS };
+    return { trades: [], tagGroups: DEFAULT_TAG_GROUPS, playbookEntries: [] };
   };
 
-  const saveData = (trades: Trade[], tagGroups: TagGroup[]) => {
+  const saveData = (trades: Trade[], tagGroups: TagGroup[], playbookEntries: PlaybookEntry[]) => {
     try {
       const dataToStore = {
         version: STORAGE_VERSION,
         trades,
-        tagGroups
+        tagGroups,
+        playbookEntries
       };
       localStorage.setItem(STORAGE_KEY, JSON.stringify(dataToStore));
     } catch (error) {
@@ -75,10 +79,11 @@ const App: React.FC = () => {
     }
   };
 
-  const { trades: initialTrades, tagGroups: initialTagGroups } = loadStoredData();
+  const { trades: initialTrades, tagGroups: initialTagGroups, playbookEntries: initialPlaybookEntries } = loadStoredData();
 
   const [trades, setTrades] = useState<Trade[]>(initialTrades);
   const [tagGroups, setTagGroups] = useState<TagGroup[]>(initialTagGroups);
+  const [playbookEntries, setPlaybookEntries] = useState<PlaybookEntry[]>(initialPlaybookEntries);
 
   const [selectedDate, setSelectedDate] = useState<string>(new Date().toISOString().split('T')[0]);
   const [chartDateRange, setChartDateRange] = useState<AppDateRange>({
@@ -107,10 +112,12 @@ const App: React.FC = () => {
   const [importNotification, setImportNotification] = useState<{ title: string; message: string; details?: string } | null>(null);
   const [sessionImportCount, setSessionImportCount] = useState(0);
 
+  const [isPlaybookModalOpen, setIsPlaybookModalOpen] = useState(false);
+  const [selectedPlaybookEntry, setSelectedPlaybookEntry] = useState<PlaybookEntry | null>(null);
 
   useEffect(() => {
-    saveData(trades, tagGroups);
-  }, [trades, tagGroups]);
+    saveData(trades, tagGroups, playbookEntries);
+  }, [trades, tagGroups, playbookEntries]);
 
   const handleAddTrade = (trade: Omit<Trade, 'id' | 'timeInTrade'>) => {
     const timeInTrade = (new Date(trade.timeOut).getTime() - new Date(trade.timeIn).getTime()) / (1000 * 60); 
@@ -126,18 +133,20 @@ const App: React.FC = () => {
     setEditingTrade(null);
   };
 
-  const handleUpdateTrade = (updatedTrade: Trade) => {
+  const handleUpdateTrade = (updatedTrade: Omit<Trade, 'id' | 'timeInTrade'>) => {
+    if (!editingTrade) return;
     const timeInTrade = (new Date(updatedTrade.timeOut).getTime() - new Date(updatedTrade.timeIn).getTime()) / (1000 * 60);
-    setTrades(prev => prev.map(t => t.id === updatedTrade.id ? {
-      ...updatedTrade, 
-      timeInTrade, 
+    setTrades(prev => prev.map(t => t.id === editingTrade.id ? {
+      ...updatedTrade,
+      id: editingTrade.id,
+      timeInTrade,
       direction: updatedTrade.direction || 'long',
       symbol: updatedTrade.symbol || '',
       contracts: updatedTrade.contracts || 0
     } : t));
     setIsTradeFormModalOpen(false);
     setEditingTrade(null);
-  }
+  };
 
   const handleDeleteTrade = (tradeId: string) => {
     setTrades(prev => prev.filter(t => t.id !== tradeId));
@@ -158,10 +167,9 @@ const App: React.FC = () => {
   };
 
   const handleAddSubTag = (groupId: string, subTagName: string) => {
-    // Check if this is a default tag group
-    const isDefaultGroup = DEFAULT_TAG_GROUPS.some(group => group.id === groupId);
-    if (isDefaultGroup) {
-      alert('Cannot add subtags to default tag groups.');
+    // Only lock 'feeling' and 'market' groups
+    if (groupId === 'feeling' || groupId === 'market') {
+      alert('Cannot add subtags to feeling or market groups.');
       return;
     }
 
@@ -217,6 +225,39 @@ const App: React.FC = () => {
             content = content.substring(1);
           }
 
+          // Check if the file is JSON (from our export feature)
+          try {
+            const jsonData = JSON.parse(content);
+            if (jsonData.trades && Array.isArray(jsonData.trades)) {
+              // This is our exported JSON format
+              const { trades: importedTrades, tagGroups: importedTagGroups, playbookEntries: importedPlaybookEntries } = jsonData;
+              
+              // Merge tag groups with existing ones
+              const mergedTagGroups = [...DEFAULT_TAG_GROUPS];
+              importedTagGroups.forEach((importedGroup: TagGroup) => {
+                if (!DEFAULT_TAG_GROUPS.some(defaultGroup => defaultGroup.id === importedGroup.id)) {
+                  mergedTagGroups.push(importedGroup);
+                }
+              });
+
+              // Update state with imported data
+              setTrades(importedTrades);
+              setTagGroups(mergedTagGroups);
+              setPlaybookEntries(importedPlaybookEntries || []);
+
+              // Show success notification
+              setImportNotification({
+                title: "Import Complete",
+                message: `Successfully imported ${importedTrades.length} trades, ${mergedTagGroups.length} tag groups, and ${importedPlaybookEntries?.length || 0} playbook entries.`
+              });
+              setShowImportConfirmation(true);
+              return;
+            }
+          } catch (e) {
+            // Not a valid JSON file, continue with CSV parsing
+          }
+
+          // Continue with existing CSV parsing logic
           const firstLine = content.split(/\r\n|\n/)[0];
           const headersFromCSV = firstLine.split(',').map(h => normalizeHeader(h.trim()));
           
@@ -313,28 +354,35 @@ const App: React.FC = () => {
 
   const allSubTags = useMemo(() => tagGroups.flatMap(g => g.subtags), [tagGroups]);
 
-  const pieChartData = useMemo(() => {
+  const pieChartDataByGroup = useMemo(() => {
     let tradesInDateRange = trades.filter(trade => 
-        new Date(trade.date) >= new Date(chartDateRange.start) && new Date(trade.date) <= new Date(chartDateRange.end)
+      new Date(trade.date) >= new Date(chartDateRange.start) && new Date(trade.date) <= new Date(chartDateRange.end)
     );
     if (directionFilter !== 'all') {
-        tradesInDateRange = tradesInDateRange.filter(trade => trade.direction === directionFilter);
+      tradesInDateRange = tradesInDateRange.filter(trade => trade.direction === directionFilter);
     }
 
-    const tagCounts: { [subTagId: string]: number } = {};
-    tradesInDateRange.forEach(trade => {
-      Object.values(trade.tags).forEach(subTagId => {
-        tagCounts[subTagId] = (tagCounts[subTagId] || 0) + 1;
+    // For each group, count subtags
+    const result: { [groupId: string]: { groupName: string, data: { name: string, value: number, fill: string }[] } } = {};
+    tagGroups.forEach(group => {
+      const tagCounts: { [subTagId: string]: number } = {};
+      tradesInDateRange.forEach(trade => {
+        const subTagId = trade.tags[group.id];
+        if (subTagId) tagCounts[subTagId] = (tagCounts[subTagId] || 0) + 1;
       });
+      const data = group.subtags
+        .filter(subTag => tagCounts[subTag.id] > 0)
+        .map(subTag => ({
+          name: subTag.name,
+          value: tagCounts[subTag.id],
+          fill: subTag.color,
+        }));
+      if (data.length > 0) {
+        result[group.id] = { groupName: group.name, data };
+      }
     });
-    return allSubTags
-      .filter(subTag => tagCounts[subTag.id] > 0)
-      .map(subTag => ({
-        name: subTag.name,
-        value: tagCounts[subTag.id],
-        fill: subTag.color,
-      }));
-  }, [trades, chartDateRange, allSubTags, directionFilter]);
+    return result;
+  }, [trades, chartDateRange, tagGroups, directionFilter]);
 
 
   const openTradeForm = () => {
@@ -351,25 +399,94 @@ const App: React.FC = () => {
     setTagGroups(prev => prev.filter(group => group.id !== groupId));
   };
 
+  // Export feature: download all app data as JSON
+  const handleExportData = () => {
+    const dataToExport = {
+      trades,
+      tagGroups,
+      playbookEntries
+    };
+    const blob = new Blob([JSON.stringify(dataToExport, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `trade-report-card-export-${new Date().toISOString().slice(0,10)}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
+  const handleAddPlaybookEntry = (entry: Omit<PlaybookEntry, 'id' | 'createdAt' | 'updatedAt'>) => {
+    const now = new Date().toISOString();
+    const newEntry: PlaybookEntry = {
+      ...entry,
+      id: Date.now().toString(),
+      createdAt: now,
+      updatedAt: now
+    };
+    setPlaybookEntries(prev => [...prev, newEntry]);
+    setIsPlaybookModalOpen(false);
+  };
+
+  const handleUpdatePlaybookEntry = (entry: Omit<PlaybookEntry, 'id' | 'createdAt' | 'updatedAt'>) => {
+    if (!selectedPlaybookEntry) return;
+    setPlaybookEntries(prev => prev.map(e => 
+      e.id === selectedPlaybookEntry.id ? { 
+        ...entry,
+        id: selectedPlaybookEntry.id,
+        createdAt: selectedPlaybookEntry.createdAt,
+        updatedAt: new Date().toISOString()
+      } : e
+    ));
+    setIsPlaybookModalOpen(false);
+    setSelectedPlaybookEntry(null);
+  };
+
   return (
     <div className="min-h-screen bg-gray-900 text-gray-100 p-4 flex flex-col space-y-6">
       <header className="flex justify-between items-center">
         <h1 className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-pink-500 to-red-500">Trade Report Card</h1>
         <div className="flex space-x-2">
           <Button
-            onClick={openTradeForm}
+            onClick={() => setIsPlaybookModalOpen(true)}
             variant="primary"
-            className="bg-green-500 hover:bg-green-600"
-            leftIcon={<PlusCircleIcon className="w-5 h-5"/>}
+            size="md"
+            leftIcon={<DocumentTextIcon className="w-5 h-5"/>}
           >
-           Add Trade
+            Playbook
           </Button>
           <Button
-            onClick={triggerFileInput}
+            onClick={() => setIsTagManagerModalOpen(true)}
+            variant="primary"
+            size="md"
+            leftIcon={<TagIcon className="w-5 h-5"/>}
+          >
+            Tags
+          </Button>
+          <Button
+            onClick={openTradeForm}
+            variant="primary"
+            size="md"
+            leftIcon={<PlusCircleIcon className="w-5 h-5"/>}
+          >
+            Add Trade
+          </Button>
+          <Button
+            onClick={() => fileInputRef.current?.click()}
             variant="secondary"
+            size="md"
             leftIcon={<DocumentArrowUpIcon className="w-5 h-5"/>}
           >
-            Import CSV
+            Import
+          </Button>
+          <Button
+            onClick={handleExportData}
+            variant="secondary"
+            className="bg-blue-500 hover:bg-blue-600"
+            leftIcon={<DocumentTextIcon className="w-5 h-5"/>}
+          >
+            Export Data
           </Button>
           <input 
             type="file" 
@@ -379,17 +496,9 @@ const App: React.FC = () => {
             className="hidden" 
           />
           <Button
-            onClick={() => setIsTagManagerModalOpen(true)}
-            variant="secondary"
-            className="bg-indigo-500 hover:bg-indigo-600"
-            leftIcon={<TagIcon className="w-5 h-5"/>}
-          >
-            Manage Tags
-          </Button>
-          <Button
             onClick={() => setIsSettingsModalOpen(true)}
-            variant="secondary"
-            className="bg-gray-500 hover:bg-gray-600"
+            variant="ghost"
+            size="md"
             leftIcon={<CogIcon className="w-5 h-5"/>}
           >
             Settings
@@ -398,11 +507,14 @@ const App: React.FC = () => {
       </header>
 
       {isTradeFormModalOpen && (
-        <Modal title={editingTrade ? "Edit Trade" : "Add New Trade"} onClose={() => { setIsTradeFormModalOpen(false); setEditingTrade(null); }}>
+        <Modal title={editingTrade ? "Edit Trade" : "Add Trade"} onClose={() => { setIsTradeFormModalOpen(false); setEditingTrade(null); }}>
           <TradeForm 
-            onSubmit={editingTrade ? handleUpdateTrade : handleAddTrade} 
+            onSubmit={editingTrade 
+              ? handleUpdateTrade 
+              : handleAddTrade} 
             tagGroups={tagGroups} 
-            tradeToEdit={editingTrade} 
+            playbookEntries={playbookEntries}
+            tradeToEdit={editingTrade || undefined} 
           />
         </Modal>
       )}
@@ -431,6 +543,25 @@ const App: React.FC = () => {
               <li>Clearing all application data</li>
             </ul>
           </div>
+        </Modal>
+      )}
+
+      {isPlaybookModalOpen && (
+        <Modal title="Trading Playbook" onClose={() => { setIsPlaybookModalOpen(false); setSelectedPlaybookEntry(null); }}>
+          {selectedPlaybookEntry ? (
+            <PlaybookEditor
+              entry={selectedPlaybookEntry}
+              tagGroups={tagGroups}
+              onSave={selectedPlaybookEntry.id ? handleUpdatePlaybookEntry : handleAddPlaybookEntry}
+              onCancel={() => setSelectedPlaybookEntry(null)}
+            />
+          ) : (
+            <PlaybookList
+              entries={playbookEntries}
+              onSelect={setSelectedPlaybookEntry}
+              onAdd={() => setSelectedPlaybookEntry({} as PlaybookEntry)}
+            />
+          )}
         </Modal>
       )}
 
@@ -493,15 +624,19 @@ const App: React.FC = () => {
             directionFilter={directionFilter} 
           />
 
-          {pieChartData.length > 0 && (
-            <div className="bg-gray-800 p-6 rounded-xl shadow-2xl">
-              <h2 className="text-2xl font-semibold mb-4 text-red-400 flex items-center"><ChartBarIcon className="w-6 h-6 mr-2" />Tag Distribution</h2>
-               <PieChartRenderer data={pieChartData} />
-               <p className="text-xs text-gray-400 mt-2 text-center">
+          {/* Replace single pie chart with one per tag group */}
+          {Object.values(pieChartDataByGroup).map(groupData => (
+            <div key={groupData.groupName} className="bg-gray-800 p-6 rounded-xl shadow-2xl mb-6">
+              <h2 className="text-2xl font-semibold mb-4 text-red-400 flex items-center">
+                <ChartBarIcon className="w-6 h-6 mr-2" />
+                {groupData.groupName} Tag Distribution
+              </h2>
+              <PieChartRenderer data={groupData.data} />
+              <p className="text-xs text-gray-400 mt-2 text-center">
                 For trades in selected date range{directionFilter !== 'all' ? ` (${directionFilter} only)` : ''}.
-               </p>
+              </p>
             </div>
-          )}
+          ))}
         </div>
 
         <div className="lg:col-span-2 space-y-6">
@@ -516,10 +651,13 @@ const App: React.FC = () => {
           </div>
 
           <div className="bg-gray-800 p-6 rounded-xl shadow-2xl">
-             <h2 className="text-2xl font-semibold mb-4 text-teal-400 flex items-center"><DocumentTextIcon className="w-6 h-6 mr-2" />Trade Log</h2>
+            <h2 className="text-2xl font-semibold mb-4 text-purple-400 flex items-center">
+              <TableCellsIcon className="w-6 h-6 mr-2" /> Trade Log
+            </h2>
             <TradeList 
               trades={trades} 
-              tagGroups={tagGroups} 
+              tagGroups={tagGroups}
+              playbookEntries={playbookEntries}
               onDeleteTrade={handleDeleteTrade} 
               onEditTrade={handleEditTrade}
               onTradeTagChange={handleTradeTagChange}
