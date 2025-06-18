@@ -8,12 +8,14 @@ import { TagPerformance } from './components/tags/TagPerformance'; // New Import
 import { LineChartRenderer } from './components/charts/LineChartRenderer';
 import { PieChartRenderer } from './components/charts/PieChartRenderer';
 import { ChartControls } from './components/charts/ChartControls';
+import { PatternAnalysisDashboard } from './components/patterns/PatternAnalysisDashboard';
+import { PatternInsights } from './components/patterns/PatternInsights';
 import { DEFAULT_CHART_COLOR, COMPARISON_CHART_COLOR, LONG_TRADE_COLOR, SHORT_TRADE_COLOR, DEFAULT_TAG_GROUPS } from './constants';
 import { processChartData, filterTradesByDateAndTags } from './utils/chartDataProcessor';
 import { parseCSVToTrades as parseBrokerExportCSV } from './utils/csvImporter';
 import { parseQuantowerCSVToTrades } from './utils/quantowerCsvImporter';
 import { getRandomColor, resetColorUsage } from './utils/colorGenerator';
-import { PlusCircleIcon, ChartBarIcon, TagIcon, TableCellsIcon, DocumentTextIcon, AdjustmentsHorizontalIcon, DocumentArrowUpIcon, CogIcon, AcademicCapIcon } from './components/ui/Icons'; // Added AcademicCapIcon for consistency if used directly in App.tsx
+import { PlusCircleIcon, ChartBarIcon, TagIcon, TableCellsIcon, DocumentTextIcon, AdjustmentsHorizontalIcon, DocumentArrowUpIcon, CogIcon, AcademicCapIcon, LightBulbIcon } from './components/ui/Icons'; // Added AcademicCapIcon for consistency if used directly in App.tsx
 import { Modal } from './components/ui/Modal';
 import { Button } from './components/ui/Button';
 import { NotificationPopup } from './components/ui/NotificationPopup';
@@ -114,6 +116,10 @@ const App: React.FC = () => {
 
   const [isPlaybookModalOpen, setIsPlaybookModalOpen] = useState(false);
   const [selectedPlaybookEntry, setSelectedPlaybookEntry] = useState<PlaybookEntry | null>(null);
+
+  // Pattern analysis state
+  const [isPatternAnalysisModalOpen, setIsPatternAnalysisModalOpen] = useState(false);
+  const [isPatternInsightsModalOpen, setIsPatternInsightsModalOpen] = useState(false);
 
   useEffect(() => {
     saveData(trades, tagGroups, playbookEntries);
@@ -465,6 +471,22 @@ const App: React.FC = () => {
             Tags
           </Button>
           <Button
+            onClick={() => setIsPatternAnalysisModalOpen(true)}
+            variant="primary"
+            size="md"
+            leftIcon={<ChartBarIcon className="w-5 h-5"/>}
+          >
+            Patterns
+          </Button>
+          <Button
+            onClick={() => setIsPatternInsightsModalOpen(true)}
+            variant="primary"
+            size="md"
+            leftIcon={<LightBulbIcon className="w-5 h-5"/>}
+          >
+            Insights
+          </Button>
+          <Button
             onClick={openTradeForm}
             variant="primary"
             size="md"
@@ -562,6 +584,18 @@ const App: React.FC = () => {
               onAdd={() => setSelectedPlaybookEntry({} as PlaybookEntry)}
             />
           )}
+        </Modal>
+      )}
+
+      {isPatternAnalysisModalOpen && (
+        <Modal title="Pattern Analysis" onClose={() => setIsPatternAnalysisModalOpen(false)} wide={true}>
+          <PatternAnalysisDashboard trades={trades} />
+        </Modal>
+      )}
+
+      {isPatternInsightsModalOpen && (
+        <Modal title="Pattern Insights" onClose={() => setIsPatternInsightsModalOpen(false)} wide={true}>
+          <PatternInsights trades={trades} />
         </Modal>
       )}
 
