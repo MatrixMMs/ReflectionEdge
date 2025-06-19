@@ -71,7 +71,9 @@ export const LineChartRenderer: React.FC<LineChartRendererProps> = ({ data, comp
         const renamedCompPoint: {[key: string]: any} = {};
         for(const key in compPoint) {
             if (key !== 'xValue') {
-                renamedCompPoint[`${key}_comp`] = compPoint[key];
+                // Check if key already has _comp suffix to avoid double suffix
+                const newKey = key.endsWith('_comp') ? key : `${key}_comp`;
+                renamedCompPoint[newKey] = compPoint[key];
             }
         }
         return { xValue: x, ...basePoint, ...renamedCompPoint };
