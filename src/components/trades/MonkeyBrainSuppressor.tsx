@@ -23,15 +23,26 @@ export const MonkeyBrainSuppressor: React.FC<MonkeyBrainSuppressorProps> = ({ on
   const [emotionColor, setEmotionColor] = useState('#FF4B4B');
   const [selectedEmotion, setSelectedEmotion] = useState<string | null>(null);
   const [emotionIntensity, setEmotionIntensity] = useState<number>(3);
+  const [showPlanConfirmation, setShowPlanConfirmation] = useState(false);
+  const [hasPlan, setHasPlan] = useState<boolean | null>(null);
 
   const startTrading = () => {
-    const session: TradingSession = {
-      id: Date.now().toString(),
-      startTime: new Date().toISOString(),
-      tradeCount: 0,
-      emotions: []
-    };
-    setCurrentSession(session);
+    setShowPlanConfirmation(true);
+    setHasPlan(null);
+  };
+
+  const handlePlanConfirmation = (hasplan: boolean) => {
+    setHasPlan(hasplan);
+    if (hasplan) {
+      const session: TradingSession = {
+        id: Date.now().toString(),
+        startTime: new Date().toISOString(),
+        tradeCount: 0,
+        emotions: []
+      };
+      setCurrentSession(session);
+      setShowPlanConfirmation(false);
+    }
   };
 
   const endTrading = () => {
@@ -85,10 +96,8 @@ export const MonkeyBrainSuppressor: React.FC<MonkeyBrainSuppressorProps> = ({ on
     }
   };
 
-  const getEmotionStats = () => {
-    if (!currentSession) return null;
-
-    const stats = currentSession.emotions.reduce((acc, entry) => {
+  const getEmotionStats = (session: TradingSession) => {
+    const stats = session.emotions.reduce((acc, entry) => {
       if (!acc[entry.emotion]) {
         acc[entry.emotion] = {
           count: 0,
@@ -116,7 +125,34 @@ export const MonkeyBrainSuppressor: React.FC<MonkeyBrainSuppressorProps> = ({ on
         <Button onClick={onClose} variant="ghost">×</Button>
       </div>
 
-      {!currentSession ? (
+      {showPlanConfirmation ? (
+        <div className="space-y-6">
+          <div className="bg-gray-700 p-6 rounded-lg text-center">
+            <h3 className="text-xl font-semibold mb-6">Do you have a trading plan for the day?</h3>
+            <div className="flex justify-center gap-4">
+              <Button 
+                onClick={() => handlePlanConfirmation(true)}
+                variant="primary"
+                className="px-8"
+              >
+                Yes
+              </Button>
+              <Button 
+                onClick={() => handlePlanConfirmation(false)}
+                variant="secondary"
+                className="px-8"
+              >
+                No
+              </Button>
+            </div>
+            {hasPlan === false && (
+              <div className="mt-4 text-red-400">
+                Please prepare a trading plan before starting your trading session.
+              </div>
+            )}
+          </div>
+        </div>
+      ) : !currentSession ? (
         <div className="space-y-6">
           <div className="bg-gray-700 p-4 rounded-lg">
             <h3 className="text-lg font-semibold mb-4">Custom Emotions</h3>
@@ -143,12 +179,70 @@ export const MonkeyBrainSuppressor: React.FC<MonkeyBrainSuppressorProps> = ({ on
               <Input
                 type="color"
                 value={emotionColor}
-                onChange={e => setEmotionColor(e.target.value)}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmotionColor(e.target.value)}
                 className="w-20"
               />
               <Button onClick={addEmotion} variant="secondary">Add</Button>
             </div>
           </div>
+
+          {tradingSessions.length > 0 && (
+            <div className="bg-gray-700 p-4 rounded-lg">
+              <h3 className="text-lg font-semibold mb-4">Past Trading Sessions</h3>
+              <div className="space-y-4">
+                {tradingSessions.map((session) => {
+                  const startDate = new Date(session.startTime);
+                  const endDate = session.endTime ? new Date(session.endTime) : null;
+                  const duration = endDate 
+                    ? Math.round((endDate.getTime() - startDate.getTime()) / (1000 * 60))
+                    : 0;
+
+                  return (
+                    <div key={session.id} className="bg-gray-800 p-4 rounded-lg">
+                      <div className="flex justify-between items-start mb-2">
+                        <div>
+                          <p className="text-sm text-gray-400">
+                            {startDate.toLocaleDateString()} {startDate.toLocaleTimeString()}
+                          </p>
+                          <p className="text-sm text-gray-400">
+                            Duration: {duration} minutes
+                          </p>
+                        </div>
+                        <div className="text-right">
+                          <p className="font-semibold">Trades: {session.tradeCount}</p>
+                          <p className="text-sm text-gray-400">
+                            Emotions: {session.emotions.length}
+                          </p>
+                        </div>
+                      </div>
+
+                      {session.emotions.length > 0 && (
+                        <div className="mt-4">
+                          <h4 className="text-sm font-semibold mb-2">Emotion Stats</h4>
+                          <div className="grid grid-cols-2 gap-2">
+                            {getEmotionStats(session).map(stat => (
+                              <div 
+                                key={stat.emotion}
+                                className="flex justify-between items-center p-2 rounded text-sm"
+                                style={{ backgroundColor: stat.color + '20' }}
+                              >
+                                <span>{stat.emotion}</span>
+                                <div className="text-right">
+                                  <div>Count: {stat.count}</div>
+                                  <div>Avg: {stat.averageIntensity.toFixed(1)}</div>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
           <Button onClick={startTrading} variant="primary" className="w-full">
             Start Trading
           </Button>
@@ -170,7 +264,7 @@ export const MonkeyBrainSuppressor: React.FC<MonkeyBrainSuppressorProps> = ({ on
           <div className="bg-gray-700 p-4 rounded-lg">
             <h3 className="text-lg font-semibold mb-4">Record Emotion</h3>
             <div className="grid grid-cols-2 gap-4 mb-4">
-              {customEmotions.map(emotion => (
+              {customEmotions.map((emotion: CustomEmotion) => (
                 <button
                   key={emotion.id}
                   onClick={() => setSelectedEmotion(emotion.name)}
@@ -196,7 +290,7 @@ export const MonkeyBrainSuppressor: React.FC<MonkeyBrainSuppressorProps> = ({ on
                     min="1"
                     max="5"
                     value={emotionIntensity}
-                    onChange={e => setEmotionIntensity(Number(e.target.value))}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmotionIntensity(Number(e.target.value))}
                     className="w-full"
                   />
                   <div className="flex justify-between text-sm text-gray-400">
@@ -213,9 +307,9 @@ export const MonkeyBrainSuppressor: React.FC<MonkeyBrainSuppressorProps> = ({ on
 
           {currentSession.emotions.length > 0 && (
             <div className="bg-gray-700 p-4 rounded-lg">
-              <h3 className="text-lg font-semibold mb-4">Emotion Stats</h3>
+              <h3 className="text-lg font-semibold mb-4">Current Session Stats</h3>
               <div className="space-y-2">
-                {getEmotionStats()?.map(stat => (
+                {getEmotionStats(currentSession).map(stat => (
                   <div 
                     key={stat.emotion}
                     className="flex justify-between items-center p-2 rounded"
