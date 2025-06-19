@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { ProcessedChartData, ChartYAxisMetric, ChartXAxisMetric } from '../../types';
@@ -66,7 +65,7 @@ export const LineChartRenderer: React.FC<LineChartRendererProps> = ({ data, comp
 
     combinedData = sortedXValues.map(x => {
         const basePoint = data.data.find(d => d.xValue === x) || {};
-        const compPoint = comparisonData.data.find(d => d.xValue === x) || {};
+        const compPoint: {[key: string]: any} = comparisonData.data.find(d => d.xValue === x) || {};
         
         // Rename comparison point keys
         const renamedCompPoint: {[key: string]: any} = {};
