@@ -17,13 +17,12 @@
  * - Color uniqueness across multiple calls
  */
 
-import { getRandomColor } from '../colorGenerator';
+import { getRandomColor, resetColorUsage } from '../colorGenerator';
 
 describe('Color Generator', () => {
   beforeEach(() => {
     // Reset the used colors set before each test
-    // We need to access the internal usedColors set to reset it
-    // Since it's not exported, we'll test the behavior indirectly
+    resetColorUsage();
   });
 
   it('generates a valid hex color', () => {
@@ -88,8 +87,6 @@ describe('Color Generator', () => {
     // Both sets should have 12 colors
     expect(firstSet.size).toBe(12);
     expect(secondSet.size).toBe(12);
-    
-    // The sets should be equal (same colors) since palette was reset
     expect(firstSet).toEqual(secondSet);
   });
 

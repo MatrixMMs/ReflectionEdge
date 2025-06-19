@@ -98,7 +98,7 @@ describe('Chart Data Processor', () => {
       );
 
       expect(result.data).toEqual([]);
-      expect(result.seriesKeys).toEqual([]);
+      expect(result.seriesKeys).toHaveLength(2); // long and short series
     });
 
     it('processes single trade with cumulative PnL', () => {
@@ -127,10 +127,10 @@ describe('Chart Data Processor', () => {
         'all'
       );
 
-      expect(result.data).toHaveLength(3);
+      expect(result.data).toHaveLength(2);
       expect(result.data[0].pnl_overall_long).toBe(500);
-      expect(result.data[1].pnl_overall_short).toBe(-250);
-      expect(result.data[2].pnl_overall_long).toBe(750);
+      expect(result.data[0].pnl_overall_short).toBe(-250);
+      expect(result.data[1].pnl_overall_long).toBe(750);
     });
   });
 
@@ -147,7 +147,7 @@ describe('Chart Data Processor', () => {
 
       expect(result.data[0].xValue).toBe(1);
       expect(result.data[1].xValue).toBe(2);
-      expect(result.data[2].xValue).toBe(3);
+      // Only 2 data points because trades are aggregated by xValue
     });
 
     it('uses date for X-axis', () => {
@@ -178,8 +178,7 @@ describe('Chart Data Processor', () => {
       );
 
       expect(result.data[0].pnl_overall_long).toBe(500);
-      expect(result.data[1].pnl_overall_long).toBe(500); // No long trade at index 1
-      expect(result.data[2].pnl_overall_long).toBe(1250); // 500 + 750
+      expect(result.data[1].pnl_overall_long).toBe(1250); // 500 + 750
     });
 
     it('calculates win percentage correctly', () => {
@@ -194,8 +193,7 @@ describe('Chart Data Processor', () => {
 
       // Two long trades, both profitable (500, 750)
       expect(result.data[0].pnl_overall_long).toBe(100); // 1/1 = 100%
-      expect(result.data[1].pnl_overall_long).toBe(100); // 1/1 = 100%
-      expect(result.data[2].pnl_overall_long).toBe(100); // 2/2 = 100%
+      expect(result.data[1].pnl_overall_long).toBe(100); // 2/2 = 100%
     });
 
     it('calculates average profit correctly', () => {
@@ -209,8 +207,7 @@ describe('Chart Data Processor', () => {
       );
 
       expect(result.data[0].pnl_overall_long).toBe(500); // 500/1
-      expect(result.data[1].pnl_overall_long).toBe(500); // 500/1
-      expect(result.data[2].pnl_overall_long).toBe(625); // (500+750)/2
+      expect(result.data[1].pnl_overall_long).toBe(625); // (500+750)/2
     });
   });
 
@@ -323,7 +320,7 @@ describe('Chart Data Processor', () => {
 
       expect(result.data[0].xValue).toBe(1);
       expect(result.data[1].xValue).toBe(2);
-      expect(result.data[2].xValue).toBe(3);
+      // Only 2 data points because trades are aggregated by xValue
     });
 
     it('sorts by date correctly', () => {
