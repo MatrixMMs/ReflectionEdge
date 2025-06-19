@@ -8,6 +8,13 @@ interface MonkeyBrainSuppressorProps {
   onClose: () => void;
 }
 
+interface ChecklistItem {
+  id: string;
+  question: string;
+  isRequired: boolean;
+  checked: boolean;
+}
+
 export const MonkeyBrainSuppressor: React.FC<MonkeyBrainSuppressorProps> = ({ onClose }) => {
   const [customEmotions, setCustomEmotions] = useLocalStorage<CustomEmotion[]>('custom-emotions', [
     { id: '1', name: 'FOMO', color: '#FF4B4B' },
@@ -25,15 +32,76 @@ export const MonkeyBrainSuppressor: React.FC<MonkeyBrainSuppressorProps> = ({ on
   const [emotionIntensity, setEmotionIntensity] = useState<number>(3);
   const [showPlanConfirmation, setShowPlanConfirmation] = useState(false);
   const [hasPlan, setHasPlan] = useState<boolean | null>(null);
+  const [currentStep, setCurrentStep] = useState<'initial' | 'checklist' | 'trading'>('initial');
+
+  const [checklist, setChecklist] = useState<ChecklistItem[]>([
+    {
+      id: '1',
+      question: 'Do you have a trading plan for the day?',
+      isRequired: true,
+      checked: false
+    },
+    {
+      id: '2',
+      question: 'Have you reviewed your risk management rules?',
+      isRequired: true,
+      checked: false
+    },
+    {
+      id: '3',
+      question: 'Have you set your maximum loss limit for the day?',
+      isRequired: true,
+      checked: false
+    },
+    {
+      id: '4',
+      question: 'Have you reviewed market conditions and key news?',
+      isRequired: true,
+      checked: false
+    },
+    {
+      id: '5',
+      question: 'Is your trading environment free from distractions?',
+      isRequired: true,
+      checked: false
+    },
+    {
+      id: '6',
+      question: 'Are you well-rested and in a good mental state?',
+      isRequired: true,
+      checked: false
+    },
+    {
+      id: '7',
+      question: 'Have you set specific entry/exit criteria for today?',
+      isRequired: true,
+      checked: false
+    },
+    {
+      id: '8',
+      question: 'Have you reviewed your previous trading session?',
+      isRequired: false,
+      checked: false
+    }
+  ]);
 
   const startTrading = () => {
-    setShowPlanConfirmation(true);
-    setHasPlan(null);
+    setCurrentStep('checklist');
+    setChecklist(prev => prev.map(item => ({ ...item, checked: false })));
   };
 
-  const handlePlanConfirmation = (hasplan: boolean) => {
-    setHasPlan(hasplan);
-    if (hasplan) {
+  const handleChecklistItem = (itemId: string) => {
+    setChecklist(prev => prev.map(item => 
+      item.id === itemId ? { ...item, checked: !item.checked } : item
+    ));
+  };
+
+  const canStartTrading = () => {
+    return checklist.every(item => !item.isRequired || item.checked);
+  };
+
+  const handleStartTrading = () => {
+    if (canStartTrading()) {
       const session: TradingSession = {
         id: Date.now().toString(),
         startTime: new Date().toISOString(),
@@ -41,7 +109,7 @@ export const MonkeyBrainSuppressor: React.FC<MonkeyBrainSuppressorProps> = ({ on
         emotions: []
       };
       setCurrentSession(session);
-      setShowPlanConfirmation(false);
+      setCurrentStep('trading');
     }
   };
 
@@ -125,34 +193,86 @@ export const MonkeyBrainSuppressor: React.FC<MonkeyBrainSuppressorProps> = ({ on
         <Button onClick={onClose} variant="ghost">×</Button>
       </div>
 
-      {showPlanConfirmation ? (
+      {currentStep === 'checklist' ? (
         <div className="space-y-6">
-          <div className="bg-gray-700 p-6 rounded-lg text-center">
-            <h3 className="text-xl font-semibold mb-6">Do you have a trading plan for the day?</h3>
-            <div className="flex justify-center gap-4">
-              <Button 
-                onClick={() => handlePlanConfirmation(true)}
-                variant="primary"
-                className="px-8"
-              >
-                Yes
-              </Button>
-              <Button 
-                onClick={() => handlePlanConfirmation(false)}
+          <div className="bg-gray-700 p-6 rounded-lg">
+            <h3 className="text-xl font-semibold mb-6">Pre-Trading Checklist</h3>
+            
+            {/* Required Questions */}
+            <div className="mb-6">
+              <h4 className="text-lg font-medium text-red-400 mb-4">Required Items</h4>
+              <div className="space-y-4">
+                {checklist.filter(item => item.isRequired).map(item => (
+                  <div 
+                    key={item.id}
+                    className={`flex items-start gap-3 p-3 rounded ${
+                      item.checked ? 'bg-gray-600/30' : 'bg-gray-800/30'
+                    }`}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={item.checked}
+                      onChange={() => handleChecklistItem(item.id)}
+                      className="mt-1"
+                    />
+                    <div>
+                      <p className="text-gray-100">{item.question}</p>
+                      <p className="text-sm text-red-400">Required</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Optional Questions */}
+            <div className="mb-6">
+              <h4 className="text-lg font-medium text-gray-400 mb-4">Optional Items</h4>
+              <div className="space-y-4">
+                {checklist.filter(item => !item.isRequired).map(item => (
+                  <div 
+                    key={item.id}
+                    className={`flex items-start gap-3 p-3 rounded ${
+                      item.checked ? 'bg-gray-600/30' : 'bg-gray-800/30'
+                    }`}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={item.checked}
+                      onChange={() => handleChecklistItem(item.id)}
+                      className="mt-1"
+                    />
+                    <div>
+                      <p className="text-gray-100">{item.question}</p>
+                      <p className="text-sm text-gray-400">Optional</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="mt-6 flex gap-4 justify-end">
+              <Button
+                onClick={() => setCurrentStep('initial')}
                 variant="secondary"
-                className="px-8"
               >
-                No
+                Back
+              </Button>
+              <Button
+                onClick={handleStartTrading}
+                variant="primary"
+                disabled={!canStartTrading()}
+              >
+                Start Trading
               </Button>
             </div>
-            {hasPlan === false && (
-              <div className="mt-4 text-red-400">
-                Please prepare a trading plan before starting your trading session.
-              </div>
+            {!canStartTrading() && (
+              <p className="mt-4 text-red-400 text-center">
+                Please complete all required items before starting your trading session.
+              </p>
             )}
           </div>
         </div>
-      ) : !currentSession ? (
+      ) : currentStep === 'initial' ? (
         <div className="space-y-6">
           <div className="bg-gray-700 p-4 rounded-lg">
             <h3 className="text-lg font-semibold mb-4">Custom Emotions</h3>
@@ -251,9 +371,9 @@ export const MonkeyBrainSuppressor: React.FC<MonkeyBrainSuppressorProps> = ({ on
         <div className="space-y-6">
           <div className="flex justify-between items-center">
             <div>
-              <p className="text-gray-400">Trades: {currentSession.tradeCount}</p>
+              <p className="text-gray-400">Trades: {currentSession?.tradeCount ?? 0}</p>
               <p className="text-gray-400">
-                Time: {new Date(currentSession.startTime).toLocaleTimeString()}
+                Time: {currentSession ? new Date(currentSession.startTime).toLocaleTimeString() : ''}
               </p>
             </div>
             <Button onClick={incrementTradeCount} variant="primary">
@@ -305,7 +425,7 @@ export const MonkeyBrainSuppressor: React.FC<MonkeyBrainSuppressorProps> = ({ on
             )}
           </div>
 
-          {currentSession.emotions.length > 0 && (
+          {currentSession && currentSession.emotions.length > 0 && (
             <div className="bg-gray-700 p-4 rounded-lg">
               <h3 className="text-lg font-semibold mb-4">Current Session Stats</h3>
               <div className="space-y-2">
