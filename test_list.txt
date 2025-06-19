@@ -1,0 +1,239 @@
+Comprehensive Test List for Trade Report Card Application
+
+1. Core Data Management Tests
+   - Trade CRUD Operations
+     - Create trade with all valid fields
+     - Create trade with missing optional fields
+     - Edit existing trade
+     - Delete trade
+     - Validate trade data structure
+     - Test trade ID generation
+     - Test timeInTrade calculation
+     - Test trade direction validation
+     - Test trade symbol validation
+     - Test contracts validation
+
+   - Local Storage Operations
+     - Save data to localStorage
+     - Load data from localStorage
+     - Handle localStorage errors
+     - Test data version control
+     - Test data migration scenarios
+     - Test data structure validation
+     - Test storage limits
+     - Test data recovery
+
+2. Tag System Tests
+   - Tag Group Management
+     - Create new tag group
+     - Delete tag group
+     - Prevent duplicate tag group names
+     - Test tag group ID generation
+     - Validate tag group structure
+
+   - SubTag Management
+     - Add subtag to group
+     - Remove subtag from group
+     - Update subtag color
+     - Test subtag ID generation
+     - Validate subtag structure
+     - Test color generation
+     - Test color uniqueness
+
+   - Tag Application
+     - Apply tag to trade
+     - Remove tag from trade
+     - Update trade tags
+     - Test tag validation
+     - Test tag group restrictions
+
+3. Chart System Tests
+   - Data Processing ✅
+     - Process trade data for charts ✅
+     - Filter trades by date range ✅
+     - Filter trades by tags ✅
+     - Calculate cumulative PnL ✅
+     - Calculate win rate ✅
+     - Calculate average trade ✅
+     - Handle empty data sets ✅
+     - Handle invalid data ✅
+
+   - Chart Controls
+     - Change Y-axis metric
+     - Change X-axis metric
+     - Set date range
+     - Set comparison date range
+     - Toggle tag comparison mode
+     - Filter by trade direction
+     - Select/deselect tags
+     - Reset chart settings
+
+   - Chart Rendering
+     - Line chart rendering ✅
+     - Pie chart rendering ✅
+     - Chart responsiveness ✅
+     - Chart data updates ✅
+     - Chart color schemes ✅
+     - Chart tooltips ✅
+     - Chart legends ✅
+     - Chart animations ✅
+
+4. Import/Export System Tests
+   - CSV Import
+     - Import broker CSV
+     - Import Quantower CSV
+     - Handle invalid CSV format
+     - Handle missing required fields
+     - Handle duplicate trades
+     - Validate imported data
+     - Test import confirmation
+     - Test import notifications
+
+   - Data Export
+     - Export all trades
+     - Export filtered trades
+     - Validate export format
+     - Test export file generation
+     - Test export error handling
+
+5. UI Component Tests
+   - TradeForm
+     - Form rendering
+     - Form validation
+     - Form submission
+     - Form reset
+     - Error messages
+     - Field interactions
+     - Date/time pickers
+     - Tag selection
+
+   - TradeList
+     - List rendering
+     - List filtering
+     - List sorting
+     - List pagination
+     - Trade editing
+     - Trade deletion
+     - List updates
+
+   - TagManager
+     - Manager rendering
+     - Tag group creation
+     - Tag group deletion
+     - Subtag management
+     - Color picker
+     - Tag validation
+
+   - ChartControls
+     - Controls rendering
+     - Metric selection
+     - Date range selection
+     - Tag selection
+     - Direction filter
+     - Control interactions
+
+   - Modal Components
+     - Modal opening/closing
+     - Modal content rendering
+     - Modal backdrop
+     - Modal animations
+     - Modal focus management
+
+6. Playbook System Tests
+   - Playbook Entry Management
+     - Create entry
+     - Edit entry
+     - Delete entry
+     - Validate entry structure
+     - Test entry timestamps
+     - Test entry associations
+
+   - Playbook UI
+     - List rendering
+     - Entry editing
+     - Entry deletion
+     - Entry filtering
+     - Entry sorting
+
+7. Utility Function Tests
+   - Date Processing
+     - Date formatting
+     - Date validation
+     - Date range calculations
+     - Time zone handling
+
+   - Data Processing
+     - Trade calculations
+     - Statistics generation
+     - Data filtering
+     - Data sorting
+     - Data validation
+
+   - Color Management ✅
+     - Color generation ✅
+     - Color uniqueness ✅
+     - Color reset ✅
+     - Color validation ✅
+
+8. Error Handling Tests
+   - Error Boundaries
+     - Component error catching
+     - Error display
+     - Error recovery
+
+   - Notification System
+     - Success notifications
+     - Error notifications
+     - Warning notifications
+     - Notification timing
+     - Notification dismissal
+
+9. Performance Tests
+   - Load Testing
+     - Large dataset handling
+     - Chart rendering performance
+     - List rendering performance
+     - Filter performance
+     - Sort performance
+
+   - Memory Management
+     - Memory usage monitoring
+     - Memory leak detection
+     - Garbage collection
+
+10. Deployment Tests
+    - Build Process
+      - Production build
+      - Development build
+      - Asset optimization
+      - Bundle size
+      - Source maps
+
+    - GitHub Pages Deployment
+      - Deployment process
+      - Asset loading
+      - Routing
+      - Environment variables
+      - Base URL configuration
+
+11. Cross-browser Tests
+    - Browser Compatibility
+      - Chrome
+      - Firefox
+      - Safari
+      - Edge
+      - Mobile browsers
+
+    - Responsive Design
+      - Desktop view
+      - Tablet view
+      - Mobile view
+      - Different screen sizes
+      - Touch interactions
+
+12. Accessibility Tests
+    - ARIA Compliance
+    - Keyboard Navigation
+    - Screen Reader Compatibility
+    - Color Contrast
+    - Focus Management 
