@@ -76,3 +76,25 @@ export interface Account {
   broker?: string;
   currency?: string;
 }
+
+export interface TradingSession {
+  id: string;
+  startTime: string;
+  endTime?: string;
+  tradeCount: number;
+  emotions: EmotionEntry[];
+}
+
+export interface EmotionEntry {
+  id: string;
+  timestamp: string;
+  emotion: string;
+  intensity: number; // 1-5 scale
+  tradeNumber: number;
+}
+
+export interface CustomEmotion {
+  id: string;
+  name: string;
+  color: string;
+}

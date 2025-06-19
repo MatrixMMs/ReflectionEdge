@@ -15,12 +15,13 @@ import { processChartData, filterTradesByDateAndTags } from './utils/chartDataPr
 import { parseCSVToTrades as parseBrokerExportCSV } from './utils/csvImporter';
 import { parseQuantowerCSVToTrades } from './utils/quantowerCsvImporter';
 import { getRandomColor, resetColorUsage } from './utils/colorGenerator';
-import { PlusCircleIcon, ChartBarIcon, TagIcon, TableCellsIcon, DocumentTextIcon, AdjustmentsHorizontalIcon, DocumentArrowUpIcon, CogIcon, AcademicCapIcon, LightBulbIcon } from './components/ui/Icons'; // Added AcademicCapIcon for consistency if used directly in App.tsx
+import { PlusCircleIcon, ChartBarIcon, TagIcon, TableCellsIcon, DocumentTextIcon, AdjustmentsHorizontalIcon, DocumentArrowUpIcon, CogIcon, AcademicCapIcon, LightBulbIcon, BrainIcon } from './components/ui/Icons'; // Added AcademicCapIcon for consistency if used directly in App.tsx
 import { Modal } from './components/ui/Modal';
 import { Button } from './components/ui/Button';
 import { NotificationPopup } from './components/ui/NotificationPopup';
 import { PlaybookList } from './components/playbook/PlaybookList';
 import { PlaybookEditor } from './components/playbook/PlaybookEditor';
+import { MonkeyBrainSuppressor } from './components/trades/MonkeyBrainSuppressor';
 
 // Helper to normalize CSV headers for detection
 const normalizeHeader = (header: string): string => header.toLowerCase().replace(/\s+/g, '').replace(/\//g, '');
@@ -120,6 +121,8 @@ const App: React.FC = () => {
   // Pattern analysis state
   const [isPatternAnalysisModalOpen, setIsPatternAnalysisModalOpen] = useState(false);
   const [isPatternInsightsModalOpen, setIsPatternInsightsModalOpen] = useState(false);
+
+  const [isMonkeyBrainSuppressorOpen, setIsMonkeyBrainSuppressorOpen] = useState(false);
 
   useEffect(() => {
     saveData(trades, tagGroups, playbookEntries);
@@ -487,6 +490,14 @@ const App: React.FC = () => {
             Insights
           </Button>
           <Button
+            onClick={() => setIsMonkeyBrainSuppressorOpen(true)}
+            variant="primary"
+            size="md"
+            leftIcon={<BrainIcon className="w-5 h-5"/>}
+          >
+            Monkey Brain Suppressor
+          </Button>
+          <Button
             onClick={openTradeForm}
             variant="primary"
             size="md"
@@ -596,6 +607,12 @@ const App: React.FC = () => {
       {isPatternInsightsModalOpen && (
         <Modal title="Pattern Insights" onClose={() => setIsPatternInsightsModalOpen(false)} wide={true}>
           <PatternInsights trades={trades} />
+        </Modal>
+      )}
+
+      {isMonkeyBrainSuppressorOpen && (
+        <Modal title="Monkey Brain Suppressor" onClose={() => setIsMonkeyBrainSuppressorOpen(false)}>
+          <MonkeyBrainSuppressor onClose={() => setIsMonkeyBrainSuppressorOpen(false)} />
         </Modal>
       )}
 
