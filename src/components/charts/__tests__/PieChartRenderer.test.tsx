@@ -1,3 +1,30 @@
+/**
+ * PieChartRenderer Component Tests
+ * 
+ * - Rendering behavior with empty data arrays (displays "no data" message)
+ * - Rendering with valid pie chart data
+ * - Chart component structure verification (pie chart, tooltip, legend)
+ * - Cell rendering for each data point
+ * - Chart responsiveness and container structure
+ * 
+ * Test scenarios include:
+ * - Empty data array (no data message)
+ * - Single data point rendering
+ * - Multiple data points with various values (positive, negative, zero, large)
+ * - Long tag names and edge cases
+ * - Chart element presence and structure validation
+ * - Proper number of cells rendered based on data points
+ * 
+ * Mocked dependencies:
+ * - Recharts components (PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer)
+ * - Pie chart data structures
+ * 
+ * Data validation:
+ * - Ensures correct number of cells match data points
+ * - Verifies chart renders with various data types and edge cases
+ * - Confirms proper component hierarchy and structure
+ */
+
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { PieChartRenderer } from '../PieChartRenderer';

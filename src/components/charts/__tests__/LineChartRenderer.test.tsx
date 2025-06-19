@@ -1,3 +1,28 @@
+/**
+ * LineChartRenderer Component Tests
+ * 
+ * This test suite covers the LineChartRenderer component functionality including:
+ * 
+ * - Rendering behavior with null/empty data (displays "no data" message)
+ * - Rendering with valid chart data and comparison data
+ * - Proper axis label generation based on Y-axis and X-axis metrics
+ * - Chart component structure verification (axes, grid, tooltip, legend)
+ * - Data merging and processing for comparison charts
+ * - Multiple series handling and rendering
+ * - Chart responsiveness and container structure
+ * 
+ * Test scenarios include:
+ * - No data available (null data)
+ * - Basic chart rendering with single series
+ * - Chart with comparison data (multiple series)
+ * - Different axis metric combinations (Trade Sequence, Time, Cumulative P&L, etc.)
+ * - Chart element presence and structure validation
+ * 
+ * Mocked dependencies:
+ * - Recharts components (LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer)
+ * - Chart data structures and metrics from types
+ */
+
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { LineChartRenderer } from '../LineChartRenderer';
@@ -37,9 +62,9 @@ describe('LineChartRenderer', () => {
 
   const mockComparisonData = {
     data: [
-      { xValue: 1, 'Overall P&L': 150 },
-      { xValue: 2, 'Overall P&L': 250 },
-      { xValue: 3, 'Overall P&L': 350 },
+      { xValue: 1, 'Overall P&L_comp': 150 },
+      { xValue: 2, 'Overall P&L_comp': 250 },
+      { xValue: 3, 'Overall P&L_comp': 350 },
     ],
     seriesKeys: [
       { key: 'Overall P&L_comp', name: 'Overall P&L (Compare)', color: '#666666' }
@@ -93,7 +118,7 @@ describe('LineChartRenderer', () => {
         xAxisMetric={ChartXAxisMetric.TRADE_SEQUENCE}
       />
     );
-    expect(screen.getByTestId('line-chart')).toBeInTheDocument();   
+    expect(screen.getByTestId('line-chart')).toBeInTheDocument();
     // Should have two lines - one for main data and one for comparison
     expect(screen.getAllByTestId('line')).toHaveLength(2);
   });

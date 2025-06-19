@@ -69,8 +69,8 @@ Comprehensive Test List for Trade Report Card Application
      - Reset chart settings
 
    - Chart Rendering
-     - Line chart rendering
-     - Pie chart rendering
+     - Line chart rendering ✅
+     - Pie chart rendering ✅
      - Chart responsiveness
      - Chart data updates
      - Chart color schemes
