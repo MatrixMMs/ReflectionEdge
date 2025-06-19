@@ -13,7 +13,8 @@ export const sampleTrades: Omit<Trade, 'id' | 'timeInTrade'>[] = [
     profit: 250,
     tags: { setup: 'momentum', market_condition: 'trend' },
     journal: 'Strong momentum trade, followed the trend well',
-    direction: 'long'
+    direction: 'long',
+    accountId: 'acc1'
   },
   {
     date: '2024-01-16',
@@ -26,7 +27,8 @@ export const sampleTrades: Omit<Trade, 'id' | 'timeInTrade'>[] = [
     profit: 250,
     tags: { setup: 'momentum', market_condition: 'high_volume' },
     journal: 'High volume breakout, good execution',
-    direction: 'long'
+    direction: 'long',
+    accountId: 'acc1'
   },
   {
     date: '2024-01-17',
@@ -39,7 +41,8 @@ export const sampleTrades: Omit<Trade, 'id' | 'timeInTrade'>[] = [
     profit: 375,
     tags: { setup: 'trend', market_condition: 'trend' },
     journal: 'Trend following trade, worked as expected',
-    direction: 'long'
+    direction: 'long',
+    accountId: 'acc1'
   },
 
   // Mid-day trades (11 AM - 2 PM) - Mixed performance
@@ -54,7 +57,8 @@ export const sampleTrades: Omit<Trade, 'id' | 'timeInTrade'>[] = [
     profit: -160,
     tags: { setup: 'failed_auction', market_condition: 'tight_range' },
     journal: 'Failed auction setup, should have waited for better confirmation',
-    direction: 'long'
+    direction: 'long',
+    accountId: 'acc1'
   },
   {
     date: '2024-01-16',
@@ -67,7 +71,8 @@ export const sampleTrades: Omit<Trade, 'id' | 'timeInTrade'>[] = [
     profit: 120,
     tags: { setup: 'mean_reversion', market_condition: 'wide_balance' },
     journal: 'Mean reversion trade, good risk management',
-    direction: 'long'
+    direction: 'long',
+    accountId: 'acc1'
   },
   {
     date: '2024-01-17',
@@ -80,7 +85,8 @@ export const sampleTrades: Omit<Trade, 'id' | 'timeInTrade'>[] = [
     profit: -180,
     tags: { setup: 'stop_runs', market_condition: 'erratic' },
     journal: 'Stop run, market was too erratic',
-    direction: 'long'
+    direction: 'long',
+    accountId: 'acc1'
   },
 
   // Afternoon trades (2-4 PM) - Poor performance
@@ -95,7 +101,8 @@ export const sampleTrades: Omit<Trade, 'id' | 'timeInTrade'>[] = [
     profit: -140,
     tags: { setup: 'failed_auction', market_condition: 'low_volume' },
     journal: 'Low volume afternoon trade, poor execution',
-    direction: 'long'
+    direction: 'long',
+    accountId: 'acc1'
   },
   {
     date: '2024-01-16',
@@ -108,7 +115,8 @@ export const sampleTrades: Omit<Trade, 'id' | 'timeInTrade'>[] = [
     profit: -275,
     tags: { setup: 'stop_runs', market_condition: 'erratic' },
     journal: 'Afternoon volatility killed the trade',
-    direction: 'long'
+    direction: 'long',
+    accountId: 'acc1'
   },
   {
     date: '2024-01-17',
@@ -121,7 +129,8 @@ export const sampleTrades: Omit<Trade, 'id' | 'timeInTrade'>[] = [
     profit: -170,
     tags: { setup: 'failed_auction', market_condition: 'low_volume' },
     journal: 'Another poor afternoon trade',
-    direction: 'long'
+    direction: 'long',
+    accountId: 'acc1'
   },
 
   // Pre-market trades (6-9 AM) - Good performance
@@ -136,7 +145,8 @@ export const sampleTrades: Omit<Trade, 'id' | 'timeInTrade'>[] = [
     profit: 400,
     tags: { setup: 'momentum', market_condition: 'high_volume' },
     journal: 'Pre-market momentum trade, excellent execution',
-    direction: 'long'
+    direction: 'long',
+    accountId: 'acc1'
   },
   {
     date: '2024-01-19',
@@ -149,7 +159,8 @@ export const sampleTrades: Omit<Trade, 'id' | 'timeInTrade'>[] = [
     profit: 300,
     tags: { setup: 'trend', market_condition: 'trend' },
     journal: 'Pre-market trend trade, worked well',
-    direction: 'long'
+    direction: 'long',
+    accountId: 'acc1'
   },
 
   // After hours trades (4-6 PM) - Mixed performance
@@ -164,7 +175,8 @@ export const sampleTrades: Omit<Trade, 'id' | 'timeInTrade'>[] = [
     profit: 100,
     tags: { setup: 'mean_reversion', market_condition: 'wide_balance' },
     journal: 'After hours mean reversion, good setup',
-    direction: 'long'
+    direction: 'long',
+    accountId: 'acc1'
   },
   {
     date: '2024-01-19',
@@ -177,7 +189,8 @@ export const sampleTrades: Omit<Trade, 'id' | 'timeInTrade'>[] = [
     profit: -80,
     tags: { setup: 'stop_runs', market_condition: 'erratic' },
     journal: 'After hours volatility',
-    direction: 'long'
+    direction: 'long',
+    accountId: 'acc1'
   },
 
   // Different days of the week
@@ -192,7 +205,8 @@ export const sampleTrades: Omit<Trade, 'id' | 'timeInTrade'>[] = [
     profit: 200,
     tags: { setup: 'momentum', market_condition: 'trend' },
     journal: 'Monday momentum trade',
-    direction: 'long'
+    direction: 'long',
+    accountId: 'acc1'
   },
   {
     date: '2024-01-23', // Tuesday
@@ -205,7 +219,8 @@ export const sampleTrades: Omit<Trade, 'id' | 'timeInTrade'>[] = [
     profit: 150,
     tags: { setup: 'trend', market_condition: 'high_volume' },
     journal: 'Tuesday trend trade',
-    direction: 'long'
+    direction: 'long',
+    accountId: 'acc1'
   },
   {
     date: '2024-01-24', // Wednesday
@@ -218,7 +233,8 @@ export const sampleTrades: Omit<Trade, 'id' | 'timeInTrade'>[] = [
     profit: -225,
     tags: { setup: 'failed_auction', market_condition: 'erratic' },
     journal: 'Wednesday failed trade',
-    direction: 'long'
+    direction: 'long',
+    accountId: 'acc1'
   },
   {
     date: '2024-01-25', // Thursday
@@ -231,7 +247,8 @@ export const sampleTrades: Omit<Trade, 'id' | 'timeInTrade'>[] = [
     profit: 240,
     tags: { setup: 'momentum', market_condition: 'trend' },
     journal: 'Thursday momentum trade',
-    direction: 'long'
+    direction: 'long',
+    accountId: 'acc1'
   },
   {
     date: '2024-01-26', // Friday
@@ -244,7 +261,8 @@ export const sampleTrades: Omit<Trade, 'id' | 'timeInTrade'>[] = [
     profit: -120,
     tags: { setup: 'stop_runs', market_condition: 'low_volume' },
     journal: 'Friday poor trade',
-    direction: 'long'
+    direction: 'long',
+    accountId: 'acc1'
   },
 
   // Short trades for variety
@@ -259,7 +277,8 @@ export const sampleTrades: Omit<Trade, 'id' | 'timeInTrade'>[] = [
     profit: 200,
     tags: { setup: 'mean_reversion', market_condition: 'wide_balance' },
     journal: 'Short mean reversion trade',
-    direction: 'short'
+    direction: 'short',
+    accountId: 'acc1'
   },
   {
     date: '2024-01-21',
@@ -272,6 +291,7 @@ export const sampleTrades: Omit<Trade, 'id' | 'timeInTrade'>[] = [
     profit: -150,
     tags: { setup: 'failed_auction', market_condition: 'tight_range' },
     journal: 'Short trade gone wrong',
-    direction: 'short'
+    direction: 'short',
+    accountId: 'acc1'
   }
 ]; 

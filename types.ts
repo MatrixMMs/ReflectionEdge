@@ -16,6 +16,7 @@ export interface Trade {
   journal: string;
   direction: TradeDirection;
   strategyId?: string;
+  accountId: string; // New field for multi-account support
 }
 
 export interface SubTag {
@@ -67,4 +68,11 @@ export interface PlaybookEntry {
   notes?: string;
   createdAt: string;
   updatedAt: string;
+}
+
+export interface Account {
+  id: string;
+  name: string;
+  broker?: string;
+  currency?: string;
 }

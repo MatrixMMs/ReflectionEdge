@@ -1,4 +1,3 @@
-
 import { Trade, ChartXAxisMetric, ChartYAxisMetric, ProcessedChartData, TagGroup, SubTag, AppDateRange, TradeDirectionFilterSelection, TradeDirection } from '../types';
 import { DEFAULT_CHART_COLOR, LONG_TRADE_COLOR, SHORT_TRADE_COLOR } from '../constants';
 

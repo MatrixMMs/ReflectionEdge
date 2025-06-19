@@ -33,6 +33,16 @@ A powerful React-based web application for analyzing trading performance through
   - Trade direction filtering
   - Custom date range comparisons
 
+- **Pattern Recognition & Insights**
+  - Detect time-based trading patterns (hourly, daily, session, etc.)
+  - Actionable insights and recommendations for optimizing strategy
+  - Visualize best/worst performing periods and patterns
+
+- **Multi-Account Support**
+  - Track trades across multiple trading accounts
+  - Filter analytics and charts by account
+  - Manage account details and assignments
+
 ## Getting Started
 
 ### Prerequisites
