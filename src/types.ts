@@ -12,6 +12,7 @@ export interface Trade {
   timeOut: string; // ISO string or HH:mm
   timeInTrade: number; // in minutes
   profit: number;
+  fees?: number; // Optional field for trading fees/commissions
   tags: { [tagGroupId: string]: string }; // { tagGroupId: subTagId }
   journal: string;
   direction: TradeDirection;

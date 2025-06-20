@@ -26,6 +26,8 @@ import { PlaybookEditor } from './components/playbook/PlaybookEditor';
 import { MonkeyBrainSuppressor } from './components/trades/MonkeyBrainSuppressor';
 import { validateFileUpload, safeJsonParse, rateLimiter, generateSecureId, sanitizeString, validateDateString, SECURITY_CONFIG } from './utils/security';
 import { SecureStorage } from './utils/secureStorage';
+import { generatePdfReport } from './utils/pdfGenerator';
+import { calculateFinancials } from './utils/financialCalculations';
 
 // Helper to normalize CSV headers for detection
 const normalizeHeader = (header: string): string => header.toLowerCase().replace(/\s+/g, '').replace(/\//g, '');
@@ -119,6 +121,16 @@ const App: React.FC = () => {
 
   // Kelly Criterion analysis state
   const [isKellyCriterionModalOpen, setIsKellyCriterionModalOpen] = useState(false);
+
+  // Export modal state
+  const [isExportModalOpen, setIsExportModalOpen] = useState(false);
+  const [exportDateRange, setExportDateRange] = useState<AppDateRange>({
+    start: new Date().toISOString().split('T')[0],
+    end: new Date().toISOString().split('T')[0],
+  });
+  const [exportDateMode, setExportDateMode] = useState<'daily' | 'range'>('daily');
+  const [isGeneratingReport, setIsGeneratingReport] = useState(false);
+  const [reportError, setReportError] = useState<string | null>(null);
 
   useEffect(() => {
     saveData(trades, tagGroups, playbookEntries);
@@ -478,6 +490,225 @@ const App: React.FC = () => {
     URL.revokeObjectURL(url);
   };
 
+  const handleExportFilteredData = () => {
+    // We use baseTradesForChart as it already has date range and tag filters applied
+    const dataToExport = {
+      trades: baseTradesForChart,
+      tagGroups,
+      playbookEntries,
+      filters: {
+        chartDateRange,
+        selectedTagsForChart,
+        tagComparisonMode,
+        directionFilter,
+      }
+    };
+    const blob = new Blob([JSON.stringify(dataToExport, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `reflection-edge-filtered-export-${new Date().toISOString().slice(0,10)}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    setIsExportModalOpen(false); // Close modal after export
+  };
+
+  const handleExportDataWithAnalytics = () => {
+    // Filter trades by the selected export date range
+    const filteredTrades = trades.filter(trade => {
+      const tradeDate = new Date(trade.date);
+      const startDate = new Date(exportDateRange.start);
+      const endDate = new Date(exportDateRange.end);
+      return tradeDate >= startDate && tradeDate <= endDate;
+    });
+
+    // 3. Generate analytical insights for PDF (with error handling)
+    let analytics: any = undefined;
+    try {
+      // Limit dataset size for analytics to prevent performance issues
+      const maxTradesForAnalytics = 1000;
+      const tradesForAnalytics = filteredTrades.length > maxTradesForAnalytics 
+        ? filteredTrades.slice(-maxTradesForAnalytics) 
+        : filteredTrades;
+      
+      if (tradesForAnalytics.length < 10) {
+        console.warn('Insufficient data for analytics (need at least 10 trades)');
+      } else {
+        const { discoverEdges } = require('./utils/edgeDiscovery');
+        const { analyzeTimePatterns } = require('./utils/patternRecognition');
+        const { calculateKellyCriterion } = require('./utils/kellyCriterion');
+
+        analytics = {
+          edgeDiscovery: discoverEdges(tradesForAnalytics),
+          patternAnalysis: analyzeTimePatterns(tradesForAnalytics),
+          kellyCriterion: calculateKellyCriterion(tradesForAnalytics),
+        };
+      }
+    } catch (analyticsError) {
+      console.warn('Analytics calculation failed, generating report without analytics:', analyticsError);
+      // Continue without analytics rather than failing completely
+    }
+
+    const dataToExport = {
+      trades: filteredTrades,
+      tagGroups,
+      playbookEntries,
+      analytics: analytics,
+      exportSettings: {
+        dateRange: exportDateRange,
+        dateMode: exportDateMode,
+        totalTrades: filteredTrades.length,
+        exportTimestamp: new Date().toISOString(),
+      }
+    };
+    
+    const blob = new Blob([JSON.stringify(dataToExport, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `reflection-edge-analytics-export-${exportDateRange.start}-to-${exportDateRange.end}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    setIsExportModalOpen(false);
+  };
+
+  const handleGenerateReport = async () => {
+    setIsGeneratingReport(true);
+    setReportError(null);
+    
+    try {
+      // Filter trades by the selected export date range
+      const filteredTrades = trades.filter(trade => {
+        const tradeDate = new Date(trade.date);
+        const startDate = new Date(exportDateRange.start);
+        const endDate = new Date(exportDateRange.end);
+        return tradeDate >= startDate && tradeDate <= endDate;
+      });
+      
+      if (filteredTrades.length === 0) {
+        throw new Error('No trades found for the selected date range.');
+      }
+      
+      // 1. Define elements to print
+      const elementsToPrint = [
+        { elementId: 'performance-chart-container', title: 'Performance Chart' },
+        { elementId: 'summary-container', title: 'Summary' },
+        { elementId: 'tradelog-container', title: 'Trade Log' }
+      ];
+
+      // 2. Gather summary stats for the filtered trades
+      const summaryFinancials = calculateFinancials(filteredTrades);
+      const summaryStats = {
+        'Total Trades': summaryFinancials.totalTrades,
+        'Net P&L': `$${summaryFinancials.netPnl.toFixed(2)}`,
+        'Win Rate': `${summaryFinancials.winRate.toFixed(1)}%`,
+        'Profit Factor': summaryFinancials.profitFactor.toFixed(2),
+        'Average Win': `$${summaryFinancials.avgWin.toFixed(2)}`,
+        'Average Loss': `$${summaryFinancials.avgLoss.toFixed(2)}`,
+      };
+
+      // 3. Generate analytical insights for PDF (with error handling)
+      let analytics: any = undefined;
+      try {
+        // Limit dataset size for analytics to prevent performance issues
+        const maxTradesForAnalytics = 1000;
+        const tradesForAnalytics = filteredTrades.length > maxTradesForAnalytics 
+          ? filteredTrades.slice(-maxTradesForAnalytics) 
+          : filteredTrades;
+        
+        if (tradesForAnalytics.length < 10) {
+          console.warn('Insufficient data for analytics (need at least 10 trades)');
+        } else {
+          const { discoverEdges } = require('./utils/edgeDiscovery');
+          const { analyzeTimePatterns } = require('./utils/patternRecognition');
+          const { calculateKellyCriterion } = require('./utils/kellyCriterion');
+
+          analytics = {
+            edgeDiscovery: discoverEdges(tradesForAnalytics),
+            patternAnalysis: analyzeTimePatterns(tradesForAnalytics),
+            kellyCriterion: calculateKellyCriterion(tradesForAnalytics),
+          };
+        }
+      } catch (analyticsError) {
+        console.warn('Analytics calculation failed, generating report without analytics:', analyticsError);
+        // Continue without analytics rather than failing completely
+      }
+
+      // 4. Set report title and date range
+      const reportTitle = 'Trading Performance Report';
+      const dateRange = exportDateMode === 'daily' 
+          ? { start: exportDateRange.start, end: exportDateRange.start } 
+          : exportDateRange;
+
+      // 5. Generate PDF with analytics
+      await generatePdfReport(elementsToPrint, summaryStats, reportTitle, dateRange, analytics);
+      
+      setIsExportModalOpen(false);
+    } catch (error) {
+      console.error('PDF generation failed:', error);
+      setReportError(error instanceof Error ? error.message : 'Failed to generate PDF report');
+    } finally {
+      setIsGeneratingReport(false);
+    }
+  };
+
+  const handleGenerateBasicReport = async () => {
+    setIsGeneratingReport(true);
+    setReportError(null);
+    
+    try {
+      // Filter trades by the selected export date range
+      const filteredTrades = trades.filter(trade => {
+        const tradeDate = new Date(trade.date);
+        const startDate = new Date(exportDateRange.start);
+        const endDate = new Date(exportDateRange.end);
+        return tradeDate >= startDate && tradeDate <= endDate;
+      });
+      
+      if (filteredTrades.length === 0) {
+        throw new Error('No trades found for the selected date range.');
+      }
+      
+      // 1. Define elements to print
+      const elementsToPrint = [
+        { elementId: 'performance-chart-container', title: 'Performance Chart' },
+        { elementId: 'summary-container', title: 'Summary' },
+        { elementId: 'tradelog-container', title: 'Trade Log' }
+      ];
+
+      // 2. Gather summary stats for the filtered trades
+      const summaryFinancials = calculateFinancials(filteredTrades);
+      const summaryStats = {
+        'Total Trades': summaryFinancials.totalTrades,
+        'Net P&L': `$${summaryFinancials.netPnl.toFixed(2)}`,
+        'Win Rate': `${summaryFinancials.winRate.toFixed(1)}%`,
+        'Profit Factor': summaryFinancials.profitFactor.toFixed(2),
+        'Average Win': `$${summaryFinancials.avgWin.toFixed(2)}`,
+        'Average Loss': `$${summaryFinancials.avgLoss.toFixed(2)}`,
+      };
+
+      // 3. Set report title and date range
+      const reportTitle = 'Trading Performance Report';
+      const dateRange = exportDateMode === 'daily' 
+          ? { start: exportDateRange.start, end: exportDateRange.start } 
+          : exportDateRange;
+
+      // 4. Generate PDF without analytics
+      await generatePdfReport(elementsToPrint, summaryStats, reportTitle, dateRange);
+      
+      setIsExportModalOpen(false);
+    } catch (error) {
+      console.error('PDF generation failed:', error);
+      setReportError(error instanceof Error ? error.message : 'Failed to generate PDF report');
+    } finally {
+      setIsGeneratingReport(false);
+    }
+  };
+
   const handleAddPlaybookEntry = (entry: Omit<PlaybookEntry, 'id' | 'createdAt' | 'updatedAt'>) => {
     const now = new Date().toISOString();
     const newEntry: PlaybookEntry = {
@@ -584,7 +815,7 @@ const App: React.FC = () => {
             Import
           </Button>
           <Button
-            onClick={handleExportData}
+            onClick={() => setIsExportModalOpen(true)}
             variant="secondary"
             className="bg-blue-500 hover:bg-blue-600"
             size="sm"
@@ -698,6 +929,144 @@ const App: React.FC = () => {
           </Modal>
         )}
 
+        {isExportModalOpen && (
+          <Modal title="Export Data & Reports" onClose={() => setIsExportModalOpen(false)}>
+            <div className="space-y-6">
+              {/* Date Range Selection */}
+              <div>
+                <h3 className="text-lg font-semibold text-gray-200 mb-3">Select Date Range</h3>
+                <div className="flex items-center space-x-2 mb-4">
+                  <Button 
+                    onClick={() => setExportDateMode('daily')} 
+                    variant={exportDateMode === 'daily' ? 'primary' : 'secondary'} 
+                    size="sm"
+                  >
+                    Daily
+                  </Button>
+                  <Button 
+                    onClick={() => setExportDateMode('range')} 
+                    variant={exportDateMode === 'range' ? 'primary' : 'secondary'} 
+                    size="sm"
+                  >
+                    Range
+                  </Button>
+                </div>
+                
+                <div className="mb-4">
+                  {exportDateMode === 'daily' ? (
+                    <div>
+                      <label htmlFor="export-date" className="block text-sm font-medium text-gray-300 mb-1">Select Date:</label>
+                      <input
+                        type="date"
+                        id="export-date"
+                        value={exportDateRange.start}
+                        onChange={(e) => setExportDateRange({ start: e.target.value, end: e.target.value })}
+                        className="w-full bg-gray-700 border border-gray-600 text-gray-100 sm:text-sm rounded-lg focus:ring-purple-500 focus:border-purple-500 p-2.5"
+                      />
+                    </div>
+                  ) : (
+                    <div className="flex items-center space-x-2">
+                      <div>
+                        <label htmlFor="export-start-date" className="block text-sm font-medium text-gray-300 mb-1">Start Date:</label>
+                        <input
+                          type="date"
+                          id="export-start-date"
+                          value={exportDateRange.start}
+                          onChange={(e) => setExportDateRange(prev => ({ ...prev, start: e.target.value }))}
+                          className="w-full bg-gray-700 border border-gray-600 text-gray-100 sm:text-sm rounded-lg focus:ring-purple-500 focus:border-purple-500 p-2.5"
+                        />
+                      </div>
+                      <div>
+                        <label htmlFor="export-end-date" className="block text-sm font-medium text-gray-300 mb-1">End Date:</label>
+                        <input
+                          type="date"
+                          id="export-end-date"
+                          value={exportDateRange.end}
+                          onChange={(e) => setExportDateRange(prev => ({ ...prev, end: e.target.value }))}
+                          className="w-full bg-gray-700 border border-gray-600 text-gray-100 sm:text-sm rounded-lg focus:ring-purple-500 focus:border-purple-500 p-2.5"
+                        />
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* PDF Report Generation */}
+              <div>
+                <h3 className="text-lg font-semibold text-gray-200 mb-2">Generate PDF Report</h3>
+                {reportError && (
+                  <div className="mb-3 p-3 bg-red-900 border border-red-700 rounded-lg">
+                    <p className="text-red-200 text-sm">{reportError}</p>
+                  </div>
+                )}
+                <div className="space-y-2">
+                  <Button
+                    onClick={handleGenerateBasicReport}
+                    variant="primary"
+                    className="w-full bg-green-600 hover:bg-green-700"
+                    leftIcon={<DocumentTextIcon className="w-5 h-5"/>}
+                    disabled={isGeneratingReport}
+                  >
+                    {isGeneratingReport ? 'Generating...' : 'Generate Basic Report'}
+                  </Button>
+                  <Button
+                    onClick={handleGenerateReport}
+                    variant="secondary"
+                    className="w-full bg-purple-600 hover:bg-purple-700"
+                    leftIcon={<DocumentTextIcon className="w-5 h-5"/>}
+                    disabled={isGeneratingReport}
+                  >
+                    {isGeneratingReport ? 'Generating with Analytics...' : 'Generate Report with Analytics'}
+                  </Button>
+                </div>
+                <p className="text-xs text-gray-400 mt-1">
+                  Generates a PDF using the date range selected above. Analytics version includes Edge Discovery, Pattern Analysis, and Kelly Criterion insights.
+                </p>
+                {isGeneratingReport && (
+                  <p className="text-xs text-yellow-400 mt-2">
+                    ⚠️ Analytics calculation may take a few seconds for large datasets...
+                  </p>
+                )}
+              </div>
+
+              <div className="border-t border-gray-600 my-4"></div>
+
+              {/* Data Export Options */}
+              <div>
+                <h3 className="text-lg font-semibold text-gray-200 mb-2">Export Raw Data</h3>
+                <p className="text-sm text-gray-300 mb-3">Export your trade data to JSON files.</p>
+                <div className="space-y-3">
+                  <Button
+                    onClick={handleExportDataWithAnalytics}
+                    variant="secondary"
+                    className="w-full bg-blue-600 hover:bg-blue-700"
+                    leftIcon={<DocumentTextIcon className="w-5 h-5"/>}
+                  >
+                    Export with Analytics (Edge, Patterns, Kelly)
+                  </Button>
+                  <Button
+                    onClick={handleExportFilteredData}
+                    variant="secondary"
+                    leftIcon={<DocumentTextIcon className="w-5 h-5"/>}
+                  >
+                    Export Chart Filtered Trades ({baseTradesForChart.length} trades)
+                  </Button>
+                  <Button
+                    onClick={handleExportData}
+                    variant="secondary"
+                    leftIcon={<DocumentTextIcon className="w-5 h-5"/>}
+                  >
+                    Export All Trades ({trades.length} trades)
+                  </Button>
+                </div>
+                <p className="text-xs text-gray-400 mt-2">
+                  "Chart Filtered" uses current chart controls. "With Analytics" includes Edge Discovery, Pattern Analysis, and Kelly Criterion calculations.
+                </p>
+              </div>
+            </div>
+          </Modal>
+        )}
+
         {showImportConfirmation && importNotification && (
           <NotificationPopup
             title={importNotification.title}
@@ -792,7 +1161,7 @@ const App: React.FC = () => {
           </div>
 
           <div className="lg:col-span-2 space-y-6">
-            <div className="bg-gray-800 p-6 rounded-xl shadow-2xl min-h-[400px]">
+            <div id="performance-chart-container" className="bg-gray-800 p-6 rounded-xl shadow-2xl min-h-[400px]">
                <h2 className="text-2xl font-semibold mb-4 text-green-400 flex items-center"><ChartBarIcon className="w-6 h-6 mr-2" />Performance Chart</h2>
               <LineChartRenderer 
                 data={chartData} 
@@ -820,7 +1189,7 @@ const App: React.FC = () => {
               ))}
             </div>
 
-            <div className="bg-gray-800 p-6 rounded-xl shadow-2xl">
+            <div id="tradelog-container" className="bg-gray-800 p-6 rounded-xl shadow-2xl">
               <h2 className="text-2xl font-semibold mb-4 text-purple-400 flex items-center">
                 <TableCellsIcon className="w-6 h-6 mr-2" /> Trade Log
               </h2>
