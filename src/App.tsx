@@ -11,6 +11,7 @@ import { ChartControls } from './components/charts/ChartControls';
 import { PatternAnalysisDashboard } from './components/patterns/PatternAnalysisDashboard';
 import { PatternInsights } from './components/patterns/PatternInsights';
 import { KellyCriterionAnalysis } from './components/analysis/KellyCriterionAnalysis';
+import { EdgeDiscoveryDashboard } from './components/analysis/EdgeDiscoveryDashboard';
 import { DEFAULT_CHART_COLOR, COMPARISON_CHART_COLOR, LONG_TRADE_COLOR, SHORT_TRADE_COLOR, DEFAULT_TAG_GROUPS } from './constants';
 import { processChartData, filterTradesByDateAndTags } from './utils/chartDataProcessor';
 import { parseCSVToTrades as parseBrokerExportCSV } from './utils/csvImporter';
@@ -110,6 +111,9 @@ const App: React.FC = () => {
   // Pattern analysis state
   const [isPatternAnalysisModalOpen, setIsPatternAnalysisModalOpen] = useState(false);
   const [isPatternInsightsModalOpen, setIsPatternInsightsModalOpen] = useState(false);
+
+  // Edge Discovery analysis state
+  const [isEdgeDiscoveryModalOpen, setIsEdgeDiscoveryModalOpen] = useState(false);
 
   const [isMonkeyBrainSuppressorOpen, setIsMonkeyBrainSuppressorOpen] = useState(false);
 
@@ -540,6 +544,14 @@ const App: React.FC = () => {
             Insights
           </Button>
           <Button
+            onClick={() => setIsEdgeDiscoveryModalOpen(true)}
+            variant="primary"
+            size="sm"
+            leftIcon={<LightBulbIcon className="w-4 h-4" />}
+          >
+            Edge
+          </Button>
+          <Button
             onClick={() => setIsMonkeyBrainSuppressorOpen(true)}
             variant="primary"
             size="sm"
@@ -665,6 +677,12 @@ const App: React.FC = () => {
         {isPatternInsightsModalOpen && (
           <Modal title="Pattern Insights" onClose={() => setIsPatternInsightsModalOpen(false)} wide={true}>
             <PatternInsights trades={trades} />
+          </Modal>
+        )}
+
+        {isEdgeDiscoveryModalOpen && (
+          <Modal title="Edge Discovery Dashboard" onClose={() => setIsEdgeDiscoveryModalOpen(false)} wide={true}>
+            <EdgeDiscoveryDashboard trades={trades} />
           </Modal>
         )}
 
