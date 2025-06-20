@@ -1,4 +1,4 @@
-Comprehensive Test List for Trade Report Card Application
+Comprehensive Test List for Reflection Edge Application
 
 1. Core Data Management Tests
    - Trade CRUD Operations

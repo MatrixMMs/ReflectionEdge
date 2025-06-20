@@ -55,7 +55,7 @@ A powerful React-based web application for analyzing trading performance through
 1. Clone the repository:
 ```bash
 git clone [repository-url]
-cd trade-report-card
+cd reflection-edge
 ```
 
 2. Install dependencies:
