@@ -1,10 +1,9 @@
 import React, { useState } from 'react';
-import { TagGroup, SubTag } from '../../types';
+import { TagGroup } from '../../types';
 import { Input } from '../ui/Input';
 import { Button } from '../ui/Button';
 import { ColorPicker } from '../ui/ColorPicker';
 import { PlusCircleIcon, TrashIcon } from '../ui/Icons';
-import { DEFAULT_TAG_GROUPS } from '../../constants';
 
 interface TagManagerProps {
   tagGroups: TagGroup[];

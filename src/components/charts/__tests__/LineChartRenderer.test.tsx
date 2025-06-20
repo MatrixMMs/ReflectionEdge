@@ -1,8 +1,6 @@
 /**
  * LineChartRenderer Component Tests
  * 
- * This test suite covers the LineChartRenderer component functionality including:
- * 
  * - Rendering behavior with null/empty data (displays "no data" message)
  * - Rendering with valid chart data and comparison data
  * - Proper axis label generation based on Y-axis and X-axis metrics

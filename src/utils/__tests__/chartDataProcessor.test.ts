@@ -41,7 +41,8 @@ describe('Chart Data Processor', () => {
       profit: 500,
       tags: { 'group1': 'tag1' },
       journal: 'Good trade',
-      direction: 'long'
+      direction: 'long',
+      accountId: 'account1'
     },
     {
       id: '2',
@@ -56,7 +57,8 @@ describe('Chart Data Processor', () => {
       profit: -250,
       tags: { 'group1': 'tag2' },
       journal: 'Bad trade',
-      direction: 'short'
+      direction: 'short',
+      accountId: 'account1'
     },
     {
       id: '3',
@@ -71,7 +73,8 @@ describe('Chart Data Processor', () => {
       profit: 750,
       tags: { 'group1': 'tag1' },
       journal: 'Great trade',
-      direction: 'long'
+      direction: 'long',
+      accountId: 'account1'
     }
   ];
 
