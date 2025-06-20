@@ -15,6 +15,12 @@ interface ChecklistItem {
   checked: boolean;
 }
 
+interface TradeResult {
+  id: string;
+  timestamp: string;
+  result: 'win' | 'lose';
+}
+
 export const MonkeyBrainSuppressor: React.FC<MonkeyBrainSuppressorProps> = ({ onClose }) => {
   const [customEmotions, setCustomEmotions] = useLocalStorage<CustomEmotion[]>('custom-emotions', [
     { id: '1', name: 'FOMO', color: '#FF4B4B' },
@@ -33,6 +39,14 @@ export const MonkeyBrainSuppressor: React.FC<MonkeyBrainSuppressorProps> = ({ on
   const [showPlanConfirmation, setShowPlanConfirmation] = useState(false);
   const [hasPlan, setHasPlan] = useState<boolean | null>(null);
   const [currentStep, setCurrentStep] = useState<'initial' | 'checklist' | 'trading'>('initial');
+
+  // Win/Lose tracking
+  const [tradeResults, setTradeResults] = useState<TradeResult[]>([]);
+  const [consecutiveLosses, setConsecutiveLosses] = useState<number>(0);
+  const [isTimedOut, setIsTimedOut] = useState<boolean>(false);
+  const [timeoutEndTime, setTimeoutEndTime] = useState<Date | null>(null);
+  const [timeRemaining, setTimeRemaining] = useState<string>('');
+  const [showSessionResults, setShowSessionResults] = useState<boolean>(false);
 
   const [checklist, setChecklist] = useState<ChecklistItem[]>([
     {
@@ -85,9 +99,37 @@ export const MonkeyBrainSuppressor: React.FC<MonkeyBrainSuppressorProps> = ({ on
     }
   ]);
 
+  // Timer effect for timeout countdown
+  useEffect(() => {
+    if (isTimedOut && timeoutEndTime) {
+      const interval = setInterval(() => {
+        const now = new Date();
+        const timeLeft = timeoutEndTime.getTime() - now.getTime();
+        
+        if (timeLeft <= 0) {
+          setIsTimedOut(false);
+          setTimeoutEndTime(null);
+          setConsecutiveLosses(0);
+          setTimeRemaining('');
+        } else {
+          const minutes = Math.floor(timeLeft / (1000 * 60));
+          const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
+          setTimeRemaining(`${minutes}:${seconds.toString().padStart(2, '0')}`);
+        }
+      }, 1000);
+
+      return () => clearInterval(interval);
+    }
+  }, [isTimedOut, timeoutEndTime]);
+
   const startTrading = () => {
     setCurrentStep('checklist');
     setChecklist(prev => prev.map(item => ({ ...item, checked: false })));
+    setTradeResults([]);
+    setConsecutiveLosses(0);
+    setIsTimedOut(false);
+    setTimeoutEndTime(null);
+    setTimeRemaining('');
   };
 
   const handleChecklistItem = (itemId: string) => {
@@ -115,12 +157,24 @@ export const MonkeyBrainSuppressor: React.FC<MonkeyBrainSuppressorProps> = ({ on
 
   const endTrading = () => {
     if (currentSession) {
+      setShowSessionResults(true);
+    }
+  };
+
+  const confirmEndTrading = () => {
+    if (currentSession) {
       const endedSession = {
         ...currentSession,
         endTime: new Date().toISOString()
       };
       setTradingSessions([...tradingSessions, endedSession]);
       setCurrentSession(null);
+      setShowSessionResults(false);
+      setTradeResults([]);
+      setConsecutiveLosses(0);
+      setIsTimedOut(false);
+      setTimeoutEndTime(null);
+      setTimeRemaining('');
     }
   };
 
@@ -131,6 +185,40 @@ export const MonkeyBrainSuppressor: React.FC<MonkeyBrainSuppressorProps> = ({ on
         tradeCount: currentSession.tradeCount + 1
       });
     }
+  };
+
+  const handleTradeResult = (result: 'win' | 'lose') => {
+    if (isTimedOut) {
+      alert('You are currently in timeout. Please wait before making another trade.');
+      return;
+    }
+
+    const newTradeResult: TradeResult = {
+      id: Date.now().toString(),
+      timestamp: new Date().toISOString(),
+      result
+    };
+
+    setTradeResults(prev => [...prev, newTradeResult]);
+
+    if (result === 'lose') {
+      const newConsecutiveLosses = consecutiveLosses + 1;
+      setConsecutiveLosses(newConsecutiveLosses);
+
+      if (newConsecutiveLosses >= 3) {
+        // Start 5-minute timeout
+        setIsTimedOut(true);
+        const endTime = new Date(Date.now() + 5 * 60 * 1000); // 5 minutes
+        setTimeoutEndTime(endTime);
+        alert('3 consecutive losses detected. You are now in a 5-minute timeout to prevent emotional trading.');
+      }
+    } else {
+      // Reset consecutive losses on win
+      setConsecutiveLosses(0);
+    }
+
+    // Increment trade count
+    incrementTradeCount();
   };
 
   const addEmotion = () => {
@@ -184,6 +272,65 @@ export const MonkeyBrainSuppressor: React.FC<MonkeyBrainSuppressorProps> = ({ on
       averageIntensity: data.totalIntensity / data.count,
       color: data.color
     }));
+  };
+
+  const getTradeStats = () => {
+    const totalTrades = tradeResults.length;
+    const wins = tradeResults.filter(t => t.result === 'win').length;
+    const losses = tradeResults.filter(t => t.result === 'lose').length;
+    const winRate = totalTrades > 0 ? (wins / totalTrades * 100).toFixed(1) : '0';
+    
+    return { totalTrades, wins, losses, winRate };
+  };
+
+  const getSessionStats = () => {
+    if (!currentSession) return null;
+
+    const startTime = new Date(currentSession.startTime);
+    const endTime = new Date();
+    const duration = Math.round((endTime.getTime() - startTime.getTime()) / (1000 * 60)); // minutes
+
+    const totalTrades = tradeResults.length;
+    const wins = tradeResults.filter(t => t.result === 'win').length;
+    const losses = tradeResults.filter(t => t.result === 'lose').length;
+    const winRate = totalTrades > 0 ? (wins / totalTrades * 100).toFixed(1) : '0';
+
+    // Calculate consecutive losses
+    let maxConsecutiveLosses = 0;
+    let currentStreak = 0;
+    tradeResults.forEach(trade => {
+      if (trade.result === 'lose') {
+        currentStreak++;
+        maxConsecutiveLosses = Math.max(maxConsecutiveLosses, currentStreak);
+      } else {
+        currentStreak = 0;
+      }
+    });
+
+    // Calculate average time between trades
+    const avgTimeBetweenTrades = totalTrades > 1 ? 
+      Math.round(duration / totalTrades) : 0;
+
+    // Emotion analysis
+    const emotionStats = getEmotionStats(currentSession);
+    const mostFrequentEmotion = emotionStats.length > 0 ? 
+      emotionStats.reduce((prev, current) => 
+        prev.count > current.count ? prev : current
+      ) : null;
+
+    return {
+      duration,
+      totalTrades,
+      wins,
+      losses,
+      winRate,
+      maxConsecutiveLosses,
+      avgTimeBetweenTrades,
+      emotionStats,
+      mostFrequentEmotion,
+      startTime: startTime.toLocaleString(),
+      endTime: endTime.toLocaleString()
+    };
   };
 
   return (
@@ -369,17 +516,112 @@ export const MonkeyBrainSuppressor: React.FC<MonkeyBrainSuppressorProps> = ({ on
         </div>
       ) : (
         <div className="space-y-6">
-          <div className="flex justify-between items-center">
+          {/* Timeout Warning */}
+          {isTimedOut && (
+            <div className="bg-red-900/50 border border-red-500 p-4 rounded-lg">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-lg font-semibold text-red-400">Trading Timeout</h3>
+                  <p className="text-red-300">3 consecutive losses detected. Take a break to prevent emotional trading.</p>
+                </div>
+                <div className="text-right">
+                  <div className="text-2xl font-bold text-red-400">{timeRemaining}</div>
+                  <div className="text-sm text-red-300">Time remaining</div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Trade Statistics */}
+          <div className="bg-gray-700 p-4 rounded-lg">
+            <h3 className="text-lg font-semibold mb-4">Trade Statistics</h3>
+            <div className="grid grid-cols-2 gap-4 mb-4">
+              <div className="text-center">
+                <div className="text-2xl font-bold text-green-400">{getTradeStats().wins}</div>
+                <div className="text-sm text-gray-400">Wins</div>
+              </div>
+              <div className="text-center">
+                <div className="text-2xl font-bold text-red-400">{getTradeStats().losses}</div>
+                <div className="text-sm text-gray-400">Losses</div>
+              </div>
+              <div className="text-center">
+                <div className="text-2xl font-bold text-blue-400">{getTradeStats().winRate}%</div>
+                <div className="text-sm text-gray-400">Win Rate</div>
+              </div>
+              <div className="text-center">
+                <div className="text-2xl font-bold text-yellow-400">{consecutiveLosses}</div>
+                <div className="text-sm text-gray-400">Consecutive Losses</div>
+              </div>
+            </div>
+          </div>
+
+          {/* Win/Lose Buttons */}
+          <div className="bg-gray-700 p-4 rounded-lg">
+            <h3 className="text-lg font-semibold mb-4">Record Trade Result</h3>
+            <div className="grid grid-cols-2 gap-4">
+              <Button
+                onClick={() => handleTradeResult('win')}
+                variant="primary"
+                className="bg-green-600 hover:bg-green-700 text-white py-3 text-lg font-semibold"
+                disabled={isTimedOut}
+              >
+                🎯 WIN
+              </Button>
+              <Button
+                onClick={() => handleTradeResult('lose')}
+                variant="primary"
+                className="bg-red-600 hover:bg-red-700 text-white py-3 text-lg font-semibold"
+                disabled={isTimedOut}
+              >
+                ❌ LOSE
+              </Button>
+            </div>
+            {isTimedOut && (
+              <p className="mt-2 text-center text-red-400 text-sm">
+                Trading is temporarily disabled during timeout
+              </p>
+            )}
+          </div>
+
+          {/* Session Info */}
+          <div className="flex justify-between items-center bg-gray-700 p-4 rounded-lg">
             <div>
-              <p className="text-gray-400">Trades: {currentSession?.tradeCount ?? 0}</p>
+              <p className="text-gray-400">Total Trades: {currentSession?.tradeCount ?? 0}</p>
               <p className="text-gray-400">
-                Time: {currentSession ? new Date(currentSession.startTime).toLocaleTimeString() : ''}
+                Session Start: {currentSession ? new Date(currentSession.startTime).toLocaleTimeString() : ''}
               </p>
             </div>
-            <Button onClick={incrementTradeCount} variant="primary">
-              Complete Trade
-            </Button>
+            <div className="text-right">
+              <p className="text-gray-400">Trades Today: {getTradeStats().totalTrades}</p>
+              <p className="text-gray-400">Win Rate: {getTradeStats().winRate}%</p>
+            </div>
           </div>
+
+          {/* Recent Trade History */}
+          {tradeResults.length > 0 && (
+            <div className="bg-gray-700 p-4 rounded-lg">
+              <h3 className="text-lg font-semibold mb-4">Recent Trades</h3>
+              <div className="space-y-2 max-h-40 overflow-y-auto">
+                {tradeResults.slice(-5).reverse().map((trade) => (
+                  <div 
+                    key={trade.id}
+                    className={`flex justify-between items-center p-2 rounded ${
+                      trade.result === 'win' ? 'bg-green-900/30' : 'bg-red-900/30'
+                    }`}
+                  >
+                    <span className={`font-semibold ${
+                      trade.result === 'win' ? 'text-green-400' : 'text-red-400'
+                    }`}>
+                      {trade.result === 'win' ? '🎯 WIN' : '❌ LOSE'}
+                    </span>
+                    <span className="text-sm text-gray-400">
+                      {new Date(trade.timestamp).toLocaleTimeString()}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           <div className="bg-gray-700 p-4 rounded-lg">
             <h3 className="text-lg font-semibold mb-4">Record Emotion</h3>
@@ -447,8 +689,192 @@ export const MonkeyBrainSuppressor: React.FC<MonkeyBrainSuppressorProps> = ({ on
           )}
 
           <Button onClick={endTrading} variant="secondary" className="w-full">
-            End Trading
+            End Trading Session
           </Button>
+        </div>
+      )}
+
+      {/* Session Results Modal */}
+      {showSessionResults && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-gray-800 p-6 rounded-lg shadow-lg max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-2xl font-bold text-gray-100">Trading Session Results</h2>
+              <Button onClick={() => setShowSessionResults(false)} variant="ghost">×</Button>
+            </div>
+
+            {(() => {
+              const stats = getSessionStats();
+              if (!stats) return null;
+
+              return (
+                <div className="space-y-6">
+                  {/* Session Overview */}
+                  <div className="bg-gray-700 p-4 rounded-lg">
+                    <h3 className="text-lg font-semibold mb-4 text-blue-400">Session Overview</h3>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <p className="text-gray-400 text-sm">Duration</p>
+                        <p className="text-xl font-bold">{stats.duration} minutes</p>
+                      </div>
+                      <div>
+                        <p className="text-gray-400 text-sm">Total Trades</p>
+                        <p className="text-xl font-bold">{stats.totalTrades}</p>
+                      </div>
+                      <div>
+                        <p className="text-gray-400 text-sm">Start Time</p>
+                        <p className="text-sm">{stats.startTime}</p>
+                      </div>
+                      <div>
+                        <p className="text-gray-400 text-sm">End Time</p>
+                        <p className="text-sm">{stats.endTime}</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Performance Metrics */}
+                  <div className="bg-gray-700 p-4 rounded-lg">
+                    <h3 className="text-lg font-semibold mb-4 text-green-400">Performance Metrics</h3>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="text-center">
+                        <div className="text-3xl font-bold text-green-400">{stats.wins}</div>
+                        <div className="text-sm text-gray-400">Wins</div>
+                      </div>
+                      <div className="text-center">
+                        <div className="text-3xl font-bold text-red-400">{stats.losses}</div>
+                        <div className="text-sm text-gray-400">Losses</div>
+                      </div>
+                      <div className="text-center">
+                        <div className="text-3xl font-bold text-blue-400">{stats.winRate}%</div>
+                        <div className="text-sm text-gray-400">Win Rate</div>
+                      </div>
+                      <div className="text-center">
+                        <div className="text-3xl font-bold text-yellow-400">{stats.maxConsecutiveLosses}</div>
+                        <div className="text-sm text-gray-400">Max Consecutive Losses</div>
+                      </div>
+                    </div>
+                    {stats.avgTimeBetweenTrades > 0 && (
+                      <div className="mt-4 text-center">
+                        <p className="text-gray-400 text-sm">Average Time Between Trades</p>
+                        <p className="text-lg font-semibold">{stats.avgTimeBetweenTrades} minutes</p>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Emotion Analysis */}
+                  {stats.emotionStats.length > 0 && (
+                    <div className="bg-gray-700 p-4 rounded-lg">
+                      <h3 className="text-lg font-semibold mb-4 text-purple-400">Emotion Analysis</h3>
+                      <div className="space-y-3">
+                        {stats.emotionStats.map(stat => (
+                          <div 
+                            key={stat.emotion}
+                            className="flex justify-between items-center p-3 rounded"
+                            style={{ backgroundColor: stat.color + '20' }}
+                          >
+                            <div>
+                              <span className="font-semibold">{stat.emotion}</span>
+                              {stats.mostFrequentEmotion?.emotion === stat.emotion && (
+                                <span className="ml-2 text-xs bg-purple-600 px-2 py-1 rounded">Most Frequent</span>
+                              )}
+                            </div>
+                            <div className="text-right">
+                              <div className="font-semibold">Count: {stat.count}</div>
+                              <div className="text-sm text-gray-400">Avg Intensity: {stat.averageIntensity.toFixed(1)}</div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Trade Timeline */}
+                  {tradeResults.length > 0 && (
+                    <div className="bg-gray-700 p-4 rounded-lg">
+                      <h3 className="text-lg font-semibold mb-4 text-gray-300">Trade Timeline</h3>
+                      <div className="space-y-2 max-h-40 overflow-y-auto">
+                        {tradeResults.map((trade, index) => (
+                          <div 
+                            key={trade.id}
+                            className={`flex justify-between items-center p-2 rounded ${
+                              trade.result === 'win' ? 'bg-green-900/30' : 'bg-red-900/30'
+                            }`}
+                          >
+                            <div className="flex items-center gap-3">
+                              <span className="text-sm text-gray-400">#{index + 1}</span>
+                              <span className={`font-semibold ${
+                                trade.result === 'win' ? 'text-green-400' : 'text-red-400'
+                              }`}>
+                                {trade.result === 'win' ? '🎯 WIN' : '❌ LOSE'}
+                              </span>
+                            </div>
+                            <span className="text-sm text-gray-400">
+                              {new Date(trade.timestamp).toLocaleTimeString()}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Performance Insights */}
+                  <div className="bg-gray-700 p-4 rounded-lg">
+                    <h3 className="text-lg font-semibold mb-4 text-orange-400">Performance Insights</h3>
+                    <div className="space-y-3">
+                      {parseFloat(stats.winRate) >= 60 && (
+                        <div className="flex items-center gap-2 text-green-400">
+                          <span>✅</span>
+                          <span>Excellent win rate! Keep up the good work.</span>
+                        </div>
+                      )}
+                      {parseFloat(stats.winRate) < 40 && (
+                        <div className="flex items-center gap-2 text-red-400">
+                          <span>⚠️</span>
+                          <span>Consider reviewing your strategy and risk management.</span>
+                        </div>
+                      )}
+                      {stats.maxConsecutiveLosses >= 3 && (
+                        <div className="flex items-center gap-2 text-yellow-400">
+                          <span>⚠️</span>
+                          <span>Multiple consecutive losses detected. Consider taking breaks.</span>
+                        </div>
+                      )}
+                      {stats.avgTimeBetweenTrades < 5 && stats.totalTrades > 3 && (
+                        <div className="flex items-center gap-2 text-blue-400">
+                          <span>💡</span>
+                          <span>Fast trading pace. Consider slowing down for better analysis.</span>
+                        </div>
+                      )}
+                      {stats.emotionStats.length > 0 && stats.mostFrequentEmotion && (
+                        <div className="flex items-center gap-2 text-purple-400">
+                          <span>🧠</span>
+                          <span>Most frequent emotion: <strong>{stats.mostFrequentEmotion.emotion}</strong></span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Action Buttons */}
+                  <div className="flex gap-4">
+                    <Button 
+                      onClick={() => setShowSessionResults(false)} 
+                      variant="secondary" 
+                      className="flex-1"
+                    >
+                      Continue Session
+                    </Button>
+                    <Button 
+                      onClick={confirmEndTrading} 
+                      variant="primary" 
+                      className="flex-1"
+                    >
+                      End Session
+                    </Button>
+                  </div>
+                </div>
+              );
+            })()}
+          </div>
         </div>
       )}
     </div>
