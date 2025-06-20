@@ -10,12 +10,13 @@ import { PieChartRenderer } from './components/charts/PieChartRenderer';
 import { ChartControls } from './components/charts/ChartControls';
 import { PatternAnalysisDashboard } from './components/patterns/PatternAnalysisDashboard';
 import { PatternInsights } from './components/patterns/PatternInsights';
+import { KellyCriterionAnalysis } from './components/analysis/KellyCriterionAnalysis';
 import { DEFAULT_CHART_COLOR, COMPARISON_CHART_COLOR, LONG_TRADE_COLOR, SHORT_TRADE_COLOR, DEFAULT_TAG_GROUPS } from './constants';
 import { processChartData, filterTradesByDateAndTags } from './utils/chartDataProcessor';
 import { parseCSVToTrades as parseBrokerExportCSV } from './utils/csvImporter';
 import { parseQuantowerCSVToTrades } from './utils/quantowerCsvImporter';
 import { getRandomColor, resetColorUsage } from './utils/colorGenerator';
-import { PlusCircleIcon, ChartBarIcon, TagIcon, TableCellsIcon, DocumentTextIcon, AdjustmentsHorizontalIcon, DocumentArrowUpIcon, CogIcon, AcademicCapIcon, LightBulbIcon, BrainIcon } from './components/ui/Icons'; // Added AcademicCapIcon for consistency if used directly in App.tsx
+import { PlusCircleIcon, ChartBarIcon, TagIcon, TableCellsIcon, DocumentTextIcon, AdjustmentsHorizontalIcon, DocumentArrowUpIcon, CogIcon, AcademicCapIcon, LightBulbIcon, BrainIcon, CalculatorIcon } from './components/ui/Icons'; // Added AcademicCapIcon for consistency if used directly in App.tsx
 import { Modal } from './components/ui/Modal';
 import { Button } from './components/ui/Button';
 import { NotificationPopup } from './components/ui/NotificationPopup';
@@ -111,6 +112,9 @@ const App: React.FC = () => {
   const [isPatternInsightsModalOpen, setIsPatternInsightsModalOpen] = useState(false);
 
   const [isMonkeyBrainSuppressorOpen, setIsMonkeyBrainSuppressorOpen] = useState(false);
+
+  // Kelly Criterion analysis state
+  const [isKellyCriterionModalOpen, setIsKellyCriterionModalOpen] = useState(false);
 
   useEffect(() => {
     saveData(trades, tagGroups, playbookEntries);
@@ -544,6 +548,14 @@ const App: React.FC = () => {
             MBS
           </Button>
           <Button
+            onClick={() => setIsKellyCriterionModalOpen(true)}
+            variant="primary"
+            size="sm"
+            leftIcon={<CalculatorIcon className="w-4 h-4"/>}
+          >
+            Kelly
+          </Button>
+          <Button
             onClick={openTradeForm}
             variant="primary"
             size="sm"
@@ -659,6 +671,12 @@ const App: React.FC = () => {
         {isMonkeyBrainSuppressorOpen && (
           <Modal title="Monkey Brain Suppressor" onClose={() => setIsMonkeyBrainSuppressorOpen(false)}>
             <MonkeyBrainSuppressor onClose={() => setIsMonkeyBrainSuppressorOpen(false)} />
+          </Modal>
+        )}
+
+        {isKellyCriterionModalOpen && (
+          <Modal title="Kelly Criterion Analysis" onClose={() => setIsKellyCriterionModalOpen(false)} wide={true}>
+            <KellyCriterionAnalysis trades={trades} tagGroups={tagGroups} />
           </Modal>
         )}
 
