@@ -22,64 +22,47 @@ import { NotificationPopup } from './components/ui/NotificationPopup';
 import { PlaybookList } from './components/playbook/PlaybookList';
 import { PlaybookEditor } from './components/playbook/PlaybookEditor';
 import { MonkeyBrainSuppressor } from './components/trades/MonkeyBrainSuppressor';
+import { validateFileUpload, safeJsonParse, rateLimiter, generateSecureId, sanitizeString, validateDateString, SECURITY_CONFIG } from './utils/security';
+import { SecureStorage } from './utils/secureStorage';
 
 // Helper to normalize CSV headers for detection
 const normalizeHeader = (header: string): string => header.toLowerCase().replace(/\s+/g, '').replace(/\//g, '');
 
 const App: React.FC = () => {
-  const STORAGE_VERSION = '1.0';
-  const STORAGE_KEY = 'reflection-edge-data';
-
   const loadStoredData = () => {
-    try {
-      const storedData = localStorage.getItem(STORAGE_KEY);
-      if (storedData) {
-        const { version, trades: storedTrades, tagGroups: storedTagGroups, playbookEntries: storedPlaybookEntries } = JSON.parse(storedData);
-        if (version === STORAGE_VERSION) {
-          // Merge stored tag groups with default tag groups
-          const mergedTagGroups = [...DEFAULT_TAG_GROUPS];
-          storedTagGroups.forEach((storedGroup: TagGroup) => {
-            // Only add non-default tag groups
-            if (!DEFAULT_TAG_GROUPS.some(defaultGroup => defaultGroup.id === storedGroup.id)) {
-              mergedTagGroups.push(storedGroup);
-            }
-          });
-
-          return {
-            trades: storedTrades.map((t: any) => ({
-              ...t,
-              direction: t.direction || 'long',
-              symbol: t.symbol || '',
-              contracts: t.contracts || 0,
-              timeIn: t.timeIn || '',
-              timeOut: t.timeOut || '',
-              date: t.date || new Date().toISOString().split('T')[0],
-              tags: t.tags || {},
-              journal: t.journal || '',
-            })),
-            tagGroups: mergedTagGroups,
-            playbookEntries: storedPlaybookEntries || []
-          };
+    const result = SecureStorage.loadData();
+    if (result) {
+      // Merge stored tag groups with default tag groups
+      const mergedTagGroups = [...DEFAULT_TAG_GROUPS];
+      result.tagGroups.forEach((storedGroup: TagGroup) => {
+        // Only add non-default tag groups
+        if (!DEFAULT_TAG_GROUPS.some(defaultGroup => defaultGroup.id === storedGroup.id)) {
+          mergedTagGroups.push(storedGroup);
         }
-      }
-    } catch (error) {
-      console.error('Error loading stored data:', error);
+      });
+
+      return {
+        trades: result.trades.map((t: any) => ({
+          ...t,
+          direction: t.direction || 'long',
+          symbol: t.symbol || '',
+          contracts: t.contracts || 0,
+          timeIn: t.timeIn || '',
+          timeOut: t.timeOut || '',
+          date: t.date || new Date().toISOString().split('T')[0],
+          tags: t.tags || {},
+          journal: t.journal || '',
+          accountId: t.accountId || 'default'
+        })),
+        tagGroups: mergedTagGroups,
+        playbookEntries: result.playbookEntries || []
+      };
     }
     return { trades: [], tagGroups: DEFAULT_TAG_GROUPS, playbookEntries: [] };
   };
 
   const saveData = (trades: Trade[], tagGroups: TagGroup[], playbookEntries: PlaybookEntry[]) => {
-    try {
-      const dataToStore = {
-        version: STORAGE_VERSION,
-        trades,
-        tagGroups,
-        playbookEntries
-      };
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(dataToStore));
-    } catch (error) {
-      console.error('Error saving data:', error);
-    }
+    SecureStorage.saveData(trades, tagGroups, playbookEntries);
   };
 
   const { trades: initialTrades, tagGroups: initialTagGroups, playbookEntries: initialPlaybookEntries } = loadStoredData();
@@ -231,6 +214,21 @@ const App: React.FC = () => {
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
+      // Rate limiting check
+      if (!rateLimiter.isAllowed('file-upload', SECURITY_CONFIG.RATE_LIMIT_ATTEMPTS, SECURITY_CONFIG.RATE_LIMIT_WINDOW)) {
+        alert('Too many file upload attempts. Please wait a moment before trying again.');
+        event.target.value = '';
+        return;
+      }
+
+      // File validation
+      const validation = validateFileUpload(file);
+      if (!validation.isValid) {
+        alert(`File upload rejected: ${validation.error}`);
+        event.target.value = '';
+        return;
+      }
+
       const reader = new FileReader();
       reader.onload = (e) => {
         let content = e.target?.result as string;
@@ -240,35 +238,62 @@ const App: React.FC = () => {
           }
 
           // Check if the file is JSON (from our export feature)
-          try {
-            const jsonData = JSON.parse(content);
+          if (file.type === 'application/json' || file.name.endsWith('.json')) {
+            const parseResult = safeJsonParse(content);
+            if (!parseResult.success) {
+              alert(`JSON parsing failed: ${parseResult.error}`);
+              return;
+            }
+
+            const jsonData = parseResult.data;
             if (jsonData.trades && Array.isArray(jsonData.trades)) {
               // This is our exported JSON format
               const { trades: importedTrades, tagGroups: importedTagGroups, playbookEntries: importedPlaybookEntries } = jsonData;
               
+              // Validate imported data structure
+              if (!Array.isArray(importedTrades) || !Array.isArray(importedTagGroups)) {
+                alert('Invalid data structure in imported file.');
+                return;
+              }
+
+              // Sanitize imported data
+              const sanitizedTrades = importedTrades.map(trade => ({
+                ...trade,
+                symbol: sanitizeString(trade.symbol || ''),
+                journal: sanitizeString(trade.journal || ''),
+                date: validateDateString(trade.date) ? trade.date : new Date().toISOString().split('T')[0]
+              }));
+
+              const sanitizedTagGroups = importedTagGroups.map(group => ({
+                ...group,
+                name: sanitizeString(group.name || ''),
+                subtags: group.subtags?.map((subtag: any) => ({
+                  ...subtag,
+                  name: sanitizeString(subtag.name || '')
+                })) || []
+              }));
+              
               // Merge tag groups with existing ones
               const mergedTagGroups = [...DEFAULT_TAG_GROUPS];
-              importedTagGroups.forEach((importedGroup: TagGroup) => {
+              sanitizedTagGroups.forEach((importedGroup: TagGroup) => {
                 if (!DEFAULT_TAG_GROUPS.some(defaultGroup => defaultGroup.id === importedGroup.id)) {
                   mergedTagGroups.push(importedGroup);
                 }
               });
 
               // Update state with imported data
-              setTrades(importedTrades);
+              setTrades(sanitizedTrades);
               setTagGroups(mergedTagGroups);
               setPlaybookEntries(importedPlaybookEntries || []);
 
               // Show success notification
               setImportNotification({
                 title: "Import Complete",
-                message: `Successfully imported ${importedTrades.length} trades, ${mergedTagGroups.length} tag groups, and ${importedPlaybookEntries?.length || 0} playbook entries.`
+                message: `Successfully imported ${sanitizedTrades.length} trades, ${mergedTagGroups.length} tag groups, and ${importedPlaybookEntries?.length || 0} playbook entries.`
               });
               setShowImportConfirmation(true);
               return;
             }
-          } catch (e) {
-            // Not a valid JSON file, continue with CSV parsing
           }
 
           // Continue with existing CSV parsing logic
@@ -314,8 +339,10 @@ const App: React.FC = () => {
               const timeInTrade = (new Date(parsedTrade.timeOut).getTime() - new Date(parsedTrade.timeIn).getTime()) / (1000 * 60);
               return {
                 ...parsedTrade,
-                id: Date.now().toString() + "_" + index + Math.random().toString(16).slice(2),
+                id: generateSecureId(),
                 timeInTrade,
+                symbol: sanitizeString(parsedTrade.symbol),
+                journal: sanitizeString(parsedTrade.journal || '')
               };
             });
             setTrades(prev => [...prev, ...newTrades]);

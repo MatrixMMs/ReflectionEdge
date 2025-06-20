@@ -3,6 +3,7 @@ import { Trade, TagGroup, TradeDirection, PlaybookEntry } from '../../types';
 import { Input, Textarea } from '../ui/Input';
 import { Button } from '../ui/Button';
 import { PlusCircleIcon, XMarkIcon } from '../ui/Icons';
+import { validateTradeSymbol, validateNumericInput, validateDateString, validateTimeString, sanitizeString, SECURITY_CONFIG } from '../../utils/security';
 
 interface TradeFormProps {
   onSubmit: (trade: Omit<Trade, 'id' | 'timeInTrade'>) => void;
@@ -64,6 +65,51 @@ export const TradeForm: React.FC<TradeFormProps> = ({ onSubmit, tagGroups, playb
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
+    // Input validation
+    const errors: string[] = [];
+
+    // Validate symbol
+    if (!validateTradeSymbol(symbol)) {
+      errors.push('Symbol must be 1-10 characters long and contain only letters, numbers, dots, hyphens, and underscores.');
+    }
+
+    // Validate numeric inputs
+    if (!validateNumericInput(contracts, 1, 10000)) {
+      errors.push('Contracts must be a positive number between 1 and 10,000.');
+    }
+
+    if (!validateNumericInput(entry, 0.01, 1000000)) {
+      errors.push('Entry price must be a positive number.');
+    }
+
+    if (!validateNumericInput(exit, 0.01, 1000000)) {
+      errors.push('Exit price must be a positive number.');
+    }
+
+    if (!validateNumericInput(profit, -1000000, 1000000)) {
+      errors.push('Profit must be a valid number.');
+    }
+
+    // Validate date
+    if (!validateDateString(date)) {
+      errors.push('Please enter a valid date.');
+    }
+
+    // Validate times
+    if (timeIn && !validateTimeString(timeIn)) {
+      errors.push('Please enter a valid time in format HH:MM.');
+    }
+
+    if (timeOut && !validateTimeString(timeOut)) {
+      errors.push('Please enter a valid time in format HH:MM.');
+    }
+
+    // Check for errors
+    if (errors.length > 0) {
+      alert('Please fix the following errors:\n' + errors.join('\n'));
+      return;
+    }
+
     const fullTimeIn = `${date}T${timeIn}:00.000Z`;
     const fullTimeOut = `${date}T${timeOut}:00.000Z`;
 
@@ -79,16 +125,17 @@ export const TradeForm: React.FC<TradeFormProps> = ({ onSubmit, tagGroups, playb
     onSubmit({
       date,
       direction,
-      symbol,
+      symbol: sanitizeString(symbol),
       contracts: parseInt(contracts),
       entry: parseFloat(entry),
       exit: parseFloat(exit),
       timeIn: fullTimeIn,
       timeOut: fullTimeOut,
       profit: parseFloat(profit),
-      journal,
+      journal: sanitizeString(journal),
       tags: convertedTags,
-      strategyId: selectedStrategy || undefined
+      strategyId: selectedStrategy || undefined,
+      accountId: 'default' // Default account ID for now
     });
   };
 
