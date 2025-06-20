@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react'
 import { Trade, TagGroup, SubTag, ChartYAxisMetric, ChartXAxisMetric, AppDateRange, TradeDirectionFilterSelection, PlaybookEntry } from './types';
 import { TradeForm } from './components/trades/TradeForm';
 import { TradeList } from './components/trades/TradeList';
-import { DailySummary } from './components/trades/DailySummary';
+import { Summary } from './components/trades/Summary';
 import { TagManager } from './components/tags/TagManager';
 import { TagPerformance } from './components/tags/TagPerformance'; // New Import
 import { LineChartRenderer } from './components/charts/LineChartRenderer';
@@ -89,6 +89,11 @@ const App: React.FC = () => {
   const [playbookEntries, setPlaybookEntries] = useState<PlaybookEntry[]>(initialPlaybookEntries);
 
   const [selectedDate, setSelectedDate] = useState<string>(new Date().toISOString().split('T')[0]);
+  const [summaryDateMode, setSummaryDateMode] = useState<'daily' | 'range'>('daily');
+  const [summaryDateRange, setSummaryDateRange] = useState<AppDateRange>({
+    start: new Date().toISOString().split('T')[0],
+    end: new Date().toISOString().split('T')[0],
+  });
   const [chartDateRange, setChartDateRange] = useState<AppDateRange>({
     start: new Date(new Date().setDate(new Date().getDate() - 7)).toISOString().split('T')[0],
     end: new Date().toISOString().split('T')[0],
@@ -353,13 +358,25 @@ const App: React.FC = () => {
   }, [trades, compareDateRange, selectedTagsForChart, tagComparisonMode, xAxisMetric, yAxisMetric, tagGroups, directionFilter]);
 
 
-  const tradesForDailySummary = useMemo(() => {
-    let filtered = trades.filter(trade => trade.date === selectedDate);
-    if (directionFilter !== 'all') {
-      filtered = filtered.filter(trade => trade.direction === directionFilter);
+  const tradesForSummary = useMemo(() => {
+    let filteredTrades: Trade[];
+
+    if (summaryDateMode === 'daily') {
+      filteredTrades = trades.filter(trade => trade.date === summaryDateRange.start);
+    } else {
+      const startDate = new Date(summaryDateRange.start);
+      const endDate = new Date(summaryDateRange.end);
+      filteredTrades = trades.filter(trade => {
+        const tradeDate = new Date(trade.date);
+        return tradeDate >= startDate && tradeDate <= endDate;
+      });
     }
-    return filtered;
-  }, [trades, selectedDate, directionFilter]);
+
+    if (directionFilter !== 'all') {
+      return filteredTrades.filter(trade => trade.direction === directionFilter);
+    }
+    return filteredTrades;
+  }, [trades, summaryDateMode, summaryDateRange, directionFilter]);
 
   const allSubTags = useMemo(() => tagGroups.flatMap(g => g.subtags), [tagGroups]);
 
@@ -456,60 +473,60 @@ const App: React.FC = () => {
     <div className="min-h-screen bg-gray-900 text-gray-100 p-4 flex flex-col space-y-6">
       <header className="flex justify-between items-center">
         <h1 className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-pink-500 to-red-500">Trade Report Card</h1>
-        <div className="flex space-x-2">
+        <div className="flex space-x-1">
           <Button
             onClick={() => setIsPlaybookModalOpen(true)}
             variant="primary"
-            size="md"
-            leftIcon={<DocumentTextIcon className="w-5 h-5"/>}
+            size="sm"
+            leftIcon={<DocumentTextIcon className="w-4 h-4"/>}
           >
             Playbook
           </Button>
           <Button
             onClick={() => setIsTagManagerModalOpen(true)}
             variant="primary"
-            size="md"
-            leftIcon={<TagIcon className="w-5 h-5"/>}
+            size="sm"
+            leftIcon={<TagIcon className="w-4 h-4"/>}
           >
             Tags
           </Button>
           <Button
             onClick={() => setIsPatternAnalysisModalOpen(true)}
             variant="primary"
-            size="md"
-            leftIcon={<ChartBarIcon className="w-5 h-5"/>}
+            size="sm"
+            leftIcon={<ChartBarIcon className="w-4 h-4"/>}
           >
             Patterns
           </Button>
           <Button
             onClick={() => setIsPatternInsightsModalOpen(true)}
             variant="primary"
-            size="md"
-            leftIcon={<LightBulbIcon className="w-5 h-5"/>}
+            size="sm"
+            leftIcon={<LightBulbIcon className="w-4 h-4"/>}
           >
             Insights
           </Button>
           <Button
             onClick={() => setIsMonkeyBrainSuppressorOpen(true)}
             variant="primary"
-            size="md"
-            leftIcon={<BrainIcon className="w-5 h-5"/>}
+            size="sm"
+            leftIcon={<BrainIcon className="w-4 h-4"/>}
           >
-            Monkey Brain Suppressor
+            MBS
           </Button>
           <Button
             onClick={openTradeForm}
             variant="primary"
-            size="md"
-            leftIcon={<PlusCircleIcon className="w-5 h-5"/>}
+            size="sm"
+            leftIcon={<PlusCircleIcon className="w-4 h-4"/>}
           >
             Add Trade
           </Button>
           <Button
             onClick={() => fileInputRef.current?.click()}
             variant="secondary"
-            size="md"
-            leftIcon={<DocumentArrowUpIcon className="w-5 h-5"/>}
+            size="sm"
+            leftIcon={<DocumentArrowUpIcon className="w-4 h-4"/>}
           >
             Import
           </Button>
@@ -517,9 +534,10 @@ const App: React.FC = () => {
             onClick={handleExportData}
             variant="secondary"
             className="bg-blue-500 hover:bg-blue-600"
-            leftIcon={<DocumentTextIcon className="w-5 h-5"/>}
+            size="sm"
+            leftIcon={<DocumentTextIcon className="w-4 h-4"/>}
           >
-            Export Data
+            Export
           </Button>
           <input 
             type="file" 
@@ -531,8 +549,8 @@ const App: React.FC = () => {
           <Button
             onClick={() => setIsSettingsModalOpen(true)}
             variant="ghost"
-            size="md"
-            leftIcon={<CogIcon className="w-5 h-5"/>}
+            size="sm"
+            leftIcon={<CogIcon className="w-4 h-4"/>}
           >
             Settings
           </Button>
@@ -653,19 +671,52 @@ const App: React.FC = () => {
           </div>
 
           <div className="bg-gray-800 p-6 rounded-xl shadow-2xl">
-            <h2 className="text-2xl font-semibold mb-4 text-pink-400 flex items-center"><TableCellsIcon className="w-6 h-6 mr-2" />Daily Summary</h2>
-            <div className="mb-4">
-              <label htmlFor="daily-summary-date" className="block text-sm font-medium text-gray-300 mb-1">Select Date for Summary:</label>
-              <input
-                type="date"
-                id="daily-summary-date"
-                value={selectedDate}
-                onChange={(e) => setSelectedDate(e.target.value)}
-                className="w-full bg-gray-700 border border-gray-600 text-gray-100 sm:text-sm rounded-lg focus:ring-purple-500 focus:border-purple-500 p-2.5"
-              />
+            <h2 className="text-2xl font-semibold mb-4 text-pink-400 flex items-center"><TableCellsIcon className="w-6 h-6 mr-2" />Summary</h2>
+            
+            <div className="flex items-center space-x-2 mb-4">
+                <Button onClick={() => setSummaryDateMode('daily')} variant={summaryDateMode === 'daily' ? 'primary' : 'secondary'} size="sm">Daily</Button>
+                <Button onClick={() => setSummaryDateMode('range')} variant={summaryDateMode === 'range' ? 'primary' : 'secondary'} size="sm">Range</Button>
             </div>
-            <DailySummary trades={tradesForDailySummary} />
-             {directionFilter !== 'all' && <p className="text-xs text-gray-400 mt-2">Showing summary for {directionFilter} trades only.</p>}
+            
+            <div className="mb-4">
+              {summaryDateMode === 'daily' ? (
+                <div>
+                  <label htmlFor="summary-date" className="block text-sm font-medium text-gray-300 mb-1">Select Date:</label>
+                  <input
+                    type="date"
+                    id="summary-date"
+                    value={summaryDateRange.start}
+                    onChange={(e) => setSummaryDateRange({ start: e.target.value, end: e.target.value })}
+                    className="w-full bg-gray-700 border border-gray-600 text-gray-100 sm:text-sm rounded-lg focus:ring-purple-500 focus:border-purple-500 p-2.5"
+                  />
+                </div>
+              ) : (
+                <div className="flex items-center space-x-2">
+                  <div>
+                    <label htmlFor="summary-start-date" className="block text-sm font-medium text-gray-300 mb-1">Start Date:</label>
+                    <input
+                      type="date"
+                      id="summary-start-date"
+                      value={summaryDateRange.start}
+                      onChange={(e) => setSummaryDateRange(prev => ({ ...prev, start: e.target.value }))}
+                      className="w-full bg-gray-700 border border-gray-600 text-gray-100 sm:text-sm rounded-lg focus:ring-purple-500 focus:border-purple-500 p-2.5"
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="summary-end-date" className="block text-sm font-medium text-gray-300 mb-1">End Date:</label>
+                    <input
+                      type="date"
+                      id="summary-end-date"
+                      value={summaryDateRange.end}
+                      onChange={(e) => setSummaryDateRange(prev => ({ ...prev, end: e.target.value }))}
+                      className="w-full bg-gray-700 border border-gray-600 text-gray-100 sm:text-sm rounded-lg focus:ring-purple-500 focus:border-purple-500 p-2.5"
+                    />
+                  </div>
+                </div>
+              )}
+            </div>
+            <Summary trades={tradesForSummary} />
+            {directionFilter !== 'all' && <p className="text-xs text-gray-400 mt-2">Showing summary for {directionFilter} trades only.</p>}
           </div>
           
           <TagPerformance 
@@ -674,20 +725,6 @@ const App: React.FC = () => {
             chartDateRange={chartDateRange} 
             directionFilter={directionFilter} 
           />
-
-          {/* Replace single pie chart with one per tag group */}
-          {Object.values(pieChartDataByGroup).map(groupData => (
-            <div key={groupData.groupName} className="bg-gray-800 p-6 rounded-xl shadow-2xl mb-6">
-              <h2 className="text-2xl font-semibold mb-4 text-red-400 flex items-center">
-                <ChartBarIcon className="w-6 h-6 mr-2" />
-                {groupData.groupName} Tag Distribution
-              </h2>
-              <PieChartRenderer data={groupData.data} />
-              <p className="text-xs text-gray-400 mt-2 text-center">
-                For trades in selected date range{directionFilter !== 'all' ? ` (${directionFilter} only)` : ''}.
-              </p>
-            </div>
-          ))}
         </div>
 
         <div className="lg:col-span-2 space-y-6">
@@ -699,6 +736,24 @@ const App: React.FC = () => {
               yAxisMetric={yAxisMetric} 
               xAxisMetric={xAxisMetric} 
             />
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {Object.values(pieChartDataByGroup).map(groupData => (
+              <div key={groupData.groupName} className="bg-gray-800 p-4 rounded-xl shadow-2xl">
+                <h3 className="text-lg font-semibold mb-2 text-center text-pink-400">
+                  {groupData.groupName}
+                </h3>
+                <PieChartRenderer 
+                  data={groupData.data} 
+                  height={200}
+                  outerRadius={60}
+                />
+                <p className="text-xs text-gray-400 mt-2 text-center">
+                  For trades in selected date range{directionFilter !== 'all' ? ` (${directionFilter} only)` : ''}.
+                </p>
+              </div>
+            ))}
           </div>
 
           <div className="bg-gray-800 p-6 rounded-xl shadow-2xl">
