@@ -1,14 +1,45 @@
-import React from 'react';
-import { Trade } from '../../types';
+import React, { useState, useMemo } from 'react';
+import { Trade, TagGroup } from '../../types';
 import { discoverEdges, EdgeDiscoveryResult, EdgeAnalysis, MarketCondition, BehavioralPattern } from '../../utils/edgeDiscovery';
-import { TrendingUpIcon, ShieldCheckIcon, ExclamationTriangleIcon, LightBulbIcon, ClockIcon } from '../ui/Icons';
+import { TrendingUpIcon, ShieldCheckIcon, ExclamationTriangleIcon, LightBulbIcon, ClockIcon, FilterIcon } from '../ui/Icons';
+import { filterTradesByDateAndTags } from '../../utils/chartDataProcessor';
 
 interface EdgeDiscoveryDashboardProps {
   trades: Trade[];
+  tagGroups: TagGroup[];
 }
 
-export const EdgeDiscoveryDashboard: React.FC<EdgeDiscoveryDashboardProps> = ({ trades }) => {
-  const analysisResult = discoverEdges(trades);
+export const EdgeDiscoveryDashboard: React.FC<EdgeDiscoveryDashboardProps> = ({ trades, tagGroups }) => {
+  const [startDate, setStartDate] = useState<string | null>(null);
+  const [endDate, setEndDate] = useState<string | null>(null);
+  const [selectedTags, setSelectedTags] = useState<{[groupId: string]: string[]}>({});
+  const [tagFilterLogic, setTagFilterLogic] = useState<'AND' | 'OR'>('OR');
+  
+  const handleTagChange = (groupId: string, subTagId: string) => {
+    setSelectedTags(prev => {
+      const currentGroupTags = prev[groupId] || [];
+      const newGroupTags = currentGroupTags.includes(subTagId)
+        ? currentGroupTags.filter(id => id !== subTagId)
+        : [...currentGroupTags, subTagId];
+      
+      if (newGroupTags.length === 0) {
+        const { [groupId]: _, ...rest } = prev;
+        return rest;
+      }
+      
+      return { ...prev, [groupId]: newGroupTags };
+    });
+  };
+
+  const filteredTrades = useMemo(() => {
+    const dateRange = {
+      start: startDate || '1970-01-01',
+      end: endDate || new Date().toISOString().split('T')[0],
+    };
+    return filterTradesByDateAndTags(trades, dateRange, selectedTags, tagFilterLogic);
+  }, [trades, startDate, endDate, selectedTags, tagFilterLogic]);
+
+  const analysisResult = discoverEdges(filteredTrades);
 
   const getConfidenceColor = (confidence: number) => {
     if (confidence > 0.7) return 'text-green-400';
@@ -74,6 +105,84 @@ export const EdgeDiscoveryDashboard: React.FC<EdgeDiscoveryDashboardProps> = ({ 
 
   return (
     <div className="space-y-8 p-2">
+      {/* Filter Controls */}
+      <div className="bg-gray-800 p-4 rounded-lg">
+        <h3 className="text-lg font-semibold mb-4 text-gray-100 flex items-center gap-2">
+          <FilterIcon className="w-5 h-5" />
+          Filter Analysis
+        </h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+          <div>
+            <label htmlFor="edge-start-date" className="block text-sm font-medium text-gray-300 mb-1">Start Date</label>
+            <input
+              type="date"
+              id="edge-start-date"
+              value={startDate || ''}
+              onChange={(e) => setStartDate(e.target.value)}
+              className="w-full bg-gray-700 border border-gray-600 rounded-md px-3 py-2 text-white focus:ring-purple-500 focus:border-purple-500"
+            />
+          </div>
+          <div>
+            <label htmlFor="edge-end-date" className="block text-sm font-medium text-gray-300 mb-1">End Date</label>
+            <input
+              type="date"
+              id="edge-end-date"
+              value={endDate || ''}
+              onChange={(e) => setEndDate(e.target.value)}
+              className="w-full bg-gray-700 border border-gray-600 rounded-md px-3 py-2 text-white focus:ring-purple-500 focus:border-purple-500"
+            />
+          </div>
+        </div>
+        <div className="mb-4">
+          <h4 className="text-md font-semibold text-gray-200 mb-2">Filter by Tags</h4>
+          <div className="flex items-center gap-4 mb-3">
+            <span className="text-sm font-medium text-gray-300">Logic:</span>
+            <button
+              onClick={() => setTagFilterLogic('OR')}
+              className={`px-3 py-1 text-sm rounded-md ${tagFilterLogic === 'OR' ? 'bg-purple-600 text-white' : 'bg-gray-700 hover:bg-gray-600'}`}
+            >
+              OR (any selected tag)
+            </button>
+            <button
+              onClick={() => setTagFilterLogic('AND')}
+              className={`px-3 py-1 text-sm rounded-md ${tagFilterLogic === 'AND' ? 'bg-purple-600 text-white' : 'bg-gray-700 hover:bg-gray-600'}`}
+            >
+              AND (all selected tags)
+            </button>
+          </div>
+          <div className="space-y-3 max-h-60 overflow-y-auto p-2 rounded-md bg-gray-900/50">
+            {tagGroups.map(group => (
+              <div key={group.id}>
+                <p className="font-semibold text-purple-400 text-sm mb-1">{group.name}</p>
+                <div className="flex flex-wrap gap-2">
+                  {group.subtags.map(subtag => (
+                    <label key={subtag.id} className="flex items-center space-x-2 px-2 py-1 rounded-full text-xs cursor-pointer" style={{ backgroundColor: selectedTags[group.id]?.includes(subtag.id) ? subtag.color : '#4A5568', color: 'white' }}>
+                      <input
+                        type="checkbox"
+                        checked={selectedTags[group.id]?.includes(subtag.id) || false}
+                        onChange={() => handleTagChange(group.id, subtag.id)}
+                        className="hidden"
+                      />
+                      <span>{subtag.name}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+        <button
+          onClick={() => {
+            setStartDate(null);
+            setEndDate(null);
+            setSelectedTags({});
+          }}
+          className="text-sm text-gray-400 hover:text-white transition-colors"
+        >
+          Clear All Filters
+        </button>
+      </div>
+
       {/* Overall Edge Summary */}
       <div className="bg-gray-800 p-6 rounded-lg text-center">
         <h2 className="text-2xl font-bold text-gray-100 flex items-center justify-center gap-2">
@@ -84,6 +193,9 @@ export const EdgeDiscoveryDashboard: React.FC<EdgeDiscoveryDashboardProps> = ({ 
           {(analysisResult.overallEdge * 100).toFixed(1)}%
         </div>
         <p className="text-gray-300">This score represents the overall statistical advantage identified in your trading data.</p>
+        <p className="text-xs text-gray-500 mt-2">
+          (Based on {filteredTrades.length} trades)
+        </p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -142,7 +254,7 @@ export const EdgeDiscoveryDashboard: React.FC<EdgeDiscoveryDashboardProps> = ({ 
                 {analysisResult.behavioralPatterns.length > 0 ? (
                     analysisResult.behavioralPatterns.map((pattern, i) => <BehavioralPatternCard key={i} pattern={pattern} />)
                 ) : (
-                    <p className="text-gray-400 text-sm">Not enough data to identify behavioral patterns.</p>
+                    <p className="text-gray-400 text-sm">Not enough data for behavioral patterns with current filters.</p>
                 )}
             </div>
           </div>

@@ -10,6 +10,11 @@ export interface Financials {
   avgLoss: number;
   profitFactor: number;
   totalFees: number;
+  expectancy: number;
+  avgWinLossRatio: number;
+  sharpeRatio: number | null;
+  maxWin: number;
+  maxLoss: number;
 }
 
 export const calculateFinancials = (trades: Trade[]): Financials => {
@@ -17,7 +22,7 @@ export const calculateFinancials = (trades: Trade[]): Financials => {
   if (totalTrades === 0) {
     return {
       totalTrades: 0, netPnl: 0, grossPnl: 0, winRate: 0, lossRate: 0,
-      avgWin: 0, avgLoss: 0, profitFactor: 0, totalFees: 0
+      avgWin: 0, avgLoss: 0, profitFactor: 0, totalFees: 0, expectancy: 0, avgWinLossRatio: 0, sharpeRatio: null, maxWin: 0, maxLoss: 0
     };
   }
 
@@ -37,6 +42,15 @@ export const calculateFinancials = (trades: Trade[]): Financials => {
   
   const profitFactor = grossLoss > 0 ? grossProfit / grossLoss : 0;
 
+  const expectancy = ((winRate / 100) * avgWin) - ((lossRate / 100) * avgLoss);
+  const avgWinLossRatio = avgLoss > 0 ? avgWin / avgLoss : Infinity;
+
+  const pnlValues = trades.map(t => t.profit);
+  const sharpeRatio = calculateSharpeRatio(pnlValues);
+
+  const maxWin = winningTrades.length > 0 ? Math.max(...winningTrades.map(t => t.profit)) : 0;
+  const maxLoss = losingTrades.length > 0 ? Math.min(...losingTrades.map(t => t.profit)) : 0;
+
   return {
     totalTrades,
     netPnl,
@@ -47,6 +61,11 @@ export const calculateFinancials = (trades: Trade[]): Financials => {
     avgLoss,
     profitFactor,
     totalFees,
+    expectancy,
+    avgWinLossRatio,
+    sharpeRatio,
+    maxWin,
+    maxLoss,
   };
 };
 

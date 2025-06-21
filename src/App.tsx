@@ -28,6 +28,7 @@ import { validateFileUpload, safeJsonParse, rateLimiter, generateSecureId, sanit
 import { SecureStorage } from './utils/secureStorage';
 import { generatePdfReport } from './utils/pdfGenerator';
 import { calculateFinancials } from './utils/financialCalculations';
+import { LegalDisclaimer, FooterDisclaimer } from './components/ui/LegalDisclaimer';
 
 // Helper to normalize CSV headers for detection
 const normalizeHeader = (header: string): string => header.toLowerCase().replace(/\s+/g, '').replace(/\//g, '');
@@ -132,9 +133,27 @@ const App: React.FC = () => {
   const [isGeneratingReport, setIsGeneratingReport] = useState(false);
   const [reportError, setReportError] = useState<string | null>(null);
 
+  // Legal disclaimer state
+  const [showLegalDisclaimer, setShowLegalDisclaimer] = useState(false);
+  const [hasSeenLegalDisclaimer, setHasSeenLegalDisclaimer] = useState(false);
+
   useEffect(() => {
     saveData(trades, tagGroups, playbookEntries);
   }, [trades, tagGroups, playbookEntries]);
+
+  // Show legal disclaimer on first visit
+  useEffect(() => {
+    const hasSeenBefore = localStorage.getItem('reflection-edge-legal-seen');
+    if (!hasSeenBefore) {
+      setShowLegalDisclaimer(true);
+    }
+  }, []);
+
+  const handleLegalDisclaimerClose = () => {
+    setShowLegalDisclaimer(false);
+    setHasSeenLegalDisclaimer(true);
+    localStorage.setItem('reflection-edge-legal-seen', 'true');
+  };
 
   const handleAddTrade = (trade: Omit<Trade, 'id' | 'timeInTrade'>) => {
     const timeInTrade = (new Date(trade.timeOut).getTime() - new Date(trade.timeIn).getTime()) / (1000 * 60); 
@@ -526,6 +545,8 @@ const App: React.FC = () => {
 
     // 3. Generate analytical insights for PDF (with error handling)
     let analytics: any = undefined;
+    console.log(`Generating report for ${filteredTrades.length} trades.`);
+
     try {
       // Limit dataset size for analytics to prevent performance issues
       const maxTradesForAnalytics = 1000;
@@ -534,7 +555,7 @@ const App: React.FC = () => {
         : filteredTrades;
       
       if (tradesForAnalytics.length < 10) {
-        console.warn('Insufficient data for analytics (need at least 10 trades)');
+        console.warn(`Skipping analytics: Not enough trades (${tradesForAnalytics.length}). Minimum required is 10.`);
       } else {
         const { discoverEdges } = require('./utils/edgeDiscovery');
         const { analyzeTimePatterns } = require('./utils/patternRecognition');
@@ -545,9 +566,11 @@ const App: React.FC = () => {
           patternAnalysis: analyzeTimePatterns(tradesForAnalytics),
           kellyCriterion: calculateKellyCriterion(tradesForAnalytics),
         };
+        console.log("Successfully generated analytics data:", analytics);
       }
     } catch (analyticsError) {
-      console.warn('Analytics calculation failed, generating report without analytics:', analyticsError);
+      console.error('Analytics calculation failed:', analyticsError);
+      setReportError('Could not calculate analytics, but generating basic report. Check console for details.');
       // Continue without analytics rather than failing completely
     }
 
@@ -613,6 +636,8 @@ const App: React.FC = () => {
 
       // 3. Generate analytical insights for PDF (with error handling)
       let analytics: any = undefined;
+      console.log(`Generating report for ${filteredTrades.length} trades.`);
+
       try {
         // Limit dataset size for analytics to prevent performance issues
         const maxTradesForAnalytics = 1000;
@@ -621,7 +646,7 @@ const App: React.FC = () => {
           : filteredTrades;
         
         if (tradesForAnalytics.length < 10) {
-          console.warn('Insufficient data for analytics (need at least 10 trades)');
+          console.warn(`Skipping analytics: Not enough trades (${tradesForAnalytics.length}). Minimum required is 10.`);
         } else {
           const { discoverEdges } = require('./utils/edgeDiscovery');
           const { analyzeTimePatterns } = require('./utils/patternRecognition');
@@ -632,9 +657,11 @@ const App: React.FC = () => {
             patternAnalysis: analyzeTimePatterns(tradesForAnalytics),
             kellyCriterion: calculateKellyCriterion(tradesForAnalytics),
           };
+          console.log("Successfully generated analytics data:", analytics);
         }
       } catch (analyticsError) {
-        console.warn('Analytics calculation failed, generating report without analytics:', analyticsError);
+        console.error('Analytics calculation failed:', analyticsError);
+        setReportError('Could not calculate analytics, but generating basic report. Check console for details.');
         // Continue without analytics rather than failing completely
       }
 
@@ -645,60 +672,8 @@ const App: React.FC = () => {
           : exportDateRange;
 
       // 5. Generate PDF with analytics
+      console.log("Passing analytics to PDF generator:", analytics);
       await generatePdfReport(elementsToPrint, summaryStats, reportTitle, dateRange, analytics);
-      
-      setIsExportModalOpen(false);
-    } catch (error) {
-      console.error('PDF generation failed:', error);
-      setReportError(error instanceof Error ? error.message : 'Failed to generate PDF report');
-    } finally {
-      setIsGeneratingReport(false);
-    }
-  };
-
-  const handleGenerateBasicReport = async () => {
-    setIsGeneratingReport(true);
-    setReportError(null);
-    
-    try {
-      // Filter trades by the selected export date range
-      const filteredTrades = trades.filter(trade => {
-        const tradeDate = new Date(trade.date);
-        const startDate = new Date(exportDateRange.start);
-        const endDate = new Date(exportDateRange.end);
-        return tradeDate >= startDate && tradeDate <= endDate;
-      });
-      
-      if (filteredTrades.length === 0) {
-        throw new Error('No trades found for the selected date range.');
-      }
-      
-      // 1. Define elements to print
-      const elementsToPrint = [
-        { elementId: 'performance-chart-container', title: 'Performance Chart' },
-        { elementId: 'summary-container', title: 'Summary' },
-        { elementId: 'tradelog-container', title: 'Trade Log' }
-      ];
-
-      // 2. Gather summary stats for the filtered trades
-      const summaryFinancials = calculateFinancials(filteredTrades);
-      const summaryStats = {
-        'Total Trades': summaryFinancials.totalTrades,
-        'Net P&L': `$${summaryFinancials.netPnl.toFixed(2)}`,
-        'Win Rate': `${summaryFinancials.winRate.toFixed(1)}%`,
-        'Profit Factor': summaryFinancials.profitFactor.toFixed(2),
-        'Average Win': `$${summaryFinancials.avgWin.toFixed(2)}`,
-        'Average Loss': `$${summaryFinancials.avgLoss.toFixed(2)}`,
-      };
-
-      // 3. Set report title and date range
-      const reportTitle = 'Trading Performance Report';
-      const dateRange = exportDateMode === 'daily' 
-          ? { start: exportDateRange.start, end: exportDateRange.start } 
-          : exportDateRange;
-
-      // 4. Generate PDF without analytics
-      await generatePdfReport(elementsToPrint, summaryStats, reportTitle, dateRange);
       
       setIsExportModalOpen(false);
     } catch (error) {
@@ -912,8 +887,13 @@ const App: React.FC = () => {
         )}
 
         {isEdgeDiscoveryModalOpen && (
-          <Modal title="Edge Discovery Dashboard" onClose={() => setIsEdgeDiscoveryModalOpen(false)} wide={true}>
-            <EdgeDiscoveryDashboard trades={trades} />
+          <Modal
+            isOpen={isEdgeDiscoveryModalOpen}
+            onClose={() => setIsEdgeDiscoveryModalOpen(false)}
+            title="Edge Discovery"
+            wide={true}
+          >
+            <EdgeDiscoveryDashboard trades={trades} tagGroups={tagGroups}/>
           </Modal>
         )}
 
@@ -927,6 +907,10 @@ const App: React.FC = () => {
           <Modal title="Kelly Criterion Analysis" onClose={() => setIsKellyCriterionModalOpen(false)} wide={true}>
             <KellyCriterionAnalysis trades={trades} tagGroups={tagGroups} />
           </Modal>
+        )}
+
+        {showLegalDisclaimer && (
+          <LegalDisclaimer variant="modal" onClose={handleLegalDisclaimerClose} />
         )}
 
         {isExportModalOpen && (
@@ -993,38 +977,27 @@ const App: React.FC = () => {
 
               {/* PDF Report Generation */}
               <div>
-                <h3 className="text-lg font-semibold text-gray-200 mb-2">Generate PDF Report</h3>
+                <h3 className="text-lg font-semibold text-gray-200 mb-2">Generate Full PDF Report</h3>
                 {reportError && (
                   <div className="mb-3 p-3 bg-red-900 border border-red-700 rounded-lg">
                     <p className="text-red-200 text-sm">{reportError}</p>
                   </div>
                 )}
-                <div className="space-y-2">
-                  <Button
-                    onClick={handleGenerateBasicReport}
-                    variant="primary"
-                    className="w-full bg-green-600 hover:bg-green-700"
-                    leftIcon={<DocumentTextIcon className="w-5 h-5"/>}
-                    disabled={isGeneratingReport}
-                  >
-                    {isGeneratingReport ? 'Generating...' : 'Generate Basic Report'}
-                  </Button>
-                  <Button
-                    onClick={handleGenerateReport}
-                    variant="secondary"
-                    className="w-full bg-purple-600 hover:bg-purple-700"
-                    leftIcon={<DocumentTextIcon className="w-5 h-5"/>}
-                    disabled={isGeneratingReport}
-                  >
-                    {isGeneratingReport ? 'Generating with Analytics...' : 'Generate Report with Analytics'}
-                  </Button>
-                </div>
-                <p className="text-xs text-gray-400 mt-1">
-                  Generates a PDF using the date range selected above. Analytics version includes Edge Discovery, Pattern Analysis, and Kelly Criterion insights.
+                <Button
+                  onClick={handleGenerateReport}
+                  variant="primary"
+                  className="w-full bg-green-600 hover:bg-green-700"
+                  leftIcon={<DocumentTextIcon className="w-5 h-5"/>}
+                  disabled={isGeneratingReport}
+                >
+                  {isGeneratingReport ? 'Generating Full Report...' : 'Generate Full Report'}
+                </Button>
+                <p className="text-xs text-gray-400 mt-2">
+                  Generates a comprehensive PDF report for the selected date range, including all performance metrics and analytical insights (Edge, Patterns, Kelly).
                 </p>
                 {isGeneratingReport && (
                   <p className="text-xs text-yellow-400 mt-2">
-                    ⚠️ Analytics calculation may take a few seconds for large datasets...
+                    ⚠️ This may take a few seconds for large datasets...
                   </p>
                 )}
               </div>
@@ -1204,6 +1177,23 @@ const App: React.FC = () => {
             </div>
           </div>
         </main>
+        
+        {/* Legal Disclaimer Footer */}
+        <FooterDisclaimer />
+        
+        {/* Compact Legal Disclaimer and Legal Button */}
+        <div className="mt-6 flex flex-col items-center space-y-4">
+          <LegalDisclaimer variant="compact" />
+          <Button
+            onClick={() => setShowLegalDisclaimer(true)}
+            variant="ghost"
+            size="sm"
+            leftIcon={<DocumentTextIcon className="w-4 h-4"/>}
+            className="text-gray-400 hover:text-gray-200"
+          >
+            View Full Legal Disclaimers
+          </Button>
+        </div>
       </div>
     </div>
   );
