@@ -1,106 +1,82 @@
-# Trading Analysis Dashboard
+# Reflection Edge - Advanced Trading Journal
 
-A powerful React-based web application for analyzing trading performance through CSV data imports, interactive charts, and detailed reporting.
+A powerful, secure, and professional-grade trading journal built with React for in-depth performance analysis. Go beyond simple P&L tracking and discover your true statistical edge.
 
-## Features
+## Core Features
 
-- **CSV Import Support**
-  - Import trading data from broker exports
-  - Support for Quantower CSV format
-  - Automatic data validation and error handling
+- **Secure & Private**: All data is stored and encrypted locally in your browser. No data ever leaves your machine.
+- **Advanced CSV Import**: Supports multiple broker and platform formats (including Quantower) with automatic data validation.
+- **Interactive Charting**:
+  - Cumulative PnL, Win Rate, and other key metrics over time.
+  - Dynamic filtering by date range, trade direction, and custom tags.
+  - Compare performance across different time periods.
+- **Flexible Tagging System**:
+  - Create custom tag groups and color-coded tags for your strategies, setups, and market conditions.
+  - Analyze performance by any combination of tags.
+- **Playbook & Journaling**:
+  - Build a playbook of your ideal trade setups.
+  - Attach playbook entries and detailed notes to every trade.
 
-- **Interactive Charts**
-  - Cumulative PnL visualization
-  - Trade sequence analysis
-  - Customizable date ranges
-  - Multiple chart types (Line, Pie)
+## Professional Analysis Tools
 
-- **Tag Management System**
-  - Create custom tag groups
-  - Assign multiple tags to trades
-  - Color-coded tag visualization
-  - Tag-based performance analysis
-
-- **Trade Management**
-  - Add, edit, and delete trades manually
-  - Track trade duration
-  - Monitor entry/exit points
-  - Record trade direction (long/short)
-
-- **Performance Analytics**
-  - Daily trading summaries
-  - Tag performance metrics
-  - Trade direction filtering
-  - Custom date range comparisons
+- **Kelly Criterion Analysis**:
+  - Calculates optimal position sizing (Full, Half, Quarter Kelly) based on your historical performance.
+  - Provides key metrics like Profit Factor, Win Rate, and Risk of Ruin.
+  - Filter by tags to see the Kelly value for each specific strategy, helping you allocate capital effectively.
+- **Edge Discovery Dashboard**:
+  - Automatically analyzes your entire trade history to find your statistical edge.
+  - Identifies your most profitable patterns, times of day, and market conditions.
+  - Provides an overall "Edge Score" and actionable recommendations.
+  - Includes a risk assessment and highlights your subconscious behavioral patterns.
+- **Monkey Brain Suppressor (MBS)**:
+  - An interactive tool to promote discipline during live trading sessions.
+  - Enforces a timeout after consecutive losses to prevent emotional decisions.
+  - Provides real-time session stats and a detailed post-session analysis.
 
 ## Getting Started
 
 ### Prerequisites
 
-- Node.js (v14 or higher)
-- npm or yarn package manager
+- Node.js (v16 or higher)
+- npm or yarn
 
 ### Installation
 
-1. Clone the repository:
-```bash
-git clone [repository-url]
-cd trade-report-card
-```
-
-2. Install dependencies:
-```bash
-npm install
-# or
-yarn install
-```
-
-3. Start the development server:
-```bash
-npm run dev
-# or
-yarn dev
-```
-
-4. Open your browser and navigate to `http://localhost:5173`
+1.  Clone the repository:
+    ```bash
+    git clone https://github.com/your-repo/reflection-edge.git
+    cd reflection-edge
+    ```
+2.  Install dependencies:
+    ```bash
+    npm install
+    ```
+3.  Start the development server:
+    ```bash
+    npm run dev
+    ```
+4.  Open your browser to `http://localhost:5173`.
 
 ## Usage
 
-1. **Importing Data**
-   - Click the import button to upload your CSV file
-   - Supported formats: Broker export CSV or Quantower CSV
-   - The system will automatically detect the format and process the data
+1.  **Import Data**: Use the "Import" button to upload your trade history from a CSV file.
+2.  **Tag Your Trades**: Use the "Tags" manager to create tags for your strategies (e.g., "Opening Drive," "Reversal") and apply them to your trades.
+3.  **Analyze Your Edge**:
+    *   Open the **Kelly** panel to see position sizing recommendations for your strategies.
+    *   Open the **Edge** panel to get a deep-dive analysis of where you're most profitable.
+    *   Use the main charts and filters to explore performance visually.
 
-2. **Managing Trades**
-   - Add new trades manually using the trade form
-   - Edit existing trades by clicking on them in the trade list
-   - Delete trades using the delete button
+## Data Persistence & Security
 
-3. **Working with Tags**
-   - Create tag groups through the tag manager
-   - Assign tags to trades for better organization
-   - Use tags to filter and analyze performance
-
-4. **Analyzing Performance**
-   - Use the chart controls to customize your view
-   - Select different metrics for the Y-axis
-   - Choose between trade sequence or time-based X-axis
-   - Filter by date ranges and tags
-
-## Data Persistence
-
-The application automatically saves your data to local storage, including:
-- Trade history
-- Tag groups and assignments
-- Chart preferences
+All trade data and settings are saved securely in your browser's local storage using the Web Crypto API for encryption. Your data is yours alone and never transmitted over the network.
 
 ## Built With
 
-- React
-- TypeScript
-- Recharts for data visualization
-- Vite for build tooling
+- React & TypeScript
+- Vite for a fast development experience
+- TailwindCSS for styling
+- Recharts for interactive data visualization
 
 ## License
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+This project is licensed under the MIT License. See the `LICENSE` file for details.
