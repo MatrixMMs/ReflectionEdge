@@ -1,5 +1,4 @@
-
-import { Trade, TradeDirection } from '../types';
+import { Trade } from '../types';
 
 // This is the structure App.tsx expects for new trades, minus id and timeInTrade
 type ParsedTradeData = Omit<Trade, 'id' | 'timeInTrade'>;
@@ -109,7 +108,6 @@ export const parseQuantowerCSVToTrades = (csvContent: string): CSVParseResult =>
 
   const headerIndices: { [key: string]: number } = {};
   let missingHeadersError = false; // Changed variable name to avoid conflict
-  const detectedRawHeaders: string[] = []; // For error reporting
 
   // Populate headerIndices using the normalized headers from the CSV
   for (const internalKey in requiredHeaderMap) {
@@ -117,20 +115,6 @@ export const parseQuantowerCSVToTrades = (csvContent: string): CSVParseResult =>
     const foundIndex = normalizedHeadersFromCSV.indexOf(expectedNormalizedHeader);
     
     if (foundIndex === -1) {
-      // Try to find the original header name for better error messages
-      let originalHeaderName = expectedNormalizedHeader; // Fallback
-      const originalHeaderIndex = Object.values(requiredHeaderMap).indexOf(expectedNormalizedHeader);
-      if (originalHeaderIndex !== -1) {
-          const keyForOriginal = Object.keys(requiredHeaderMap)[originalHeaderIndex];
-          // This is a bit convoluted; ideally, map raw headers to normalized to find original
-          // For now, use the normalized name or a placeholder if raw can't be easily found.
-          // A better way would be to map original CSV headers to their normalized versions first.
-          // Let's find the original raw header that would normalize to expectedNormalizedHeader
-          const rawHeaderIndex = normalizedHeadersFromCSV.findIndex(h => h === expectedNormalizedHeader);
-          if (rawHeaderIndex !== -1 && rawHeaderIndex < rawHeadersFromCSV.length) {
-            originalHeaderName = rawHeadersFromCSV[rawHeaderIndex]; // This might still be normalized if not careful
-          }
-      }
       // Simplified error for now:
       errors.push(`Quantower CSV Error: Missing required column for an expected header like "${expectedNormalizedHeader}". Check if a column like "Net P/L" (normalizes to 'netpl') is present.`);
       missingHeadersError = true;
@@ -166,8 +150,8 @@ export const parseQuantowerCSVToTrades = (csvContent: string): CSVParseResult =>
 
       const quantityRaw = parseFloat(values[headerIndices.quantity]);
       if (isNaN(quantityRaw) || quantityRaw === 0) throw new Error(`Invalid Quantity: "${values[headerIndices.quantity]}". Must be a non-zero number.`);
-      const quantity = quantityRaw;
-
+      // Make Sell quantities negative for proper matching
+      const quantity = side === 'Sell' ? -Math.abs(quantityRaw) : Math.abs(quantityRaw);
 
       const price = parseFloat(values[headerIndices.price]);
       if (isNaN(price)) throw new Error(`Invalid Price: "${values[headerIndices.price]}"`);
@@ -200,7 +184,7 @@ export const parseQuantowerCSVToTrades = (csvContent: string): CSVParseResult =>
   const pendingFills: { [symbol: string]: QuantowerFill[] } = {};
 
   for (const currentFill of allFills) {
-    const { symbol, quantity } = currentFill;
+    const { symbol } = currentFill;
     if (!pendingFills[symbol]) {
       pendingFills[symbol] = [];
     }
@@ -226,6 +210,7 @@ export const parseQuantowerCSVToTrades = (csvContent: string): CSVParseResult =>
             profit: (pendingShortFill.netPLPerUnit + currentFill.netPLPerUnit) * matchQty,
             journal: '',
             tags: {},
+            accountId: 'default', // Default account ID for imported trades
           });
 
           currentFillQuantityRemaining -= matchQty;
@@ -262,6 +247,7 @@ export const parseQuantowerCSVToTrades = (csvContent: string): CSVParseResult =>
             profit: (pendingLongFill.netPLPerUnit + currentFill.netPLPerUnit) * matchQty,
             journal: '',
             tags: {},
+            accountId: 'default', // Default account ID for imported trades
           });
           currentFillQuantityRemaining += matchQty; 
           pendingLongFill.quantity -= matchQty;

@@ -82,7 +82,7 @@ const parsePnl = (pnlStr: string): number | null => {
 };
 
 
-export const parseCSVToTrades = (csvContent: string, existingTagGroups: TagGroup[]): CSVParseResult => {
+export const parseCSVToTrades = (csvContent: string, _existingTagGroups: TagGroup[]): CSVParseResult => {
   const successfulTrades: ParsedTradeData[] = [];
   const errors: string[] = [];
 
@@ -211,6 +211,7 @@ export const parseCSVToTrades = (csvContent: string, existingTagGroups: TagGroup
         profit,
         journal,
         tags: tradeTags,
+        accountId: 'default', // Default account ID for imported trades
       });
 
     } catch (e: any) {
