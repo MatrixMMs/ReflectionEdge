@@ -11,9 +11,10 @@ interface TagManagerProps {
   onAddSubTag: (groupId: string, subTagName: string) => void;
   onUpdateSubTagColor: (groupId: string, subTagId: string, color: string) => void;
   onDeleteGroup: (groupId: string) => void;
+  onDeleteSubTag: (groupId: string, subTagId: string) => void;
 }
 
-export const TagManager: React.FC<TagManagerProps> = ({ tagGroups, onAddGroup, onAddSubTag, onUpdateSubTagColor, onDeleteGroup }) => {
+export const TagManager: React.FC<TagManagerProps> = ({ tagGroups, onAddGroup, onAddSubTag, onUpdateSubTagColor, onDeleteGroup, onDeleteSubTag }) => {
   const [newGroupName, setNewGroupName] = useState('');
   const [newSubTagName, setNewSubTagName] = useState<{ [groupId: string]: string }>({});
 
@@ -78,12 +79,25 @@ export const TagManager: React.FC<TagManagerProps> = ({ tagGroups, onAddGroup, o
             </div>
             <div className="space-y-2">
               {group.subtags.map(subtag => (
-                <div key={subtag.id} className="flex items-center space-x-2">
-                  <ColorPicker
-                    initialColor={subtag.color}
-                    onChange={(color) => onUpdateSubTagColor(group.id, subtag.id, color)}
-                  />
-                  <span className="text-sm">{subtag.name}</span>
+                <div key={subtag.id} className="flex items-center justify-between space-x-2 bg-gray-700/50 p-2 rounded-md">
+                  <div className="flex items-center space-x-2">
+                    <ColorPicker
+                      initialColor={subtag.color}
+                      onChange={(color) => onUpdateSubTagColor(group.id, subtag.id, color)}
+                    />
+                    <span className="text-sm">{subtag.name}</span>
+                  </div>
+                  {!isDefaultGroup(group.id) && (
+                     <Button 
+                        onClick={() => onDeleteSubTag(group.id, subtag.id)} 
+                        variant="ghost" 
+                        size="icon"
+                        className="text-red-500 hover:text-red-400"
+                        aria-label="Delete subtag"
+                      >
+                        <TrashIcon className="w-4 h-4" />
+                      </Button>
+                  )}
                 </div>
               ))}
               {!isDefaultGroup(group.id) && (

@@ -7,6 +7,7 @@ const START_DATE = '2025-01-01';
 const INITIAL_PRICE = 5100;
 const MAX_LOSS = -500;
 const MAX_PROFIT = 2000;
+const WIN_RATE = 0.52; // <-- Set to 52%
 const SYMBOL = '/ES';
 const ACCOUNT_ID = 'futures_acc_large_test';
 const OUTPUT_FILENAME = 'src/test_data/ES_futures_1000_trades_test.json';
@@ -59,7 +60,13 @@ function generateTrade(id, date, basePrice) {
   const direction = Math.random() > 0.5 ? 'long' : 'short';
   
   const entryPrice = basePrice + (Math.random() - 0.5) * 30;
-  const profit = Math.random() * (MAX_PROFIT - MAX_LOSS) + MAX_LOSS;
+
+  // Updated profit logic to respect the 52% win rate
+  const isWin = Math.random() < WIN_RATE;
+  const profit = isWin
+    ? Math.random() * MAX_PROFIT  // Random profit between 0 and 2000
+    : Math.random() * MAX_LOSS;   // Random loss between -500 and 0
+
   const exitPrice = direction === 'long' 
     ? entryPrice + (profit / 50) // $50 per point for /ES
     : entryPrice - (profit / 50);

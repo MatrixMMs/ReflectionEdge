@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
-import { Trade, TagGroup, SubTag, ChartYAxisMetric, ChartXAxisMetric, AppDateRange, TradeDirectionFilterSelection, PlaybookEntry } from './types';
+import { Trade, TagGroup, SubTag, ChartYAxisMetric, ChartXAxisMetric, AppDateRange, TradeDirectionFilterSelection, PlaybookEntry, Profile } from './types';
 import { TradeForm } from './components/trades/TradeForm';
 import { TradeList } from './components/trades/TradeList';
 import { Summary } from './components/trades/Summary';
@@ -12,6 +12,7 @@ import { PatternAnalysisDashboard } from './components/patterns/PatternAnalysisD
 import { PatternInsights } from './components/patterns/PatternInsights';
 import { KellyCriterionAnalysis } from './components/analysis/KellyCriterionAnalysis';
 import { EdgeDiscoveryDashboard } from './components/analysis/EdgeDiscoveryDashboard';
+import { ExecutionDashboard } from './components/analysis/ExecutionDashboard';
 import { DEFAULT_CHART_COLOR, COMPARISON_CHART_COLOR, LONG_TRADE_COLOR, SHORT_TRADE_COLOR, DEFAULT_TAG_GROUPS } from './constants';
 import { processChartData, filterTradesByDateAndTags } from './utils/chartDataProcessor';
 import { parseCSVToTrades as parseBrokerExportCSV } from './utils/csvImporter';
@@ -25,56 +26,21 @@ import { PlaybookList } from './components/playbook/PlaybookList';
 import { PlaybookEditor } from './components/playbook/PlaybookEditor';
 import { MonkeyBrainSuppressor } from './components/trades/MonkeyBrainSuppressor';
 import { validateFileUpload, safeJsonParse, rateLimiter, generateSecureId, sanitizeString, validateDateString, SECURITY_CONFIG } from './utils/security';
-import { SecureStorage } from './utils/secureStorage';
+import { SecureStorage, StoredData } from './utils/secureStorage';
 import { generatePdfReport } from './utils/pdfGenerator';
 import { calculateFinancials } from './utils/financialCalculations';
 import { LegalDisclaimer, FooterDisclaimer } from './components/ui/LegalDisclaimer';
+import { calculateGrade } from './utils/grading';
 
 // Helper to normalize CSV headers for detection
 const normalizeHeader = (header: string): string => header.toLowerCase().replace(/\s+/g, '').replace(/\//g, '');
 
 const App: React.FC = () => {
-  const loadStoredData = () => {
-    const result = SecureStorage.loadData();
-    if (result) {
-      // Merge stored tag groups with default tag groups
-      const mergedTagGroups = [...DEFAULT_TAG_GROUPS];
-      result.tagGroups.forEach((storedGroup: TagGroup) => {
-        // Only add non-default tag groups
-        if (!DEFAULT_TAG_GROUPS.some(defaultGroup => defaultGroup.id === storedGroup.id)) {
-          mergedTagGroups.push(storedGroup);
-        }
-      });
-
-      return {
-        trades: result.trades.map((t: any) => ({
-          ...t,
-          direction: t.direction || 'long',
-          symbol: t.symbol || '',
-          contracts: t.contracts || 0,
-          timeIn: t.timeIn || '',
-          timeOut: t.timeOut || '',
-          date: t.date || new Date().toISOString().split('T')[0],
-          tags: t.tags || {},
-          journal: t.journal || '',
-          accountId: t.accountId || 'default'
-        })),
-        tagGroups: mergedTagGroups,
-        playbookEntries: result.playbookEntries || []
-      };
-    }
-    return { trades: [], tagGroups: DEFAULT_TAG_GROUPS, playbookEntries: [] };
-  };
-
-  const saveData = (trades: Trade[], tagGroups: TagGroup[], playbookEntries: PlaybookEntry[]) => {
-    SecureStorage.saveData(trades, tagGroups, playbookEntries);
-  };
-
-  const { trades: initialTrades, tagGroups: initialTagGroups, playbookEntries: initialPlaybookEntries } = loadStoredData();
-
-  const [trades, setTrades] = useState<Trade[]>(initialTrades);
-  const [tagGroups, setTagGroups] = useState<TagGroup[]>(initialTagGroups);
-  const [playbookEntries, setPlaybookEntries] = useState<PlaybookEntry[]>(initialPlaybookEntries);
+  const [activeProfileId, setActiveProfileId] = useState<string | null>(null);
+  const [profiles, setProfiles] = useState<Profile[]>([]);
+  const [trades, setTrades] = useState<Trade[]>([]);
+  const [tagGroups, setTagGroups] = useState<TagGroup[]>(DEFAULT_TAG_GROUPS);
+  const [playbookEntries, setPlaybookEntries] = useState<PlaybookEntry[]>([]);
 
   const [selectedDate, setSelectedDate] = useState<string>(new Date().toISOString().split('T')[0]);
   const [summaryDateMode, setSummaryDateMode] = useState<'daily' | 'range'>('daily');
@@ -99,6 +65,7 @@ const App: React.FC = () => {
   const [isTradeFormModalOpen, setIsTradeFormModalOpen] = useState(false);
   const [isTagManagerModalOpen, setIsTagManagerModalOpen] = useState(false);
   const [editingTrade, setEditingTrade] = useState<Trade | null>(null);
+  const [viewingTrade, setViewingTrade] = useState<Trade | null>(null);
   
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -117,6 +84,8 @@ const App: React.FC = () => {
 
   // Edge Discovery analysis state
   const [isEdgeDiscoveryModalOpen, setIsEdgeDiscoveryModalOpen] = useState(false);
+
+  const [isExecutionDashboardModalOpen, setIsExecutionDashboardModalOpen] = useState(false);
 
   const [isMonkeyBrainSuppressorOpen, setIsMonkeyBrainSuppressorOpen] = useState(false);
 
@@ -137,9 +106,48 @@ const App: React.FC = () => {
   const [showLegalDisclaimer, setShowLegalDisclaimer] = useState(false);
   const [hasSeenLegalDisclaimer, setHasSeenLegalDisclaimer] = useState(false);
 
+  const [activeTab, setActiveTab] = useState<'trades' | 'charts' | 'playbook'>('trades');
+
   useEffect(() => {
-    saveData(trades, tagGroups, playbookEntries);
-  }, [trades, tagGroups, playbookEntries]);
+    const stored = SecureStorage.loadData();
+    if (stored && stored.activeProfileId && stored.profileData[stored.activeProfileId]) {
+      const activeData = stored.profileData[stored.activeProfileId];
+      setActiveProfileId(stored.activeProfileId);
+      setProfiles(stored.profiles);
+      setTrades(activeData.trades || []);
+      setTagGroups(activeData.tagGroups || DEFAULT_TAG_GROUPS);
+      setPlaybookEntries(activeData.playbookEntries || []);
+    } else {
+      // Create a default profile if none exists
+      const newProfileId = `profile_${Date.now()}`;
+      const newProfile: Profile = { id: newProfileId, name: 'Main Profile' };
+      setActiveProfileId(newProfileId);
+      setProfiles([newProfile]);
+    }
+  }, []);
+  
+  const saveData = useCallback(() => {
+    if (!activeProfileId) return;
+
+    const dataToSave: StoredData = {
+      activeProfileId,
+      profiles,
+      profileData: {
+        ...SecureStorage.loadData()?.profileData,
+        [activeProfileId]: {
+          trades,
+          tagGroups,
+          playbookEntries,
+        },
+      },
+      version: '2.0', // Ensure version is set
+    };
+    SecureStorage.saveData(dataToSave);
+  }, [activeProfileId, profiles, trades, tagGroups, playbookEntries]);
+
+  useEffect(() => {
+    saveData();
+  }, [saveData]);
 
   // Show legal disclaimer on first visit
   useEffect(() => {
@@ -157,14 +165,24 @@ const App: React.FC = () => {
 
   const handleAddTrade = (trade: Omit<Trade, 'id' | 'timeInTrade'>) => {
     const timeInTrade = (new Date(trade.timeOut).getTime() - new Date(trade.timeIn).getTime()) / (1000 * 60); 
-    setTrades(prev => [...prev, { 
+
+    const fullTrade = {
       ...trade, 
-      id: Date.now().toString() + Math.random().toString(16).slice(2), 
+      id: generateSecureId(),
       timeInTrade, 
+      execution: trade.execution,
       direction: trade.direction || 'long',
       symbol: trade.symbol || '',
       contracts: trade.contracts || 0
-    }]);
+    } as Trade;
+
+    const playbookEntry = fullTrade.strategyId ? playbookEntries.find(p => p.id === fullTrade.strategyId) : undefined;
+    const grade = calculateGrade(fullTrade, playbookEntry);
+    if(fullTrade.execution){
+      fullTrade.execution.grade = grade;
+    }
+
+    setTrades(prev => [...prev, fullTrade]);
     setIsTradeFormModalOpen(false);
     setEditingTrade(null);
   };
@@ -172,14 +190,24 @@ const App: React.FC = () => {
   const handleUpdateTrade = (updatedTrade: Omit<Trade, 'id' | 'timeInTrade'>) => {
     if (!editingTrade) return;
     const timeInTrade = (new Date(updatedTrade.timeOut).getTime() - new Date(updatedTrade.timeIn).getTime()) / (1000 * 60);
-    setTrades(prev => prev.map(t => t.id === editingTrade.id ? {
+
+    const fullTrade = {
       ...updatedTrade,
       id: editingTrade.id,
       timeInTrade,
+      execution: updatedTrade.execution,
       direction: updatedTrade.direction || 'long',
       symbol: updatedTrade.symbol || '',
       contracts: updatedTrade.contracts || 0
-    } : t));
+    } as Trade;
+
+    const playbookEntry = fullTrade.strategyId ? playbookEntries.find(p => p.id === fullTrade.strategyId) : undefined;
+    const grade = calculateGrade(fullTrade, playbookEntry);
+    if(fullTrade.execution){
+      fullTrade.execution.grade = grade;
+    }
+    
+    setTrades(prev => prev.map(t => t.id === editingTrade.id ? fullTrade : t));
     setIsTradeFormModalOpen(false);
     setEditingTrade(null);
   };
@@ -191,6 +219,14 @@ const App: React.FC = () => {
   const handleEditTrade = (trade: Trade) => {
     setEditingTrade(trade);
     setIsTradeFormModalOpen(true);
+  };
+
+  const handleViewTradeDetails = (trade: Trade) => {
+    setViewingTrade(trade);
+  };
+
+  const handleCloseTradeDetails = () => {
+    setViewingTrade(null);
   };
 
   const handleAddTagGroup = (name: string) => {
@@ -230,6 +266,29 @@ const App: React.FC = () => {
           ...group,
           subtags: group.subtags.map((st: SubTag) => st.id === subTagId ? { ...st, color } : st)
         };
+      }
+      return group;
+    }));
+  };
+
+  const handleDeleteTagGroup = (groupId: string) => {
+    // Check if this is a default tag group
+    if (DEFAULT_TAG_GROUPS.some(group => group.id === groupId)) {
+      alert('Cannot delete default tag groups.');
+      return;
+    }
+    setTagGroups(prev => prev.filter(group => group.id !== groupId));
+  };
+
+  const handleDeleteSubTag = (groupId: string, subTagId: string) => {
+    setTagGroups(prev => prev.map(group => {
+      if (group.id === groupId) {
+        // Prevent deleting the last subtag if it's a default group
+        if (isDefaultGroup(group.id) && group.subtags.length === 1) {
+          alert("Cannot delete the last subtag from a default group.");
+          return group;
+        }
+        return { ...group, subtags: group.subtags.filter(st => st.id !== subTagId) };
       }
       return group;
     }));
@@ -482,13 +541,15 @@ const App: React.FC = () => {
     setIsTradeFormModalOpen(true);
   }
 
-  const handleDeleteTagGroup = (groupId: string) => {
-    // Check if this is a default tag group
-    if (DEFAULT_TAG_GROUPS.some(group => group.id === groupId)) {
-      alert('Cannot delete default tag groups.');
-      return;
-    }
-    setTagGroups(prev => prev.filter(group => group.id !== groupId));
+  const handleDeleteAllData = () => {
+    SecureStorage.clearData();
+    // Reset state to initial default
+    setActiveProfileId(null);
+    setProfiles([]);
+    setTrades([]);
+    setTagGroups(DEFAULT_TAG_GROUPS);
+    setPlaybookEntries([]);
+    alert("All data has been deleted.");
   };
 
   // Export feature: download all app data as JSON
@@ -710,6 +771,10 @@ const App: React.FC = () => {
     setSelectedPlaybookEntry(null);
   };
 
+  const isDefaultGroup = (groupId: string) => {
+    return DEFAULT_TAG_GROUPS.some(group => group.id === groupId);
+  };
+
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-900 text-gray-100 p-4">
       <div className="w-full max-w-7xl mx-auto">
@@ -815,102 +880,151 @@ const App: React.FC = () => {
           </Button>
         </div>
 
-        {isTradeFormModalOpen && (
-          <Modal title={editingTrade ? "Edit Trade" : "Add Trade"} onClose={() => { setIsTradeFormModalOpen(false); setEditingTrade(null); }}>
-            <TradeForm 
-              onSubmit={editingTrade 
-                ? handleUpdateTrade 
-                : handleAddTrade} 
-              tagGroups={tagGroups} 
-              playbookEntries={playbookEntries}
-              tradeToEdit={editingTrade || undefined} 
-            />
-          </Modal>
-        )}
-
-        {isTagManagerModalOpen && (
-          <Modal title="Manage Tags" onClose={() => setIsTagManagerModalOpen(false)}>
-            <TagManager 
-              tagGroups={tagGroups} 
-              onAddGroup={handleAddTagGroup} 
-              onAddSubTag={handleAddSubTag}
-              onUpdateSubTagColor={handleUpdateSubTagColor}
-              onDeleteGroup={handleDeleteTagGroup}
-            />
-          </Modal>
-        )}
-
-        {isSettingsModalOpen && (
-          <Modal title="Application Settings" onClose={() => setIsSettingsModalOpen(false)}>
-            <div className="text-gray-300">
-              <p>Settings panel is under construction.</p>
-              <p className="mt-4">Future options might include:</p>
-              <ul className="list-disc list-inside mt-2 text-sm">
-                <li>Theme customization</li>
-                <li>Default values for trade form</li>
-                <li>Data export options (JSON, CSV)</li>
-                <li>Clearing all application data</li>
-              </ul>
-            </div>
-          </Modal>
-        )}
-
-        {isPlaybookModalOpen && (
-          <Modal title="Trading Playbook" onClose={() => { setIsPlaybookModalOpen(false); setSelectedPlaybookEntry(null); }}>
-            {selectedPlaybookEntry ? (
-              <PlaybookEditor
-                entry={selectedPlaybookEntry}
-                tagGroups={tagGroups}
-                onSave={selectedPlaybookEntry.id ? handleUpdatePlaybookEntry : handleAddPlaybookEntry}
-                onCancel={() => setSelectedPlaybookEntry(null)}
-              />
-            ) : (
-              <PlaybookList
-                entries={playbookEntries}
-                onSelect={setSelectedPlaybookEntry}
-                onAdd={() => setSelectedPlaybookEntry({} as PlaybookEntry)}
-              />
-            )}
-          </Modal>
-        )}
-
-        {isPatternAnalysisModalOpen && (
-          <Modal title="Pattern Analysis" onClose={() => setIsPatternAnalysisModalOpen(false)} wide={true}>
-            <PatternAnalysisDashboard trades={trades} />
-          </Modal>
-        )}
-
-        {isPatternInsightsModalOpen && (
-          <Modal title="Pattern Insights" onClose={() => setIsPatternInsightsModalOpen(false)} wide={true}>
-            <PatternInsights trades={trades} />
-          </Modal>
-        )}
-
-        {isEdgeDiscoveryModalOpen && (
-          <Modal
-            isOpen={isEdgeDiscoveryModalOpen}
-            onClose={() => setIsEdgeDiscoveryModalOpen(false)}
-            title="Edge Discovery"
-            wide={true}
-          >
-            <EdgeDiscoveryDashboard trades={trades} tagGroups={tagGroups}/>
-          </Modal>
-        )}
-
         {isMonkeyBrainSuppressorOpen && (
           <Modal title="Monkey Brain Suppressor" onClose={() => setIsMonkeyBrainSuppressorOpen(false)}>
             <MonkeyBrainSuppressor onClose={() => setIsMonkeyBrainSuppressorOpen(false)} />
           </Modal>
         )}
 
+      {isTradeFormModalOpen && (
+          <Modal
+            title={editingTrade ? 'Edit Trade' : 'Add New Trade'}
+            onClose={() => {
+              setIsTradeFormModalOpen(false);
+              setEditingTrade(null);
+            }}
+            size="large"
+          >
+          <TradeForm 
+              onSubmit={editingTrade ? handleUpdateTrade : handleAddTrade}
+            tagGroups={tagGroups} 
+            playbookEntries={playbookEntries}
+            tradeToEdit={editingTrade || undefined} 
+          />
+        </Modal>
+      )}
+
+      {isTagManagerModalOpen && (
+          <Modal title="Tag Manager" onClose={() => setIsTagManagerModalOpen(false)} size="large">
+          <TagManager 
+            tagGroups={tagGroups} 
+            onAddGroup={handleAddTagGroup} 
+            onAddSubTag={handleAddSubTag}
+            onUpdateSubTagColor={handleUpdateSubTagColor}
+            onDeleteGroup={handleDeleteTagGroup}
+              onDeleteSubTag={handleDeleteSubTag}
+          />
+        </Modal>
+      )}
+
+      {isSettingsModalOpen && (
+          <Modal title="Settings" onClose={() => setIsSettingsModalOpen(false)} size="large">
+            <div className="space-y-4">
+              <h4 className="text-lg font-semibold text-gray-200">Data Management</h4>
+              <div className="flex space-x-2">
+                <Button onClick={handleExportData} variant="secondary">
+                  Export All Data
+                </Button>
+                <Button onClick={handleExportFilteredData} variant="secondary">
+                  Export Filtered Data
+                </Button>
+              </div>
+              <p className="text-sm text-gray-400">Export your trade data to a JSON file.</p>
+
+              <div className="border-t border-gray-700 pt-4">
+                <h4 className="text-lg font-semibold text-gray-200">Import Data</h4>
+                <p className="text-sm text-gray-400 mt-1">
+                  Import trades from a JSON backup, or from a CSV export from your broker.
+                </p>
+                <div className="mt-2">
+                  <Button onClick={triggerFileInput} variant="secondary">
+                    Import from File
+                  </Button>
+                </div>
+              </div>
+
+              <div className="border-t border-gray-700 pt-4">
+                <h4 className="text-lg font-semibold text-red-400">Danger Zone</h4>
+                <Button
+                  onClick={() => {
+                    if (window.confirm('Are you sure you want to delete all data? This cannot be undone.')) {
+                      handleDeleteAllData();
+                    }
+                  }}
+                  variant="danger"
+                >
+                  Delete All Data
+                </Button>
+                <p className="text-sm text-gray-400 mt-1">This will permanently delete all trades, tags, and settings.</p>
+              </div>
+          </div>
+        </Modal>
+      )}
+
+      {isPlaybookModalOpen && (
+          <Modal 
+            title={selectedPlaybookEntry ? "Edit Strategy" : "Add Strategy"} 
+            onClose={() => {
+              setIsPlaybookModalOpen(false);
+              setSelectedPlaybookEntry(null);
+            }}
+            size="large"
+          >
+            <PlaybookEditor
+              entry={selectedPlaybookEntry || undefined} 
+              tagGroups={tagGroups}
+              onSave={selectedPlaybookEntry ? handleUpdatePlaybookEntry : handleAddPlaybookEntry}
+              onCancel={() => {
+                setIsPlaybookModalOpen(false);
+                setSelectedPlaybookEntry(null);
+              }} 
+            />
+        </Modal>
+      )}
+
+      {isPatternAnalysisModalOpen && (
+          <Modal title="Pattern Analysis" onClose={() => setIsPatternAnalysisModalOpen(false)} size="full">
+          <PatternAnalysisDashboard trades={trades} />
+        </Modal>
+      )}
+
+      {isPatternInsightsModalOpen && (
+          <Modal title="Pattern Insights" onClose={() => setIsPatternInsightsModalOpen(false)} size="full">
+          <PatternInsights trades={trades} />
+        </Modal>
+      )}
+
+        {isEdgeDiscoveryModalOpen && (
+          <Modal title="Edge Discovery" onClose={() => setIsEdgeDiscoveryModalOpen(false)} size="large">
+            <EdgeDiscoveryDashboard trades={trades} tagGroups={tagGroups} />
+        </Modal>
+      )}
+
+        {isExecutionDashboardModalOpen && (
+          <Modal title="Execution Dashboard" onClose={() => setIsExecutionDashboardModalOpen(false)} size="full">
+            <ExecutionDashboard trades={trades} playbookEntries={playbookEntries} />
+          </Modal>
+        )}
+
         {isKellyCriterionModalOpen && (
-          <Modal title="Kelly Criterion Analysis" onClose={() => setIsKellyCriterionModalOpen(false)} wide={true}>
+          <Modal title="Kelly Criterion Analysis" onClose={() => setIsKellyCriterionModalOpen(false)} size="full">
             <KellyCriterionAnalysis trades={trades} tagGroups={tagGroups} />
           </Modal>
         )}
 
         {showLegalDisclaimer && (
-          <LegalDisclaimer variant="modal" onClose={handleLegalDisclaimerClose} />
+          <Modal title="Disclaimer" onClose={handleLegalDisclaimerClose} size="large">
+            <LegalDisclaimer onClose={handleLegalDisclaimerClose} />
+          </Modal>
+        )}
+
+        {importNotification && (
+        <NotificationPopup
+          title={importNotification.title}
+          message={importNotification.message}
+          details={importNotification.details}
+            onClose={() => setImportNotification(null)}
+          />
         )}
 
         {isExportModalOpen && (
@@ -1039,144 +1153,138 @@ const App: React.FC = () => {
             </div>
           </Modal>
         )}
-
-        {showImportConfirmation && importNotification && (
-          <NotificationPopup
-            title={importNotification.title}
-            message={importNotification.message}
-            details={importNotification.details}
-            onClose={() => {
-              setShowImportConfirmation(false);
-              setImportNotification(null);
-            }}
-            duration={5000} // 5 seconds
-          />
-        )}
-        
-        <main className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-1 space-y-6">
-            <div className="bg-gray-800 p-6 rounded-xl shadow-2xl">
-              <h2 className="text-2xl font-semibold mb-4 text-purple-400 flex items-center"><AdjustmentsHorizontalIcon className="w-6 h-6 mr-2" />Controls</h2>
-              <ChartControls
-                yAxisMetric={yAxisMetric}
-                setYAxisMetric={setYAxisMetric}
-                xAxisMetric={xAxisMetric}
-                setXAxisMetric={setXAxisMetric}
-                dateRange={chartDateRange}
-                setDateRange={setChartDateRange}
-                compareDateRange={compareDateRange}
-                setCompareDateRange={setCompareDateRange}
-                tagGroups={tagGroups}
-                selectedTags={selectedTagsForChart}
-                setSelectedTags={setSelectedTagsForChart}
-                tagComparisonMode={tagComparisonMode}
-                setTagComparisonMode={setTagComparisonMode}
-                directionFilter={directionFilter}
-                setDirectionFilter={setDirectionFilter}
-              />
-            </div>
-
-            <div className="bg-gray-800 p-6 rounded-xl shadow-2xl">
-              <h2 className="text-2xl font-semibold mb-4 text-pink-400 flex items-center"><TableCellsIcon className="w-6 h-6 mr-2" />Summary</h2>
-              
-              <div className="flex items-center space-x-2 mb-4">
-                  <Button onClick={() => setSummaryDateMode('daily')} variant={summaryDateMode === 'daily' ? 'primary' : 'secondary'} size="sm">Daily</Button>
-                  <Button onClick={() => setSummaryDateMode('range')} variant={summaryDateMode === 'range' ? 'primary' : 'secondary'} size="sm">Range</Button>
-              </div>
-              
-              <div className="mb-4">
-                {summaryDateMode === 'daily' ? (
-                  <div>
-                    <label htmlFor="summary-date" className="block text-sm font-medium text-gray-300 mb-1">Select Date:</label>
-                    <input
-                      type="date"
-                      id="summary-date"
-                      value={summaryDateRange.start}
-                      onChange={(e) => setSummaryDateRange({ start: e.target.value, end: e.target.value })}
-                      className="w-full bg-gray-700 border border-gray-600 text-gray-100 sm:text-sm rounded-lg focus:ring-purple-500 focus:border-purple-500 p-2.5"
-                    />
-                  </div>
-                ) : (
-                  <div className="flex items-center space-x-2">
-                    <div>
-                      <label htmlFor="summary-start-date" className="block text-sm font-medium text-gray-300 mb-1">Start Date:</label>
-                      <input
-                        type="date"
-                        id="summary-start-date"
-                        value={summaryDateRange.start}
-                        onChange={(e) => setSummaryDateRange(prev => ({ ...prev, start: e.target.value }))}
-                        className="w-full bg-gray-700 border border-gray-600 text-gray-100 sm:text-sm rounded-lg focus:ring-purple-500 focus:border-purple-500 p-2.5"
-                      />
-                    </div>
-                    <div>
-                      <label htmlFor="summary-end-date" className="block text-sm font-medium text-gray-300 mb-1">End Date:</label>
-                      <input
-                        type="date"
-                        id="summary-end-date"
-                        value={summaryDateRange.end}
-                        onChange={(e) => setSummaryDateRange(prev => ({ ...prev, end: e.target.value }))}
-                        className="w-full bg-gray-700 border border-gray-600 text-gray-100 sm:text-sm rounded-lg focus:ring-purple-500 focus:border-purple-500 p-2.5"
-                      />
-                    </div>
-                  </div>
-                )}
-              </div>
-              <Summary trades={tradesForSummary} />
-              {directionFilter !== 'all' && <p className="text-xs text-gray-400 mt-2">Showing summary for {directionFilter} trades only.</p>}
-            </div>
-            
-            <TagPerformance 
-              trades={trades} 
-              tagGroups={tagGroups} 
-              chartDateRange={chartDateRange} 
-              directionFilter={directionFilter} 
+      
+      <main className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-1 space-y-6">
+          <div className="bg-gray-800 p-6 rounded-xl shadow-2xl">
+            <h2 className="text-2xl font-semibold mb-4 text-purple-400 flex items-center"><AdjustmentsHorizontalIcon className="w-6 h-6 mr-2" />Controls</h2>
+            <ChartControls
+              yAxisMetric={yAxisMetric}
+              setYAxisMetric={setYAxisMetric}
+              xAxisMetric={xAxisMetric}
+              setXAxisMetric={setXAxisMetric}
+              dateRange={chartDateRange}
+              setDateRange={setChartDateRange}
+              compareDateRange={compareDateRange}
+              setCompareDateRange={setCompareDateRange}
+              tagGroups={tagGroups}
+              selectedTags={selectedTagsForChart}
+              setSelectedTags={setSelectedTagsForChart}
+              tagComparisonMode={tagComparisonMode}
+              setTagComparisonMode={setTagComparisonMode}
+              directionFilter={directionFilter}
+              setDirectionFilter={setDirectionFilter}
             />
           </div>
 
-          <div className="lg:col-span-2 space-y-6">
-            <div id="performance-chart-container" className="bg-gray-800 p-6 rounded-xl shadow-2xl min-h-[400px]">
-               <h2 className="text-2xl font-semibold mb-4 text-green-400 flex items-center"><ChartBarIcon className="w-6 h-6 mr-2" />Performance Chart</h2>
-              <LineChartRenderer 
-                data={chartData} 
-                comparisonData={comparisonChartData} 
-                yAxisMetric={yAxisMetric} 
-                xAxisMetric={xAxisMetric} 
-              />
+          <div className="bg-gray-800 p-6 rounded-xl shadow-2xl">
+            <h2 className="text-2xl font-semibold mb-4 text-pink-400 flex items-center"><TableCellsIcon className="w-6 h-6 mr-2" />Summary</h2>
+            
+            <div className="flex items-center space-x-2 mb-4">
+                <Button onClick={() => setSummaryDateMode('daily')} variant={summaryDateMode === 'daily' ? 'primary' : 'secondary'} size="sm">Daily</Button>
+                <Button onClick={() => setSummaryDateMode('range')} variant={summaryDateMode === 'range' ? 'primary' : 'secondary'} size="sm">Range</Button>
             </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {Object.values(pieChartDataByGroup).map(groupData => (
-                <div key={groupData.groupName} className="bg-gray-800 p-4 rounded-xl shadow-2xl">
-                  <h3 className="text-lg font-semibold mb-2 text-center text-pink-400">
-                    {groupData.groupName}
-                  </h3>
-                  <PieChartRenderer 
-                    data={groupData.data} 
-                    height={200}
-                    outerRadius={60}
+            
+            <div className="mb-4">
+              {summaryDateMode === 'daily' ? (
+                <div>
+                  <label htmlFor="summary-date" className="block text-sm font-medium text-gray-300 mb-1">Select Date:</label>
+                  <input
+                    type="date"
+                    id="summary-date"
+                    value={summaryDateRange.start}
+                    onChange={(e) => setSummaryDateRange({ start: e.target.value, end: e.target.value })}
+                    className="w-full bg-gray-700 border border-gray-600 text-gray-100 sm:text-sm rounded-lg focus:ring-purple-500 focus:border-purple-500 p-2.5"
                   />
-                  <p className="text-xs text-gray-400 mt-2 text-center">
-                    For trades in selected date range{directionFilter !== 'all' ? ` (${directionFilter} only)` : ''}.
-                  </p>
                 </div>
-              ))}
+              ) : (
+                <div className="flex items-center space-x-2">
+                  <div>
+                    <label htmlFor="summary-start-date" className="block text-sm font-medium text-gray-300 mb-1">Start Date:</label>
+                    <input
+                      type="date"
+                      id="summary-start-date"
+                      value={summaryDateRange.start}
+                      onChange={(e) => setSummaryDateRange(prev => ({ ...prev, start: e.target.value }))}
+                      className="w-full bg-gray-700 border border-gray-600 text-gray-100 sm:text-sm rounded-lg focus:ring-purple-500 focus:border-purple-500 p-2.5"
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="summary-end-date" className="block text-sm font-medium text-gray-300 mb-1">End Date:</label>
+                    <input
+                      type="date"
+                      id="summary-end-date"
+                      value={summaryDateRange.end}
+                      onChange={(e) => setSummaryDateRange(prev => ({ ...prev, end: e.target.value }))}
+                      className="w-full bg-gray-700 border border-gray-600 text-gray-100 sm:text-sm rounded-lg focus:ring-purple-500 focus:border-purple-500 p-2.5"
+                    />
+                  </div>
+                </div>
+              )}
             </div>
+            <Summary trades={tradesForSummary} />
+            {directionFilter !== 'all' && <p className="text-xs text-gray-400 mt-2">Showing summary for {directionFilter} trades only.</p>}
+          </div>
+          
+          <TagPerformance 
+            trades={trades} 
+            tagGroups={tagGroups} 
+            chartDateRange={chartDateRange} 
+            directionFilter={directionFilter} 
+          />
+        </div>
+
+        <div className="lg:col-span-2 space-y-6">
+            <div id="performance-chart-container" className="bg-gray-800 p-6 rounded-xl shadow-2xl min-h-[400px]">
+             <h2 className="text-2xl font-semibold mb-4 text-green-400 flex items-center"><ChartBarIcon className="w-6 h-6 mr-2" />Performance Chart</h2>
+            <LineChartRenderer 
+              data={chartData} 
+              comparisonData={comparisonChartData} 
+              yAxisMetric={yAxisMetric} 
+              xAxisMetric={xAxisMetric} 
+            />
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {Object.values(pieChartDataByGroup).map(groupData => (
+              <div key={groupData.groupName} className="bg-gray-800 p-4 rounded-xl shadow-2xl">
+                <h3 className="text-lg font-semibold mb-2 text-center text-pink-400">
+                  {groupData.groupName}
+                </h3>
+                <PieChartRenderer 
+                  data={groupData.data} 
+                  height={200}
+                  outerRadius={60}
+                />
+                <p className="text-xs text-gray-400 mt-2 text-center">
+                  For trades in selected date range{directionFilter !== 'all' ? ` (${directionFilter} only)` : ''}.
+                </p>
+              </div>
+            ))}
+          </div>
 
             <div id="tradelog-container" className="bg-gray-800 p-6 rounded-xl shadow-2xl">
-              <h2 className="text-2xl font-semibold mb-4 text-purple-400 flex items-center">
-                <TableCellsIcon className="w-6 h-6 mr-2" /> Trade Log
-              </h2>
-              <TradeList 
-                trades={trades} 
-                tagGroups={tagGroups}
-                playbookEntries={playbookEntries}
-                onDeleteTrade={handleDeleteTrade} 
-                onEditTrade={handleEditTrade}
-                onTradeTagChange={handleTradeTagChange}
-              />
-            </div>
+            <h2 className="text-2xl font-semibold mb-4 text-purple-400 flex items-center">
+              <TableCellsIcon className="w-6 h-6 mr-2" /> Trade Log
+            </h2>
+              {activeTab === 'trades' && (
+            <TradeList 
+              trades={trades} 
+              tagGroups={tagGroups}
+              playbookEntries={playbookEntries}
+              onDeleteTrade={handleDeleteTrade} 
+              onEditTrade={handleEditTrade}
+                  onViewDetails={handleViewTradeDetails}
+                />
+              )}
+              {activeTab === 'charts' && (
+                <div className="space-y-4">
+                  {/* Additional content for charts tab */}
+                </div>
+              )}
           </div>
-        </main>
+        </div>
+      </main>
         
         {/* Legal Disclaimer Footer */}
         <FooterDisclaimer />
@@ -1194,6 +1302,14 @@ const App: React.FC = () => {
             View Full Legal Disclaimers
           </Button>
         </div>
+
+        {viewingTrade && (
+          <Modal title="Trade Details" onClose={handleCloseTradeDetails} size="large">
+            <pre className="bg-gray-900 text-white p-4 rounded-lg text-xs">
+              {JSON.stringify(viewingTrade, null, 2)}
+            </pre>
+          </Modal>
+        )}
       </div>
     </div>
   );
