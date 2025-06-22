@@ -81,8 +81,43 @@ const journalEntries = {
 const TICK_SIZE = 0.25;
 const TICK_VALUE = 12.50;
 
+/**
+ * Generates a random time within the 8:30 AM - 3:00 PM CST window.
+ * @param {Date} date The date for which to generate the time.
+ * @returns {object} An object containing timeIn, timeOut, and durationInMinutes.
+ */
+function generateRandomTime(date) {
+  // Trading hours: 8:30 AM to 3:00 PM CST.
+  const startHour = 8;
+  const startMinute = 30;
+  const endHour = 15;
+
+  const tradeDate = new Date(date);
+  
+  // Create start and end times in local timezone equivalent to CST
+  // This is a simplification; for production, a library like moment-timezone would be better.
+  const startTime = new Date(tradeDate.setHours(startHour, startMinute, 0, 0));
+  const endTime = new Date(tradeDate.setHours(endHour, 0, 0, 0));
+
+  const tradeableMilliseconds = endTime.getTime() - startTime.getTime();
+
+  // Random start time within the window
+  const randomStartOffset = Math.random() * tradeableMilliseconds;
+  const timeIn = new Date(startTime.getTime() + randomStartOffset);
+
+  // Random duration (5 to 45 mins)
+  const durationInMinutes = Math.floor(Math.random() * 40) + 5;
+  const timeOut = new Date(timeIn.getTime() + durationInMinutes * 60 * 1000);
+
+  // Ensure trade doesn't go past market close
+  if (timeOut > endTime) {
+    timeOut.setTime(endTime.getTime());
+  }
+
+  return { timeIn, timeOut, durationInMinutes };
+}
+
 function generateTrade(id, date, basePrice) {
-  const timeSlot = timeSlots[id % timeSlots.length];
   const setupTag = setupTags[id % setupTags.length];
   const marketTag = marketConditionTags[id % marketConditionTags.length];
   const direction = Math.random() > 0.5 ? 'long' : 'short';
@@ -102,18 +137,18 @@ function generateTrade(id, date, basePrice) {
   const profit = tickMove * TICK_VALUE;
   
   const journal = journalEntries[setupTag][id % journalEntries[setupTag].length];
+  const { timeIn, timeOut, durationInMinutes } = generateRandomTime(date);
   
   return {
-    id: `es_${id.toString().padStart(3, '0')}`,
+    id: `es_${id.toString().padStart(4, '0')}`,
     date: date,
     symbol: '/ES',
     contracts: 1,
     entry: entryPrice,
     exit: exitPrice,
-    timeIn: `${date}T${timeSlot.start}:00`,
-    timeOut: `${date}T${timeSlot.end}:00`,
-    timeInTrade: parseInt(timeSlot.end.split(':')[1]) - parseInt(timeSlot.start.split(':')[1]) + 
-                 (parseInt(timeSlot.end.split(':')[0]) - parseInt(timeSlot.start.split(':')[0])) * 60,
+    timeIn: timeIn.toISOString(),
+    timeOut: timeOut.toISOString(),
+    timeInTrade: durationInMinutes,
     profit: profit,
     fees: 4.50,
     tags: {
@@ -130,18 +165,23 @@ function generateAllTrades() {
   const trades = [];
   let basePrice = 4850;
   let tradeId = 1;
+  const startDate = new Date('2024-01-01');
+  let currentDate = new Date(startDate);
   
-  // Generate 20 days of trading
-  for (let day = 0; day < 20; day++) {
-    const date = new Date('2024-01-15');
-    date.setDate(date.getDate() + day);
-    const dateStr = date.toISOString().split('T')[0];
-    
-    // Generate 10 trades per day
-    for (let trade = 0; trade < 10; trade++) {
-      trades.push(generateTrade(tradeId, dateStr, basePrice));
-      tradeId++;
+  while (trades.length < 1000) {
+    const dayOfWeek = currentDate.getDay();
+    // Skip weekends (Sunday=0, Saturday=6)
+    if (dayOfWeek !== 0 && dayOfWeek !== 6) {
+      const dateStr = currentDate.toISOString().split('T')[0];
+      const tradesPerDay = Math.floor(Math.random() * 10) + 8; // Generate 8-18 trades per day
+      for (let i = 0; i < tradesPerDay && trades.length < 1000; i++) {
+        trades.push(generateTrade(tradeId, dateStr, basePrice));
+        tradeId++;
+      }
     }
+    
+    // Move to the next day
+    currentDate.setDate(currentDate.getDate() + 1);
     
     // Slightly adjust base price for next day
     basePrice += (Math.random() - 0.5) * 10;
@@ -159,4 +199,4 @@ const testData = {
 };
 
 fs.writeFileSync('src/test_data/es_futures_trades.json', JSON.stringify(testData, null, 2));
-console.log('Generated 200 /ES futures trades in src/test_data/es_futures_trades.json'); 
+console.log(`Generated ${trades.length} /ES futures trades in src/test_data/es_futures_trades.json`); 

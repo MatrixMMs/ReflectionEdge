@@ -119,16 +119,14 @@ const App: React.FC = () => {
       setTrades(activeData.trades || sampleTrades);
       setTagGroups(activeData.tagGroups || DEFAULT_TAG_GROUPS);
       
-      // Merge default playbook entries with stored ones
+      // Merge default playbook entries with stored ones, ensuring defaults are always up-to-date
       const storedPlaybook = activeData.playbookEntries || [];
       const defaultPlaybook = DEFAULT_PLAYBOOK_ENTRIES;
+      const defaultIds = new Set(defaultPlaybook.map(p => p.id));
+
+      const customUserStrategies = storedPlaybook.filter(p => !defaultIds.has(p.id));
       
-      const mergedPlaybook = [...storedPlaybook];
-      defaultPlaybook.forEach(defaultEntry => {
-        if (!storedPlaybook.some(storedEntry => storedEntry.id === defaultEntry.id)) {
-          mergedPlaybook.push(defaultEntry);
-        }
-      });
+      const mergedPlaybook = [...defaultPlaybook, ...customUserStrategies];
       setPlaybookEntries(mergedPlaybook);
 
     } else {

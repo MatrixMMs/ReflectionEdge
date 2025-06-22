@@ -20,7 +20,7 @@ const checklistItems = {
   'momentum_strategy': ['mom_1', 'mom_2', 'mom_3', 'mom_4', 'mom_5', 'mom_6', 'mom_7', 'mom_8'],
   'trend_following_strategy': ['tf_1', 'tf_2', 'tf_3', 'tf_4', 'tf_5', 'tf_6', 'tf_7', 'tf_8'],
   'stop_run_strategy': ['sr_1', 'sr_2', 'sr_3', 'sr_4', 'sr_5', 'sr_6', 'sr_7', 'sr_8'],
-  'failed_auction_strategy': ['fa_1', 'fa_2', 'fa_3', 'fa_4', 'fa_5', 'fa_6', 'fa_7', 'fa_8']
+  'failed_auction_strategy': ['fa_of_1', 'fa_of_2', 'fa_of_3', 'fa_of_4', 'fa_of_5', 'fa_of_6', 'fa_of_7', 'fa_of_8']
 };
 
 // Generate realistic execution data based on profit and setup
@@ -80,7 +80,7 @@ function generateExecutionData(trade) {
 }
 
 // Read the existing file
-const filePath = path.join(__dirname, 'ES_futures_1000_trades_test.json');
+const filePath = path.join(__dirname, 'es_futures_trades.json');
 const data = JSON.parse(fs.readFileSync(filePath, 'utf8'));
 
 console.log(`Processing ${data.trades.length} trades...`);
@@ -101,7 +101,7 @@ data.trades.forEach((trade, index) => {
 });
 
 // Write the updated file
-const outputPath = path.join(__dirname, 'ES_futures_1000_trades_with_strategies.json');
+const outputPath = path.join(__dirname, 'es_futures_trades.json');
 fs.writeFileSync(outputPath, JSON.stringify(data, null, 2));
 
 console.log(`\nUpdated file saved to: ${outputPath}`);
