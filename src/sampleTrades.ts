@@ -1,297 +1,252 @@
 import { Trade } from './types';
 
-export const sampleTrades: Omit<Trade, 'id' | 'timeInTrade'>[] = [
-  // Morning trades (9-11 AM) - Good performance
+export const sampleTrades: Trade[] = [
   {
+    id: '1',
     date: '2024-01-15',
-    symbol: 'AAPL',
-    contracts: 100,
-    entry: 150.00,
-    exit: 152.50,
-    timeIn: '2024-01-15T09:30:00',
-    timeOut: '2024-01-15T10:15:00',
-    profit: 250,
-    tags: { setup: 'momentum', market_condition: 'trend' },
-    journal: 'Strong momentum trade, followed the trend well',
+    symbol: 'ES',
+    contracts: 2,
+    entry: 4850.50,
+    exit: 4855.75,
+    timeIn: '2024-01-15T09:30:00.000Z',
+    timeOut: '2024-01-15T09:45:00.000Z',
+    timeInTrade: 15,
+    profit: 1050,
+    journal: 'Mean reversion setup worked perfectly. Price was 2.5 std devs from VWAP and RSI was at 25. Clean reversal.',
     direction: 'long',
-    accountId: 'acc1'
+    tags: { setup: 'mean_reversion' },
+    strategyId: 'mean_reversion_strategy',
+    accountId: 'default',
+    execution: {
+      checklist: {
+        'mr_1': true,
+        'mr_2': true,
+        'mr_3': true,
+        'mr_4': true,
+        'mr_5': true,
+        'mr_6': true,
+        'mr_7': true,
+        'mr_8': true
+      },
+      grade: 'A+',
+      notes: 'Perfect execution - followed all checklist items'
+    }
   },
   {
+    id: '2',
     date: '2024-01-16',
-    symbol: 'TSLA',
-    contracts: 50,
-    entry: 240.00,
-    exit: 245.00,
-    timeIn: '2024-01-16T09:45:00',
-    timeOut: '2024-01-16T10:30:00',
-    profit: 250,
-    tags: { setup: 'momentum', market_condition: 'high_volume' },
-    journal: 'High volume breakout, good execution',
+    symbol: 'ES',
+    contracts: 1,
+    entry: 4865.25,
+    exit: 4860.50,
+    timeIn: '2024-01-16T09:15:00.000Z',
+    timeOut: '2024-01-16T09:25:00.000Z',
+    timeInTrade: 10,
+    profit: -475,
+    journal: 'Momentum breakout failed. Volume wasn\'t strong enough and price reversed quickly.',
     direction: 'long',
-    accountId: 'acc1'
+    tags: { setup: 'momentum' },
+    strategyId: 'momentum_strategy',
+    accountId: 'default',
+    execution: {
+      checklist: {
+        'mom_1': true,
+        'mom_2': false,
+        'mom_3': true,
+        'mom_4': true,
+        'mom_5': true,
+        'mom_6': true,
+        'mom_7': false,
+        'mom_8': true
+      },
+      grade: 'B-',
+      notes: 'Good execution but missed volume confirmation and risk/reward'
+    }
   },
   {
+    id: '3',
     date: '2024-01-17',
-    symbol: 'NVDA',
-    contracts: 75,
-    entry: 480.00,
-    exit: 485.00,
-    timeIn: '2024-01-17T10:00:00',
-    timeOut: '2024-01-17T10:45:00',
-    profit: 375,
-    tags: { setup: 'trend', market_condition: 'trend' },
-    journal: 'Trend following trade, worked as expected',
+    symbol: 'ES',
+    contracts: 3,
+    entry: 4875.00,
+    exit: 4885.50,
+    timeIn: '2024-01-17T10:00:00.000Z',
+    timeOut: '2024-01-17T10:30:00.000Z',
+    timeInTrade: 30,
+    profit: 3150,
+    journal: 'Trend following setup. Clear uptrend on 5min and 15min charts. Pullback to 20 EMA provided perfect entry.',
     direction: 'long',
-    accountId: 'acc1'
-  },
-
-  // Mid-day trades (11 AM - 2 PM) - Mixed performance
-  {
-    date: '2024-01-15',
-    symbol: 'MSFT',
-    contracts: 80,
-    entry: 380.00,
-    exit: 378.00,
-    timeIn: '2024-01-15T11:30:00',
-    timeOut: '2024-01-15T12:15:00',
-    profit: -160,
-    tags: { setup: 'failed_auction', market_condition: 'tight_range' },
-    journal: 'Failed auction setup, should have waited for better confirmation',
-    direction: 'long',
-    accountId: 'acc1'
-  },
-  {
-    date: '2024-01-16',
-    symbol: 'GOOGL',
-    contracts: 60,
-    entry: 140.00,
-    exit: 142.00,
-    timeIn: '2024-01-16T12:00:00',
-    timeOut: '2024-01-16T12:45:00',
-    profit: 120,
-    tags: { setup: 'mean_reversion', market_condition: 'wide_balance' },
-    journal: 'Mean reversion trade, good risk management',
-    direction: 'long',
-    accountId: 'acc1'
+    tags: { setup: 'trend' },
+    strategyId: 'trend_following_strategy',
+    accountId: 'default',
+    execution: {
+      checklist: {
+        'tf_1': true,
+        'tf_2': true,
+        'tf_3': true,
+        'tf_4': true,
+        'tf_5': true,
+        'tf_6': true,
+        'tf_7': true,
+        'tf_8': true
+      },
+      grade: 'A+',
+      notes: 'Excellent trend following execution'
+    }
   },
   {
-    date: '2024-01-17',
-    symbol: 'META',
-    contracts: 90,
-    entry: 320.00,
-    exit: 318.00,
-    timeIn: '2024-01-17T13:00:00',
-    timeOut: '2024-01-17T13:30:00',
-    profit: -180,
-    tags: { setup: 'stop_runs', market_condition: 'erratic' },
-    journal: 'Stop run, market was too erratic',
-    direction: 'long',
-    accountId: 'acc1'
-  },
-
-  // Afternoon trades (2-4 PM) - Poor performance
-  {
-    date: '2024-01-15',
-    symbol: 'AMZN',
-    contracts: 70,
-    entry: 150.00,
-    exit: 148.00,
-    timeIn: '2024-01-15T14:30:00',
-    timeOut: '2024-01-15T15:15:00',
-    profit: -140,
-    tags: { setup: 'failed_auction', market_condition: 'low_volume' },
-    journal: 'Low volume afternoon trade, poor execution',
-    direction: 'long',
-    accountId: 'acc1'
-  },
-  {
-    date: '2024-01-16',
-    symbol: 'NFLX',
-    contracts: 55,
-    entry: 480.00,
-    exit: 475.00,
-    timeIn: '2024-01-16T15:00:00',
-    timeOut: '2024-01-16T15:45:00',
-    profit: -275,
-    tags: { setup: 'stop_runs', market_condition: 'erratic' },
-    journal: 'Afternoon volatility killed the trade',
-    direction: 'long',
-    accountId: 'acc1'
-  },
-  {
-    date: '2024-01-17',
-    symbol: 'AMD',
-    contracts: 85,
-    entry: 120.00,
-    exit: 118.00,
-    timeIn: '2024-01-17T14:00:00',
-    timeOut: '2024-01-17T14:30:00',
-    profit: -170,
-    tags: { setup: 'failed_auction', market_condition: 'low_volume' },
-    journal: 'Another poor afternoon trade',
-    direction: 'long',
-    accountId: 'acc1'
-  },
-
-  // Pre-market trades (6-9 AM) - Good performance
-  {
+    id: '4',
     date: '2024-01-18',
-    symbol: 'SPY',
-    contracts: 200,
-    entry: 450.00,
-    exit: 452.00,
-    timeIn: '2024-01-18T06:30:00',
-    timeOut: '2024-01-18T07:15:00',
-    profit: 400,
-    tags: { setup: 'momentum', market_condition: 'high_volume' },
-    journal: 'Pre-market momentum trade, excellent execution',
+    symbol: 'ES',
+    contracts: 1,
+    entry: 4880.75,
+    exit: 4875.25,
+    timeIn: '2024-01-18T09:45:00.000Z',
+    timeOut: '2024-01-18T09:50:00.000Z',
+    timeInTrade: 5,
+    profit: -550,
+    journal: 'Stop run setup. Price broke support but didn\'t reverse as expected. Market was too strong.',
     direction: 'long',
-    accountId: 'acc1'
+    tags: { setup: 'stop_runs' },
+    strategyId: 'stop_run_strategy',
+    accountId: 'default',
+    execution: {
+      checklist: {
+        'sr_1': true,
+        'sr_2': true,
+        'sr_3': false,
+        'sr_4': false,
+        'sr_5': true,
+        'sr_6': true,
+        'sr_7': false,
+        'sr_8': false
+      },
+      grade: 'C-',
+      notes: 'Poor execution - didn\'t wait for proper reversal confirmation'
+    }
   },
   {
+    id: '5',
     date: '2024-01-19',
-    symbol: 'QQQ',
-    contracts: 150,
-    entry: 380.00,
-    exit: 382.00,
-    timeIn: '2024-01-19T07:00:00',
-    timeOut: '2024-01-19T07:45:00',
-    profit: 300,
-    tags: { setup: 'trend', market_condition: 'trend' },
-    journal: 'Pre-market trend trade, worked well',
-    direction: 'long',
-    accountId: 'acc1'
-  },
-
-  // After hours trades (4-6 PM) - Mixed performance
-  {
-    date: '2024-01-18',
-    symbol: 'IWM',
-    contracts: 100,
-    entry: 180.00,
-    exit: 181.00,
-    timeIn: '2024-01-18T16:30:00',
-    timeOut: '2024-01-18T17:15:00',
-    profit: 100,
-    tags: { setup: 'mean_reversion', market_condition: 'wide_balance' },
-    journal: 'After hours mean reversion, good setup',
-    direction: 'long',
-    accountId: 'acc1'
-  },
-  {
-    date: '2024-01-19',
-    symbol: 'DIA',
-    contracts: 80,
-    entry: 350.00,
-    exit: 349.00,
-    timeIn: '2024-01-19T16:00:00',
-    timeOut: '2024-01-19T16:45:00',
-    profit: -80,
-    tags: { setup: 'stop_runs', market_condition: 'erratic' },
-    journal: 'After hours volatility',
-    direction: 'long',
-    accountId: 'acc1'
-  },
-
-  // Different days of the week
-  {
-    date: '2024-01-22', // Monday
-    symbol: 'AAPL',
-    contracts: 100,
-    entry: 155.00,
-    exit: 157.00,
-    timeIn: '2024-01-22T09:30:00',
-    timeOut: '2024-01-22T10:15:00',
-    profit: 200,
-    tags: { setup: 'momentum', market_condition: 'trend' },
-    journal: 'Monday momentum trade',
-    direction: 'long',
-    accountId: 'acc1'
-  },
-  {
-    date: '2024-01-23', // Tuesday
-    symbol: 'TSLA',
-    contracts: 50,
-    entry: 245.00,
-    exit: 248.00,
-    timeIn: '2024-01-23T09:45:00',
-    timeOut: '2024-01-23T10:30:00',
-    profit: 150,
-    tags: { setup: 'trend', market_condition: 'high_volume' },
-    journal: 'Tuesday trend trade',
-    direction: 'long',
-    accountId: 'acc1'
-  },
-  {
-    date: '2024-01-24', // Wednesday
-    symbol: 'NVDA',
-    contracts: 75,
-    entry: 485.00,
-    exit: 482.00,
-    timeIn: '2024-01-24T10:00:00',
-    timeOut: '2024-01-24T10:45:00',
-    profit: -225,
-    tags: { setup: 'failed_auction', market_condition: 'erratic' },
-    journal: 'Wednesday failed trade',
-    direction: 'long',
-    accountId: 'acc1'
-  },
-  {
-    date: '2024-01-25', // Thursday
-    symbol: 'MSFT',
-    contracts: 80,
-    entry: 385.00,
-    exit: 388.00,
-    timeIn: '2024-01-25T09:30:00',
-    timeOut: '2024-01-25T10:15:00',
-    profit: 240,
-    tags: { setup: 'momentum', market_condition: 'trend' },
-    journal: 'Thursday momentum trade',
-    direction: 'long',
-    accountId: 'acc1'
-  },
-  {
-    date: '2024-01-26', // Friday
-    symbol: 'GOOGL',
-    contracts: 60,
-    entry: 145.00,
-    exit: 143.00,
-    timeIn: '2024-01-26T10:00:00',
-    timeOut: '2024-01-26T10:45:00',
-    profit: -120,
-    tags: { setup: 'stop_runs', market_condition: 'low_volume' },
-    journal: 'Friday poor trade',
-    direction: 'long',
-    accountId: 'acc1'
-  },
-
-  // Short trades for variety
-  {
-    date: '2024-01-20',
-    symbol: 'SPY',
-    contracts: 100,
-    entry: 455.00,
-    exit: 453.00,
-    timeIn: '2024-01-20T09:30:00',
-    timeOut: '2024-01-20T10:15:00',
-    profit: 200,
-    tags: { setup: 'mean_reversion', market_condition: 'wide_balance' },
-    journal: 'Short mean reversion trade',
+    symbol: 'ES',
+    contracts: 2,
+    entry: 4890.00,
+    exit: 4885.75,
+    timeIn: '2024-01-19T09:30:00.000Z',
+    timeOut: '2024-01-19T09:40:00.000Z',
+    timeInTrade: 10,
+    profit: -850,
+    journal: 'Failed auction setup. Price failed to hold above VAH but my entry was too early.',
     direction: 'short',
-    accountId: 'acc1'
+    tags: { setup: 'failed_auction' },
+    strategyId: 'failed_auction_strategy',
+    accountId: 'default',
+    execution: {
+      checklist: {
+        'fa_1': true,
+        'fa_2': true,
+        'fa_3': true,
+        'fa_4': false,
+        'fa_5': true,
+        'fa_6': true,
+        'fa_7': true,
+        'fa_8': true
+      },
+      grade: 'B-',
+      notes: 'Good setup but entered before proper confirmation'
+    }
   },
   {
-    date: '2024-01-21',
-    symbol: 'QQQ',
-    contracts: 75,
-    entry: 385.00,
-    exit: 387.00,
-    timeIn: '2024-01-21T11:00:00',
-    timeOut: '2024-01-21T11:45:00',
-    profit: -150,
-    tags: { setup: 'failed_auction', market_condition: 'tight_range' },
-    journal: 'Short trade gone wrong',
+    id: '6',
+    date: '2024-01-22',
+    symbol: 'ES',
+    contracts: 1,
+    entry: 4875.50,
+    exit: 4880.25,
+    timeIn: '2024-01-22T09:20:00.000Z',
+    timeOut: '2024-01-22T09:35:00.000Z',
+    timeInTrade: 15,
+    profit: 475,
+    journal: 'Mean reversion trade. RSI was at 75 and price was extended from VWAP. Clean reversal.',
     direction: 'short',
-    accountId: 'acc1'
+    tags: { setup: 'mean_reversion' },
+    strategyId: 'mean_reversion_strategy',
+    accountId: 'default',
+    execution: {
+      checklist: {
+        'mr_1': true,
+        'mr_2': true,
+        'mr_3': true,
+        'mr_4': true,
+        'mr_5': true,
+        'mr_6': true,
+        'mr_7': true,
+        'mr_8': true
+      },
+      grade: 'A+',
+      notes: 'Perfect mean reversion execution'
+    }
+  },
+  {
+    id: '7',
+    date: '2024-01-23',
+    symbol: 'ES',
+    contracts: 2,
+    entry: 4885.00,
+    exit: 4895.50,
+    timeIn: '2024-01-23T09:30:00.000Z',
+    timeOut: '2024-01-23T09:50:00.000Z',
+    timeInTrade: 20,
+    profit: 2100,
+    journal: 'Momentum breakout with strong volume. Price broke resistance and never looked back.',
+    direction: 'long',
+    tags: { setup: 'momentum' },
+    strategyId: 'momentum_strategy',
+    accountId: 'default',
+    execution: {
+      checklist: {
+        'mom_1': true,
+        'mom_2': true,
+        'mom_3': true,
+        'mom_4': true,
+        'mom_5': true,
+        'mom_6': true,
+        'mom_7': true,
+        'mom_8': true
+      },
+      grade: 'A+',
+      notes: 'Excellent momentum breakout execution'
+    }
+  },
+  {
+    id: '8',
+    date: '2024-01-24',
+    symbol: 'ES',
+    contracts: 1,
+    entry: 4890.25,
+    exit: 4885.00,
+    timeIn: '2024-01-24T09:45:00.000Z',
+    timeOut: '2024-01-24T09:55:00.000Z',
+    timeInTrade: 10,
+    profit: -525,
+    journal: 'Stop run setup. Entered too early without proper confirmation. Need more patience.',
+    direction: 'long',
+    tags: { setup: 'stop_runs' },
+    strategyId: 'stop_run_strategy',
+    accountId: 'default',
+    execution: {
+      checklist: {
+        'sr_1': true,
+        'sr_2': true,
+        'sr_3': false,
+        'sr_4': false,
+        'sr_5': true,
+        'sr_6': true,
+        'sr_7': false,
+        'sr_8': true
+      },
+      grade: 'C-',
+      notes: 'Poor execution - didn\'t wait for proper reversal confirmation'
+    }
   }
 ]; 

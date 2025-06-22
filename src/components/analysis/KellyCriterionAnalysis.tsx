@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { Trade, TagGroup } from '../../types';
-import { KellyAnalysis, calculateKellyCriterion, calculateKellyByTimeframe, calculateKellyBySymbol } from '../../utils/kellyCriterion';
+import { KellyAnalysis, calculateKellyCriterion, calculateKellyByTimeframe, calculateKellyBySymbol, calculateKellyByTag, getTagMetadata } from '../../utils/kellyCriterion';
 import { filterTradesByDateAndTags } from '../../utils/chartDataProcessor';
 import { Button } from '../ui/Button';
 import { CalculatorIcon, TrendingUpIcon, ShieldCheckIcon, ExclamationTriangleIcon } from '../ui/Icons';
@@ -28,9 +28,21 @@ export const KellyCriterionAnalysis: React.FC<KellyCriterionAnalysisProps> = ({ 
 
   const timeframeAnalysis = calculateKellyByTimeframe(filteredTrades);
   const symbolAnalysis = calculateKellyBySymbol(filteredTrades);
+  const tagAnalysis = calculateKellyByTag(filteredTrades, tagGroups);
+  const tagMetadata = getTagMetadata(tagGroups);
 
   const symbols = [...new Set(filteredTrades.map(trade => trade.symbol))];
   const timeframes = Object.keys(timeframeAnalysis);
+
+  // Sort tags by Kelly percentage for comparison
+  const sortedTags = Object.entries(tagAnalysis)
+    .map(([tagId, analysis]) => ({
+      tagId,
+      analysis,
+      metadata: tagMetadata[tagId]
+    }))
+    .filter(item => item.metadata && item.analysis.fullKelly.totalTrades >= 1) // Only show tags with at least 1 trade
+    .sort((a, b) => b.analysis.fullKelly.kellyPercentage - a.analysis.fullKelly.kellyPercentage);
 
   const timeframeFilters: { [key: string]: (trade: Trade) => boolean } = {
     'All Trades': () => true,
@@ -300,6 +312,72 @@ export const KellyCriterionAnalysis: React.FC<KellyCriterionAnalysisProps> = ({ 
               <p className="text-gray-100">{currentAnalysis.fullKelly.recommendation}</p>
             </div>
           </div>
+
+          {/* Tag Comparison - Always Visible */}
+          {sortedTags.length > 0 && (
+            <div className="bg-gray-800 p-6 rounded-lg">
+              <h3 className="text-xl font-semibold mb-4 text-teal-400">Strategy Performance Comparison</h3>
+              <p className="text-gray-300 mb-4">Compare Kelly performance across your trading strategies to identify which ones have the best edge.</p>
+              
+              {/* Top Performers Summary */}
+              {sortedTags.length > 0 && (
+                <div className="bg-gray-700 p-4 rounded-lg mb-6">
+                  <h4 className="font-semibold text-gray-100 mb-3">Top Performing Strategies</h4>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    {sortedTags.slice(0, 3).map(({ tagId, analysis, metadata }, index) => (
+                      <div key={tagId} className="text-center">
+                        <div className="text-2xl font-bold text-yellow-400 mb-1">#{index + 1}</div>
+                        <div className="font-semibold text-gray-100 mb-1">{metadata.name}</div>
+                        <div className="text-lg font-bold text-green-400">
+                          {(analysis.fullKelly.kellyPercentage * 100).toFixed(1)}% Kelly
+                        </div>
+                        <div className="text-sm text-gray-400">
+                          {analysis.fullKelly.totalTrades} trades • {(analysis.fullKelly.winRate * 100).toFixed(1)}% win rate
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {sortedTags.map(({ tagId, analysis, metadata }) => (
+                  <div key={tagId} className="bg-gray-700 p-4 rounded-lg border-l-4" style={{ borderLeftColor: metadata.color }}>
+                    <div className="flex items-center justify-between mb-3">
+                      <h4 className="font-semibold text-gray-100">{metadata.name}</h4>
+                      <span className="text-xs text-gray-400">{metadata.groupName}</span>
+                    </div>
+                    <div className="space-y-2 text-sm">
+                      <div className="flex justify-between">
+                        <span className="text-gray-400">Kelly %:</span>
+                        <span className={`font-semibold ${analysis.fullKelly.kellyPercentage > 0.1 ? 'text-green-400' : analysis.fullKelly.kellyPercentage > 0.05 ? 'text-yellow-400' : 'text-red-400'}`}>
+                          {(analysis.fullKelly.kellyPercentage * 100).toFixed(1)}%
+                        </span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-400">Win Rate:</span>
+                        <span className="font-semibold">{(analysis.fullKelly.winRate * 100).toFixed(1)}%</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-400">Profit Factor:</span>
+                        <span className="font-semibold">{analysis.fullKelly.profitFactor.toFixed(2)}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-400">Trades:</span>
+                        <span className="font-semibold">{analysis.fullKelly.totalTrades}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-400">Net Profit:</span>
+                        <span className={`font-semibold ${analysis.fullKelly.netProfit >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                          ${analysis.fullKelly.netProfit.toFixed(2)}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Advanced Analysis */}
           {showAdvanced && (

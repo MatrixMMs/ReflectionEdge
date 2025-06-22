@@ -44,3 +44,102 @@ export const DEFAULT_TAG_GROUPS = [
     ]
   }
 ];
+
+// Default playbook strategies with detailed checklists
+export const DEFAULT_PLAYBOOK_ENTRIES = [
+  {
+    id: 'mean_reversion_strategy',
+    name: 'Mean Reversion Setup',
+    description: 'Trade reversals when price moves too far from the mean, expecting a return to equilibrium.',
+    tags: { setup: ['mean_reversion'] },
+    checklist: [
+      { id: 'mr_1', item: 'Price has moved 2+ standard deviations from VWAP/20 EMA' },
+      { id: 'mr_2', item: 'RSI is oversold (>70) or oversold (<30)' },
+      { id: 'mr_3', item: 'Volume is declining on the extreme move' },
+      { id: 'mr_4', item: 'Waiting for first pullback/retracement candle' },
+      { id: 'mr_5', item: 'Stop loss placed beyond the extreme level' },
+      { id: 'mr_6', item: 'Position size is 1-2% of account' },
+      { id: 'mr_7', item: 'Target is at least 1:2 risk/reward ratio' },
+      { id: 'mr_8', item: 'Market is not in strong trending condition' }
+    ],
+    notes: 'Best in ranging markets. Avoid during strong trends or news events.',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  },
+  {
+    id: 'momentum_strategy',
+    name: 'Momentum Breakout',
+    description: 'Trade breakouts with strong momentum, following the direction of the move.',
+    tags: { setup: ['momentum'] },
+    checklist: [
+      { id: 'mom_1', item: 'Price has broken above/below key resistance/support level' },
+      { id: 'mom_2', item: 'Volume is significantly higher than average' },
+      { id: 'mom_3', item: 'RSI is between 40-60 (not overbought/oversold)' },
+      { id: 'mom_4', item: 'Waiting for pullback to broken level for entry' },
+      { id: 'mom_5', item: 'Stop loss placed below/above the breakout level' },
+      { id: 'mom_6', item: 'Position size is 1-2% of account' },
+      { id: 'mom_7', item: 'Target is at least 1:2 risk/reward ratio' },
+      { id: 'mom_8', item: 'No major resistance/support levels nearby' }
+    ],
+    notes: 'Strongest during first 30 minutes of session. Avoid late in day.',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  },
+  {
+    id: 'trend_following_strategy',
+    name: 'Trend Following',
+    description: 'Trade in the direction of the established trend using pullbacks for entries.',
+    tags: { setup: ['trend'] },
+    checklist: [
+      { id: 'tf_1', item: 'Higher timeframe shows clear trend direction' },
+      { id: 'tf_2', item: 'Price is above/below 20 EMA on multiple timeframes' },
+      { id: 'tf_3', item: 'Waiting for pullback to 20 EMA or trendline' },
+      { id: 'tf_4', item: 'Volume confirms trend direction' },
+      { id: 'tf_5', item: 'Stop loss placed below/above recent swing low/high' },
+      { id: 'tf_6', item: 'Position size is 1-2% of account' },
+      { id: 'tf_7', item: 'Target is at least 1:2 risk/reward ratio' },
+      { id: 'tf_8', item: 'No counter-trend signals on higher timeframes' }
+    ],
+    notes: 'Most reliable during trending market conditions. Use multiple timeframes.',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  },
+  {
+    id: 'stop_run_strategy',
+    name: 'Stop Run Setup',
+    description: 'Trade the reversal after stops are taken out, expecting a quick reversal.',
+    tags: { setup: ['stop_runs'] },
+    checklist: [
+      { id: 'sr_1', item: 'Clear support/resistance level has been broken' },
+      { id: 'sr_2', item: 'Volume spike on the break (stop hunt)' },
+      { id: 'sr_3', item: 'Price quickly reverses back through the level' },
+      { id: 'sr_4', item: 'Waiting for confirmation candle after reversal' },
+      { id: 'sr_5', item: 'Stop loss placed beyond the extreme of the stop run' },
+      { id: 'sr_6', item: 'Position size is 0.5-1% of account (higher risk)' },
+      { id: 'sr_7', item: 'Target is at least 1:1.5 risk/reward ratio' },
+      { id: 'sr_8', item: 'Market is not in strong trending condition' }
+    ],
+    notes: 'High risk, high reward. Best in ranging markets. Quick exits.',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  },
+  {
+    id: 'failed_auction_strategy',
+    name: 'Failed Auction',
+    description: 'Trade the rejection when price fails to hold above/below key auction levels.',
+    tags: { setup: ['failed_auction'] },
+    checklist: [
+      { id: 'fa_1', item: 'Price has moved above/below key auction level (POC, VAH, VAL)' },
+      { id: 'fa_2', item: 'Volume is declining on the move' },
+      { id: 'fa_3', item: 'Price fails to hold the level and reverses' },
+      { id: 'fa_4', item: 'Waiting for confirmation candle after rejection' },
+      { id: 'fa_5', item: 'Stop loss placed beyond the auction level' },
+      { id: 'fa_6', item: 'Position size is 1-2% of account' },
+      { id: 'fa_7', item: 'Target is at least 1:2 risk/reward ratio' },
+      { id: 'fa_8', item: 'Market structure supports the rejection' }
+    ],
+    notes: 'Best during first hour of session. Use order flow for confirmation.',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  }
+];

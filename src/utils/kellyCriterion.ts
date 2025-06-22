@@ -236,4 +236,53 @@ export const calculateKellyBySymbol = (trades: Trade[]): { [symbol: string]: Kel
   });
 
   return results;
+};
+
+// New function to calculate Kelly Criterion by individual tags
+export const calculateKellyByTag = (trades: Trade[], tagGroups: any[]): { [tagId: string]: KellyAnalysis } => {
+  const results: { [tagId: string]: KellyAnalysis } = {};
+  
+  // Get all individual tags from all groups
+  const allTags: { id: string; name: string; groupName: string; color: string }[] = [];
+  
+  tagGroups.forEach(group => {
+    group.subtags.forEach((subtag: any) => {
+      allTags.push({
+        id: subtag.id,
+        name: subtag.name,
+        groupName: group.name,
+        color: subtag.color
+      });
+    });
+  });
+  
+  // Calculate Kelly for each individual tag
+  allTags.forEach(tag => {
+    const tagTrades = trades.filter(trade => 
+      trade.tags && Object.values(trade.tags).includes(tag.id)
+    );
+    
+    if (tagTrades.length > 0) {
+      results[tag.id] = calculateKellyCriterion(tagTrades);
+    }
+  });
+  
+  return results;
+};
+
+// Function to get tag metadata for display
+export const getTagMetadata = (tagGroups: any[]): { [tagId: string]: { name: string; groupName: string; color: string } } => {
+  const metadata: { [tagId: string]: { name: string; groupName: string; color: string } } = {};
+  
+  tagGroups.forEach(group => {
+    group.subtags.forEach((subtag: any) => {
+      metadata[subtag.id] = {
+        name: subtag.name,
+        groupName: group.name,
+        color: subtag.color
+      };
+    });
+  });
+  
+  return metadata;
 }; 

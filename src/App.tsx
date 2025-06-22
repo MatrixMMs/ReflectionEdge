@@ -13,7 +13,7 @@ import { PatternInsights } from './components/patterns/PatternInsights';
 import { KellyCriterionAnalysis } from './components/analysis/KellyCriterionAnalysis';
 import { EdgeDiscoveryDashboard } from './components/analysis/EdgeDiscoveryDashboard';
 import { ExecutionDashboard } from './components/analysis/ExecutionDashboard';
-import { DEFAULT_CHART_COLOR, COMPARISON_CHART_COLOR, LONG_TRADE_COLOR, SHORT_TRADE_COLOR, DEFAULT_TAG_GROUPS } from './constants';
+import { DEFAULT_CHART_COLOR, COMPARISON_CHART_COLOR, LONG_TRADE_COLOR, SHORT_TRADE_COLOR, DEFAULT_TAG_GROUPS, DEFAULT_PLAYBOOK_ENTRIES } from './constants';
 import { processChartData, filterTradesByDateAndTags } from './utils/chartDataProcessor';
 import { parseCSVToTrades as parseBrokerExportCSV } from './utils/csvImporter';
 import { parseQuantowerCSVToTrades } from './utils/quantowerCsvImporter';
@@ -31,6 +31,7 @@ import { generatePdfReport } from './utils/pdfGenerator';
 import { calculateFinancials } from './utils/financialCalculations';
 import { LegalDisclaimer, FooterDisclaimer } from './components/ui/LegalDisclaimer';
 import { calculateGrade } from './utils/grading';
+import { sampleTrades } from './sampleTrades';
 
 // Helper to normalize CSV headers for detection
 const normalizeHeader = (header: string): string => header.toLowerCase().replace(/\s+/g, '').replace(/\//g, '');
@@ -114,15 +115,17 @@ const App: React.FC = () => {
       const activeData = stored.profileData[stored.activeProfileId];
       setActiveProfileId(stored.activeProfileId);
       setProfiles(stored.profiles);
-      setTrades(activeData.trades || []);
+      setTrades(activeData.trades || sampleTrades);
       setTagGroups(activeData.tagGroups || DEFAULT_TAG_GROUPS);
-      setPlaybookEntries(activeData.playbookEntries || []);
+      setPlaybookEntries(activeData.playbookEntries || DEFAULT_PLAYBOOK_ENTRIES);
     } else {
       // Create a default profile if none exists
       const newProfileId = `profile_${Date.now()}`;
       const newProfile: Profile = { id: newProfileId, name: 'Main Profile' };
       setActiveProfileId(newProfileId);
       setProfiles([newProfile]);
+      setTrades(sampleTrades);
+      setPlaybookEntries(DEFAULT_PLAYBOOK_ENTRIES);
     }
   }, []);
   
@@ -837,6 +840,14 @@ const App: React.FC = () => {
             leftIcon={<CalculatorIcon className="w-4 h-4"/>}
           >
             Kelly
+          </Button>
+          <Button
+            onClick={() => setIsExecutionDashboardModalOpen(true)}
+            variant="primary"
+            size="sm"
+            leftIcon={<BrainIcon className="w-4 h-4"/>}
+          >
+            Execution
           </Button>
           <Button
             onClick={openTradeForm}
