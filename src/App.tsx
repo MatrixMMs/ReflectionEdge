@@ -32,6 +32,7 @@ import { calculateFinancials } from './utils/financialCalculations';
 import { LegalDisclaimer, FooterDisclaimer } from './components/ui/LegalDisclaimer';
 import { calculateGrade } from './utils/grading';
 import { sampleTrades } from './sampleTrades';
+import { TradeDetailsView } from './components/trades/TradeDetailsView';
 
 // Helper to normalize CSV headers for detection
 const normalizeHeader = (header: string): string => header.toLowerCase().replace(/\s+/g, '').replace(/\//g, '');
@@ -571,42 +572,32 @@ const App: React.FC = () => {
     const dataToExport = {
       trades,
       tagGroups,
-      playbookEntries
+      playbookEntries,
+      version: '2.0',
     };
     const blob = new Blob([JSON.stringify(dataToExport, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `reflection-edge-export-${new Date().toISOString().slice(0,10)}.json`;
-    document.body.appendChild(a);
+    a.download = 'reflection_edge_data.json';
     a.click();
-    document.body.removeChild(a);
     URL.revokeObjectURL(url);
   };
 
   const handleExportFilteredData = () => {
-    // We use baseTradesForChart as it already has date range and tag filters applied
     const dataToExport = {
-      trades: baseTradesForChart,
+      trades: tradesForSummary,
       tagGroups,
       playbookEntries,
-      filters: {
-        chartDateRange,
-        selectedTagsForChart,
-        tagComparisonMode,
-        directionFilter,
-      }
+      version: '2.0',
     };
     const blob = new Blob([JSON.stringify(dataToExport, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `reflection-edge-filtered-export-${new Date().toISOString().slice(0,10)}.json`;
-    document.body.appendChild(a);
+    a.download = 'reflection_edge_filtered_data.json';
     a.click();
-    document.body.removeChild(a);
     URL.revokeObjectURL(url);
-    setIsExportModalOpen(false); // Close modal after export
   };
 
   const handleExportDataWithAnalytics = () => {
@@ -1344,9 +1335,7 @@ const App: React.FC = () => {
 
         {viewingTrade && (
           <Modal title="Trade Details" onClose={handleCloseTradeDetails} size="large">
-            <pre className="bg-gray-900 text-white p-4 rounded-lg text-xs">
-              {JSON.stringify(viewingTrade, null, 2)}
-            </pre>
+            <TradeDetailsView trade={viewingTrade} playbookEntries={playbookEntries} />
           </Modal>
         )}
       </div>
