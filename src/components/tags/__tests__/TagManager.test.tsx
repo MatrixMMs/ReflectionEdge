@@ -79,6 +79,7 @@ describe('TagManager', () => {
     onAddSubTag: jest.fn(),
     onUpdateSubTagColor: jest.fn(),
     onDeleteGroup: jest.fn(),
+    onDeleteSubTag: jest.fn(),
   };
 
   beforeEach(() => {

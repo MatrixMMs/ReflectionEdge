@@ -62,6 +62,7 @@ describe('Tag System Integration', () => {
   let mockOnAddSubTag: jest.Mock;
   let mockOnUpdateSubTagColor: jest.Mock;
   let mockOnDeleteGroup: jest.Mock;
+  let mockOnDeleteSubTag: jest.Mock;
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -125,6 +126,7 @@ describe('Tag System Integration', () => {
     mockOnAddSubTag = jest.fn();
     mockOnUpdateSubTagColor = jest.fn();
     mockOnDeleteGroup = jest.fn();
+    mockOnDeleteSubTag = jest.fn();
   });
 
   describe('TagManager and TagPerformance Data Flow', () => {
@@ -137,6 +139,7 @@ describe('Tag System Integration', () => {
             onAddSubTag={mockOnAddSubTag}
             onUpdateSubTagColor={mockOnUpdateSubTagColor}
             onDeleteGroup={mockOnDeleteGroup}
+            onDeleteSubTag={mockOnDeleteSubTag}
           />
           <TagPerformance
             trades={mockTrades}
@@ -179,6 +182,7 @@ describe('Tag System Integration', () => {
             onAddSubTag={mockOnAddSubTag}
             onUpdateSubTagColor={mockOnUpdateSubTagColor}
             onDeleteGroup={mockOnDeleteGroup}
+            onDeleteSubTag={mockOnDeleteSubTag}
           />
           <TagPerformance
             trades={mockTrades}
@@ -212,6 +216,7 @@ describe('Tag System Integration', () => {
             onAddSubTag={mockOnAddSubTag}
             onUpdateSubTagColor={mockOnUpdateSubTagColor}
             onDeleteGroup={mockOnDeleteGroup}
+            onDeleteSubTag={mockOnDeleteSubTag}
           />
           <TagPerformance
             trades={mockTrades}
@@ -254,6 +259,7 @@ describe('Tag System Integration', () => {
             onAddSubTag={mockOnAddSubTag}
             onUpdateSubTagColor={mockOnUpdateSubTagColor}
             onDeleteGroup={mockOnDeleteGroup}
+            onDeleteSubTag={mockOnDeleteSubTag}
           />
         </div>
       );
@@ -341,6 +347,7 @@ describe('Tag System Integration', () => {
             onAddSubTag={mockOnAddSubTag}
             onUpdateSubTagColor={mockOnUpdateSubTagColor}
             onDeleteGroup={mockOnDeleteGroup}
+            onDeleteSubTag={mockOnDeleteSubTag}
           />
           <TagPerformance
             trades={comprehensiveTrades}
@@ -431,6 +438,7 @@ describe('Tag System Integration', () => {
             onAddSubTag={mockOnAddSubTag}
             onUpdateSubTagColor={mockOnUpdateSubTagColor}
             onDeleteGroup={mockOnDeleteGroup}
+            onDeleteSubTag={mockOnDeleteSubTag}
           />
           <TagPerformance
             trades={mockTrades}
@@ -476,6 +484,7 @@ describe('Tag System Integration', () => {
             onAddSubTag={mockOnAddSubTag}
             onUpdateSubTagColor={mockOnUpdateSubTagColor}
             onDeleteGroup={mockOnDeleteGroup}
+            onDeleteSubTag={mockOnDeleteSubTag}
           />
           <TagPerformance
             trades={tradesWithNoTags}
@@ -547,6 +556,7 @@ describe('Tag System Integration', () => {
           onAddSubTag={mockOnAddSubTag}
           onUpdateSubTagColor={mockOnUpdateSubTagColor}
           onDeleteGroup={mockOnDeleteGroup}
+          onDeleteSubTag={mockOnDeleteSubTag}
         />
       );
 
@@ -597,6 +607,7 @@ describe('Tag System Integration', () => {
             onAddSubTag={mockOnAddSubTag}
             onUpdateSubTagColor={mockOnUpdateSubTagColor}
             onDeleteGroup={mockOnDeleteGroup}
+            onDeleteSubTag={mockOnDeleteSubTag}
           />
           <TagPerformance
             trades={mockTrades}
@@ -637,6 +648,7 @@ describe('Tag System Integration', () => {
             onAddSubTag={mockOnAddSubTag}
             onUpdateSubTagColor={mockOnUpdateSubTagColor}
             onDeleteGroup={mockOnDeleteGroup}
+            onDeleteSubTag={mockOnDeleteSubTag}
           />
           <TagPerformance
             trades={mockTrades}

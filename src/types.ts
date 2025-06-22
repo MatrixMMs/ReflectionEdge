@@ -18,6 +18,11 @@ export interface Trade {
   direction: TradeDirection;
   strategyId?: string;
   accountId: string; // New field for multi-account support
+  execution?: {
+    checklist: { [checklistItemId: string]: boolean };
+    grade: 'A+' | 'A' | 'A-' | 'B+' | 'B' | 'B-' | 'C+' | 'C' | 'C-' | 'D' | 'F' | null;
+    notes: string;
+  }
 }
 
 export interface SubTag {
@@ -65,7 +70,7 @@ export interface PlaybookEntry {
   name: string;
   description: string;
   tags: { [groupId: string]: string[] };
-  checklist?: string[];
+  checklist: { id: string; item: string; }[];
   notes?: string;
   createdAt: string;
   updatedAt: string;
@@ -98,4 +103,9 @@ export interface CustomEmotion {
   id: string;
   name: string;
   color: string;
+}
+
+export interface Profile {
+  id: string;
+  name: string;
 }

@@ -93,6 +93,11 @@ export const PatternAnalysisDashboard: React.FC<PatternAnalysisDashboardProps> =
           { name: 'Regular Hours', ...regular, value: getMetricValue(regular, selectedMetric) },
           { name: 'After Hours', ...afterHours, value: getMetricValue(afterHours, selectedMetric) }
         ];
+      case 'heatmap':
+        // Data for heatmap is structured differently, handled in renderHeatmap
+        return patternAnalysis.hourlyPatterns.length > 0 && patternAnalysis.dayOfWeekPatterns.length > 0
+          ? [{placeholder: 1}] // Return a placeholder to prevent "No data" message
+          : [];
       default:
         return [];
     }
@@ -202,52 +207,113 @@ export const PatternAnalysisDashboard: React.FC<PatternAnalysisDashboardProps> =
   };
 
   const renderHeatmap = () => {
-    // Create 24x7 heatmap data (hours x days)
-    const heatmapData = [];
-    for (let hour = 0; hour < 24; hour++) {
-      const row = [];
-      for (let day = 0; day < 7; day++) {
-        const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-        const pattern = patternAnalysis.hourlyPatterns.find(p => p.value === hour);
-        const dayPattern = patternAnalysis.dayOfWeekPatterns.find(p => p.value === dayNames[day]);
-        
-        // Combine hour and day patterns (simplified approach)
-        const value = pattern && dayPattern ? 
-          (getMetricValue(pattern, selectedMetric) + getMetricValue(dayPattern, selectedMetric)) / 2 : 0;
-        
-        row.push({
-          value,
-          hour,
-          day: dayNames[day]
-        });
-      }
-      heatmapData.push(row);
-    }
+    const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    // Create a more robust data structure for the heatmap
+    const heatmapData = Array(7).fill(null).map(() => Array(24).fill(null).map(() => ({
+      value: 0,
+      trades: 0,
+      metric: 0,
+    })));
 
+    // Populate the heatmap data from trades
+    trades.forEach(trade => {
+        const date = new Date(trade.timeIn);
+        const dayOfWeek = date.getUTCDay();
+        const hour = date.getUTCHours();
+        
+        if (heatmapData[dayOfWeek] && heatmapData[dayOfWeek][hour]) {
+            heatmapData[dayOfWeek][hour].trades += 1;
+            switch(selectedMetric) {
+                case 'profit':
+                    heatmapData[dayOfWeek][hour].value += trade.profit;
+                    break;
+                case 'winRate':
+                    // We'll calculate win rate at the end
+                    if (trade.profit > 0) heatmapData[dayOfWeek][hour].value += 1;
+                    break;
+                case 'profitFactor':
+                    // We'll calculate this at the end
+                    if (trade.profit > 0) heatmapData[dayOfWeek][hour].value += trade.profit;
+                    else heatmapData[dayOfWeek][hour].metric += Math.abs(trade.profit);
+                    break;
+                default:
+                    heatmapData[dayOfWeek][hour].value += 1; // Default to trade count
+            }
+        }
+    });
+
+    // Finalize calculations
+    for(let day = 0; day < 7; day++) {
+        for (let hour = 0; hour < 24; hour++) {
+            const cell = heatmapData[day][hour];
+            if (cell.trades > 0) {
+                switch(selectedMetric) {
+                    case 'winRate':
+                        cell.metric = (cell.value / cell.trades) * 100;
+                        break;
+                    case 'profitFactor':
+                        cell.metric = cell.metric > 0 ? cell.value / cell.metric : cell.value > 0 ? Infinity : 0;
+                        break;
+                    case 'profit':
+                         cell.metric = cell.value;
+                         break;
+                    default: // trades
+                        cell.metric = cell.trades;
+                }
+            }
+        }
+    }
+    
+    // Find min and max for color scaling
+    let minMetric = Infinity;
+    let maxMetric = -Infinity;
+    heatmapData.flat().forEach(cell => {
+        if(cell.trades > 0) {
+            minMetric = Math.min(minMetric, cell.metric);
+            maxMetric = Math.max(maxMetric, cell.metric);
+        }
+    });
+
+    const getCellColor = (value: number) => {
+        if (value === 0 && selectedMetric !== 'trades') return 'bg-gray-800';
+        if (selectedMetric === 'winRate') {
+            const opacity = Math.max(0.1, Math.min(value / 100, 1));
+            return `rgba(52, 211, 153, ${opacity})`;
+        }
+        if (selectedMetric === 'profit') {
+            const isLoss = value < 0;
+            const absoluteMax = Math.max(Math.abs(minMetric), Math.abs(maxMetric));
+            const opacity = absoluteMax > 0 ? Math.max(0.1, Math.min(Math.abs(value) / absoluteMax, 1)) : 0.1;
+            return isLoss ? `rgba(239, 68, 68, ${opacity})` : `rgba(52, 211, 153, ${opacity})`;
+        }
+        // trades or profitFactor
+        const opacity = maxMetric > 0 ? Math.max(0.1, Math.min(value / maxMetric, 1)) : 0.1;
+        return `rgba(52, 211, 153, ${opacity})`
+    }
+    
     return (
-      <div className="w-full h-96 overflow-auto">
-        <div className="grid grid-cols-8 gap-1 text-xs">
-          <div className="font-bold p-2 text-black">Hour</div>
+      <div className="w-full overflow-auto bg-gray-700 p-4 rounded-lg">
+        <div className="grid grid-cols-8 gap-1 text-xs text-center">
+          <div className="font-semibold p-2 text-gray-200">Hour</div>
           {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
-            <div key={day} className="font-bold p-2 text-center text-black">{day}</div>
+            <div key={day} className="font-semibold p-2 text-gray-200">{day}</div>
           ))}
-          {heatmapData.map((row, hour) => (
+          {Array.from({ length: 24 }).map((_, hour) => (
             <React.Fragment key={hour}>
-              <div className="font-bold p-2 text-right text-black">{hour}:00</div>
-              {row.map((cell, day) => (
-                <div
-                  key={`${hour}-${day}`}
-                  className="p-2 text-center text-black font-bold"
-                  style={{
-                    backgroundColor: cell.value > 0 ? 
-                      `rgba(52, 211, 153, ${Math.min(cell.value / 100, 1)})` : 
-                      `rgba(239, 68, 68, ${Math.min(Math.abs(cell.value) / 100, 1)})`
-                  }}
-                  title={`${cell.day} ${hour}:00 - ${getMetricLabel(selectedMetric)}: ${cell.value.toFixed(1)}`}
-                >
-                  {cell.value.toFixed(0)}
-                </div>
-              ))}
+              <div className="font-semibold p-2 text-right text-gray-200">{`${hour}:00`}</div>
+              {Array.from({ length: 7 }).map((_, day) => {
+                const cell = heatmapData[day][hour];
+                return (
+                  <div
+                    key={`${hour}-${day}`}
+                    className="p-2 text-center text-white font-bold rounded"
+                    style={{ backgroundColor: getCellColor(cell.metric) }}
+                    title={`${dayNames[day]} ${hour}:00 - ${getMetricLabel(selectedMetric)}: ${cell.metric.toFixed(2)} (${cell.trades} trades)`}
+                  >
+                    {cell.trades > 0 ? cell.metric.toFixed(selectedMetric === 'trades' ? 0 : 1) : '-'}
+                  </div>
+                )
+              })}
             </React.Fragment>
           ))}
         </div>
@@ -256,17 +322,19 @@ export const PatternAnalysisDashboard: React.FC<PatternAnalysisDashboardProps> =
   };
 
   const renderChart = () => {
-    const data = getChartData();
-    if (!data || data.length === 0) {
-      return <div className="text-center text-gray-500 py-12">No data for this chart type.</div>;
-    }
     switch (selectedChartType) {
+      case 'hourly':
+        return renderBarChart();
+      case 'daily':
+        return renderLineChart();
+      case 'monthly':
+        return renderBarChart();
+      case 'session':
+        return renderPieChart();
       case 'heatmap':
         return renderHeatmap();
-      case 'session':
-        return renderBarChart();
       default:
-        return renderLineChart();
+        return <div className="text-center text-gray-500 py-12">Select a chart type.</div>;
     }
   };
 

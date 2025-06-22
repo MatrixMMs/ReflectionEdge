@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { PlaybookEntry, TagGroup } from '../../types';
+import { generateSecureId } from '../../utils/security';
 
 interface PlaybookEditorProps {
   entry?: PlaybookEntry;
@@ -12,7 +13,7 @@ export const PlaybookEditor: React.FC<PlaybookEditorProps> = ({ entry, tagGroups
   const [name, setName] = useState(entry?.name || '');
   const [description, setDescription] = useState(entry?.description || '');
   const [tags, setTags] = useState<{ [groupId: string]: string[] }>(entry?.tags || {});
-  const [checklist, setChecklist] = useState<string[]>(entry?.checklist || []);
+  const [checklist, setChecklist] = useState<{ id: string; item: string; }[]>(entry?.checklist || []);
   const [notes, setNotes] = useState(entry?.notes || '');
   const [newChecklistItem, setNewChecklistItem] = useState('');
 
@@ -28,13 +29,17 @@ export const PlaybookEditor: React.FC<PlaybookEditorProps> = ({ entry, tagGroups
 
   const handleAddChecklistItem = () => {
     if (newChecklistItem.trim()) {
-      setChecklist(prev => [...prev, newChecklistItem.trim()]);
+      const newItem = {
+        id: generateSecureId(),
+        item: newChecklistItem.trim()
+      };
+      setChecklist(prev => [...prev, newItem]);
       setNewChecklistItem('');
     }
   };
 
-  const handleRemoveChecklistItem = (idx: number) => {
-    setChecklist(prev => prev.filter((_, i) => i !== idx));
+  const handleRemoveChecklistItem = (idToRemove: string) => {
+    setChecklist(prev => prev.filter(item => item.id !== idToRemove));
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -97,10 +102,17 @@ export const PlaybookEditor: React.FC<PlaybookEditorProps> = ({ entry, tagGroups
           <button type="button" className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded" onClick={handleAddChecklistItem}>Add</button>
         </div>
         <ul className="space-y-1">
-          {checklist.map((item, idx) => (
-            <li key={idx} className="flex items-center gap-2 text-gray-200">
-              <span>{item}</span>
-              <button type="button" className="text-red-400 hover:text-red-600" onClick={() => handleRemoveChecklistItem(idx)}>Remove</button>
+          {checklist.map((checklistItem) => (
+            <li key={checklistItem.id} className="flex items-center justify-between gap-2 text-gray-200 bg-gray-700 p-2 rounded">
+              <span>{checklistItem.item}</span>
+              <button 
+                type="button" 
+                className="text-red-500 hover:text-red-400 font-bold" 
+                onClick={() => handleRemoveChecklistItem(checklistItem.id)}
+                aria-label="Remove checklist item"
+              >
+                &times;
+              </button>
             </li>
           ))}
         </ul>

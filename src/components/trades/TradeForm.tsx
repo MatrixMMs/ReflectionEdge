@@ -25,6 +25,9 @@ export const TradeForm: React.FC<TradeFormProps> = ({ onSubmit, tagGroups, playb
   const [journal, setJournal] = useState('');
   const [selectedTags, setSelectedTags] = useState<{ [groupId: string]: string[] }>({});
   const [selectedStrategy, setSelectedStrategy] = useState<string>('');
+  const [executionChecklist, setExecutionChecklist] = useState<{ [checklistItemId: string]: boolean }>({});
+
+  const activePlaybookEntry = playbookEntries.find(p => p.id === selectedStrategy);
 
   useEffect(() => {
     if (tradeToEdit) {
@@ -39,6 +42,7 @@ export const TradeForm: React.FC<TradeFormProps> = ({ onSubmit, tagGroups, playb
       setProfit(tradeToEdit.profit.toString());
       setJournal(tradeToEdit.journal);
       setSelectedStrategy(tradeToEdit.strategyId || '');
+      setExecutionChecklist(tradeToEdit.execution?.checklist || {});
       // Convert the tags object to our internal format
       const convertedTags = Object.entries(tradeToEdit.tags).reduce((acc, [groupId, subtagId]) => ({
         ...acc,
@@ -59,8 +63,16 @@ export const TradeForm: React.FC<TradeFormProps> = ({ onSubmit, tagGroups, playb
       setJournal('');
       setSelectedTags({});
       setSelectedStrategy('');
+      setExecutionChecklist({});
     }
   }, [tradeToEdit]);
+
+  const handleExecutionChecklistChange = (checklistItemId: string, isChecked: boolean) => {
+    setExecutionChecklist(prev => ({
+      ...prev,
+      [checklistItemId]: isChecked
+    }));
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -135,6 +147,11 @@ export const TradeForm: React.FC<TradeFormProps> = ({ onSubmit, tagGroups, playb
       journal: sanitizeString(journal),
       tags: convertedTags,
       strategyId: selectedStrategy || undefined,
+      execution: {
+        checklist: executionChecklist,
+        grade: null, // Grading will be handled later
+        notes: '' // Placeholder for execution notes
+      },
       accountId: 'default' // Default account ID for now
     });
   };
@@ -152,6 +169,7 @@ export const TradeForm: React.FC<TradeFormProps> = ({ onSubmit, tagGroups, playb
     setJournal('');
     setSelectedTags({});
     setSelectedStrategy('');
+    setExecutionChecklist({});
   };
 
   const handleTagSelection = (groupId: string, subtagId: string) => {
@@ -169,7 +187,7 @@ export const TradeForm: React.FC<TradeFormProps> = ({ onSubmit, tagGroups, playb
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 bg-gray-800 p-6 rounded-lg">
+    <form onSubmit={handleSubmit} className="space-y-6 bg-gray-800 p-6 rounded-lg">
       <div className="grid grid-cols-2 gap-4">
         <div>
           <label className="block text-sm font-medium text-gray-300 mb-1">Date</label>
@@ -276,20 +294,35 @@ export const TradeForm: React.FC<TradeFormProps> = ({ onSubmit, tagGroups, playb
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-300 mb-1">Strategy</label>
+        <label className="block text-sm font-medium text-gray-300 mb-1">Strategy / Playbook</label>
         <select
           value={selectedStrategy}
           onChange={e => setSelectedStrategy(e.target.value)}
           className="w-full bg-gray-700 border border-gray-600 text-gray-100 rounded p-2"
         >
-          <option value="">Select a strategy (optional)</option>
+          <option value="">None</option>
           {playbookEntries.map(entry => (
-            <option key={entry.id} value={entry.id}>
-              {entry.name}
-            </option>
+            <option key={entry.id} value={entry.id}>{entry.name}</option>
           ))}
         </select>
       </div>
+
+      {activePlaybookEntry && activePlaybookEntry.checklist.length > 0 && (
+        <div className="space-y-3 p-4 bg-gray-900/50 rounded-lg">
+          <h4 className="font-semibold text-purple-300">Execution Checklist for "{activePlaybookEntry.name}"</h4>
+          {activePlaybookEntry.checklist.map(item => (
+            <label key={item.id} className="flex items-center gap-3 text-gray-200 cursor-pointer">
+              <input
+                type="checkbox"
+                className="h-5 w-5 rounded bg-gray-700 border-gray-600 text-purple-600 focus:ring-purple-500"
+                checked={executionChecklist[item.id] || false}
+                onChange={e => handleExecutionChecklistChange(item.id, e.target.checked)}
+              />
+              <span>{item.item}</span>
+            </label>
+          ))}
+        </div>
+      )}
 
       <div>
         <label className="block text-sm font-medium text-gray-300 mb-1">Tags</label>
@@ -328,7 +361,7 @@ export const TradeForm: React.FC<TradeFormProps> = ({ onSubmit, tagGroups, playb
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-300 mb-1">Journal</label>
+        <label className="block text-sm font-medium text-gray-300 mb-1">Journal / Notes</label>
         <Textarea
           value={journal}
           onChange={e => setJournal(e.target.value)}
@@ -337,7 +370,7 @@ export const TradeForm: React.FC<TradeFormProps> = ({ onSubmit, tagGroups, playb
         />
       </div>
 
-      <div className="flex justify-end space-x-3">
+      <div className="flex gap-2 justify-end pt-4">
         <Button type="button" variant="secondary" onClick={resetForm}>
           Reset
         </Button>
