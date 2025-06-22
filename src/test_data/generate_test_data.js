@@ -78,22 +78,28 @@ const journalEntries = {
   ]
 };
 
+const TICK_SIZE = 0.25;
+const TICK_VALUE = 12.50;
+
 function generateTrade(id, date, basePrice) {
   const timeSlot = timeSlots[id % timeSlots.length];
   const setupTag = setupTags[id % setupTags.length];
   const marketTag = marketConditionTags[id % marketConditionTags.length];
   const direction = Math.random() > 0.5 ? 'long' : 'short';
   
-  // Generate entry price around base price
-  const entryPrice = basePrice + (Math.random() - 0.5) * 20;
-  
-  // Determine if trade is a win or loss (70% win rate for testing)
+  // Generate entry price and snap to tick size
+  const rawEntryPrice = basePrice + (Math.random() - 0.5) * 20;
+  const entryPrice = Math.round(rawEntryPrice / TICK_SIZE) * TICK_SIZE;
+
+  // Determine if trade is a win or loss and the number of ticks
   const isWin = Math.random() < 0.7;
-  const profit = isWin ? 500 : -150; // 10 points profit or 3 points loss
+  const tickMove = isWin 
+    ? (Math.floor(Math.random() * 40) + 10) // Winning trade moves 10-50 ticks
+    : -(Math.floor(Math.random() * 12) + 4); // Losing trade moves 4-16 ticks
+
+  const exitPrice = entryPrice + (tickMove * TICK_SIZE * (direction === 'long' ? 1 : -1));
   
-  const exitPrice = direction === 'long' 
-    ? entryPrice + (profit / 50) // 50 dollars per point
-    : entryPrice - (profit / 50);
+  const profit = tickMove * TICK_VALUE;
   
   const journal = journalEntries[setupTag][id % journalEntries[setupTag].length];
   
@@ -102,8 +108,8 @@ function generateTrade(id, date, basePrice) {
     date: date,
     symbol: '/ES',
     contracts: 1,
-    entry: Math.round(entryPrice * 100) / 100,
-    exit: Math.round(exitPrice * 100) / 100,
+    entry: entryPrice,
+    exit: exitPrice,
     timeIn: `${date}T${timeSlot.start}:00`,
     timeOut: `${date}T${timeSlot.end}:00`,
     timeInTrade: parseInt(timeSlot.end.split(':')[1]) - parseInt(timeSlot.start.split(':')[1]) + 
