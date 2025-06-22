@@ -78,6 +78,7 @@ const App: React.FC = () => {
 
   const [isPlaybookModalOpen, setIsPlaybookModalOpen] = useState(false);
   const [selectedPlaybookEntry, setSelectedPlaybookEntry] = useState<PlaybookEntry | null>(null);
+  const [isAddingPlaybook, setIsAddingPlaybook] = useState(false);
 
   // Pattern analysis state
   const [isPatternAnalysisModalOpen, setIsPatternAnalysisModalOpen] = useState(false);
@@ -117,7 +118,19 @@ const App: React.FC = () => {
       setProfiles(stored.profiles);
       setTrades(activeData.trades || sampleTrades);
       setTagGroups(activeData.tagGroups || DEFAULT_TAG_GROUPS);
-      setPlaybookEntries(activeData.playbookEntries || DEFAULT_PLAYBOOK_ENTRIES);
+      
+      // Merge default playbook entries with stored ones
+      const storedPlaybook = activeData.playbookEntries || [];
+      const defaultPlaybook = DEFAULT_PLAYBOOK_ENTRIES;
+      
+      const mergedPlaybook = [...storedPlaybook];
+      defaultPlaybook.forEach(defaultEntry => {
+        if (!storedPlaybook.some(storedEntry => storedEntry.id === defaultEntry.id)) {
+          mergedPlaybook.push(defaultEntry);
+        }
+      });
+      setPlaybookEntries(mergedPlaybook);
+
     } else {
       // Create a default profile if none exists
       const newProfileId = `profile_${Date.now()}`;
@@ -974,22 +987,39 @@ const App: React.FC = () => {
 
       {isPlaybookModalOpen && (
           <Modal 
-            title={selectedPlaybookEntry ? "Edit Strategy" : "Add Strategy"} 
+            title={selectedPlaybookEntry ? "Edit Strategy" : (isAddingPlaybook ? "Add Strategy" : "Playbook")}
             onClose={() => {
               setIsPlaybookModalOpen(false);
               setSelectedPlaybookEntry(null);
+              setIsAddingPlaybook(false);
             }}
             size="large"
           >
-            <PlaybookEditor
-              entry={selectedPlaybookEntry || undefined} 
-              tagGroups={tagGroups}
-              onSave={selectedPlaybookEntry ? handleUpdatePlaybookEntry : handleAddPlaybookEntry}
-              onCancel={() => {
-                setIsPlaybookModalOpen(false);
-                setSelectedPlaybookEntry(null);
-              }} 
-            />
+            {isAddingPlaybook || selectedPlaybookEntry ? (
+              <PlaybookEditor
+                entry={selectedPlaybookEntry || undefined} 
+                tagGroups={tagGroups}
+                onSave={(data) => {
+                  if (selectedPlaybookEntry) {
+                    handleUpdatePlaybookEntry(data);
+                  } else {
+                    handleAddPlaybookEntry(data);
+                  }
+                  setIsAddingPlaybook(false);
+                  setSelectedPlaybookEntry(null);
+                }}
+                onCancel={() => {
+                  setIsAddingPlaybook(false);
+                  setSelectedPlaybookEntry(null);
+                }} 
+              />
+            ) : (
+              <PlaybookList
+                entries={playbookEntries}
+                onSelect={(entry) => setSelectedPlaybookEntry(entry)}
+                onAdd={() => setIsAddingPlaybook(true)}
+              />
+            )}
         </Modal>
       )}
 

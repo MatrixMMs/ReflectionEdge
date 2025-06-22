@@ -125,20 +125,20 @@ export const DEFAULT_PLAYBOOK_ENTRIES = [
   },
   {
     id: 'failed_auction_strategy',
-    name: 'Failed Auction',
-    description: 'Trade the rejection when price fails to hold above/below key auction levels.',
+    name: 'Failed Auction (Orderflow)',
+    description: 'Trade the rejection when price fails to hold above/below key auction levels, confirmed with orderflow.',
     tags: { setup: ['failed_auction'] },
     checklist: [
-      { id: 'fa_1', item: 'Price has moved above/below key auction level (POC, VAH, VAL)' },
-      { id: 'fa_2', item: 'Volume is declining on the move' },
-      { id: 'fa_3', item: 'Price fails to hold the level and reverses' },
-      { id: 'fa_4', item: 'Waiting for confirmation candle after rejection' },
-      { id: 'fa_5', item: 'Stop loss placed beyond the auction level' },
-      { id: 'fa_6', item: 'Position size is 1-2% of account' },
-      { id: 'fa_7', item: 'Target is at least 1:2 risk/reward ratio' },
-      { id: 'fa_8', item: 'Market structure supports the rejection' }
+      { id: 'fa_of_1', item: 'Market Context: Is the market in a clear range or balanced state?' },
+      { id: 'fa_of_2', item: 'Key Level Identified: Significant level (PDH/L, VAH/VAL, POC) is clear.' },
+      { id: 'fa_of_3', item: 'Initial Break: Price moved decisively through the key level.' },
+      { id: 'fa_of_4', item: 'Absorption Check: Volume spiked at the level, indicating absorption.' },
+      { id: 'fa_of_5', item: 'Delta Divergence: Clear divergence between price and delta on the move.' },
+      { id: 'fa_of_6', item: 'Failed Hold: Price was quickly rejected back through the level.' },
+      { id: 'fa_of_7', item: 'Confirmation Entry: Waited for a confirmation candle (e.g., engulfing) back inside the range.' },
+      { id: 'fa_of_8', item: 'Stop Placement: Stop loss is just beyond the extreme of the failed auction.' }
     ],
-    notes: 'Best during first hour of session. Use order flow for confirmation.',
+    notes: 'Requires orderflow tools (footprint, delta). Best during RTH. High conviction setup.',
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString()
   }
