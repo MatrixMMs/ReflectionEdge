@@ -22,3 +22,16 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# AWS Configuration (Sensitive - Never Commit)
+aws-setup/config/credentials.json
+aws-setup/config/config.json
+.env
+.env.local
+.env.production
+.env.staging
+
+# AWS Access Keys and Secrets
+*access-key*
+*secret-key*
+*credentials*
