@@ -30,7 +30,7 @@ export const TradeList: React.FC<TradeListProps> = ({ trades, tagGroups, onEditT
   }, [trades]);
 
   return (
-    <div className="overflow-x-auto">
+    <div className="overflow-x-auto max-h-[500px] overflow-y-auto">
       <Table>
         <Thead>
           <Tr>
@@ -100,6 +100,6 @@ export const TradeList: React.FC<TradeListProps> = ({ trades, tagGroups, onEditT
           ))}
         </Tbody>
       </Table>
-          </div>
+    </div>
   );
 };

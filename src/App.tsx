@@ -1056,7 +1056,7 @@ const App: React.FC = () => {
 
         {showLegalDisclaimer && (
           <Modal title="Disclaimer" onClose={handleLegalDisclaimerClose} size="large">
-            <LegalDisclaimer onClose={handleLegalDisclaimerClose} />
+            <LegalDisclaimer variant="modal" onClose={handleLegalDisclaimerClose} />
           </Modal>
         )}
 
