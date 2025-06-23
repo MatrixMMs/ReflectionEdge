@@ -80,6 +80,7 @@ const App: React.FC = () => {
   const [isPlaybookModalOpen, setIsPlaybookModalOpen] = useState(false);
   const [selectedPlaybookEntry, setSelectedPlaybookEntry] = useState<PlaybookEntry | null>(null);
   const [isAddingPlaybook, setIsAddingPlaybook] = useState(false);
+  const [isEditingPlaybook, setIsEditingPlaybook] = useState(false);
 
   // Pattern analysis state
   const [isPatternAnalysisModalOpen, setIsPatternAnalysisModalOpen] = useState(false);
@@ -773,7 +774,15 @@ const App: React.FC = () => {
       } : e
     ));
     setIsPlaybookModalOpen(false);
+    setIsEditingPlaybook(false);
     setSelectedPlaybookEntry(null);
+  };
+
+  const handleEditPlaybookEntry = (entry: PlaybookEntry) => {
+    setSelectedPlaybookEntry(entry);
+    setIsAddingPlaybook(false);
+    setIsEditingPlaybook(true);
+    setIsPlaybookModalOpen(true);
   };
 
   const isDefaultGroup = (groupId: string) => {
@@ -984,7 +993,7 @@ const App: React.FC = () => {
             }}
             size="large"
           >
-            {isAddingPlaybook || selectedPlaybookEntry ? (
+            {isAddingPlaybook || isEditingPlaybook || selectedPlaybookEntry ? (
               <PlaybookEditor
                 entry={selectedPlaybookEntry || undefined} 
                 tagGroups={tagGroups}
@@ -995,10 +1004,12 @@ const App: React.FC = () => {
                     handleAddPlaybookEntry(data);
                   }
                   setIsAddingPlaybook(false);
+                  setIsEditingPlaybook(false);
                   setSelectedPlaybookEntry(null);
                 }}
                 onCancel={() => {
                   setIsAddingPlaybook(false);
+                  setIsEditingPlaybook(false);
                   setSelectedPlaybookEntry(null);
                 }} 
               />
@@ -1007,6 +1018,7 @@ const App: React.FC = () => {
                 entries={playbookEntries}
                 onSelect={(entry) => setSelectedPlaybookEntry(entry)}
                 onAdd={() => setIsAddingPlaybook(true)}
+                onEdit={handleEditPlaybookEntry}
               />
             )}
         </Modal>
