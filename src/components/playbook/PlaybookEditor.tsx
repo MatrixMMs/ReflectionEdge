@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { PlaybookEntry, TagGroup } from '../../types';
 import { generateSecureId } from '../../utils/security';
 
@@ -16,6 +16,16 @@ export const PlaybookEditor: React.FC<PlaybookEditorProps> = ({ entry, tagGroups
   const [checklist, setChecklist] = useState<{ id: string; item: string; }[]>(entry?.checklist || []);
   const [notes, setNotes] = useState(entry?.notes || '');
   const [newChecklistItem, setNewChecklistItem] = useState('');
+
+  const [editingItemId, setEditingItemId] = useState<string | null>(null);
+  const [editingItemText, setEditingItemText] = useState('');
+  const editInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (editingItemId && editInputRef.current) {
+      editInputRef.current.focus();
+    }
+  }, [editingItemId]);
 
   const handleTagToggle = (groupId: string, subTagId: string) => {
     setTags(prev => {
@@ -40,6 +50,32 @@ export const PlaybookEditor: React.FC<PlaybookEditorProps> = ({ entry, tagGroups
 
   const handleRemoveChecklistItem = (idToRemove: string) => {
     setChecklist(prev => prev.filter(item => item.id !== idToRemove));
+  };
+
+  const handleStartEditing = (id: string, text: string) => {
+    setEditingItemId(id);
+    setEditingItemText(text);
+  };
+
+  const handleSaveEditing = () => {
+    if (editingItemId && editingItemText.trim()) {
+      setChecklist(prev =>
+        prev.map(item =>
+          item.id === editingItemId ? { ...item, item: editingItemText.trim() } : item
+        )
+      );
+    }
+    setEditingItemId(null);
+    setEditingItemText('');
+  };
+
+  const handleInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      handleSaveEditing();
+    } else if (e.key === 'Escape') {
+      setEditingItemId(null);
+      setEditingItemText('');
+    }
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -104,7 +140,23 @@ export const PlaybookEditor: React.FC<PlaybookEditorProps> = ({ entry, tagGroups
         <ul className="space-y-1">
           {checklist.map((checklistItem) => (
             <li key={checklistItem.id} className="flex items-center justify-between gap-2 text-gray-200 bg-gray-700 p-2 rounded">
-              <span>{checklistItem.item}</span>
+              {editingItemId === checklistItem.id ? (
+                <input
+                  ref={editInputRef}
+                  value={editingItemText}
+                  onChange={(e) => setEditingItemText(e.target.value)}
+                  onBlur={handleSaveEditing}
+                  onKeyDown={handleInputKeyDown}
+                  className="flex-1 bg-gray-600 border border-gray-500 text-gray-100 rounded p-1"
+                />
+              ) : (
+                <span
+                  className="flex-1 cursor-pointer"
+                  onClick={() => handleStartEditing(checklistItem.id, checklistItem.item)}
+                >
+                  {checklistItem.item}
+                </span>
+              )}
               <button 
                 type="button" 
                 className="text-red-500 hover:text-red-400 font-bold" 

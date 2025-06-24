@@ -1,13 +1,15 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Trade } from '../../types';
 import { analyzeTimePatterns, TimePattern } from '../../utils/patternRecognition';
 import { TrendingUpIcon, TrendingDownIcon, ExclamationTriangleIcon, LightBulbIcon, ClockIcon, CalendarIcon } from '../ui/Icons';
+import { InsightCard } from './InsightCard';
+import { discoverEdges } from '../../utils/edgeDiscovery';
 
 interface PatternInsightsProps {
   trades: Trade[];
 }
 
-interface Insight {
+export interface Insight {
   id: string;
   type: 'positive' | 'negative' | 'warning' | 'opportunity';
   title: string;
@@ -16,6 +18,8 @@ interface Insight {
   recommendation: string;
   data?: any;
 }
+
+type SectionName = 'Trading Hours Performance' | 'Tags/Strategies' | 'Behavioral/Edge' | 'Risk/Distribution' | 'Other';
 
 export const PatternInsights: React.FC<PatternInsightsProps> = ({ trades }) => {
   const patternAnalysis = useMemo(() => analyzeTimePatterns(trades), [trades]);
@@ -535,6 +539,45 @@ export const PatternInsights: React.FC<PatternInsightsProps> = ({ trades }) => {
       });
     }
 
+    // --- Advanced/Behavioral Insights ---
+    const edgeResult = discoverEdges(trades);
+    // Streaks and pattern-based edges
+    edgeResult.topEdges.forEach(edge => {
+      insights.push({
+        id: `edge_${edge.description.replace(/\s+/g, '_').toLowerCase()}`,
+        type: edge.riskLevel === 'low' ? 'positive' : edge.riskLevel === 'medium' ? 'opportunity' : 'warning',
+        title: edge.description,
+        description: `Edge confidence: ${(edge.confidence * 100).toFixed(0)}%. ${edge.recommendations[0] || ''}`,
+        impact: edge.riskLevel === 'low' ? 'high' : edge.riskLevel === 'medium' ? 'medium' : 'high',
+        recommendation: edge.recommendations.join(' '),
+        data: edge.metrics
+      });
+    });
+    // Behavioral patterns
+    edgeResult.behavioralPatterns.forEach(pattern => {
+      insights.push({
+        id: `behavior_${pattern.pattern.replace(/\s+/g, '_').toLowerCase()}`,
+        type: pattern.successRate > 0.6 ? 'positive' : pattern.successRate > 0.4 ? 'opportunity' : 'warning',
+        title: `Behavioral: ${pattern.pattern}`,
+        description: `Frequency: ${(pattern.frequency * 100).toFixed(1)}%. Consistency: ${(pattern.consistency * 100).toFixed(1)}%.`,
+        impact: pattern.successRate > 0.6 ? 'medium' : 'low',
+        recommendation: `Avg Profit: $${pattern.avgProfit.toFixed(2)}, Avg Loss: $${pattern.avgLoss.toFixed(2)}`,
+        data: pattern
+      });
+    });
+    // Risk assessment
+    if (edgeResult.riskAssessment) {
+      insights.push({
+        id: 'risk_assessment',
+        type: edgeResult.riskAssessment.overallRisk === 'low' ? 'positive' : edgeResult.riskAssessment.overallRisk === 'medium' ? 'warning' : 'negative',
+        title: 'Risk Assessment',
+        description: `Overall risk: ${edgeResult.riskAssessment.overallRisk}. ${edgeResult.riskAssessment.specificRisks.join(' ')}`,
+        impact: edgeResult.riskAssessment.overallRisk === 'low' ? 'medium' : 'high',
+        recommendation: edgeResult.riskAssessment.mitigationStrategies.join(' '),
+        data: edgeResult.riskAssessment
+      });
+    }
+
     return insights.sort((a, b) => {
       const impactOrder = { high: 3, medium: 2, low: 1 };
       return impactOrder[b.impact] - impactOrder[a.impact];
@@ -542,6 +585,55 @@ export const PatternInsights: React.FC<PatternInsightsProps> = ({ trades }) => {
   };
 
   const insights = useMemo(() => generateInsights(), [patternAnalysis]);
+
+  // Helper to categorize insights
+  const categorizeInsight = (insight: Insight): SectionName => {
+    const id = insight.id.toLowerCase();
+    const title = insight.title.toLowerCase();
+    if (
+      id.includes('hour') || id.includes('day') || id.includes('session') ||
+      title.includes('hour') || title.includes('day') || title.includes('session') ||
+      id.includes('frequency') || id.includes('drawdown')
+    ) {
+      return 'Trading Hours Performance';
+    }
+    if (id.includes('tag')) {
+      return 'Tags/Strategies';
+    }
+    if (id.includes('edge_') || id.includes('behavior_') || id.includes('streak') || title.includes('streak') || title.includes('behavioral')) {
+      return 'Behavioral/Edge';
+    }
+    if (id.includes('risk') || id.includes('distribution') || id.includes('drawdown')) {
+      return 'Risk/Distribution';
+    }
+    return 'Other';
+  };
+
+  // Group insights by category
+  const groupedInsights = useMemo(() => {
+    const groups: Record<SectionName, Insight[]> = {
+      'Trading Hours Performance': [],
+      'Tags/Strategies': [],
+      'Behavioral/Edge': [],
+      'Risk/Distribution': [],
+      'Other': []
+    };
+    insights.forEach((insight: Insight) => {
+      const cat = categorizeInsight(insight);
+      groups[cat].push(insight);
+    });
+    return groups;
+  }, [insights]);
+
+  // Collapsible state for each section
+  const [openSections, setOpenSections] = useState<Record<SectionName, boolean>>({
+    'Trading Hours Performance': true,
+    'Tags/Strategies': true,
+    'Behavioral/Edge': true,
+    'Risk/Distribution': true,
+    'Other': true
+  });
+  const toggleSection = (section: SectionName) => setOpenSections(s => ({ ...s, [section]: !s[section] }));
 
   const getInsightIcon = (type: Insight['type']) => {
     switch (type) {
@@ -609,98 +701,59 @@ export const PatternInsights: React.FC<PatternInsightsProps> = ({ trades }) => {
 
   return (
     <div className="space-y-6 bg-gray-900 text-gray-100 p-2 md:p-6 rounded-xl">
+      {/* Sticky Summary Bar */}
+      <div className="sticky top-0 z-10 bg-white text-gray-900 p-4 rounded-lg shadow-sm border mb-4 flex flex-wrap gap-4 justify-center">
+        <div className="text-center p-2 bg-green-50 rounded-lg min-w-[100px]">
+          <div className="text-xl font-bold text-green-600">
+            {insights.filter(i => i.type === 'positive').length}
+          </div>
+          <div className="text-xs text-gray-600">Positive</div>
+        </div>
+        <div className="text-center p-2 bg-blue-50 rounded-lg min-w-[100px]">
+          <div className="text-xl font-bold text-blue-600">
+            {insights.filter(i => i.type === 'opportunity').length}
+          </div>
+          <div className="text-xs text-gray-600">Opportunities</div>
+        </div>
+        <div className="text-center p-2 bg-yellow-50 rounded-lg min-w-[100px]">
+          <div className="text-xl font-bold text-yellow-600">
+            {insights.filter(i => i.type === 'warning').length}
+          </div>
+          <div className="text-xs text-gray-600">Warnings</div>
+        </div>
+        <div className="text-center p-2 bg-red-50 rounded-lg min-w-[100px]">
+          <div className="text-xl font-bold text-red-600">
+            {insights.filter(i => i.type === 'negative').length}
+          </div>
+          <div className="text-xs text-gray-600">Issues</div>
+        </div>
+      </div>
       {/* Header */}
       <div>
         <h2 className="text-2xl font-bold text-purple-400">Pattern Insights</h2>
         <p className="text-gray-300">AI-powered insights to optimize your trading strategy</p>
       </div>
-
-      {/* Insights Grid */}
-      <div className="flex flex-wrap gap-6">
-        {insights.map((insight) => (
-          <div
-            key={insight.id}
-            className={`flex-1 min-w-[300px] max-w-[400px] p-6 rounded-lg border shadow bg-white text-gray-900 ${getInsightColor(insight.type)}`}
-            style={{ flexBasis: '350px' }}
-          >
-            <div className="flex items-start justify-between mb-4">
-              <div className="flex items-center">
-                {getInsightIcon(insight.type)}
-                <h3 className="ml-2 text-lg font-semibold text-gray-900">{insight.title}</h3>
-              </div>
-              {getImpactBadge(insight.impact)}
-            </div>
-            
-            <p className="text-gray-800 mb-4">{insight.description}</p>
-            
-            <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
-              <h4 className="font-medium text-gray-900 mb-2">Recommendation</h4>
-              <p className="text-gray-800 text-sm">{insight.recommendation}</p>
-            </div>
-
-            {/* Additional Data */}
-            {insight.data && (
-              <div className="mt-4 grid grid-cols-2 gap-4 text-sm">
-                {insight.data.winRate && (
-                  <div>
-                    <span className="text-gray-500">Win Rate:</span>
-                    <span className="ml-2 font-medium">{insight.data.winRate.toFixed(1)}%</span>
-                  </div>
-                )}
-                {insight.data.totalTrades && (
-                  <div>
-                    <span className="text-gray-500">Trades:</span>
-                    <span className="ml-2 font-medium">{insight.data.totalTrades}</span>
-                  </div>
-                )}
-                {insight.data.profitFactor && (
-                  <div>
-                    <span className="text-gray-500">Profit Factor:</span>
-                    <span className="ml-2 font-medium">{insight.data.profitFactor.toFixed(2)}</span>
-                  </div>
-                )}
-                {insight.data.totalProfit && (
-                  <div>
-                    <span className="text-gray-500">Total Profit:</span>
-                    <span className="ml-2 font-medium">${insight.data.totalProfit.toFixed(2)}</span>
-                  </div>
-                )}
+      {/* Grouped Sections */}
+      {Object.entries(groupedInsights).map(([section, sectionInsights]) => (
+        (sectionInsights as Insight[]).length > 0 && (
+          <div key={section} className="mb-6">
+            <button
+              className="w-full flex items-center justify-between bg-gray-800 px-4 py-2 rounded-t-lg text-lg font-bold text-purple-200 focus:outline-none"
+              onClick={() => toggleSection(section as SectionName)}
+            >
+              <span>{section}</span>
+              <span>{openSections[section as SectionName] ? '−' : '+'}</span>
+            </button>
+            {openSections[section as SectionName] && (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 justify-items-center bg-gray-800 rounded-b-lg p-4">
+                {(sectionInsights as Insight[]).map((insight: Insight) => (
+                  <InsightCard key={insight.id} insight={insight} />
+                ))}
               </div>
             )}
           </div>
-        ))}
-      </div>
-
-      {/* Summary Stats */}
-      <div className="bg-white text-gray-900 p-6 rounded-lg shadow-sm border">
-        <h3 className="text-lg font-semibold text-gray-800 mb-4">Insights Summary</h3>
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <div className="text-center p-4 bg-green-50 rounded-lg">
-            <div className="text-2xl font-bold text-green-600">
-              {insights.filter(i => i.type === 'positive').length}
-            </div>
-            <div className="text-sm text-gray-600">Positive Insights</div>
-          </div>
-          <div className="text-center p-4 bg-blue-50 rounded-lg">
-            <div className="text-2xl font-bold text-blue-600">
-              {insights.filter(i => i.type === 'opportunity').length}
-            </div>
-            <div className="text-sm text-gray-600">Opportunities</div>
-          </div>
-          <div className="text-center p-4 bg-yellow-50 rounded-lg">
-            <div className="text-2xl font-bold text-yellow-600">
-              {insights.filter(i => i.type === 'warning').length}
-            </div>
-            <div className="text-sm text-gray-600">Warnings</div>
-          </div>
-          <div className="text-center p-4 bg-red-50 rounded-lg">
-            <div className="text-2xl font-bold text-red-600">
-              {insights.filter(i => i.type === 'negative').length}
-            </div>
-            <div className="text-sm text-gray-600">Issues</div>
-          </div>
-        </div>
-      </div>
+        )
+      ))}
     </div>
   );
 }; 
