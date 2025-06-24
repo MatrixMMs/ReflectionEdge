@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { PlaybookEntry, TagGroup } from '../../types';
 import { generateSecureId } from '../../utils/security';
+import { TagPill } from '../ui/TagPill';
 
 interface PlaybookEditorProps {
   entry?: PlaybookEntry;
@@ -111,15 +112,14 @@ export const PlaybookEditor: React.FC<PlaybookEditorProps> = ({ entry, tagGroups
               <span className="font-semibold text-purple-300 text-xs">{group.name}</span>
               <div className="flex flex-wrap gap-2 mt-1">
                 {group.subtags.map(subtag => (
-                  <button
+                  <TagPill
                     key={subtag.id}
-                    type="button"
+                    label={subtag.name}
+                    bgColor={subtag.color}
+                    selected={tags[group.id]?.includes(subtag.id)}
                     onClick={() => handleTagToggle(group.id, subtag.id)}
-                    className={`px-3 py-1 rounded-full text-sm flex items-center space-x-1 transition-colors ${tags[group.id]?.includes(subtag.id) ? 'bg-purple-600 text-white' : 'bg-gray-600 text-gray-300 hover:bg-gray-500'}`}
-                  >
-                    <div className="w-2 h-2 rounded-full" style={{ backgroundColor: subtag.color }} />
-                    <span>{subtag.name}</span>
-                  </button>
+                    className="my-1"
+                  />
                 ))}
               </div>
             </div>

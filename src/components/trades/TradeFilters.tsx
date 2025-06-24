@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Trade, TagGroup, TradeDirectionFilterSelection } from '../../types';
 import { Grade, ALL_GRADES } from '../../utils/grading';
 import { Input } from '../ui/Input';
+import { TagPill } from '../ui/TagPill';
 
 export interface TradeFilters {
   direction: TradeDirectionFilterSelection;
@@ -196,9 +197,11 @@ export const TradeFilters: React.FC<TradeFiltersProps> = ({
                   <span className="font-semibold text-purple-300 text-xs">{group.name}</span>
                   <div className="flex flex-wrap gap-2 mt-1">
                     {group.subtags.map(subtag => (
-                      <button
+                      <TagPill
                         key={subtag.id}
-                        type="button"
+                        label={subtag.name}
+                        bgColor={subtag.color}
+                        selected={filters.selectedTags[group.id]?.includes(subtag.id)}
                         onClick={() => {
                           const current = filters.selectedTags[group.id] || [];
                           const next = current.includes(subtag.id)
@@ -209,15 +212,8 @@ export const TradeFilters: React.FC<TradeFiltersProps> = ({
                             [group.id]: next
                           });
                         }}
-                        className={`px-3 py-1 rounded-full text-sm flex items-center space-x-1 transition-colors ${
-                          filters.selectedTags[group.id]?.includes(subtag.id)
-                            ? 'bg-purple-600 text-white'
-                            : 'bg-gray-600 text-gray-300 hover:bg-gray-500'
-                        }`}
-                      >
-                        <div className="w-2 h-2 rounded-full" style={{ backgroundColor: subtag.color }} />
-                        <span>{subtag.name}</span>
-                      </button>
+                        className="my-1"
+                      />
                     ))}
                   </div>
                 </div>

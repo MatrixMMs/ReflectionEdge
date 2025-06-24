@@ -4,6 +4,7 @@ import { Input } from '../ui/Input';
 import { Button } from '../ui/Button';
 import { ColorPicker } from '../ui/ColorPicker';
 import { PlusCircleIcon, TrashIcon } from '../ui/Icons';
+import { TagPill } from '../ui/TagPill';
 
 interface TagManagerProps {
   tagGroups: TagGroup[];
@@ -79,24 +80,26 @@ export const TagManager: React.FC<TagManagerProps> = ({ tagGroups, onAddGroup, o
             </div>
             <div className="space-y-2">
               {group.subtags.map(subtag => (
-                <div key={subtag.id} className="flex items-center justify-between space-x-2 bg-gray-700/50 p-2 rounded-md">
-                  <div className="flex items-center space-x-2">
-                    <ColorPicker
-                      initialColor={subtag.color}
-                      onChange={(color) => onUpdateSubTagColor(group.id, subtag.id, color)}
-                    />
-                    <span className="text-sm">{subtag.name}</span>
-                  </div>
+                <div key={subtag.id} className="flex items-center justify-between space-x-2 bg-transparent p-0 rounded-md">
+                  <TagPill
+                    label={subtag.name}
+                    bgColor={subtag.color}
+                    className="mr-2"
+                  />
+                  <ColorPicker
+                    initialColor={subtag.color}
+                    onChange={(color) => onUpdateSubTagColor(group.id, subtag.id, color)}
+                  />
                   {!isDefaultGroup(group.id) && (
-                     <Button 
-                        onClick={() => onDeleteSubTag(group.id, subtag.id)} 
-                        variant="ghost" 
-                        size="icon"
-                        className="text-red-500 hover:text-red-400"
-                        aria-label="Delete subtag"
-                      >
-                        <TrashIcon className="w-4 h-4" />
-                      </Button>
+                    <Button 
+                      onClick={() => onDeleteSubTag(group.id, subtag.id)} 
+                      variant="ghost" 
+                      size="icon"
+                      className="text-red-500 hover:text-red-400"
+                      aria-label="Delete subtag"
+                    >
+                      <TrashIcon className="w-4 h-4" />
+                    </Button>
                   )}
                 </div>
               ))}

@@ -1,8 +1,8 @@
-
 import React from 'react';
 import { Trade, TagGroup, SubTag, AppDateRange, TradeDirectionFilterSelection } from '../../types';
 import { calculateSharpeRatio } from '../../utils/financialCalculations';
 import { AcademicCapIcon } from '../ui/Icons'; // Using TagIcon or another existing one
+import { TagPill } from '../ui/TagPill';
 
 interface TagPerformanceProps {
   trades: Trade[];
@@ -90,9 +90,11 @@ export const TagPerformance: React.FC<TagPerformanceProps> = ({ trades, tagGroup
         {performanceData.map(item => (
           <div key={item.subTag.id} className="p-3 bg-gray-700 rounded-lg shadow">
             <div className="flex justify-between items-center mb-1">
-              <span className="font-semibold text-md" style={{ color: item.subTag.color }}>
-                {item.subTag.name}
-              </span>
+              <TagPill
+                label={item.subTag.name}
+                bgColor={item.subTag.color}
+                className="mb-1"
+              />
               <span className="text-xs text-gray-400">
                 {tagGroups.find(tg => tg.id === item.subTag.groupId)?.name}
               </span>

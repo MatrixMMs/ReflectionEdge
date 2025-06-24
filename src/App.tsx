@@ -33,6 +33,7 @@ import { LegalDisclaimer, FooterDisclaimer } from './components/ui/LegalDisclaim
 import { calculateGrade } from './utils/grading';
 import { sampleTrades } from './sampleTrades';
 import { TradeDetailsView } from './components/trades/TradeDetailsView';
+import './components/tags/tagStyles.css';
 
 // Helper to normalize CSV headers for detection
 const normalizeHeader = (header: string): string => header.toLowerCase().replace(/\s+/g, '').replace(/\//g, '');
@@ -861,18 +862,10 @@ const App: React.FC = () => {
             Execution
           </Button>
           <Button
-            onClick={openTradeForm}
+            onClick={() => setIsTradeFormModalOpen(true)}
             variant="primary"
             size="sm"
             leftIcon={<PlusCircleIcon className="w-4 h-4"/>}
-          >
-            Add Trade
-          </Button>
-          <Button
-            onClick={() => fileInputRef.current?.click()}
-            variant="secondary"
-            size="sm"
-            leftIcon={<DocumentArrowUpIcon className="w-4 h-4"/>}
           >
             Import
           </Button>
@@ -1350,6 +1343,34 @@ const App: React.FC = () => {
             <TradeDetailsView trade={viewingTrade} playbookEntries={playbookEntries} />
           </Modal>
         )}
+
+        {/* Floating Add Trade Button */}
+        <button
+          onClick={() => { setIsTradeFormModalOpen(true); setEditingTrade(null); }}
+          style={{
+            position: 'fixed',
+            bottom: '2rem',
+            right: '2rem',
+            zIndex: 1000,
+            background: '#34D399', // Emerald green
+            color: 'white',
+            border: 'none',
+            borderRadius: '50%',
+            width: '64px',
+            height: '64px',
+            boxShadow: '0 4px 16px rgba(0,0,0,0.25)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontSize: '2rem',
+            cursor: 'pointer',
+            transition: 'background 0.2s, transform 0.2s',
+          }}
+          className="floating-add-trade-btn"
+          title="Add Trade"
+        >
+          <PlusCircleIcon className="w-10 h-10" />
+        </button>
       </div>
     </div>
   );

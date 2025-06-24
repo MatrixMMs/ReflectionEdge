@@ -6,6 +6,7 @@ import { EyeIcon, PencilIcon, TrashIcon } from '../ui/Icons';
 import { Grade } from '../../utils/grading';
 import { TradeFilters, TradeFilters as TradeFiltersType } from './TradeFilters';
 import { filterTrades, getAvailableSymbols } from '../../utils/tradeFilters';
+import { TagPill } from '../ui/TagPill';
 
 interface TradeListProps {
   trades: Trade[];
@@ -96,13 +97,12 @@ export const TradeList: React.FC<TradeListProps> = ({ trades, tagGroups, onEditT
                       const subTag = group?.subtags.find(st => st.id === subTagId);
                       if (!subTag) return null;
                       return (
-                        <span
+                        <TagPill
                           key={subTag.id}
-                          className="px-2 py-1 text-xs font-bold text-white rounded-full"
-                          style={{ backgroundColor: subTag.color }}
-                        >
-                          {subTag.name}
-                        </span>
+                          label={subTag.name}
+                          bgColor={subTag.color}
+                          className="my-1"
+                        />
                       );
                     })}
                   </div>
@@ -110,7 +110,7 @@ export const TradeList: React.FC<TradeListProps> = ({ trades, tagGroups, onEditT
                 <Td>
                   {trade.execution?.grade && (
                     <span className={`px-2 py-1 text-xs font-bold text-white rounded-full ${getGradeColor(trade.execution.grade)}`}>
-                      {trade.execution.grade}
+                      <span className='tag-text-outline'>{trade.execution.grade}</span>
                     </span>
                   )}
                 </Td>

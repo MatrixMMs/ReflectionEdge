@@ -1,0 +1,23 @@
+/* Tag text with dark outline for visibility on bright backgrounds */
+.tag-text-outline {
+  text-shadow:
+    1px 1px 2px #222,
+    -1px -1px 2px #222,
+    1px -1px 2px #222,
+    -1px 1px 2px #222;
+}
+
+.floating-add-trade-btn:hover {
+  background: #059669; /* darker emerald */
+  transform: scale(1.12) rotate(12deg);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.35);
+}
+
+.floating-add-trade-btn:active {
+  transform: scale(0.98) rotate(-6deg);
+}
+
+.floating-add-trade-btn svg {
+  display: block;
+  margin: 0 auto;
+} 
