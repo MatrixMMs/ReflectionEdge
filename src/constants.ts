@@ -141,5 +141,30 @@ export const DEFAULT_PLAYBOOK_ENTRIES = [
     notes: 'Requires orderflow tools (footprint, delta). Best during RTH. High conviction setup.',
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString()
+  },
+  {
+    id: 'breach_based_strategy',
+    name: 'Range to Momo',
+    description: 'Trade mean reversion on first breach of support/resistance, then momentum on second breach. Zone-based approach for /ES 10s charts.',
+    tags: { setup: ['mean_reversion', 'momentum'] },
+    checklist: [
+      { id: 'bb_1', item: 'Zone Setup: Clear support and resistance levels identified (5-20 point range)' },
+      { id: 'bb_2', item: 'Zone Validation: Zone has held for minimum 10-15 minutes without major breaches' },
+      { id: 'bb_3', item: 'Breach Counter: Track number of times each level has been breached (1st vs 2nd)' },
+      { id: 'bb_4', item: 'First Breach Entry: Enter mean reversion trade when level is breached for first time' },
+      { id: 'bb_5', item: 'Mean Reversion Target: Exit at opposite level (full zone size)' },
+      { id: 'bb_6', item: 'Second Breach Entry: Enter momentum trade when same level is breached second time' },
+      { id: 'bb_7', item: 'Momentum Target: Exit 2-5 points beyond zone (1.2-1.5x zone size)' },
+      { id: 'bb_8', item: 'Stop Loss: Place 5-8 points beyond breached level (0.5-0.8x zone size)' },
+      { id: 'bb_9', item: 'Position Sizing: 1-2% risk per trade, adjust for zone size' },
+      { id: 'bb_10', item: 'Breach Confirmation: Wait for 2-3 consecutive closes beyond level' },
+      { id: 'bb_11', item: 'Volume Check: Higher volume on breach increases conviction' },
+      { id: 'bb_12', item: 'Time Filter: Best during 8:30 AM - 3:00 PM CST session hours' },
+      { id: 'bb_13', item: 'Reset Conditions: Reset breach count after major news or market structure change' },
+      { id: 'bb_14', item: 'Max Trades: Maximum 2-3 trades per zone before reset' }
+    ],
+    notes: 'Perfect for /ES 10s charts. First breach = mean reversion (expect bounce), second breach = momentum (expect continuation). Zone size determines position sizing and targets. Reset breach counters after major market events.',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
   }
 ];
