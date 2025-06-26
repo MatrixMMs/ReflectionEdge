@@ -5,7 +5,7 @@ import { Modal } from './ui/Modal';
 
 interface MBSTradingPanelProps {
   isOpen: boolean;
-  onEndSession: () => void;
+  onEndSession: (tradeHistory: TradeLog[]) => void;
   sessionGoal: string;
 }
 
@@ -225,7 +225,7 @@ export const MBSTradingPanel: React.FC<MBSTradingPanelProps> = ({ isOpen, onEndS
         </div>
         <div className="flex items-center gap-4">
           <span className="text-blue-200 font-mono">Session Time: {elapsed}</span>
-          <Button variant="secondary" onClick={onEndSession}>End Session</Button>
+          <Button variant="secondary" onClick={() => onEndSession(tradeHistory)}>End Session</Button>
         </div>
       </div>
       {/* Session Stats & Mood Timeline */}
@@ -267,7 +267,7 @@ export const MBSTradingPanel: React.FC<MBSTradingPanelProps> = ({ isOpen, onEndS
                         : 'bg-red-700 border-red-400 text-white'
                       : 'bg-gray-700 border-gray-500 text-gray-200 hover:bg-gray-600'}
                   `}
-                  onClick={() => setQuadrant({ result: opt.result, followedPlan: opt.followedPlan })}
+                  onClick={() => setQuadrant({ result: opt.result as 'win' | 'lose', followedPlan: opt.followedPlan })}
                 >
                   {opt.label}
                 </button>
@@ -349,7 +349,7 @@ export const MBSTradingPanel: React.FC<MBSTradingPanelProps> = ({ isOpen, onEndS
                                     : 'bg-red-700 border-red-400 text-white'
                                   : 'bg-gray-700 border-gray-500 text-gray-200 hover:bg-gray-600'}
                               `}
-                              onClick={() => setEditQuadrant({ result: opt.result, followedPlan: opt.followedPlan })}
+                              onClick={() => setEditQuadrant({ result: opt.result as 'win' | 'lose', followedPlan: opt.followedPlan })}
                             >
                               {opt.label}
                             </button>

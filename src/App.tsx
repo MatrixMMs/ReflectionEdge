@@ -36,6 +36,7 @@ import { MBSStartSession } from './components/MBSStartSession';
 import { MBSSessionGoal } from './components/MBSSessionGoal';
 import { MBSPreTradingChecklist } from './components/MBSPreTradingChecklist';
 import { MBSTradingPanel } from './components/MBSTradingPanel';
+import { MBSPostSessionReview } from './components/MBSPostSessionReview';
 
 // Helper to normalize CSV headers for detection
 const normalizeHeader = (header: string): string => header.toLowerCase().replace(/\s+/g, '').replace(/\//g, '');
@@ -119,6 +120,8 @@ const App: React.FC = () => {
   const [mbsNote, setMbsNote] = useState('');
   const [mbsGoal, setMbsGoal] = useState('');
   const [mbsSessionActive, setMbsSessionActive] = useState(false);
+  const [showPostSessionReview, setShowPostSessionReview] = useState(false);
+  const [mbsSessionHistory, setMbsSessionHistory] = useState<any[]>([]);
 
   useEffect(() => {
     const stored = SecureStorage.loadData();
@@ -808,40 +811,56 @@ const App: React.FC = () => {
             <span className="text-2xl font-bold tracking-tight">Reflection Edge</span>
           </div>
           {/* Nav Links */}
-          <nav className="space-y-2">
-            <button onClick={() => setIsPlaybookModalOpen(true)} className="flex items-center w-full px-3 py-2 rounded-lg hover:bg-gray-700 transition-colors">
-              <DocumentTextIcon className="w-5 h-5 mr-3" /> Playbook
-            </button>
-            <button onClick={() => setIsTagManagerModalOpen(true)} className="flex items-center w-full px-3 py-2 rounded-lg hover:bg-gray-700 transition-colors">
-              <TagIcon className="w-5 h-5 mr-3" /> Tags
-            </button>
-            <button onClick={() => setIsPatternAnalysisModalOpen(true)} className="flex items-center w-full px-3 py-2 rounded-lg hover:bg-gray-700 transition-colors">
-              <ChartBarIcon className="w-5 h-5 mr-3" /> Patterns
-            </button>
-            <button onClick={() => setIsPatternInsightsModalOpen(true)} className="flex items-center w-full px-3 py-2 rounded-lg hover:bg-gray-700 transition-colors">
-              <LightBulbIcon className="w-5 h-5 mr-3" /> Insights
-            </button>
-            <button onClick={() => setIsEdgeDiscoveryModalOpen(true)} className="flex items-center w-full px-3 py-2 rounded-lg hover:bg-gray-700 transition-colors">
-              <LightBulbIcon className="w-5 h-5 mr-3" /> Edge
-            </button>
-            <button onClick={() => setIsKellyCriterionModalOpen(true)} className="flex items-center w-full px-3 py-2 rounded-lg hover:bg-gray-700 transition-colors">
-              <CalculatorIcon className="w-5 h-5 mr-3" /> Kelly
-            </button>
-            <button onClick={() => setIsExecutionDashboardModalOpen(true)} className="flex items-center w-full px-3 py-2 rounded-lg hover:bg-gray-700 transition-colors">
-              <BrainIcon className="w-5 h-5 mr-3" /> Execution
-            </button>
-            <button onClick={() => setIsMBSModalOpen(true)} className="flex items-center w-full px-3 py-2 rounded-lg hover:bg-gray-700 transition-colors">
-              <BrainIcon className="w-5 h-5 mr-3" /> MBS
-            </button>
-            <button onClick={() => fileInputRef.current?.click()} className="flex items-center w-full px-3 py-2 rounded-lg hover:bg-gray-700 transition-colors">
-              <DocumentArrowUpIcon className="w-5 h-5 mr-3" /> Import
-            </button>
-            <button onClick={() => setIsExportModalOpen(true)} className="flex items-center w-full px-3 py-2 rounded-lg hover:bg-gray-700 transition-colors">
-              <DocumentTextIcon className="w-5 h-5 mr-3" /> Export
-            </button>
-            <button onClick={() => setIsSettingsModalOpen(true)} className="flex items-center w-full px-3 py-2 rounded-lg hover:bg-gray-700 transition-colors">
-              <CogIcon className="w-5 h-5 mr-3" /> Settings
-            </button>
+          <nav className="space-y-6">
+            {/* Strategy & Organization */}
+            <div>
+              <div className="uppercase text-xs text-gray-400 font-bold mb-2 tracking-wider">Strategy & Organization</div>
+              <button onClick={() => setIsPlaybookModalOpen(true)} className="flex items-center w-full px-3 py-2 rounded-lg hover:bg-gray-700 transition-colors">
+                <DocumentTextIcon className="w-5 h-5 mr-3" /> Playbook
+              </button>
+              <button onClick={() => setIsTagManagerModalOpen(true)} className="flex items-center w-full px-3 py-2 rounded-lg hover:bg-gray-700 transition-colors">
+                <TagIcon className="w-5 h-5 mr-3" /> Tags
+              </button>
+            </div>
+            {/* Performance & Analysis */}
+            <div>
+              <div className="uppercase text-xs text-gray-400 font-bold mb-2 tracking-wider">Performance & Analysis</div>
+              <button onClick={() => setIsPatternAnalysisModalOpen(true)} className="flex items-center w-full px-3 py-2 rounded-lg hover:bg-gray-700 transition-colors">
+                <ChartBarIcon className="w-5 h-5 mr-3" /> Patterns
+              </button>
+              <button onClick={() => setIsPatternInsightsModalOpen(true)} className="flex items-center w-full px-3 py-2 rounded-lg hover:bg-gray-700 transition-colors">
+                <LightBulbIcon className="w-5 h-5 mr-3" /> Insights
+              </button>
+              <button onClick={() => setIsEdgeDiscoveryModalOpen(true)} className="flex items-center w-full px-3 py-2 rounded-lg hover:bg-gray-700 transition-colors">
+                <LightBulbIcon className="w-5 h-5 mr-3" /> Edge
+              </button>
+              <button onClick={() => setIsKellyCriterionModalOpen(true)} className="flex items-center w-full px-3 py-2 rounded-lg hover:bg-gray-700 transition-colors">
+                <CalculatorIcon className="w-5 h-5 mr-3" /> Kelly
+              </button>
+              <button onClick={() => setIsExecutionDashboardModalOpen(true)} className="flex items-center w-full px-3 py-2 rounded-lg hover:bg-gray-700 transition-colors">
+                <BrainIcon className="w-5 h-5 mr-3" /> Execution
+              </button>
+            </div>
+            {/* MBS */}
+            <div>
+              <div className="uppercase text-xs text-gray-400 font-bold mb-2 tracking-wider">MBS</div>
+              <button onClick={() => setIsMBSModalOpen(true)} className="flex items-center w-full px-3 py-2 rounded-lg hover:bg-gray-700 transition-colors">
+                <BrainIcon className="w-5 h-5 mr-3" /> MBS
+              </button>
+            </div>
+            {/* Data & Settings */}
+            <div>
+              <div className="uppercase text-xs text-gray-400 font-bold mb-2 tracking-wider">Data & Settings</div>
+              <button onClick={() => fileInputRef.current?.click()} className="flex items-center w-full px-3 py-2 rounded-lg hover:bg-gray-700 transition-colors">
+                <DocumentArrowUpIcon className="w-5 h-5 mr-3" /> Import
+              </button>
+              <button onClick={() => setIsExportModalOpen(true)} className="flex items-center w-full px-3 py-2 rounded-lg hover:bg-gray-700 transition-colors">
+                <DocumentTextIcon className="w-5 h-5 mr-3" /> Export
+              </button>
+              <button onClick={() => setIsSettingsModalOpen(true)} className="flex items-center w-full px-3 py-2 rounded-lg hover:bg-gray-700 transition-colors">
+                <CogIcon className="w-5 h-5 mr-3" /> Settings
+              </button>
+            </div>
           </nav>
         </div>
         {/* User/Settings Section */}
@@ -1360,10 +1379,21 @@ const App: React.FC = () => {
               <MBSTradingPanel
                 isOpen={mbsSessionActive}
                 sessionGoal={mbsGoal}
-                onEndSession={() => {
+                onEndSession={(sessionTrades: any[]) => {
                   setMbsSessionActive(false);
-                  setMbsGoal('');
+                  setShowPostSessionReview(true);
+                  setMbsSessionHistory(sessionTrades);
                 }}
+              />
+            )}
+
+            {showPostSessionReview && (
+              <MBSPostSessionReview
+                isOpen={showPostSessionReview}
+                onClose={() => setShowPostSessionReview(false)}
+                sessionGoal={mbsGoal}
+                tradeHistory={mbsSessionHistory}
+                onSetNextSessionGoal={goal => setMbsGoal(goal)}
               />
             )}
           </div>
