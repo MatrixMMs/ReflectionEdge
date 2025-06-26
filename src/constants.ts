@@ -42,6 +42,75 @@ export const DEFAULT_TAG_GROUPS = [
       { id: 'low_volume', name: 'Low Volume', color: '#34D399', groupId: 'market_condition' },
       { id: 'high_volume', name: 'High Volume', color: '#726A95', groupId: 'market_condition' }
     ]
+  },
+  {
+    id: 'management',
+    name: 'Management',
+    subtags: [
+      { id: 'fixated_on_idea', name: 'Fixated on idea', color: '#726A95', groupId: 'management' },
+      { id: 'retry_2', name: 'Retry 2', color: '#4ECDC4', groupId: 'management' },
+      { id: 'retry_3_inf', name: 'Retry 3 ∞', color: '#FED766', groupId: 'management' },
+      { id: 'giving_up', name: 'Giving Up', color: '#F2385A', groupId: 'management' },
+      { id: 'impulsive', name: 'Impulsive', color: '#F79256', groupId: 'management' },
+      { id: 'flip_hit', name: 'Flip Hit', color: '#52D681', groupId: 'management' },
+      { id: 'mistake', name: 'Mistake', color: '#FF6B6B', groupId: 'management' },
+      { id: 'didnt_see_pattern', name: "Didn't see a pattern", color: '#888888', groupId: 'management' }
+    ]
+  },
+  {
+    id: 'read_on_pa',
+    name: 'My read on PA',
+    subtags: [
+      { id: 'clear', name: 'Clear', color: '#A3FF7A', groupId: 'read_on_pa' },
+      { id: 'inbetweener', name: 'Inbetweener', color: '#CCCCCC', groupId: 'read_on_pa' },
+      { id: 'confused', name: 'Confused', color: '#888888', groupId: 'read_on_pa' }
+    ]
+  },
+  {
+    id: 'getting_upset',
+    name: 'Are you getting upset?',
+    subtags: [
+      { id: 'no', name: 'No', color: '#A3FF7A', groupId: 'getting_upset' },
+      { id: 'slightly', name: 'Slightly', color: '#FED766', groupId: 'getting_upset' },
+      { id: 'pissed_off', name: 'Pissed off', color: '#F2385A', groupId: 'getting_upset' }
+    ]
+  },
+  {
+    id: 'ok_with_pnl',
+    name: 'Are you ok with your PNL?',
+    subtags: [
+      { id: 'yes', name: 'Yes', color: '#A3FF7A', groupId: 'ok_with_pnl' },
+      { id: 'bothering_me', name: "It's bothering me", color: '#FED766', groupId: 'ok_with_pnl' },
+      { id: 'not_okay_with_pnl', name: "I'm not okay with PNL", color: '#F2385A', groupId: 'ok_with_pnl' }
+    ]
+  },
+  {
+    id: 'wanting_to_trade_now',
+    name: 'Are you wanting to trade NOW?',
+    subtags: [
+      { id: 'no_desire_to_trade', name: 'No desire to trade', color: '#A3FF7A', groupId: 'wanting_to_trade_now' },
+      { id: 'slight_urge_to_trade', name: 'Slight urge to trade', color: '#FED766', groupId: 'wanting_to_trade_now' },
+      { id: 'want_to_trade_now', name: 'I want to trade NOW', color: '#F2385A', groupId: 'wanting_to_trade_now' }
+    ]
+  },
+  {
+    id: 'entries',
+    name: 'Entries',
+    subtags: [
+      { id: 'perfect_entry', name: 'Perfect Entry', color: '#A3FF7A', groupId: 'entries' },
+      { id: 'entry_early', name: 'Entry Early', color: '#FED766', groupId: 'entries' },
+      { id: 'entry_late', name: 'Entry Late', color: '#888888', groupId: 'entries' },
+      { id: 'entry_should_not_happened', name: 'Entry Should of not happened', color: '#F2385A', groupId: 'entries' }
+    ]
+  },
+  {
+    id: 'exits',
+    name: 'Exits',
+    subtags: [
+      { id: 'perfect_exit', name: 'Perfect Exit', color: '#A3FF7A', groupId: 'exits' },
+      { id: 'hold_more', name: 'Hold More', color: '#FED766', groupId: 'exits' },
+      { id: 'held_2_long', name: 'Held 2 Long', color: '#F2385A', groupId: 'exits' }
+    ]
   }
 ];
 

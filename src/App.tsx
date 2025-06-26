@@ -790,566 +790,530 @@ const App: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-900 text-gray-100 p-4">
-      <div className="w-full max-w-7xl mx-auto">
-        <header className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-pink-500 to-red-500">Reflection Edge</h1>
-        </header>
-        <div className="flex space-x-1">
-          <Button
-            onClick={() => setIsPlaybookModalOpen(true)}
-            variant="primary"
-            size="sm"
-            leftIcon={<DocumentTextIcon className="w-4 h-4"/>}
-          >
-            Playbook
-          </Button>
-          <Button
-            onClick={() => setIsTagManagerModalOpen(true)}
-            variant="primary"
-            size="sm"
-            leftIcon={<TagIcon className="w-4 h-4"/>}
-          >
-            Tags
-          </Button>
-          <Button
-            onClick={() => setIsPatternAnalysisModalOpen(true)}
-            variant="primary"
-            size="sm"
-            leftIcon={<ChartBarIcon className="w-4 h-4"/>}
-          >
-            Patterns
-          </Button>
-          <Button
-            onClick={() => setIsPatternInsightsModalOpen(true)}
-            variant="primary"
-            size="sm"
-            leftIcon={<LightBulbIcon className="w-4 h-4"/>}
-          >
-            Insights
-          </Button>
-          <Button
-            onClick={() => setIsEdgeDiscoveryModalOpen(true)}
-            variant="primary"
-            size="sm"
-            leftIcon={<LightBulbIcon className="w-4 h-4" />}
-          >
-            Edge
-          </Button>
-          <Button
-            onClick={() => setIsMonkeyBrainSuppressorOpen(true)}
-            variant="primary"
-            size="sm"
-            leftIcon={<BrainIcon className="w-4 h-4"/>}
-          >
-            MBS
-          </Button>
-          <Button
-            onClick={() => setIsKellyCriterionModalOpen(true)}
-            variant="primary"
-            size="sm"
-            leftIcon={<CalculatorIcon className="w-4 h-4"/>}
-          >
-            Kelly
-          </Button>
-          <Button
-            onClick={() => setIsExecutionDashboardModalOpen(true)}
-            variant="primary"
-            size="sm"
-            leftIcon={<BrainIcon className="w-4 h-4"/>}
-          >
-            Execution
-          </Button>
-          <Button
-            onClick={openTradeForm}
-            variant="primary"
-            size="sm"
-            leftIcon={<PlusCircleIcon className="w-4 h-4"/>}
-          >
-            Add Trade
-          </Button>
-          <Button
-            onClick={() => fileInputRef.current?.click()}
-            variant="secondary"
-            size="sm"
-            leftIcon={<DocumentArrowUpIcon className="w-4 h-4"/>}
-          >
-            Import
-          </Button>
-          <Button
-            onClick={() => setIsExportModalOpen(true)}
-            variant="secondary"
-            className="bg-blue-500 hover:bg-blue-600"
-            size="sm"
-            leftIcon={<DocumentTextIcon className="w-4 h-4"/>}
-          >
-            Export
-          </Button>
-          <input 
-            type="file" 
-            ref={fileInputRef} 
-            onChange={handleFileUpload} 
-            accept=".csv" 
-            className="hidden" 
-          />
-          <Button
-            onClick={() => setIsSettingsModalOpen(true)}
-            variant="ghost"
-            size="sm"
-            leftIcon={<CogIcon className="w-4 h-4"/>}
-          >
-            Settings
-          </Button>
-        </div>
-
-        {isMonkeyBrainSuppressorOpen && (
-          <Modal title="Monkey Brain Suppressor" onClose={() => setIsMonkeyBrainSuppressorOpen(false)}>
-            <MonkeyBrainSuppressor onClose={() => setIsMonkeyBrainSuppressorOpen(false)} />
-          </Modal>
-        )}
-
-      {isTradeFormModalOpen && (
-          <Modal
-            title={editingTrade ? 'Edit Trade' : 'Add New Trade'}
-            onClose={() => {
-              setIsTradeFormModalOpen(false);
-              setEditingTrade(null);
-            }}
-            size="large"
-          >
-          <TradeForm 
-              onSubmit={editingTrade ? handleUpdateTrade : handleAddTrade}
-            tagGroups={tagGroups} 
-            playbookEntries={playbookEntries}
-            tradeToEdit={editingTrade || undefined} 
-          />
-        </Modal>
-      )}
-
-      {isTagManagerModalOpen && (
-          <Modal title="Tag Manager" onClose={() => setIsTagManagerModalOpen(false)} size="large">
-          <TagManager 
-            tagGroups={tagGroups} 
-            onAddGroup={handleAddTagGroup} 
-            onAddSubTag={handleAddSubTag}
-            onUpdateSubTagColor={handleUpdateSubTagColor}
-            onDeleteGroup={handleDeleteTagGroup}
-              onDeleteSubTag={handleDeleteSubTag}
-          />
-        </Modal>
-      )}
-
-      {isSettingsModalOpen && (
-          <Modal title="Settings" onClose={() => setIsSettingsModalOpen(false)} size="large">
-            <div className="space-y-4">
-              <h4 className="text-lg font-semibold text-gray-200">Data Management</h4>
-              <div className="flex space-x-2">
-                <Button onClick={handleExportData} variant="secondary">
-                  Export All Data
-                </Button>
-                <Button onClick={handleExportFilteredData} variant="secondary">
-                  Export Filtered Data
-                </Button>
-              </div>
-              <p className="text-sm text-gray-400">Export your trade data to a JSON file.</p>
-
-              <div className="border-t border-gray-700 pt-4">
-                <h4 className="text-lg font-semibold text-gray-200">Import Data</h4>
-                <p className="text-sm text-gray-400 mt-1">
-                  Import trades from a JSON backup, or from a CSV export from your broker.
-                </p>
-                <div className="mt-2">
-                  <Button onClick={triggerFileInput} variant="secondary">
-                    Import from File
-                  </Button>
-                </div>
-              </div>
-
-              <div className="border-t border-gray-700 pt-4">
-                <h4 className="text-lg font-semibold text-red-400">Danger Zone</h4>
-                <Button
-                  onClick={() => {
-                    if (window.confirm('Are you sure you want to delete all data? This cannot be undone.')) {
-                      handleDeleteAllData();
-                    }
-                  }}
-                  variant="danger"
-                >
-                  Delete All Data
-                </Button>
-                <p className="text-sm text-gray-400 mt-1">This will permanently delete all trades, tags, and settings.</p>
-              </div>
+    <div className="flex min-h-screen bg-gray-900 text-gray-100">
+      {/* Sidebar Navigation */}
+      <aside className="w-64 bg-gray-800 flex flex-col justify-between py-6 px-4 min-h-screen fixed left-0 top-0 z-40 shadow-xl">
+        <div>
+          {/* Logo/Title */}
+          <div className="flex items-center mb-10">
+            <span className="inline-block w-8 h-8 bg-gradient-to-tr from-purple-400 via-pink-400 to-yellow-400 rounded-lg mr-3"></span>
+            <span className="text-2xl font-bold tracking-tight">Reflection Edge</span>
           </div>
-        </Modal>
-      )}
+          {/* Nav Links */}
+          <nav className="space-y-2">
+            <button onClick={() => setIsPlaybookModalOpen(true)} className="flex items-center w-full px-3 py-2 rounded-lg hover:bg-gray-700 transition-colors">
+              <DocumentTextIcon className="w-5 h-5 mr-3" /> Playbook
+            </button>
+            <button onClick={() => setIsTagManagerModalOpen(true)} className="flex items-center w-full px-3 py-2 rounded-lg hover:bg-gray-700 transition-colors">
+              <TagIcon className="w-5 h-5 mr-3" /> Tags
+            </button>
+            <button onClick={() => setIsPatternAnalysisModalOpen(true)} className="flex items-center w-full px-3 py-2 rounded-lg hover:bg-gray-700 transition-colors">
+              <ChartBarIcon className="w-5 h-5 mr-3" /> Patterns
+            </button>
+            <button onClick={() => setIsPatternInsightsModalOpen(true)} className="flex items-center w-full px-3 py-2 rounded-lg hover:bg-gray-700 transition-colors">
+              <LightBulbIcon className="w-5 h-5 mr-3" /> Insights
+            </button>
+            <button onClick={() => setIsEdgeDiscoveryModalOpen(true)} className="flex items-center w-full px-3 py-2 rounded-lg hover:bg-gray-700 transition-colors">
+              <LightBulbIcon className="w-5 h-5 mr-3" /> Edge
+            </button>
+            <button onClick={() => setIsMonkeyBrainSuppressorOpen(true)} className="flex items-center w-full px-3 py-2 rounded-lg hover:bg-gray-700 transition-colors">
+              <BrainIcon className="w-5 h-5 mr-3" /> MBS
+            </button>
+            <button onClick={() => setIsKellyCriterionModalOpen(true)} className="flex items-center w-full px-3 py-2 rounded-lg hover:bg-gray-700 transition-colors">
+              <CalculatorIcon className="w-5 h-5 mr-3" /> Kelly
+            </button>
+            <button onClick={() => setIsExecutionDashboardModalOpen(true)} className="flex items-center w-full px-3 py-2 rounded-lg hover:bg-gray-700 transition-colors">
+              <BrainIcon className="w-5 h-5 mr-3" /> Execution
+            </button>
+            <button onClick={() => fileInputRef.current?.click()} className="flex items-center w-full px-3 py-2 rounded-lg hover:bg-gray-700 transition-colors">
+              <DocumentArrowUpIcon className="w-5 h-5 mr-3" /> Import
+            </button>
+            <button onClick={() => setIsExportModalOpen(true)} className="flex items-center w-full px-3 py-2 rounded-lg hover:bg-gray-700 transition-colors">
+              <DocumentTextIcon className="w-5 h-5 mr-3" /> Export
+            </button>
+            <button onClick={() => setIsSettingsModalOpen(true)} className="flex items-center w-full px-3 py-2 rounded-lg hover:bg-gray-700 transition-colors">
+              <CogIcon className="w-5 h-5 mr-3" /> Settings
+            </button>
+          </nav>
+        </div>
+        {/* User/Settings Section */}
+        <div className="mt-10 border-t border-gray-700 pt-6">
+          <div className="flex items-center">
+            <span className="inline-block w-10 h-10 rounded-full bg-gray-600 mr-3"></span>
+            <div>
+              <div className="font-semibold">Your Name</div>
+              <div className="text-xs text-gray-400">your@email.com</div>
+            </div>
+          </div>
+        </div>
+      </aside>
+      {/* Main Content (shifted right) */}
+      <div className="flex-1 ml-64">
+        <div className="flex flex-col items-center justify-center min-h-screen bg-gray-900 text-gray-100 p-4">
+          <div className="w-full max-w-7xl mx-auto">
+            {isMonkeyBrainSuppressorOpen && (
+              <Modal title="Monkey Brain Suppressor" onClose={() => setIsMonkeyBrainSuppressorOpen(false)}>
+                <MonkeyBrainSuppressor onClose={() => setIsMonkeyBrainSuppressorOpen(false)} />
+              </Modal>
+            )}
 
-      {isPlaybookModalOpen && (
-          <Modal 
-            title={selectedPlaybookEntry ? "Edit Strategy" : (isAddingPlaybook ? "Add Strategy" : "Playbook")}
-            onClose={() => {
-              setIsPlaybookModalOpen(false);
-              setSelectedPlaybookEntry(null);
-              setIsAddingPlaybook(false);
-            }}
-            size="large"
-          >
-            {isAddingPlaybook || isEditingPlaybook || selectedPlaybookEntry ? (
-              <PlaybookEditor
-                entry={selectedPlaybookEntry || undefined} 
-                tagGroups={tagGroups}
-                onSave={(data) => {
-                  if (selectedPlaybookEntry) {
-                    handleUpdatePlaybookEntry(data);
-                  } else {
-                    handleAddPlaybookEntry(data);
-                  }
-                  setIsAddingPlaybook(false);
-                  setIsEditingPlaybook(false);
-                  setSelectedPlaybookEntry(null);
+          {isTradeFormModalOpen && (
+              <Modal
+                title={editingTrade ? 'Edit Trade' : 'Add New Trade'}
+                onClose={() => {
+                  setIsTradeFormModalOpen(false);
+                  setEditingTrade(null);
                 }}
-                onCancel={() => {
-                  setIsAddingPlaybook(false);
-                  setIsEditingPlaybook(false);
-                  setSelectedPlaybookEntry(null);
-                }} 
+                size="large"
+              >
+              <TradeForm 
+                  onSubmit={editingTrade ? handleUpdateTrade : handleAddTrade}
+                tagGroups={tagGroups} 
+                playbookEntries={playbookEntries}
+                tradeToEdit={editingTrade || undefined} 
               />
-            ) : (
-              <PlaybookList
-                entries={playbookEntries}
-                onSelect={(entry) => setSelectedPlaybookEntry(entry)}
-                onAdd={() => setIsAddingPlaybook(true)}
-                onEdit={handleEditPlaybookEntry}
+            </Modal>
+          )}
+
+          {isTagManagerModalOpen && (
+              <Modal title="Tag Manager" onClose={() => setIsTagManagerModalOpen(false)} size="large">
+              <TagManager 
+                tagGroups={tagGroups} 
+                onAddGroup={handleAddTagGroup} 
+                onAddSubTag={handleAddSubTag}
+                onUpdateSubTagColor={handleUpdateSubTagColor}
+                onDeleteGroup={handleDeleteTagGroup}
+                  onDeleteSubTag={handleDeleteSubTag}
+              />
+            </Modal>
+          )}
+
+          {isSettingsModalOpen && (
+              <Modal title="Settings" onClose={() => setIsSettingsModalOpen(false)} size="large">
+                <div className="space-y-4">
+                  <h4 className="text-lg font-semibold text-gray-200">Data Management</h4>
+                  <div className="flex space-x-2">
+                    <Button onClick={handleExportData} variant="secondary">
+                      Export All Data
+                    </Button>
+                    <Button onClick={handleExportFilteredData} variant="secondary">
+                      Export Filtered Data
+                    </Button>
+                  </div>
+                  <p className="text-sm text-gray-400">Export your trade data to a JSON file.</p>
+
+                  <div className="border-t border-gray-700 pt-4">
+                    <h4 className="text-lg font-semibold text-gray-200">Import Data</h4>
+                    <p className="text-sm text-gray-400 mt-1">
+                      Import trades from a JSON backup, or from a CSV export from your broker.
+                    </p>
+                    <div className="mt-2">
+                      <Button onClick={triggerFileInput} variant="secondary">
+                        Import from File
+                      </Button>
+                    </div>
+                  </div>
+
+                  <div className="border-t border-gray-700 pt-4">
+                    <h4 className="text-lg font-semibold text-red-400">Danger Zone</h4>
+                    <Button
+                      onClick={() => {
+                        if (window.confirm('Are you sure you want to delete all data? This cannot be undone.')) {
+                          handleDeleteAllData();
+                        }
+                      }}
+                      variant="danger"
+                    >
+                      Delete All Data
+                    </Button>
+                    <p className="text-sm text-gray-400 mt-1">This will permanently delete all trades, tags, and settings.</p>
+                  </div>
+              </div>
+            </Modal>
+          )}
+
+          {isPlaybookModalOpen && (
+              <Modal 
+                title={selectedPlaybookEntry ? "Edit Strategy" : (isAddingPlaybook ? "Add Strategy" : "Playbook")}
+                onClose={() => {
+                  setIsPlaybookModalOpen(false);
+                  setSelectedPlaybookEntry(null);
+                  setIsAddingPlaybook(false);
+                }}
+                size="large"
+              >
+                {isAddingPlaybook || isEditingPlaybook || selectedPlaybookEntry ? (
+                  <PlaybookEditor
+                    entry={selectedPlaybookEntry || undefined} 
+                    tagGroups={tagGroups}
+                    onSave={(data) => {
+                      if (selectedPlaybookEntry) {
+                        handleUpdatePlaybookEntry(data);
+                      } else {
+                        handleAddPlaybookEntry(data);
+                      }
+                      setIsAddingPlaybook(false);
+                      setIsEditingPlaybook(false);
+                      setSelectedPlaybookEntry(null);
+                    }}
+                    onCancel={() => {
+                      setIsAddingPlaybook(false);
+                      setIsEditingPlaybook(false);
+                      setSelectedPlaybookEntry(null);
+                    }} 
+                  />
+                ) : (
+                  <PlaybookList
+                    entries={playbookEntries}
+                    onSelect={(entry) => setSelectedPlaybookEntry(entry)}
+                    onAdd={() => setIsAddingPlaybook(true)}
+                    onEdit={handleEditPlaybookEntry}
+                  />
+                )}
+            </Modal>
+          )}
+
+          {isPatternAnalysisModalOpen && (
+              <Modal title="Pattern Analysis" onClose={() => setIsPatternAnalysisModalOpen(false)} size="full">
+              <PatternAnalysisDashboard trades={trades} />
+            </Modal>
+          )}
+
+          {isPatternInsightsModalOpen && (
+              <Modal title="Pattern Insights" onClose={() => setIsPatternInsightsModalOpen(false)} size="full">
+              <PatternInsights trades={trades} />
+            </Modal>
+          )}
+
+            {isEdgeDiscoveryModalOpen && (
+              <Modal title="Edge Discovery" onClose={() => setIsEdgeDiscoveryModalOpen(false)} size="large">
+                <EdgeDiscoveryDashboard trades={trades} tagGroups={tagGroups} />
+            </Modal>
+          )}
+
+            {isExecutionDashboardModalOpen && (
+              <Modal title="Execution Dashboard" onClose={() => setIsExecutionDashboardModalOpen(false)} size="full">
+                <ExecutionDashboard trades={trades} playbookEntries={playbookEntries} />
+              </Modal>
+            )}
+
+            {isKellyCriterionModalOpen && (
+              <Modal title="Kelly Criterion Analysis" onClose={() => setIsKellyCriterionModalOpen(false)} size="full">
+                <KellyCriterionAnalysis trades={trades} tagGroups={tagGroups} />
+              </Modal>
+            )}
+
+            {showLegalDisclaimer && (
+              <Modal title="Disclaimer" onClose={handleLegalDisclaimerClose} size="large">
+                <LegalDisclaimer variant="modal" onClose={handleLegalDisclaimerClose} />
+              </Modal>
+            )}
+
+            {importNotification && (
+            <NotificationPopup
+              title={importNotification.title}
+              message={importNotification.message}
+              details={importNotification.details}
+                onClose={() => setImportNotification(null)}
               />
             )}
-        </Modal>
-      )}
 
-      {isPatternAnalysisModalOpen && (
-          <Modal title="Pattern Analysis" onClose={() => setIsPatternAnalysisModalOpen(false)} size="full">
-          <PatternAnalysisDashboard trades={trades} />
-        </Modal>
-      )}
+            {isExportModalOpen && (
+              <Modal title="Export Data & Reports" onClose={() => setIsExportModalOpen(false)}>
+                <div className="space-y-6">
+                  {/* Date Range Selection */}
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-200 mb-3">Select Date Range</h3>
+                    <div className="flex items-center space-x-2 mb-4">
+                      <Button 
+                        onClick={() => setExportDateMode('daily')} 
+                        variant={exportDateMode === 'daily' ? 'primary' : 'secondary'} 
+                        size="sm"
+                      >
+                        Daily
+                      </Button>
+                      <Button 
+                        onClick={() => setExportDateMode('range')} 
+                        variant={exportDateMode === 'range' ? 'primary' : 'secondary'} 
+                        size="sm"
+                      >
+                        Range
+                      </Button>
+                    </div>
+                    
+                    <div className="mb-4">
+                      {exportDateMode === 'daily' ? (
+                        <div>
+                          <label htmlFor="export-date" className="block text-sm font-medium text-gray-300 mb-1">Select Date:</label>
+                          <input
+                            type="date"
+                            id="export-date"
+                            value={exportDateRange.start}
+                            onChange={(e) => setExportDateRange({ start: e.target.value, end: e.target.value })}
+                            className="w-full bg-gray-700 border border-gray-600 text-gray-100 sm:text-sm rounded-lg focus:ring-purple-500 focus:border-purple-500 p-2.5"
+                          />
+                        </div>
+                      ) : (
+                        <div className="flex items-center space-x-2">
+                          <div>
+                            <label htmlFor="export-start-date" className="block text-sm font-medium text-gray-300 mb-1">Start Date:</label>
+                            <input
+                              type="date"
+                              id="export-start-date"
+                              value={exportDateRange.start}
+                              onChange={(e) => setExportDateRange(prev => ({ ...prev, start: e.target.value }))}
+                              className="w-full bg-gray-700 border border-gray-600 text-gray-100 sm:text-sm rounded-lg focus:ring-purple-500 focus:border-purple-500 p-2.5"
+                            />
+                          </div>
+                          <div>
+                            <label htmlFor="export-end-date" className="block text-sm font-medium text-gray-300 mb-1">End Date:</label>
+                            <input
+                              type="date"
+                              id="export-end-date"
+                              value={exportDateRange.end}
+                              onChange={(e) => setExportDateRange(prev => ({ ...prev, end: e.target.value }))}
+                              className="w-full bg-gray-700 border border-gray-600 text-gray-100 sm:text-sm rounded-lg focus:ring-purple-500 focus:border-purple-500 p-2.5"
+                            />
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
 
-      {isPatternInsightsModalOpen && (
-          <Modal title="Pattern Insights" onClose={() => setIsPatternInsightsModalOpen(false)} size="full">
-          <PatternInsights trades={trades} />
-        </Modal>
-      )}
+                  {/* PDF Report Generation */}
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-200 mb-2">Generate Full PDF Report</h3>
+                    {reportError && (
+                      <div className="mb-3 p-3 bg-red-900 border border-red-700 rounded-lg">
+                        <p className="text-red-200 text-sm">{reportError}</p>
+                      </div>
+                    )}
+                    <Button
+                      onClick={handleGenerateReport}
+                      variant="primary"
+                      className="w-full bg-green-600 hover:bg-green-700"
+                      leftIcon={<DocumentTextIcon className="w-5 h-5"/>}
+                      disabled={isGeneratingReport}
+                    >
+                      {isGeneratingReport ? 'Generating Full Report...' : 'Generate Full Report'}
+                    </Button>
+                    <p className="text-xs text-gray-400 mt-2">
+                      Generates a comprehensive PDF report for the selected date range, including all performance metrics and analytical insights (Edge, Patterns, Kelly).
+                    </p>
+                    {isGeneratingReport && (
+                      <p className="text-xs text-yellow-400 mt-2">
+                        ⚠️ This may take a few seconds for large datasets...
+                      </p>
+                    )}
+                  </div>
 
-        {isEdgeDiscoveryModalOpen && (
-          <Modal title="Edge Discovery" onClose={() => setIsEdgeDiscoveryModalOpen(false)} size="large">
-            <EdgeDiscoveryDashboard trades={trades} tagGroups={tagGroups} />
-        </Modal>
-      )}
+                  <div className="border-t border-gray-600 my-4"></div>
 
-        {isExecutionDashboardModalOpen && (
-          <Modal title="Execution Dashboard" onClose={() => setIsExecutionDashboardModalOpen(false)} size="full">
-            <ExecutionDashboard trades={trades} playbookEntries={playbookEntries} />
-          </Modal>
-        )}
+                  {/* Data Export Options */}
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-200 mb-2">Export Raw Data</h3>
+                    <p className="text-sm text-gray-300 mb-3">Export your trade data to JSON files.</p>
+                    <div className="space-y-3">
+                      <Button
+                        onClick={handleExportDataWithAnalytics}
+                        variant="secondary"
+                        className="w-full bg-blue-600 hover:bg-blue-700"
+                        leftIcon={<DocumentTextIcon className="w-5 h-5"/>}
+                      >
+                        Export with Analytics (Edge, Patterns, Kelly)
+                      </Button>
+                      <Button
+                        onClick={handleExportFilteredData}
+                        variant="secondary"
+                        leftIcon={<DocumentTextIcon className="w-5 h-5"/>}
+                      >
+                        Export Chart Filtered Trades ({baseTradesForChart.length} trades)
+                      </Button>
+                      <Button
+                        onClick={handleExportData}
+                        variant="secondary"
+                        leftIcon={<DocumentTextIcon className="w-5 h-5"/>}
+                      >
+                        Export All Trades ({trades.length} trades)
+                      </Button>
+                    </div>
+                    <p className="text-xs text-gray-400 mt-2">
+                      "Chart Filtered" uses current chart controls. "With Analytics" includes Edge Discovery, Pattern Analysis, and Kelly Criterion calculations.
+                    </p>
+                  </div>
+                </div>
+              </Modal>
+            )}
+          
+          <main className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="lg:col-span-1 space-y-6">
+              <div className="bg-gray-800 p-6 rounded-xl shadow-2xl">
+                <h2 className="text-2xl font-semibold mb-4 text-purple-400 flex items-center"><AdjustmentsHorizontalIcon className="w-6 h-6 mr-2" />Controls</h2>
+                <ChartControls
+                  yAxisMetric={yAxisMetric}
+                  setYAxisMetric={setYAxisMetric}
+                  xAxisMetric={xAxisMetric}
+                  setXAxisMetric={setXAxisMetric}
+                  dateRange={chartDateRange}
+                  setDateRange={setChartDateRange}
+                  compareDateRange={compareDateRange}
+                  setCompareDateRange={setCompareDateRange}
+                  tagGroups={tagGroups}
+                  selectedTags={selectedTagsForChart}
+                  setSelectedTags={setSelectedTagsForChart}
+                  tagComparisonMode={tagComparisonMode}
+                  setTagComparisonMode={setTagComparisonMode}
+                  directionFilter={directionFilter}
+                  setDirectionFilter={setDirectionFilter}
+                />
+              </div>
 
-        {isKellyCriterionModalOpen && (
-          <Modal title="Kelly Criterion Analysis" onClose={() => setIsKellyCriterionModalOpen(false)} size="full">
-            <KellyCriterionAnalysis trades={trades} tagGroups={tagGroups} />
-          </Modal>
-        )}
-
-        {showLegalDisclaimer && (
-          <Modal title="Disclaimer" onClose={handleLegalDisclaimerClose} size="large">
-            <LegalDisclaimer variant="modal" onClose={handleLegalDisclaimerClose} />
-          </Modal>
-        )}
-
-        {importNotification && (
-        <NotificationPopup
-          title={importNotification.title}
-          message={importNotification.message}
-          details={importNotification.details}
-            onClose={() => setImportNotification(null)}
-          />
-        )}
-
-        {isExportModalOpen && (
-          <Modal title="Export Data & Reports" onClose={() => setIsExportModalOpen(false)}>
-            <div className="space-y-6">
-              {/* Date Range Selection */}
-              <div>
-                <h3 className="text-lg font-semibold text-gray-200 mb-3">Select Date Range</h3>
+              <div className="bg-gray-800 p-6 rounded-xl shadow-2xl">
+                <h2 className="text-2xl font-semibold mb-4 text-pink-400 flex items-center"><TableCellsIcon className="w-6 h-6 mr-2" />Summary</h2>
+                
                 <div className="flex items-center space-x-2 mb-4">
-                  <Button 
-                    onClick={() => setExportDateMode('daily')} 
-                    variant={exportDateMode === 'daily' ? 'primary' : 'secondary'} 
-                    size="sm"
-                  >
-                    Daily
-                  </Button>
-                  <Button 
-                    onClick={() => setExportDateMode('range')} 
-                    variant={exportDateMode === 'range' ? 'primary' : 'secondary'} 
-                    size="sm"
-                  >
-                    Range
-                  </Button>
+                    <Button onClick={() => setSummaryDateMode('daily')} variant={summaryDateMode === 'daily' ? 'primary' : 'secondary'} size="sm">Daily</Button>
+                    <Button onClick={() => setSummaryDateMode('range')} variant={summaryDateMode === 'range' ? 'primary' : 'secondary'} size="sm">Range</Button>
                 </div>
                 
                 <div className="mb-4">
-                  {exportDateMode === 'daily' ? (
+                  {summaryDateMode === 'daily' ? (
                     <div>
-                      <label htmlFor="export-date" className="block text-sm font-medium text-gray-300 mb-1">Select Date:</label>
+                      <label htmlFor="summary-date" className="block text-sm font-medium text-gray-300 mb-1">Select Date:</label>
                       <input
                         type="date"
-                        id="export-date"
-                        value={exportDateRange.start}
-                        onChange={(e) => setExportDateRange({ start: e.target.value, end: e.target.value })}
+                        id="summary-date"
+                        value={summaryDateRange.start}
+                        onChange={(e) => setSummaryDateRange({ start: e.target.value, end: e.target.value })}
                         className="w-full bg-gray-700 border border-gray-600 text-gray-100 sm:text-sm rounded-lg focus:ring-purple-500 focus:border-purple-500 p-2.5"
                       />
                     </div>
                   ) : (
                     <div className="flex items-center space-x-2">
                       <div>
-                        <label htmlFor="export-start-date" className="block text-sm font-medium text-gray-300 mb-1">Start Date:</label>
+                        <label htmlFor="summary-start-date" className="block text-sm font-medium text-gray-300 mb-1">Start Date:</label>
                         <input
                           type="date"
-                          id="export-start-date"
-                          value={exportDateRange.start}
-                          onChange={(e) => setExportDateRange(prev => ({ ...prev, start: e.target.value }))}
+                          id="summary-start-date"
+                          value={summaryDateRange.start}
+                          onChange={(e) => setSummaryDateRange(prev => ({ ...prev, start: e.target.value }))}
                           className="w-full bg-gray-700 border border-gray-600 text-gray-100 sm:text-sm rounded-lg focus:ring-purple-500 focus:border-purple-500 p-2.5"
                         />
                       </div>
                       <div>
-                        <label htmlFor="export-end-date" className="block text-sm font-medium text-gray-300 mb-1">End Date:</label>
+                        <label htmlFor="summary-end-date" className="block text-sm font-medium text-gray-300 mb-1">End Date:</label>
                         <input
                           type="date"
-                          id="export-end-date"
-                          value={exportDateRange.end}
-                          onChange={(e) => setExportDateRange(prev => ({ ...prev, end: e.target.value }))}
+                          id="summary-end-date"
+                          value={summaryDateRange.end}
+                          onChange={(e) => setSummaryDateRange(prev => ({ ...prev, end: e.target.value }))}
                           className="w-full bg-gray-700 border border-gray-600 text-gray-100 sm:text-sm rounded-lg focus:ring-purple-500 focus:border-purple-500 p-2.5"
                         />
                       </div>
                     </div>
                   )}
                 </div>
+                <Summary trades={tradesForSummary} />
+                {directionFilter !== 'all' && <p className="text-xs text-gray-400 mt-2">Showing summary for {directionFilter} trades only.</p>}
               </div>
-
-              {/* PDF Report Generation */}
-              <div>
-                <h3 className="text-lg font-semibold text-gray-200 mb-2">Generate Full PDF Report</h3>
-                {reportError && (
-                  <div className="mb-3 p-3 bg-red-900 border border-red-700 rounded-lg">
-                    <p className="text-red-200 text-sm">{reportError}</p>
-                  </div>
-                )}
-                <Button
-                  onClick={handleGenerateReport}
-                  variant="primary"
-                  className="w-full bg-green-600 hover:bg-green-700"
-                  leftIcon={<DocumentTextIcon className="w-5 h-5"/>}
-                  disabled={isGeneratingReport}
-                >
-                  {isGeneratingReport ? 'Generating Full Report...' : 'Generate Full Report'}
-                </Button>
-                <p className="text-xs text-gray-400 mt-2">
-                  Generates a comprehensive PDF report for the selected date range, including all performance metrics and analytical insights (Edge, Patterns, Kelly).
-                </p>
-                {isGeneratingReport && (
-                  <p className="text-xs text-yellow-400 mt-2">
-                    ⚠️ This may take a few seconds for large datasets...
-                  </p>
-                )}
-              </div>
-
-              <div className="border-t border-gray-600 my-4"></div>
-
-              {/* Data Export Options */}
-              <div>
-                <h3 className="text-lg font-semibold text-gray-200 mb-2">Export Raw Data</h3>
-                <p className="text-sm text-gray-300 mb-3">Export your trade data to JSON files.</p>
-                <div className="space-y-3">
-                  <Button
-                    onClick={handleExportDataWithAnalytics}
-                    variant="secondary"
-                    className="w-full bg-blue-600 hover:bg-blue-700"
-                    leftIcon={<DocumentTextIcon className="w-5 h-5"/>}
-                  >
-                    Export with Analytics (Edge, Patterns, Kelly)
-                  </Button>
-                  <Button
-                    onClick={handleExportFilteredData}
-                    variant="secondary"
-                    leftIcon={<DocumentTextIcon className="w-5 h-5"/>}
-                  >
-                    Export Chart Filtered Trades ({baseTradesForChart.length} trades)
-                  </Button>
-                  <Button
-                    onClick={handleExportData}
-                    variant="secondary"
-                    leftIcon={<DocumentTextIcon className="w-5 h-5"/>}
-                  >
-                    Export All Trades ({trades.length} trades)
-                  </Button>
-                </div>
-                <p className="text-xs text-gray-400 mt-2">
-                  "Chart Filtered" uses current chart controls. "With Analytics" includes Edge Discovery, Pattern Analysis, and Kelly Criterion calculations.
-                </p>
-              </div>
+              
+              <TagPerformance 
+                trades={trades} 
+                tagGroups={tagGroups} 
+                chartDateRange={chartDateRange} 
+                directionFilter={directionFilter} 
+              />
             </div>
-          </Modal>
-        )}
-      
-      <main className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-1 space-y-6">
-          <div className="bg-gray-800 p-6 rounded-xl shadow-2xl">
-            <h2 className="text-2xl font-semibold mb-4 text-purple-400 flex items-center"><AdjustmentsHorizontalIcon className="w-6 h-6 mr-2" />Controls</h2>
-            <ChartControls
-              yAxisMetric={yAxisMetric}
-              setYAxisMetric={setYAxisMetric}
-              xAxisMetric={xAxisMetric}
-              setXAxisMetric={setXAxisMetric}
-              dateRange={chartDateRange}
-              setDateRange={setChartDateRange}
-              compareDateRange={compareDateRange}
-              setCompareDateRange={setCompareDateRange}
-              tagGroups={tagGroups}
-              selectedTags={selectedTagsForChart}
-              setSelectedTags={setSelectedTagsForChart}
-              tagComparisonMode={tagComparisonMode}
-              setTagComparisonMode={setTagComparisonMode}
-              directionFilter={directionFilter}
-              setDirectionFilter={setDirectionFilter}
-            />
-          </div>
 
-          <div className="bg-gray-800 p-6 rounded-xl shadow-2xl">
-            <h2 className="text-2xl font-semibold mb-4 text-pink-400 flex items-center"><TableCellsIcon className="w-6 h-6 mr-2" />Summary</h2>
-            
-            <div className="flex items-center space-x-2 mb-4">
-                <Button onClick={() => setSummaryDateMode('daily')} variant={summaryDateMode === 'daily' ? 'primary' : 'secondary'} size="sm">Daily</Button>
-                <Button onClick={() => setSummaryDateMode('range')} variant={summaryDateMode === 'range' ? 'primary' : 'secondary'} size="sm">Range</Button>
-            </div>
-            
-            <div className="mb-4">
-              {summaryDateMode === 'daily' ? (
-                <div>
-                  <label htmlFor="summary-date" className="block text-sm font-medium text-gray-300 mb-1">Select Date:</label>
-                  <input
-                    type="date"
-                    id="summary-date"
-                    value={summaryDateRange.start}
-                    onChange={(e) => setSummaryDateRange({ start: e.target.value, end: e.target.value })}
-                    className="w-full bg-gray-700 border border-gray-600 text-gray-100 sm:text-sm rounded-lg focus:ring-purple-500 focus:border-purple-500 p-2.5"
-                  />
-                </div>
-              ) : (
-                <div className="flex items-center space-x-2">
-                  <div>
-                    <label htmlFor="summary-start-date" className="block text-sm font-medium text-gray-300 mb-1">Start Date:</label>
-                    <input
-                      type="date"
-                      id="summary-start-date"
-                      value={summaryDateRange.start}
-                      onChange={(e) => setSummaryDateRange(prev => ({ ...prev, start: e.target.value }))}
-                      className="w-full bg-gray-700 border border-gray-600 text-gray-100 sm:text-sm rounded-lg focus:ring-purple-500 focus:border-purple-500 p-2.5"
-                    />
-                  </div>
-                  <div>
-                    <label htmlFor="summary-end-date" className="block text-sm font-medium text-gray-300 mb-1">End Date:</label>
-                    <input
-                      type="date"
-                      id="summary-end-date"
-                      value={summaryDateRange.end}
-                      onChange={(e) => setSummaryDateRange(prev => ({ ...prev, end: e.target.value }))}
-                      className="w-full bg-gray-700 border border-gray-600 text-gray-100 sm:text-sm rounded-lg focus:ring-purple-500 focus:border-purple-500 p-2.5"
-                    />
-                  </div>
-                </div>
-              )}
-            </div>
-            <Summary trades={tradesForSummary} />
-            {directionFilter !== 'all' && <p className="text-xs text-gray-400 mt-2">Showing summary for {directionFilter} trades only.</p>}
-          </div>
-          
-          <TagPerformance 
-            trades={trades} 
-            tagGroups={tagGroups} 
-            chartDateRange={chartDateRange} 
-            directionFilter={directionFilter} 
-          />
-        </div>
-
-        <div className="lg:col-span-2 space-y-6">
-            <div id="performance-chart-container" className="bg-gray-800 p-6 rounded-xl shadow-2xl min-h-[400px]">
-             <h2 className="text-2xl font-semibold mb-4 text-green-400 flex items-center"><ChartBarIcon className="w-6 h-6 mr-2" />Performance Chart</h2>
-            <LineChartRenderer 
-              data={chartData} 
-              comparisonData={comparisonChartData} 
-              yAxisMetric={yAxisMetric} 
-              xAxisMetric={xAxisMetric} 
-            />
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {Object.values(pieChartDataByGroup).map(groupData => (
-              <div key={groupData.groupName} className="bg-gray-800 p-4 rounded-xl shadow-2xl">
-                <h3 className="text-lg font-semibold mb-2 text-center text-pink-400">
-                  {groupData.groupName}
-                </h3>
-                <PieChartRenderer 
-                  data={groupData.data} 
-                  height={200}
-                  outerRadius={60}
+            <div className="lg:col-span-2 space-y-6">
+                <div id="performance-chart-container" className="bg-gray-800 p-6 rounded-xl shadow-2xl min-h-[400px]">
+                 <h2 className="text-2xl font-semibold mb-4 text-green-400 flex items-center"><ChartBarIcon className="w-6 h-6 mr-2" />Performance Chart</h2>
+                <LineChartRenderer 
+                  data={chartData} 
+                  comparisonData={comparisonChartData} 
+                  yAxisMetric={yAxisMetric} 
+                  xAxisMetric={xAxisMetric} 
                 />
-                <p className="text-xs text-gray-400 mt-2 text-center">
-                  For trades in selected date range{directionFilter !== 'all' ? ` (${directionFilter} only)` : ''}.
-                </p>
               </div>
-            ))}
-          </div>
 
-            <div id="tradelog-container" className="bg-gray-800 p-6 rounded-xl shadow-2xl">
-            <h2 className="text-2xl font-semibold mb-4 text-purple-400 flex items-center">
-              <TableCellsIcon className="w-6 h-6 mr-2" /> Trade Log
-            </h2>
-              {activeTab === 'trades' && (
-            <TradeList 
-              trades={trades} 
-              tagGroups={tagGroups}
-              playbookEntries={playbookEntries}
-              onDeleteTrade={handleDeleteTrade} 
-              onEditTrade={handleEditTrade}
-                  onViewDetails={handleViewTradeDetails}
-                />
-              )}
-              {activeTab === 'charts' && (
-                <div className="space-y-4">
-                  {/* Additional content for charts tab */}
-                </div>
-              )}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {Object.values(pieChartDataByGroup).map(groupData => (
+                  <div key={groupData.groupName} className="bg-gray-800 p-4 rounded-xl shadow-2xl">
+                    <h3 className="text-lg font-semibold mb-2 text-center text-pink-400">
+                      {groupData.groupName}
+                    </h3>
+                    <PieChartRenderer 
+                      data={groupData.data} 
+                      height={200}
+                      outerRadius={60}
+                    />
+                    <p className="text-xs text-gray-400 mt-2 text-center">
+                      For trades in selected date range{directionFilter !== 'all' ? ` (${directionFilter} only)` : ''}.
+                    </p>
+                  </div>
+                ))}
+              </div>
+
+                <div id="tradelog-container" className="bg-gray-800 p-6 rounded-xl shadow-2xl">
+                <h2 className="text-2xl font-semibold mb-4 text-purple-400 flex items-center">
+                  <TableCellsIcon className="w-6 h-6 mr-2" /> Trade Log
+                </h2>
+                  {activeTab === 'trades' && (
+                <TradeList 
+                  trades={trades} 
+                  tagGroups={tagGroups}
+                  playbookEntries={playbookEntries}
+                  onDeleteTrade={handleDeleteTrade} 
+                  onEditTrade={handleEditTrade}
+                      onViewDetails={handleViewTradeDetails}
+                    />
+                  )}
+                  {activeTab === 'charts' && (
+                    <div className="space-y-4">
+                      {/* Additional content for charts tab */}
+                    </div>
+                  )}
+              </div>
+            </div>
+          </main>
+            
+            {/* Legal Disclaimer Footer */}
+            <FooterDisclaimer />
+            
+            {/* Compact Legal Disclaimer and Legal Button */}
+            <div className="mt-6 flex flex-col items-center space-y-4">
+              <LegalDisclaimer variant="compact" />
+              <Button
+                onClick={() => setShowLegalDisclaimer(true)}
+                variant="ghost"
+                size="sm"
+                leftIcon={<DocumentTextIcon className="w-4 h-4"/>}
+                className="text-gray-400 hover:text-gray-200"
+              >
+                View Full Legal Disclaimers
+              </Button>
+            </div>
+
+            {viewingTrade && (
+              <Modal title="Trade Details" onClose={handleCloseTradeDetails} size="large">
+                <TradeDetailsView trade={viewingTrade} playbookEntries={playbookEntries} />
+              </Modal>
+            )}
+
+            {/* Floating Add Trade Button */}
+            <div className="fixed bottom-8 right-8 z-50">
+              <button
+                onClick={openTradeForm}
+                className="bg-[#218c74] hover:bg-[#218c74] text-white rounded-full w-16 h-16 flex items-center justify-center shadow-lg transition-transform duration-200 transform hover:scale-110 focus:outline-none focus:ring-4 focus:ring-[#218c74]/40"
+                aria-label="Add Trade"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+                </svg>
+              </button>
+            </div>
           </div>
         </div>
-      </main>
-        
-        {/* Legal Disclaimer Footer */}
-        <FooterDisclaimer />
-        
-        {/* Compact Legal Disclaimer and Legal Button */}
-        <div className="mt-6 flex flex-col items-center space-y-4">
-          <LegalDisclaimer variant="compact" />
-          <Button
-            onClick={() => setShowLegalDisclaimer(true)}
-            variant="ghost"
-            size="sm"
-            leftIcon={<DocumentTextIcon className="w-4 h-4"/>}
-            className="text-gray-400 hover:text-gray-200"
-          >
-            View Full Legal Disclaimers
-          </Button>
-        </div>
-
-        {viewingTrade && (
-          <Modal title="Trade Details" onClose={handleCloseTradeDetails} size="large">
-            <TradeDetailsView trade={viewingTrade} playbookEntries={playbookEntries} />
-          </Modal>
-        )}
       </div>
     </div>
   );
