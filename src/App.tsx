@@ -35,6 +35,7 @@ import { TradeDetailsView } from './components/trades/TradeDetailsView';
 import { MBSStartSession } from './components/MBSStartSession';
 import { MBSSessionGoal } from './components/MBSSessionGoal';
 import { MBSPreTradingChecklist } from './components/MBSPreTradingChecklist';
+import { MBSTradingPanel } from './components/MBSTradingPanel';
 
 // Helper to normalize CSV headers for detection
 const normalizeHeader = (header: string): string => header.toLowerCase().replace(/\s+/g, '').replace(/\//g, '');
@@ -1356,19 +1357,14 @@ const App: React.FC = () => {
             </div>
 
             {mbsSessionActive && (
-              <div className="fixed top-0 left-0 w-full z-40 bg-blue-900 border-b border-blue-500 text-blue-200 py-3 flex items-center justify-between px-6 shadow-lg">
-                <div className="flex items-center gap-3">
-                  <span role="img" aria-label="goal" className="text-2xl">🎯</span>
-                  <span className="font-semibold text-lg">Session Goal:</span>
-                  <span className="italic text-lg">"{mbsGoal}"</span>
-                </div>
-                <button
-                  className="ml-4 px-4 py-2 rounded bg-blue-700 hover:bg-blue-800 text-white font-semibold transition-colors"
-                  onClick={() => { setMbsSessionActive(false); setMbsGoal(''); }}
-                >
-                  End Session
-                </button>
-              </div>
+              <MBSTradingPanel
+                isOpen={mbsSessionActive}
+                sessionGoal={mbsGoal}
+                onEndSession={() => {
+                  setMbsSessionActive(false);
+                  setMbsGoal('');
+                }}
+              />
             )}
           </div>
         </div>
