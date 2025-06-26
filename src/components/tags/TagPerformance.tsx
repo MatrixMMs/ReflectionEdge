@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Trade, TagGroup, SubTag, AppDateRange, TradeDirectionFilterSelection } from '../../types';
 import { calculateSharpeRatio } from '../../utils/financialCalculations';
@@ -90,7 +89,7 @@ export const TagPerformance: React.FC<TagPerformanceProps> = ({ trades, tagGroup
         {performanceData.map(item => (
           <div key={item.subTag.id} className="p-3 bg-gray-700 rounded-lg shadow">
             <div className="flex justify-between items-center mb-1">
-              <span className="font-semibold text-md" style={{ color: item.subTag.color }}>
+              <span className="font-semibold text-md px-3 py-1 rounded-full bg-gray-600 text-white">
                 {item.subTag.name}
               </span>
               <span className="text-xs text-gray-400">

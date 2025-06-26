@@ -156,15 +156,18 @@ export const EdgeDiscoveryDashboard: React.FC<EdgeDiscoveryDashboardProps> = ({ 
                 <p className="font-semibold text-purple-400 text-sm mb-1">{group.name}</p>
                 <div className="flex flex-wrap gap-2">
                   {group.subtags.map(subtag => (
-                    <label key={subtag.id} className="flex items-center space-x-2 px-2 py-1 rounded-full text-xs cursor-pointer" style={{ backgroundColor: selectedTags[group.id]?.includes(subtag.id) ? subtag.color : '#4A5568', color: 'white' }}>
-                      <input
-                        type="checkbox"
-                        checked={selectedTags[group.id]?.includes(subtag.id) || false}
-                        onChange={() => handleTagChange(group.id, subtag.id)}
-                        className="hidden"
-                      />
-                      <span>{subtag.name}</span>
-                    </label>
+                    <button
+                      key={subtag.id}
+                      type="button"
+                      onClick={() => handleTagChange(group.id, subtag.id)}
+                      className={`px-3 py-1 rounded-full text-xs font-semibold transition-colors mr-2 mb-2 ${
+                        selectedTags[group.id]?.includes(subtag.id)
+                          ? 'bg-gray-700 text-white'
+                          : 'bg-gray-600 text-white hover:bg-gray-500'
+                      }`}
+                    >
+                      {subtag.name}
+                    </button>
                   ))}
                 </div>
               </div>

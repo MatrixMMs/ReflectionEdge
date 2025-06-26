@@ -17,13 +17,20 @@ interface TradeListProps {
 }
 
 const getGradeColor = (grade: Grade): string => {
-  if (!grade) return 'bg-gray-500';
-  if (grade.startsWith('A')) return 'bg-green-600';
-  if (grade.startsWith('B')) return 'bg-blue-600';
-  if (grade.startsWith('C')) return 'bg-yellow-600';
-  if (grade.startsWith('D')) return 'bg-orange-600';
-  if (grade.startsWith('F')) return 'bg-red-600';
-  return 'bg-gray-500';
+  switch (grade) {
+    case 'A+': return 'bg-[#1abc9c]'; // Teal
+    case 'A': return 'bg-[#218c74]'; // Green
+    case 'A-': return 'bg-[#43b581]'; // Lighter green
+    case 'B+': return 'bg-[#3CB371]'; // Medium green
+    case 'B': return 'bg-[#C6D93B]'; // Yellow-green
+    case 'B-': return 'bg-[#E5E059]'; // Yellow
+    case 'C+': return 'bg-[#F0C241]'; // Gold
+    case 'C': return 'bg-[#E07B39]'; // Orange
+    case 'C-': return 'bg-[#E4572E]'; // Orange-red
+    case 'D': return 'bg-[#B22222]'; // Red
+    case 'F': return 'bg-[#8B0000]'; // Dark red
+    default: return 'bg-gray-500';
+  }
 };
 
 export const TradeList: React.FC<TradeListProps> = ({ trades, tagGroups, onEditTrade, onDeleteTrade, onViewDetails }) => {
@@ -98,8 +105,7 @@ export const TradeList: React.FC<TradeListProps> = ({ trades, tagGroups, onEditT
                       return (
                         <span
                           key={subTag.id}
-                          className="px-2 py-1 text-xs font-bold text-white rounded-full"
-                          style={{ backgroundColor: subTag.color }}
+                          className="px-3 py-1 text-xs font-bold text-white rounded-full bg-gray-600"
                         >
                           {subTag.name}
                         </span>

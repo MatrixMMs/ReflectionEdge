@@ -209,14 +209,13 @@ export const TradeFilters: React.FC<TradeFiltersProps> = ({
                             [group.id]: next
                           });
                         }}
-                        className={`px-3 py-1 rounded-full text-sm flex items-center space-x-1 transition-colors ${
+                        className={`px-3 py-1 rounded-full text-sm font-semibold transition-colors mr-2 mb-2 ${
                           filters.selectedTags[group.id]?.includes(subtag.id)
-                            ? 'bg-purple-600 text-white'
-                            : 'bg-gray-600 text-gray-300 hover:bg-gray-500'
+                            ? 'bg-gray-700 text-white'
+                            : 'bg-gray-600 text-white hover:bg-gray-500'
                         }`}
                       >
-                        <div className="w-2 h-2 rounded-full" style={{ backgroundColor: subtag.color }} />
-                        <span>{subtag.name}</span>
+                        {subtag.name}
                       </button>
                     ))}
                   </div>

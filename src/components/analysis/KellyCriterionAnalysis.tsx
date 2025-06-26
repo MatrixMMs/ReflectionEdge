@@ -175,17 +175,13 @@ export const KellyCriterionAnalysis: React.FC<KellyCriterionAnalysisProps> = ({ 
                   {group.subtags.map(subtag => (
                     <button
                       key={subtag.id}
+                      type="button"
                       onClick={() => handleTagChange(group.id, subtag.id)}
-                      className={`px-2 py-1 text-xs rounded-full border ${
+                      className={`px-3 py-1 rounded-full text-xs font-semibold transition-colors mr-2 mb-2 ${
                         selectedTags[group.id]?.includes(subtag.id)
-                          ? 'bg-blue-500 border-blue-400 text-white'
-                          : 'bg-gray-600 border-gray-500 text-gray-200 hover:bg-gray-500'
+                          ? 'bg-gray-700 text-white'
+                          : 'bg-gray-600 text-white hover:bg-gray-500'
                       }`}
-                      style={{
-                        backgroundColor: selectedTags[group.id]?.includes(subtag.id) ? subtag.color : undefined,
-                        borderColor: selectedTags[group.id]?.includes(subtag.id) ? subtag.color : undefined,
-                        color: selectedTags[group.id]?.includes(subtag.id) ? 'white' : undefined,
-                      }}
                     >
                       {subtag.name}
                     </button>

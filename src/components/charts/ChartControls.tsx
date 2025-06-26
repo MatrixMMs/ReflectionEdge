@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Input } from '../ui/Input';
 import { ChartYAxisMetric, ChartXAxisMetric, TagGroup, AppDateRange, TradeDirectionFilterSelection } from '../../types';
@@ -134,16 +133,18 @@ export const ChartControls: React.FC<ChartControlsProps> = ({
             <p className="text-xs font-semibold text-gray-400">{group.name}</p>
             <div className="flex flex-wrap gap-2 mt-1">
               {group.subtags.map(subtag => (
-                <label key={subtag.id} className="flex items-center space-x-1.5 cursor-pointer p-1.5 rounded-md hover:bg-gray-600">
-                  <input
-                    type="checkbox"
-                    checked={selectedTags[group.id]?.includes(subtag.id) || false}
-                    onChange={() => handleTagSelection(group.id, subtag.id)}
-                    className="form-checkbox h-4 w-4 rounded bg-gray-700 border-gray-500 text-purple-500 focus:ring-purple-400"
-                    style={{ accentColor: subtag.color }}
-                  />
-                  <span className="text-xs" style={{ color: subtag.color }}>{subtag.name}</span>
-                </label>
+                <button
+                  key={subtag.id}
+                  type="button"
+                  onClick={() => handleTagSelection(group.id, subtag.id)}
+                  className={`px-3 py-1 rounded-full text-xs font-semibold transition-colors mr-2 mb-2 ${
+                    selectedTags[group.id]?.includes(subtag.id)
+                      ? 'bg-gray-700 text-white'
+                      : 'bg-gray-600 text-white hover:bg-gray-500'
+                  }`}
+                >
+                  {subtag.name}
+                </button>
               ))}
             </div>
           </div>
