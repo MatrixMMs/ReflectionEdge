@@ -24,7 +24,6 @@ import { Button } from './components/ui/Button';
 import { NotificationPopup } from './components/ui/NotificationPopup';
 import { PlaybookList } from './components/playbook/PlaybookList';
 import { PlaybookEditor } from './components/playbook/PlaybookEditor';
-import { MonkeyBrainSuppressor } from './components/trades/MonkeyBrainSuppressor';
 import { validateFileUpload, safeJsonParse, rateLimiter, generateSecureId, sanitizeString, validateDateString, SECURITY_CONFIG } from './utils/security';
 import { SecureStorage, StoredData } from './utils/secureStorage';
 import { generatePdfReport } from './utils/pdfGenerator';
@@ -33,6 +32,9 @@ import { LegalDisclaimer, FooterDisclaimer } from './components/ui/LegalDisclaim
 import { calculateGrade } from './utils/grading';
 import { sampleTrades } from './sampleTrades';
 import { TradeDetailsView } from './components/trades/TradeDetailsView';
+import { MBSStartSession } from './components/MBSStartSession';
+import { MBSSessionGoal } from './components/MBSSessionGoal';
+import { MBSPreTradingChecklist } from './components/MBSPreTradingChecklist';
 
 // Helper to normalize CSV headers for detection
 const normalizeHeader = (header: string): string => header.toLowerCase().replace(/\s+/g, '').replace(/\//g, '');
@@ -91,8 +93,6 @@ const App: React.FC = () => {
 
   const [isExecutionDashboardModalOpen, setIsExecutionDashboardModalOpen] = useState(false);
 
-  const [isMonkeyBrainSuppressorOpen, setIsMonkeyBrainSuppressorOpen] = useState(false);
-
   // Kelly Criterion analysis state
   const [isKellyCriterionModalOpen, setIsKellyCriterionModalOpen] = useState(false);
 
@@ -111,6 +111,13 @@ const App: React.FC = () => {
   const [hasSeenLegalDisclaimer, setHasSeenLegalDisclaimer] = useState(false);
 
   const [activeTab, setActiveTab] = useState<'trades' | 'charts' | 'playbook'>('trades');
+
+  const [isMBSModalOpen, setIsMBSModalOpen] = useState(false);
+  const [mbsStep, setMbsStep] = useState(1);
+  const [mbsMood, setMbsMood] = useState<number | null>(null);
+  const [mbsNote, setMbsNote] = useState('');
+  const [mbsGoal, setMbsGoal] = useState('');
+  const [mbsSessionActive, setMbsSessionActive] = useState(false);
 
   useEffect(() => {
     const stored = SecureStorage.loadData();
@@ -816,14 +823,14 @@ const App: React.FC = () => {
             <button onClick={() => setIsEdgeDiscoveryModalOpen(true)} className="flex items-center w-full px-3 py-2 rounded-lg hover:bg-gray-700 transition-colors">
               <LightBulbIcon className="w-5 h-5 mr-3" /> Edge
             </button>
-            <button onClick={() => setIsMonkeyBrainSuppressorOpen(true)} className="flex items-center w-full px-3 py-2 rounded-lg hover:bg-gray-700 transition-colors">
-              <BrainIcon className="w-5 h-5 mr-3" /> MBS
-            </button>
             <button onClick={() => setIsKellyCriterionModalOpen(true)} className="flex items-center w-full px-3 py-2 rounded-lg hover:bg-gray-700 transition-colors">
               <CalculatorIcon className="w-5 h-5 mr-3" /> Kelly
             </button>
             <button onClick={() => setIsExecutionDashboardModalOpen(true)} className="flex items-center w-full px-3 py-2 rounded-lg hover:bg-gray-700 transition-colors">
               <BrainIcon className="w-5 h-5 mr-3" /> Execution
+            </button>
+            <button onClick={() => setIsMBSModalOpen(true)} className="flex items-center w-full px-3 py-2 rounded-lg hover:bg-gray-700 transition-colors">
+              <BrainIcon className="w-5 h-5 mr-3" /> MBS
             </button>
             <button onClick={() => fileInputRef.current?.click()} className="flex items-center w-full px-3 py-2 rounded-lg hover:bg-gray-700 transition-colors">
               <DocumentArrowUpIcon className="w-5 h-5 mr-3" /> Import
@@ -851,13 +858,7 @@ const App: React.FC = () => {
       <div className="flex-1 ml-64">
         <div className="flex flex-col items-center justify-center min-h-screen bg-gray-900 text-gray-100 p-4">
           <div className="w-full max-w-7xl mx-auto">
-            {isMonkeyBrainSuppressorOpen && (
-              <Modal title="Monkey Brain Suppressor" onClose={() => setIsMonkeyBrainSuppressorOpen(false)}>
-                <MonkeyBrainSuppressor onClose={() => setIsMonkeyBrainSuppressorOpen(false)} />
-              </Modal>
-            )}
-
-          {isTradeFormModalOpen && (
+            {isTradeFormModalOpen && (
               <Modal
                 title={editingTrade ? 'Edit Trade' : 'Add New Trade'}
                 onClose={() => {
@@ -1145,6 +1146,47 @@ const App: React.FC = () => {
               </Modal>
             )}
           
+          {isMBSModalOpen && (
+            <>
+              {mbsStep === 1 && (
+                <MBSStartSession
+                  isOpen={isMBSModalOpen}
+                  onClose={() => { setIsMBSModalOpen(false); setMbsStep(1); }}
+                  onContinue={(mood, note) => {
+                    setMbsMood(mood);
+                    setMbsNote(note);
+                    setMbsStep(2);
+                  }}
+                />
+              )}
+              {mbsStep === 2 && (
+                <MBSSessionGoal
+                  isOpen={isMBSModalOpen}
+                  onClose={() => { setIsMBSModalOpen(false); setMbsStep(1); }}
+                  onBack={() => setMbsStep(1)}
+                  onContinue={goal => {
+                    setMbsGoal(goal);
+                    setMbsStep(3);
+                  }}
+                  initialGoal={mbsGoal}
+                />
+              )}
+              {mbsStep === 3 && (
+                <MBSPreTradingChecklist
+                  isOpen={isMBSModalOpen}
+                  onClose={() => { setIsMBSModalOpen(false); setMbsStep(1); }}
+                  onBack={() => setMbsStep(2)}
+                  onBeginTrading={() => {
+                    setIsMBSModalOpen(false);
+                    setMbsStep(1);
+                    setMbsSessionActive(true); // session is now active
+                  }}
+                  sessionGoal={mbsGoal}
+                />
+              )}
+            </>
+          )}
+          
           <main className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <div className="lg:col-span-1 space-y-6">
               <div className="bg-gray-800 p-6 rounded-xl shadow-2xl">
@@ -1312,6 +1354,22 @@ const App: React.FC = () => {
                 </svg>
               </button>
             </div>
+
+            {mbsSessionActive && (
+              <div className="fixed top-0 left-0 w-full z-40 bg-blue-900 border-b border-blue-500 text-blue-200 py-3 flex items-center justify-between px-6 shadow-lg">
+                <div className="flex items-center gap-3">
+                  <span role="img" aria-label="goal" className="text-2xl">🎯</span>
+                  <span className="font-semibold text-lg">Session Goal:</span>
+                  <span className="italic text-lg">"{mbsGoal}"</span>
+                </div>
+                <button
+                  className="ml-4 px-4 py-2 rounded bg-blue-700 hover:bg-blue-800 text-white font-semibold transition-colors"
+                  onClick={() => { setMbsSessionActive(false); setMbsGoal(''); }}
+                >
+                  End Session
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </div>
