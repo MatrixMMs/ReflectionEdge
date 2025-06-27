@@ -68,7 +68,7 @@ export const TradeList: React.FC<TradeListProps> = ({ trades, tagGroups, onEditT
         Showing {sortedTrades.length} of {trades.length} trades
       </div>
 
-      <div className="overflow-x-auto">
+      <div className="overflow-x-auto max-h-[60vh] overflow-y-auto">
         <Table>
           <Thead>
             <Tr>
