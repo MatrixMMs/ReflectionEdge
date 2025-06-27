@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Trade, TagGroup, TradeDirectionFilterSelection } from '../../types';
 import { Grade, ALL_GRADES } from '../../utils/grading';
 import { Input } from '../ui/Input';
+import { FilterIcon } from '../ui/Icons';
 
 export interface TradeFilters {
   direction: TradeDirectionFilterSelection;
@@ -19,16 +20,22 @@ interface TradeFiltersProps {
   onFiltersChange: (filters: TradeFilters) => void;
   tagGroups: TagGroup[];
   availableSymbols: string[];
+  isExpanded: boolean;
+  setIsExpanded: React.Dispatch<React.SetStateAction<boolean>>;
+  tagComparisonMode: 'AND' | 'OR';
+  setTagComparisonMode: (mode: 'AND' | 'OR') => void;
 }
 
 export const TradeFilters: React.FC<TradeFiltersProps> = ({
   filters,
   onFiltersChange,
   tagGroups,
-  availableSymbols
+  availableSymbols,
+  isExpanded,
+  setIsExpanded,
+  tagComparisonMode,
+  setTagComparisonMode
 }) => {
-  const [isExpanded, setIsExpanded] = useState(false);
-
   const updateFilter = (key: keyof TradeFilters, value: any) => {
     onFiltersChange({
       ...filters,
@@ -62,28 +69,13 @@ export const TradeFilters: React.FC<TradeFiltersProps> = ({
     );
   };
 
+  // Helper to check if any tags are actually selected
+  const hasSelectedTags = () => {
+    return Object.values(filters.selectedTags).some(arr => Array.isArray(arr) && arr.length > 0);
+  };
+
   return (
     <div className="bg-gray-800 rounded-lg p-4 mb-4">
-      <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-semibold text-gray-200">Trade Filters</h3>
-        <div className="flex items-center space-x-2">
-          {hasActiveFilters() && (
-            <button
-              onClick={clearAllFilters}
-              className="px-3 py-1 text-xs bg-red-600 hover:bg-red-700 text-white rounded transition-colors"
-            >
-              Clear All
-            </button>
-          )}
-          <button
-            onClick={() => setIsExpanded(!isExpanded)}
-            className="px-3 py-1 text-xs bg-gray-600 hover:bg-gray-700 text-white rounded transition-colors"
-          >
-            {isExpanded ? 'Hide' : 'Show'} Filters
-          </button>
-        </div>
-      </div>
-
       {isExpanded && (
         <div className="space-y-4">
           {/* Basic Filters Row */}
@@ -180,17 +172,66 @@ export const TradeFilters: React.FC<TradeFiltersProps> = ({
               />
             </div>
 
-            <div className="flex items-end">
-              <div className="text-xs text-gray-400">
-                {hasActiveFilters() ? 'Filters Active' : 'No filters applied'}
-              </div>
+            {/* Tag logic dropdown */}
+            <div>
+              <label className="block text-sm font-medium text-gray-300 mb-1">Tag logic</label>
+              <select
+                value={tagComparisonMode}
+                onChange={e => setTagComparisonMode(e.target.value as 'AND' | 'OR')}
+                className="w-full bg-gray-700 border border-gray-600 text-gray-100 rounded p-2 text-sm"
+                style={{ minHeight: '40px' }}
+              >
+                <option value="OR">OR</option>
+                <option value="AND">AND</option>
+              </select>
             </div>
           </div>
 
           {/* Tags Filter */}
           <div>
             <label className="block text-sm font-medium text-gray-300 mb-2">Tags</label>
-            <div className="space-y-2">
+            {/* Selected Tags Section (moved here) */}
+            {Object.keys(filters.selectedTags).length > 0 && (
+              <div className="mb-2">
+                <div className="flex flex-wrap items-center gap-2 mb-2">
+                  {Object.entries(filters.selectedTags).flatMap(([groupId, subTagIds]) =>
+                    subTagIds.map(subTagId => {
+                      const group = tagGroups.find(g => g.id === groupId);
+                      const subTag = group?.subtags.find(st => st.id === subTagId);
+                      if (!subTag) return null;
+                      return (
+                        <button
+                          key={groupId + '-' + subTagId}
+                          type="button"
+                          onClick={() => {
+                            const current = filters.selectedTags[groupId] || [];
+                            const next = current.filter(id => id !== subTagId);
+                            updateFilter('selectedTags', {
+                              ...filters.selectedTags,
+                              [groupId]: next
+                            });
+                          }}
+                          className="flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-gray-700 text-white mr-2 mb-2 transition-colors hover:bg-gray-600"
+                        >
+                          {subTag.name + ' ×'}
+                        </button>
+                      );
+                    })
+                  )}
+                </div>
+                {hasSelectedTags() && (
+                  <button
+                    onClick={clearAllFilters}
+                    className="px-3 py-1 text-sm font-semibold bg-red-600 hover:bg-red-700 text-white rounded shadow-md transition-colors mt-1"
+                    style={{ textAlign: 'center', boxShadow: '0 2px 8px 0 rgba(0,0,0,0.15)' }}
+                  >
+                    Clear All
+                  </button>
+                )}
+              </div>
+            )}
+            {/* Tag selection UI */}
+            <div className="space-y-2 mb-4">
               {tagGroups.map(group => (
                 <div key={group.id}>
                   <span className="font-semibold text-purple-300 text-xs">{group.name}</span>
@@ -209,7 +250,7 @@ export const TradeFilters: React.FC<TradeFiltersProps> = ({
                             [group.id]: next
                           });
                         }}
-                        className={`px-3 py-1 rounded-full text-sm font-semibold transition-colors mr-2 mb-2 ${
+                        className={`px-3 py-1 rounded-full text-xs font-semibold transition-colors mr-2 mb-2 ${
                           filters.selectedTags[group.id]?.includes(subtag.id)
                             ? 'bg-gray-700 text-white'
                             : 'bg-gray-600 text-white hover:bg-gray-500'

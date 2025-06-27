@@ -4,6 +4,7 @@ import { Input, Textarea } from '../ui/Input';
 import { Button } from '../ui/Button';
 import { PlusCircleIcon, XMarkIcon } from '../ui/Icons';
 import { validateTradeSymbol, validateNumericInput, validateDateString, validateTimeString, sanitizeString, SECURITY_CONFIG } from '../../utils/security';
+import { Modal } from '../ui/Modal';
 
 interface TradeFormProps {
   onSubmit: (trade: Omit<Trade, 'id' | 'timeInTrade'>) => void;
@@ -26,6 +27,16 @@ export const TradeForm: React.FC<TradeFormProps> = ({ onSubmit, tagGroups, playb
   const [selectedTags, setSelectedTags] = useState<{ [groupId: string]: string[] }>({});
   const [selectedStrategy, setSelectedStrategy] = useState<string>('');
   const [executionChecklist, setExecutionChecklist] = useState<{ [checklistItemId: string]: boolean }>({});
+  const [isBestTrade, setIsBestTrade] = useState(false);
+  const [isWorstTrade, setIsWorstTrade] = useState(false);
+  const [showExtendedJournal, setShowExtendedJournal] = useState(false);
+  const [extendedReflection, setExtendedReflection] = useState({
+    mindset: '',
+    setup: '',
+    riskManagement: '',
+    lessons: '',
+    marketContext: '',
+  });
 
   const activePlaybookEntry = playbookEntries.find(p => p.id === selectedStrategy);
 
@@ -43,6 +54,15 @@ export const TradeForm: React.FC<TradeFormProps> = ({ onSubmit, tagGroups, playb
       setJournal(tradeToEdit.journal);
       setSelectedStrategy(tradeToEdit.strategyId || '');
       setExecutionChecklist(tradeToEdit.execution?.checklist || {});
+      setIsBestTrade(tradeToEdit.isBestTrade || false);
+      setIsWorstTrade(tradeToEdit.isWorstTrade || false);
+      setExtendedReflection({
+        mindset: tradeToEdit.extendedReflection?.mindset || '',
+        setup: tradeToEdit.extendedReflection?.setup || '',
+        riskManagement: tradeToEdit.extendedReflection?.riskManagement || '',
+        lessons: tradeToEdit.extendedReflection?.lessons || '',
+        marketContext: tradeToEdit.extendedReflection?.marketContext || '',
+      });
       // Convert the tags object to our internal format
       const convertedTags = Object.entries(tradeToEdit.tags).reduce((acc, [groupId, subtagId]) => ({
         ...acc,
@@ -64,6 +84,15 @@ export const TradeForm: React.FC<TradeFormProps> = ({ onSubmit, tagGroups, playb
       setSelectedTags({});
       setSelectedStrategy('');
       setExecutionChecklist({});
+      setIsBestTrade(false);
+      setIsWorstTrade(false);
+      setExtendedReflection({
+        mindset: '',
+        setup: '',
+        riskManagement: '',
+        lessons: '',
+        marketContext: '',
+      });
     }
   }, [tradeToEdit]);
 
@@ -152,7 +181,10 @@ export const TradeForm: React.FC<TradeFormProps> = ({ onSubmit, tagGroups, playb
         grade: null, // Grading will be handled later
         notes: '' // Placeholder for execution notes
       },
-      accountId: 'default' // Default account ID for now
+      accountId: 'default', // Default account ID for now
+      isBestTrade,
+      isWorstTrade,
+      extendedReflection: (isBestTrade || isWorstTrade) ? extendedReflection : undefined,
     });
   };
 
@@ -170,6 +202,15 @@ export const TradeForm: React.FC<TradeFormProps> = ({ onSubmit, tagGroups, playb
     setSelectedTags({});
     setSelectedStrategy('');
     setExecutionChecklist({});
+    setIsBestTrade(false);
+    setIsWorstTrade(false);
+    setExtendedReflection({
+      mindset: '',
+      setup: '',
+      riskManagement: '',
+      lessons: '',
+      marketContext: '',
+    });
   };
 
   const handleTagSelection = (groupId: string, subtagId: string) => {
@@ -186,197 +227,316 @@ export const TradeForm: React.FC<TradeFormProps> = ({ onSubmit, tagGroups, playb
     });
   };
 
+  const handleFlagChange = (flagType: 'best' | 'worst') => {
+    if (flagType === 'best') {
+      setIsBestTrade(!isBestTrade);
+    } else {
+      setIsWorstTrade(!isWorstTrade);
+    }
+  };
+
   return (
-    <form onSubmit={handleSubmit} className="space-y-6 bg-gray-800 p-6 rounded-lg">
-      <div className="grid grid-cols-2 gap-4">
+    <>
+      <form onSubmit={handleSubmit} className="space-y-6 bg-gray-800 p-6 rounded-lg">
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-300 mb-1">Date</label>
+            <Input
+              type="date"
+              value={date}
+              onChange={e => setDate(e.target.value)}
+              required
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-300 mb-1">Direction</label>
+            <select
+              value={direction}
+              onChange={e => setDirection(e.target.value as TradeDirection)}
+              className="w-full bg-gray-700 border border-gray-600 text-gray-100 rounded p-2"
+              required
+            >
+              <option value="long">Long</option>
+              <option value="short">Short</option>
+            </select>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-300 mb-1">Symbol</label>
+            <Input
+              type="text"
+              value={symbol}
+              onChange={e => setSymbol(e.target.value)}
+              placeholder="e.g., ES"
+              required
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-300 mb-1">Contracts</label>
+            <Input
+              type="number"
+              value={contracts}
+              onChange={e => setContracts(e.target.value)}
+              placeholder="0"
+              required
+            />
+          </div>
+        </div>
+
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-300 mb-1">Entry Price</label>
+            <Input
+              type="number"
+              step="0.01"
+              value={entry}
+              onChange={e => setEntry(e.target.value)}
+              placeholder="0.00"
+              required
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-300 mb-1">Exit Price</label>
+            <Input
+              type="number"
+              step="0.01"
+              value={exit}
+              onChange={e => setExit(e.target.value)}
+              placeholder="0.00"
+              required
+            />
+          </div>
+        </div>
+
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-300 mb-1">Time In</label>
+            <Input
+              type="time"
+              value={timeIn}
+              onChange={e => setTimeIn(e.target.value)}
+              required
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-300 mb-1">Time Out</label>
+            <Input
+              type="time"
+              value={timeOut}
+              onChange={e => setTimeOut(e.target.value)}
+              required
+            />
+          </div>
+        </div>
+
         <div>
-          <label className="block text-sm font-medium text-gray-300 mb-1">Date</label>
+          <label className="block text-sm font-medium text-gray-300 mb-1">P&L</label>
           <Input
-            type="date"
-            value={date}
-            onChange={e => setDate(e.target.value)}
+            type="number"
+            step="0.01"
+            value={profit}
+            onChange={e => setProfit(e.target.value)}
+            placeholder="0.00"
             required
           />
         </div>
+
         <div>
-          <label className="block text-sm font-medium text-gray-300 mb-1">Direction</label>
+          <label className="block text-sm font-medium text-gray-300 mb-1">Strategy / Playbook</label>
           <select
-            value={direction}
-            onChange={e => setDirection(e.target.value as TradeDirection)}
+            value={selectedStrategy}
+            onChange={e => setSelectedStrategy(e.target.value)}
             className="w-full bg-gray-700 border border-gray-600 text-gray-100 rounded p-2"
-            required
           >
-            <option value="long">Long</option>
-            <option value="short">Short</option>
+            <option value="">None</option>
+            {playbookEntries.map(entry => (
+              <option key={entry.id} value={entry.id}>{entry.name}</option>
+            ))}
           </select>
         </div>
-      </div>
 
-      <div className="grid grid-cols-2 gap-4">
+        {activePlaybookEntry && activePlaybookEntry.checklist.length > 0 && (
+          <div className="space-y-3 p-4 bg-gray-900/50 rounded-lg">
+            <h4 className="font-semibold text-purple-300">Execution Checklist for "{activePlaybookEntry.name}"</h4>
+            {activePlaybookEntry.checklist.map(item => (
+              <label key={item.id} className="flex items-center gap-3 text-gray-200 cursor-pointer">
+                <input
+                  type="checkbox"
+                  className="h-5 w-5 rounded bg-gray-700 border-gray-600 text-purple-600 focus:ring-purple-500"
+                  checked={executionChecklist[item.id] || false}
+                  onChange={e => handleExecutionChecklistChange(item.id, e.target.checked)}
+                />
+                <span>{item.item}</span>
+              </label>
+            ))}
+          </div>
+        )}
+
         <div>
-          <label className="block text-sm font-medium text-gray-300 mb-1">Symbol</label>
-          <Input
-            type="text"
-            value={symbol}
-            onChange={e => setSymbol(e.target.value)}
-            placeholder="e.g., ES"
-            required
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-300 mb-1">Contracts</label>
-          <Input
-            type="number"
-            value={contracts}
-            onChange={e => setContracts(e.target.value)}
-            placeholder="0"
-            required
-          />
-        </div>
-      </div>
-
-      <div className="grid grid-cols-2 gap-4">
-        <div>
-          <label className="block text-sm font-medium text-gray-300 mb-1">Entry Price</label>
-          <Input
-            type="number"
-            step="0.01"
-            value={entry}
-            onChange={e => setEntry(e.target.value)}
-            placeholder="0.00"
-            required
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-300 mb-1">Exit Price</label>
-          <Input
-            type="number"
-            step="0.01"
-            value={exit}
-            onChange={e => setExit(e.target.value)}
-            placeholder="0.00"
-            required
-          />
-        </div>
-      </div>
-
-      <div className="grid grid-cols-2 gap-4">
-        <div>
-          <label className="block text-sm font-medium text-gray-300 mb-1">Time In</label>
-          <Input
-            type="time"
-            value={timeIn}
-            onChange={e => setTimeIn(e.target.value)}
-            required
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-300 mb-1">Time Out</label>
-          <Input
-            type="time"
-            value={timeOut}
-            onChange={e => setTimeOut(e.target.value)}
-            required
-          />
-        </div>
-      </div>
-
-      <div>
-        <label className="block text-sm font-medium text-gray-300 mb-1">P&L</label>
-        <Input
-          type="number"
-          step="0.01"
-          value={profit}
-          onChange={e => setProfit(e.target.value)}
-          placeholder="0.00"
-          required
-        />
-      </div>
-
-      <div>
-        <label className="block text-sm font-medium text-gray-300 mb-1">Strategy / Playbook</label>
-        <select
-          value={selectedStrategy}
-          onChange={e => setSelectedStrategy(e.target.value)}
-          className="w-full bg-gray-700 border border-gray-600 text-gray-100 rounded p-2"
-        >
-          <option value="">None</option>
-          {playbookEntries.map(entry => (
-            <option key={entry.id} value={entry.id}>{entry.name}</option>
-          ))}
-        </select>
-      </div>
-
-      {activePlaybookEntry && activePlaybookEntry.checklist.length > 0 && (
-        <div className="space-y-3 p-4 bg-gray-900/50 rounded-lg">
-          <h4 className="font-semibold text-purple-300">Execution Checklist for "{activePlaybookEntry.name}"</h4>
-          {activePlaybookEntry.checklist.map(item => (
-            <label key={item.id} className="flex items-center gap-3 text-gray-200 cursor-pointer">
-              <input
-                type="checkbox"
-                className="h-5 w-5 rounded bg-gray-700 border-gray-600 text-purple-600 focus:ring-purple-500"
-                checked={executionChecklist[item.id] || false}
-                onChange={e => handleExecutionChecklistChange(item.id, e.target.checked)}
-              />
-              <span>{item.item}</span>
-            </label>
-          ))}
-        </div>
-      )}
-
-      <div>
-        <label className="block text-sm font-medium text-gray-300 mb-1">Tags</label>
-        <div className="space-y-2">
-          {tagGroups.map(group => (
-            <div key={group.id}>
-              <span className="font-semibold text-purple-300 text-xs">{group.name}</span>
-              <div className="flex flex-wrap gap-2 mt-1">
-                {group.subtags.map(subtag => (
-                  <button
-                    key={subtag.id}
-                    type="button"
-                    onClick={() => {
-                      setSelectedTags(prev => {
-                        const current = prev[group.id] || [];
-                        const next = current.includes(subtag.id)
-                          ? current.filter(id => id !== subtag.id)
-                          : [...current, subtag.id];
-                        return { ...prev, [group.id]: next };
-                      });
-                    }}
-                    className={`px-3 py-1 rounded-full text-sm font-semibold transition-colors mr-2 mb-2 ${
-                      selectedTags[group.id]?.includes(subtag.id)
-                        ? 'bg-gray-700 text-white'
-                        : 'bg-gray-600 text-white hover:bg-gray-500'
-                    }`}
-                  >
-                    {subtag.name}
-                  </button>
-                ))}
+          <label className="block text-sm font-medium text-gray-300 mb-1">Tags</label>
+          <div className="space-y-2">
+            {tagGroups.map(group => (
+              <div key={group.id}>
+                <span className="font-semibold text-purple-300 text-xs">{group.name}</span>
+                <div className="flex flex-wrap gap-2 mt-1">
+                  {group.subtags.map(subtag => (
+                    <button
+                      key={subtag.id}
+                      type="button"
+                      onClick={() => {
+                        setSelectedTags(prev => {
+                          const current = prev[group.id] || [];
+                          const next = current.includes(subtag.id)
+                            ? current.filter(id => id !== subtag.id)
+                            : [...current, subtag.id];
+                          return { ...prev, [group.id]: next };
+                        });
+                      }}
+                      className={`px-3 py-1 rounded-full text-sm font-semibold transition-colors mr-2 mb-2 ${
+                        selectedTags[group.id]?.includes(subtag.id)
+                          ? 'bg-gray-700 text-white'
+                          : 'bg-gray-600 text-white hover:bg-gray-500'
+                      }`}
+                    >
+                      {subtag.name}
+                    </button>
+                  ))}
+                </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
-      </div>
 
-      <div>
-        <label className="block text-sm font-medium text-gray-300 mb-1">Journal / Notes</label>
-        <Textarea
-          value={journal}
-          onChange={e => setJournal(e.target.value)}
-          placeholder="Add your trade notes here..."
-          rows={3}
-        />
-      </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-300 mb-1">Journal / Notes</label>
+          <Textarea
+            value={journal}
+            onChange={e => setJournal(e.target.value)}
+            placeholder="Add your trade notes here..."
+            rows={3}
+          />
+        </div>
 
-      <div className="flex gap-2 justify-end pt-4">
-        <Button type="button" variant="secondary" onClick={resetForm}>
-          Reset
-        </Button>
-        <Button type="submit" variant="primary" leftIcon={<PlusCircleIcon className="w-5 h-5"/>}>
-          {tradeToEdit ? 'Update Trade' : 'Add Trade'}
-        </Button>
-      </div>
-    </form>
+        <div className="border-t border-gray-700 pt-4">
+          <label className="block text-sm font-medium text-gray-300 mb-3">Trade Analysis</label>
+          <div className="flex gap-4 items-center">
+            <button
+              type="button"
+              onClick={() => handleFlagChange('best')}
+              className={`flex items-center gap-2 px-3 py-2 rounded-lg border-2 transition-colors ${
+                isBestTrade 
+                  ? 'bg-yellow-900/30 border-yellow-400 text-yellow-300' 
+                  : 'bg-gray-700 border-gray-600 text-gray-300 hover:bg-gray-600'
+              }`}
+            >
+              <span className="text-lg">{isBestTrade ? '⭐' : '☆'}</span>
+              <span>Best Trade</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => handleFlagChange('worst')}
+              className={`flex items-center gap-2 px-3 py-2 rounded-lg border-2 transition-colors ${
+                isWorstTrade 
+                  ? 'bg-red-900/30 border-red-400 text-red-300' 
+                  : 'bg-gray-700 border-gray-600 text-gray-300 hover:bg-gray-600'
+              }`}
+            >
+              <span className="text-lg">{isWorstTrade ? '👎' : '👍'}</span>
+              <span>Worst Trade</span>
+            </button>
+            {(isBestTrade || isWorstTrade) && (
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={() => setShowExtendedJournal(true)}
+              >
+                📝 {extendedReflection.mindset || extendedReflection.setup ? 'Edit' : 'Add'} Detailed Journal
+              </Button>
+            )}
+          </div>
+        </div>
+
+        <div className="flex gap-2 justify-end pt-4">
+          <Button type="button" variant="secondary" onClick={resetForm}>
+            Reset
+          </Button>
+          <Button type="submit" variant="primary" leftIcon={<PlusCircleIcon className="w-5 h-5"/>}>
+            {tradeToEdit ? 'Update Trade' : 'Add Trade'}
+          </Button>
+        </div>
+      </form>
+
+      {showExtendedJournal && (
+        <Modal onClose={() => setShowExtendedJournal(false)} title="Extended Trade Journal">
+          <div className="space-y-4 p-4 max-w-2xl">
+            <div className="text-sm text-gray-400 mb-4">
+              Provide detailed analysis for this {isBestTrade ? 'best' : 'worst'} trade
+            </div>
+            
+            <div>
+              <label className="block text-gray-200 mb-1">What was your mindset before this trade?</label>
+              <textarea
+                value={extendedReflection.mindset}
+                onChange={e => setExtendedReflection(prev => ({ ...prev, mindset: e.target.value }))}
+                className="w-full p-2 bg-gray-700 border border-gray-600 rounded text-gray-200 text-sm"
+                rows={2}
+                placeholder="Describe your emotional state, confidence level, and mental preparation..."
+              />
+            </div>
+            
+            <div>
+              <label className="block text-gray-200 mb-1">What specific setup triggered your entry?</label>
+              <textarea
+                value={extendedReflection.setup}
+                onChange={e => setExtendedReflection(prev => ({ ...prev, setup: e.target.value }))}
+                className="w-full p-2 bg-gray-700 border border-gray-600 rounded text-gray-200 text-sm"
+                rows={2}
+                placeholder="Describe the chart pattern, indicator signals, or market conditions..."
+              />
+            </div>
+            
+            <div>
+              <label className="block text-gray-200 mb-1">How did you manage risk in this trade?</label>
+              <textarea
+                value={extendedReflection.riskManagement}
+                onChange={e => setExtendedReflection(prev => ({ ...prev, riskManagement: e.target.value }))}
+                className="w-full p-2 bg-gray-700 border border-gray-600 rounded text-gray-200 text-sm"
+                rows={2}
+                placeholder="Position sizing, stop loss placement, profit targets..."
+              />
+            </div>
+            
+            <div>
+              <label className="block text-gray-200 mb-1">What would you do differently next time?</label>
+              <textarea
+                value={extendedReflection.lessons}
+                onChange={e => setExtendedReflection(prev => ({ ...prev, lessons: e.target.value }))}
+                className="w-full p-2 bg-gray-700 border border-gray-600 rounded text-gray-200 text-sm"
+                rows={2}
+                placeholder="Key lessons learned and specific improvements..."
+              />
+            </div>
+            
+            <div>
+              <label className="block text-gray-200 mb-1">What was happening in the broader market?</label>
+              <textarea
+                value={extendedReflection.marketContext}
+                onChange={e => setExtendedReflection(prev => ({ ...prev, marketContext: e.target.value }))}
+                className="w-full p-2 bg-gray-700 border border-gray-600 rounded text-gray-200 text-sm"
+                rows={2}
+                placeholder="Market trend, volatility, news events, sector rotation..."
+              />
+            </div>
+            
+            <div className="flex justify-end gap-2">
+              <Button variant="secondary" onClick={() => setShowExtendedJournal(false)}>Cancel</Button>
+              <Button onClick={() => setShowExtendedJournal(false)}>Save Journal</Button>
+            </div>
+          </div>
+        </Modal>
+      )}
+    </>
   );
 };

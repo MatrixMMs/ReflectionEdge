@@ -157,6 +157,36 @@ export const KellyCriterionAnalysis: React.FC<KellyCriterionAnalysisProps> = ({ 
           </div>
         </div>
 
+        {/* Selected Tags Section */}
+        {Object.keys(selectedTags).length > 0 && (
+          <div className="mb-4 flex flex-wrap items-center gap-2">
+            {Object.entries(selectedTags).flatMap(([groupId, subTagIds]) =>
+              subTagIds.map(subTagId => {
+                const group = tagGroups.find(g => g.id === groupId);
+                const subTag = group?.subtags.find(st => st.id === subTagId);
+                if (!subTag) return null;
+                return (
+                  <button
+                    key={groupId + '-' + subTagId}
+                    type="button"
+                    onClick={() => handleTagChange(groupId, subTagId)}
+                    className="flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-gray-700 text-white mr-2 mb-2 transition-colors hover:bg-gray-600"
+                  >
+                    {subTag.name + ' ×'}
+                  </button>
+                );
+              })
+            )}
+            <button
+              type="button"
+              onClick={() => setSelectedTags({})}
+              className="px-3 py-1 rounded-full text-xs font-semibold bg-red-600 text-white hover:bg-red-700 transition-colors"
+            >
+              Clear all
+            </button>
+          </div>
+        )}
+
         {/* Tag Filters */}
         <div>
           <div className="flex justify-between items-center mb-2">

@@ -29,7 +29,27 @@ Reflection Edge separates **process quality** from **outcome quality**. A trade 
 - Analyze performance by any combination of tags
 - Visual tag performance analysis with color-coded metrics
 
-## 🎓 **NEW: Execution Grading System**
+## 🧠 **NEW: Monkey Brain Suppressor (MBS) - In-Session Trading Panel**
+
+### **What It Does**
+- **Full-screen, distraction-free trading session panel**
+- **Quadrant-based trade logging**: Log each trade as one of four types (Made Money & Followed Plan, Lost Money & Followed Plan, Made Money & No Plan, Lost Money & No Plan)
+- **Emoji mood picker**: Select from 7 moods for each trade (from 😡 to 🤩)
+- **Smart prompts & reflections**: After each trade, receive context-aware journaling prompts; reflections are saved and shown in your session history
+- **Editable session trade history**: Edit any aspect of your trade logs, including type, result, plan adherence, mood, notes, and reflection
+- **Live session stats**: See trades, wins, losses, average mood, and a mood timeline at a glance
+- **Pattern alerts**: Get notified if you log multiple anxious trades in a row
+- **Guided onboarding**: Start each session with a mental state check, session goal, and pre-trading checklist
+- **Gut check popups**: Every 5 minutes, get a gentle prompt to check in with your emotions
+- **Break reminders**: Take healthy breaks with a single click
+
+### **Why It Matters**
+- **Ultra-fast logging**: Log a trade in seconds with just a few clicks
+- **Focus on discipline**: Visual feedback (green/red) for good/bad process, not just outcome
+- **Insight-driven journaling**: Prompts and pattern alerts help you learn from your behavior in real time
+- **Review and edit**: Make corrections or add details to any trade during your session
+
+## 🎓 **Execution Grading System**
 
 ### **What It Does**
 - **Automatically grades** your trade execution from A+ to F
@@ -90,12 +110,6 @@ Reflection Edge separates **process quality** from **outcome quality**. A trade 
 - Instantly identify your most (and least) profitable trading sessions
 - Switch between metrics like Total Profit, Win Rate, and Number of Trades
 
-### **Monkey Brain Suppressor (MBS)**
-- Interactive tool to promote discipline during live trading sessions
-- Enforces a timeout after consecutive losses to prevent emotional decisions
-- Provides real-time session stats and detailed post-session analysis
-- Tracks emotional states and trading patterns
-
 ## 🛠️ Getting Started
 
 ### Prerequisites
@@ -138,13 +152,21 @@ Reflection Edge separates **process quality** from **outcome quality**. A trade 
 2. Complete the execution checklist that appears
 3. The system automatically calculates and assigns an execution grade
 
-### **4. Analyze Your Performance**
+### **4. Use the MBS In-Session Panel for Live Trading**
+1. Start a session with a mental state check, session goal, and pre-trading checklist
+2. Log trades using the quadrant selector and emoji mood picker
+3. Respond to smart prompts and reflections after each trade
+4. Edit any trade in your session history as needed
+5. Monitor live stats, mood timeline, and pattern alerts
+6. Take breaks and respond to gut check popups
+
+### **5. Analyze Your Performance**
 1. **Execution Analysis**: View your discipline performance and grade trends
 2. **Kelly Analysis**: Get position sizing recommendations for your strategies
 3. **Edge Discovery**: Find your statistical edge across different conditions
 4. **Pattern Analysis**: Identify your most profitable trading times
 
-### **5. Track Your Improvement**
+### **6. Track Your Improvement**
 - Review your execution dashboard weekly
 - Look for patterns in missed checklist items
 - Celebrate improvements in discipline, not just profits

@@ -22,7 +22,16 @@ export interface Trade {
     checklist: { [checklistItemId: string]: boolean };
     grade: 'A+' | 'A' | 'A-' | 'B+' | 'B' | 'B-' | 'C+' | 'C' | 'C-' | 'D' | 'F' | null;
     notes: string;
-  }
+  };
+  isBestTrade?: boolean;
+  isWorstTrade?: boolean;
+  extendedReflection?: {
+    mindset?: string;
+    setup?: string;
+    riskManagement?: string;
+    lessons?: string;
+    marketContext?: string;
+  };
 }
 
 export interface SubTag {
