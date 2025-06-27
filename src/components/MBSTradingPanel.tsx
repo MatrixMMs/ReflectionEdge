@@ -91,6 +91,10 @@ export const MBSTradingPanel: React.FC<MBSTradingPanelProps> = ({ isOpen, onEndS
     lessons: '',
     marketContext: '',
   });
+  const [timeoutActive, setTimeoutActive] = useState(false);
+  const [timeoutSeconds, setTimeoutSeconds] = useState(300);
+  const [timeoutReason, setTimeoutReason] = useState<'no-plan' | 'tilt' | null>(null);
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // Start timer on open
   useEffect(() => {
@@ -128,6 +132,49 @@ export const MBSTradingPanel: React.FC<MBSTradingPanelProps> = ({ isOpen, onEndS
     }, 5 * 60 * 1000);
     return () => clearInterval(gutInterval);
   }, [isOpen]);
+
+  // Track last 3 trades for no-plan streak
+  useEffect(() => {
+    if (tradeHistory.length >= 3) {
+      const lastThree = tradeHistory.slice(0, 3);
+      const allNoPlan = lastThree.every(t => !t.followedPlan);
+      if (allNoPlan && !timeoutActive) {
+        setTimeoutActive(true);
+        setTimeoutSeconds(300);
+        setTimeoutReason('no-plan');
+      }
+    }
+  }, [tradeHistory, timeoutActive]);
+
+  // Track 2 consecutive trades within 1 minute (tilt prevention)
+  useEffect(() => {
+    if (tradeHistory.length >= 2) {
+      const [first, second] = tradeHistory.slice(0, 2);
+      const t1 = new Date(first.time);
+      const t2 = new Date(second.time);
+      if (Math.abs(t1.getTime() - t2.getTime()) < 60 * 1000 && !timeoutActive) {
+        setTimeoutActive(true);
+        setTimeoutSeconds(300);
+        setTimeoutReason('tilt');
+      }
+    }
+  }, [tradeHistory, timeoutActive]);
+
+  // Timeout countdown
+  useEffect(() => {
+    if (!timeoutActive) return;
+    if (timeoutSeconds <= 0) {
+      setTimeoutActive(false);
+      setTimeoutSeconds(300);
+      return;
+    }
+    timeoutRef.current = setTimeout(() => {
+      setTimeoutSeconds(timeoutSeconds - 1);
+    }, 1000);
+    return () => {
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    };
+  }, [timeoutActive, timeoutSeconds]);
 
   // Compute session stats
   const totalTrades = tradeHistory.length;
@@ -278,6 +325,21 @@ export const MBSTradingPanel: React.FC<MBSTradingPanelProps> = ({ isOpen, onEndS
 
   return (
     <div className="fixed inset-0 z-50 bg-gray-900 bg-opacity-95 flex flex-col">
+      {/* Blackout Timeout Overlay */}
+      {timeoutActive && (
+        <div className="fixed inset-0 z-50 bg-black flex flex-col items-center justify-center">
+          <div className="text-white text-4xl font-bold mb-6">
+            Timeout: Take a Break
+          </div>
+          <div className="text-white text-lg mb-4">
+            {timeoutReason === 'no-plan' && 'You logged 3 consecutive trades without following your plan. Please reflect before continuing.'}
+            {timeoutReason === 'tilt' && 'You logged 2 trades back-to-back within 1 minute. Take a break to prevent tilt.'}
+          </div>
+          <div className="text-white text-7xl font-mono mb-2">
+            {`${String(Math.floor(timeoutSeconds / 60)).padStart(2, '0')}:${String(timeoutSeconds % 60).padStart(2, '0')}`}
+          </div>
+        </div>
+      )}
       {/* Header */}
       <div className="flex items-center justify-between p-6 border-b border-blue-500 bg-blue-900">
         <div className="flex items-center gap-3">
@@ -286,7 +348,7 @@ export const MBSTradingPanel: React.FC<MBSTradingPanelProps> = ({ isOpen, onEndS
           <span className="italic text-lg">"{sessionGoal}"</span>
         </div>
         <div className="flex items-center gap-4">
-          <span className="text-blue-200 font-mono">Session Time: {elapsed}</span>
+          <span className="text-blue-200 font-mono text-4xl">{elapsed}</span>
           <Button variant="secondary" onClick={() => onEndSession(tradeHistory)}>End Session</Button>
         </div>
       </div>
@@ -308,197 +370,199 @@ export const MBSTradingPanel: React.FC<MBSTradingPanelProps> = ({ isOpen, onEndS
         <div className="bg-yellow-900 text-yellow-200 text-center py-2 font-semibold">{patternAlertText}</div>
       )}
       {/* Main Content */}
-      <div className="flex flex-1 overflow-hidden">
-        {/* Quick Log Panel */}
-        <div className="w-full max-w-md mx-auto my-10 bg-gray-800 rounded-lg shadow-lg p-8 flex flex-col gap-6">
-          <div className="text-xl font-bold text-blue-300 mb-2">Quick Log</div>
-          <div className="flex flex-col gap-3">
-            <div className="flex gap-4 mt-2">
-              <Button variant={tradeType === 'Long' ? 'primary' : 'secondary'} onClick={() => setTradeType('Long')}>Long</Button>
-              <Button variant={tradeType === 'Short' ? 'primary' : 'secondary'} onClick={() => setTradeType('Short')}>Short</Button>
-            </div>
-            <div className="grid grid-cols-2 gap-4 mt-4">
-              {quadrantOptions.map(opt => (
-                <button
-                  key={opt.label}
-                  type="button"
-                  className={`p-4 rounded-lg font-semibold text-lg border-2 transition-colors focus:outline-none
-                    ${quadrant && quadrant.result === opt.result && quadrant.followedPlan === opt.followedPlan
-                      ? opt.good
-                        ? 'bg-green-700 border-green-400 text-white'
-                        : 'bg-red-700 border-red-400 text-white'
-                      : 'bg-gray-700 border-gray-500 text-gray-200 hover:bg-gray-600'}
-                  `}
-                  onClick={() => setQuadrant({ result: opt.result as 'win' | 'lose', followedPlan: opt.followedPlan })}
-                >
-                  {opt.label}
-                </button>
-              ))}
-            </div>
-            <Input type="text" value={notes} onChange={e => setNotes(e.target.value)} placeholder="Quick notes (optional)" />
-            <div>
-              <label className="block text-gray-200 mb-1">Mood</label>
-              <div className="flex gap-2 bg-gray-800 rounded-lg p-2 justify-between">
-                {moodEmojis.map(opt => (
+      <div className={timeoutActive ? 'pointer-events-none opacity-50' : ''}>
+        <div className="flex flex-1 overflow-hidden">
+          {/* Quick Log Panel */}
+          <div className="w-full max-w-md mx-auto my-10 bg-gray-800 rounded-lg shadow-lg p-8 flex flex-col gap-6">
+            <div className="text-xl font-bold text-blue-300 mb-2">Quick Log</div>
+            <div className="flex flex-col gap-3">
+              <div className="flex gap-4 mt-2">
+                <Button variant={tradeType === 'Long' ? 'primary' : 'secondary'} onClick={() => setTradeType('Long')}>Long</Button>
+                <Button variant={tradeType === 'Short' ? 'primary' : 'secondary'} onClick={() => setTradeType('Short')}>Short</Button>
+              </div>
+              <div className="grid grid-cols-2 gap-4 mt-4">
+                {quadrantOptions.map(opt => (
                   <button
-                    key={opt.value}
+                    key={opt.label}
                     type="button"
-                    className={`text-2xl p-1 rounded-lg transition-colors focus:outline-none
-                      ${mood === opt.value ? 'bg-blue-700 border-2 border-blue-400' : 'hover:bg-gray-700 border-2 border-transparent'}`}
-                    onClick={() => setMood(opt.value)}
-                    aria-label={opt.label}
+                    className={`p-4 rounded-lg font-semibold text-lg border-2 transition-colors focus:outline-none
+                      ${quadrant && quadrant.result === opt.result && quadrant.followedPlan === opt.followedPlan
+                        ? opt.good
+                          ? 'bg-green-700 border-green-400 text-white'
+                          : 'bg-red-700 border-red-400 text-white'
+                        : 'bg-gray-700 border-gray-500 text-gray-200 hover:bg-gray-600'}
+                    `}
+                    onClick={() => setQuadrant({ result: opt.result as 'win' | 'lose', followedPlan: opt.followedPlan })}
                   >
-                    {opt.emoji}
+                    {opt.label}
                   </button>
                 ))}
               </div>
+              <Input type="text" value={notes} onChange={e => setNotes(e.target.value)} placeholder="Quick notes (optional)" />
+              <div>
+                <label className="block text-gray-200 mb-1">Mood</label>
+                <div className="flex gap-2 bg-gray-800 rounded-lg p-2 justify-between">
+                  {moodEmojis.map(opt => (
+                    <button
+                      key={opt.value}
+                      type="button"
+                      className={`text-2xl p-1 rounded-lg transition-colors focus:outline-none
+                        ${mood === opt.value ? 'bg-blue-700 border-2 border-blue-400' : 'hover:bg-gray-700 border-2 border-transparent'}`}
+                      onClick={() => setMood(opt.value)}
+                      aria-label={opt.label}
+                    >
+                      {opt.emoji}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <Button onClick={handleLogTrade} className="mt-2" disabled={!quadrant}>Log Trade</Button>
+              <button className="text-blue-400 underline text-sm mt-1" onClick={() => setShowAddDetails(d => !d)}>Add Details (coming soon)</button>
             </div>
-            <Button onClick={handleLogTrade} className="mt-2" disabled={!quadrant}>Log Trade</Button>
-            <button className="text-blue-400 underline text-sm mt-1" onClick={() => setShowAddDetails(d => !d)}>Add Details (coming soon)</button>
+            {/* Smart Prompt after trade */}
+            {showSmartPrompt && (
+              <div className="mt-4 bg-blue-900/80 border border-blue-500 rounded-lg p-4">
+                <div className="font-semibold mb-2">{smartPromptText}</div>
+                <Input type="text" value={smartPromptInput} onChange={e => setSmartPromptInput(e.target.value)} placeholder="Type your answer..." />
+                <div className="flex justify-end mt-2">
+                  <Button onClick={handleSmartPromptSubmit}>Submit</Button>
+                </div>
+              </div>
+            )}
+            {/* Add Details progressive disclosure (stub) */}
+            {showAddDetails && (
+              <div className="mt-4 bg-gray-700 border border-gray-600 rounded-lg p-4">
+                <div className="font-semibold mb-2">Add Details (coming soon)</div>
+                <div className="text-gray-400 text-sm">Strategy, setup, tags, voice note, etc.</div>
+                <div className="flex justify-end mt-2">
+                  <Button onClick={() => setShowAddDetails(false)}>Close</Button>
+                </div>
+              </div>
+            )}
           </div>
-          {/* Smart Prompt after trade */}
-          {showSmartPrompt && (
-            <div className="mt-4 bg-blue-900/80 border border-blue-500 rounded-lg p-4">
-              <div className="font-semibold mb-2">{smartPromptText}</div>
-              <Input type="text" value={smartPromptInput} onChange={e => setSmartPromptInput(e.target.value)} placeholder="Type your answer..." />
-              <div className="flex justify-end mt-2">
-                <Button onClick={handleSmartPromptSubmit}>Submit</Button>
-              </div>
-            </div>
-          )}
-          {/* Add Details progressive disclosure (stub) */}
-          {showAddDetails && (
-            <div className="mt-4 bg-gray-700 border border-gray-600 rounded-lg p-4">
-              <div className="font-semibold mb-2">Add Details (coming soon)</div>
-              <div className="text-gray-400 text-sm">Strategy, setup, tags, voice note, etc.</div>
-              <div className="flex justify-end mt-2">
-                <Button onClick={() => setShowAddDetails(false)}>Close</Button>
-              </div>
-            </div>
-          )}
-        </div>
-        {/* Sidebar */}
-        <div className="flex flex-col gap-4 justify-start items-end p-8 w-64">
-          <Button variant="secondary" onClick={() => setShowBreak(true)}>Take a Break</Button>
-          <Button variant="secondary" onClick={() => setShowMoodCheck(true)}>Mood Check-in</Button>
-        </div>
-        {/* Trade History */}
-        <div className="flex-1 p-8 overflow-y-auto">
-          <div className="text-lg font-semibold text-blue-200 mb-4">Session Trade History</div>
-          <div className="space-y-3">
-            {tradeHistory.length === 0 && <div className="text-gray-400">No trades logged yet.</div>}
-            {tradeHistory.map(trade => {
-              const isGood = (trade.result === 'win' && trade.followedPlan) || (trade.result === 'lose' && trade.followedPlan);
-              const isEditing = editingTradeId === trade.id;
-              return (
-                <div key={trade.id} className={`bg-gray-700 rounded p-4 flex flex-col gap-1 border-2 ${isGood ? 'border-green-400' : 'border-red-400'} ${trade.isBestTrade ? 'ring-2 ring-yellow-400' : ''} ${trade.isWorstTrade ? 'ring-2 ring-red-400' : ''}`}>
-                  {isEditing ? (
-                    <>
-                      <div className="flex gap-4 text-sm text-gray-300 items-center">
-                        <div className="flex gap-2">
-                          <Button variant={editTradeType === 'Long' ? 'primary' : 'secondary'} onClick={() => setEditTradeType('Long')}>Long</Button>
-                          <Button variant={editTradeType === 'Short' ? 'primary' : 'secondary'} onClick={() => setEditTradeType('Short')}>Short</Button>
+          {/* Sidebar */}
+          <div className="flex flex-col gap-4 justify-start items-end p-8 w-64">
+            <Button variant="secondary" onClick={() => setShowBreak(true)}>Take a Break</Button>
+            <Button variant="secondary" onClick={() => setShowMoodCheck(true)}>Mood Check-in</Button>
+          </div>
+          {/* Trade History */}
+          <div className="flex-1 p-8 overflow-y-auto">
+            <div className="text-lg font-semibold text-blue-200 mb-4">Session Trade History</div>
+            <div className="space-y-3">
+              {tradeHistory.length === 0 && <div className="text-gray-400">No trades logged yet.</div>}
+              {tradeHistory.map(trade => {
+                const isGood = (trade.result === 'win' && trade.followedPlan) || (trade.result === 'lose' && trade.followedPlan);
+                const isEditing = editingTradeId === trade.id;
+                return (
+                  <div key={trade.id} className={`bg-gray-700 rounded p-4 flex flex-col gap-1 border-2 ${isGood ? 'border-green-400' : 'border-red-400'} ${trade.isBestTrade ? 'ring-2 ring-yellow-400' : ''} ${trade.isWorstTrade ? 'ring-2 ring-red-400' : ''}`}>
+                    {isEditing ? (
+                      <>
+                        <div className="flex gap-4 text-sm text-gray-300 items-center">
+                          <div className="flex gap-2">
+                            <Button variant={editTradeType === 'Long' ? 'primary' : 'secondary'} onClick={() => setEditTradeType('Long')}>Long</Button>
+                            <Button variant={editTradeType === 'Short' ? 'primary' : 'secondary'} onClick={() => setEditTradeType('Short')}>Short</Button>
+                          </div>
+                          <div className="grid grid-cols-2 gap-2">
+                            {quadrantOptions.map(opt => (
+                              <button
+                                key={opt.label}
+                                type="button"
+                                className={`p-2 rounded-lg font-semibold text-sm border-2 transition-colors focus:outline-none
+                                  ${editQuadrant && editQuadrant.result === opt.result && editQuadrant.followedPlan === opt.followedPlan
+                                    ? opt.good
+                                      ? 'bg-green-700 border-green-400 text-white'
+                                      : 'bg-red-700 border-red-400 text-white'
+                                    : 'bg-gray-700 border-gray-500 text-gray-200 hover:bg-gray-600'}
+                                `}
+                                onClick={() => setEditQuadrant({ result: opt.result as 'win' | 'lose', followedPlan: opt.followedPlan })}
+                              >
+                                {opt.label}
+                              </button>
+                            ))}
+                          </div>
                         </div>
-                        <div className="grid grid-cols-2 gap-2">
-                          {quadrantOptions.map(opt => (
+                        <Input type="text" value={editNotes} onChange={e => setEditNotes(e.target.value)} placeholder="Quick notes (optional)" />
+                        <div className="flex gap-2 bg-gray-800 rounded-lg p-2 justify-between">
+                          {moodEmojis.map(opt => (
                             <button
-                              key={opt.label}
+                              key={opt.value}
                               type="button"
-                              className={`p-2 rounded-lg font-semibold text-sm border-2 transition-colors focus:outline-none
-                                ${editQuadrant && editQuadrant.result === opt.result && editQuadrant.followedPlan === opt.followedPlan
-                                  ? opt.good
-                                    ? 'bg-green-700 border-green-400 text-white'
-                                    : 'bg-red-700 border-red-400 text-white'
-                                  : 'bg-gray-700 border-gray-500 text-gray-200 hover:bg-gray-600'}
-                              `}
-                              onClick={() => setEditQuadrant({ result: opt.result as 'win' | 'lose', followedPlan: opt.followedPlan })}
+                              className={`text-2xl p-1 rounded-lg transition-colors focus:outline-none
+                                ${editMood === opt.value ? 'bg-blue-700 border-2 border-blue-400' : 'hover:bg-gray-700 border-2 border-transparent'}`}
+                              onClick={() => setEditMood(opt.value)}
+                              aria-label={opt.label}
                             >
-                              {opt.label}
+                              {opt.emoji}
                             </button>
                           ))}
                         </div>
-                      </div>
-                      <Input type="text" value={editNotes} onChange={e => setEditNotes(e.target.value)} placeholder="Quick notes (optional)" />
-                      <div className="flex gap-2 bg-gray-800 rounded-lg p-2 justify-between">
-                        {moodEmojis.map(opt => (
-                          <button
-                            key={opt.value}
-                            type="button"
-                            className={`text-2xl p-1 rounded-lg transition-colors focus:outline-none
-                              ${editMood === opt.value ? 'bg-blue-700 border-2 border-blue-400' : 'hover:bg-gray-700 border-2 border-transparent'}`}
-                            onClick={() => setEditMood(opt.value)}
-                            aria-label={opt.label}
-                          >
-                            {opt.emoji}
-                          </button>
-                        ))}
-                      </div>
-                      <Input type="text" value={editReflection} onChange={e => setEditReflection(e.target.value)} placeholder="Reflection (optional)" />
-                      <div className="flex gap-2 mt-2">
-                        <Button onClick={handleSaveEditTrade}>Save</Button>
-                        <Button variant="secondary" onClick={handleCancelEditTrade}>Cancel</Button>
-                      </div>
-                    </>
-                  ) : (
-                    <>
-                      <div className="flex gap-4 text-sm text-gray-300 items-center">
-                        <span>{trade.time}</span>
-                        <span>{trade.type}</span>
-                        <span>{trade.result === 'win' ? '🏆 Win' : '❌ Lose'}</span>
-                        <span>Plan: {trade.followedPlan ? 'Yes' : 'No'}</span>
-                        <span>Mood: {moodToEmoji(trade.mood)}</span>
-                        <div className="flex gap-1">
-                          <button
-                            onClick={() => handleFlagTrade(trade.id, 'best')}
-                            className={`text-lg ${trade.isBestTrade ? 'text-yellow-400' : 'text-gray-400 hover:text-yellow-300'}`}
-                            title={trade.isBestTrade ? 'Remove best trade flag' : 'Mark as best trade'}
-                          >
-                            {trade.isBestTrade ? '⭐' : '☆'}
-                          </button>
-                          <button
-                            onClick={() => handleFlagTrade(trade.id, 'worst')}
-                            className={`text-lg ${trade.isWorstTrade ? 'text-red-400' : 'text-gray-400 hover:text-red-300'}`}
-                            title={trade.isWorstTrade ? 'Remove worst trade flag' : 'Mark as worst trade'}
-                          >
-                            {trade.isWorstTrade ? '👎' : '👍'}
-                          </button>
+                        <Input type="text" value={editReflection} onChange={e => setEditReflection(e.target.value)} placeholder="Reflection (optional)" />
+                        <div className="flex gap-2 mt-2">
+                          <Button onClick={handleSaveEditTrade}>Save</Button>
+                          <Button variant="secondary" onClick={handleCancelEditTrade}>Cancel</Button>
                         </div>
-                        <Button variant="secondary" size="sm" onClick={() => handleEditTrade(trade)}>Edit</Button>
-                        <Button variant="secondary" size="sm" onClick={() => handleOpenExtendedJournal(trade)}>
-                          {trade.extendedReflection ? '📝 Edit Journal' : '📝 Add Journal'}
-                        </Button>
-                      </div>
-                      {trade.notes && <div className="text-xs text-gray-400 mt-1">Notes: {trade.notes}</div>}
-                      {trade.reflection && (
-                        <div className="text-xs text-blue-300 mt-1">Reflection: {trade.reflection}</div>
-                      )}
-                      {(trade.isBestTrade || trade.isWorstTrade) && trade.extendedReflection && (
-                        <div className="mt-2 p-2 bg-gray-800 rounded border-l-4 border-blue-400">
-                          <div className="text-xs text-blue-300 font-semibold mb-1">
-                            {trade.isBestTrade ? '⭐ Best Trade Analysis' : '👎 Worst Trade Analysis'}
+                      </>
+                    ) : (
+                      <>
+                        <div className="flex gap-4 text-sm text-gray-300 items-center">
+                          <span>{trade.time}</span>
+                          <span>{trade.type}</span>
+                          <span>{trade.result === 'win' ? '🏆 Win' : '❌ Lose'}</span>
+                          <span>Plan: {trade.followedPlan ? 'Yes' : 'No'}</span>
+                          <span>Mood: {moodToEmoji(trade.mood)}</span>
+                          <div className="flex gap-1">
+                            <button
+                              onClick={() => handleFlagTrade(trade.id, 'best')}
+                              className={`text-lg ${trade.isBestTrade ? 'text-yellow-400' : 'text-gray-400 hover:text-yellow-300'}`}
+                              title={trade.isBestTrade ? 'Remove best trade flag' : 'Mark as best trade'}
+                            >
+                              {trade.isBestTrade ? '⭐' : '☆'}
+                            </button>
+                            <button
+                              onClick={() => handleFlagTrade(trade.id, 'worst')}
+                              className={`text-lg ${trade.isWorstTrade ? 'text-red-400' : 'text-gray-400 hover:text-red-300'}`}
+                              title={trade.isWorstTrade ? 'Remove worst trade flag' : 'Mark as worst trade'}
+                            >
+                              {trade.isWorstTrade ? '👎' : '👍'}
+                            </button>
                           </div>
-                          {trade.extendedReflection.mindset && (
-                            <div className="text-xs text-gray-300 mb-1"><strong>Mindset:</strong> {trade.extendedReflection.mindset}</div>
-                          )}
-                          {trade.extendedReflection.setup && (
-                            <div className="text-xs text-gray-300 mb-1"><strong>Setup:</strong> {trade.extendedReflection.setup}</div>
-                          )}
-                          {trade.extendedReflection.riskManagement && (
-                            <div className="text-xs text-gray-300 mb-1"><strong>Risk:</strong> {trade.extendedReflection.riskManagement}</div>
-                          )}
-                          {trade.extendedReflection.lessons && (
-                            <div className="text-xs text-gray-300 mb-1"><strong>Lessons:</strong> {trade.extendedReflection.lessons}</div>
-                          )}
-                          {trade.extendedReflection.marketContext && (
-                            <div className="text-xs text-gray-300 mb-1"><strong>Market:</strong> {trade.extendedReflection.marketContext}</div>
-                          )}
+                          <Button variant="secondary" size="sm" onClick={() => handleEditTrade(trade)}>Edit</Button>
+                          <Button variant="secondary" size="sm" onClick={() => handleOpenExtendedJournal(trade)}>
+                            {trade.extendedReflection ? '📝 Edit Journal' : '📝 Add Journal'}
+                          </Button>
                         </div>
-                      )}
-                    </>
-                  )}
-                </div>
-              );
-            })}
+                        {trade.notes && <div className="text-xs text-gray-400 mt-1">Notes: {trade.notes}</div>}
+                        {trade.reflection && (
+                          <div className="text-xs text-blue-300 mt-1">Reflection: {trade.reflection}</div>
+                        )}
+                        {(trade.isBestTrade || trade.isWorstTrade) && trade.extendedReflection && (
+                          <div className="mt-2 p-2 bg-gray-800 rounded border-l-4 border-blue-400">
+                            <div className="text-xs text-blue-300 font-semibold mb-1">
+                              {trade.isBestTrade ? '⭐ Best Trade Analysis' : '👎 Worst Trade Analysis'}
+                            </div>
+                            {trade.extendedReflection.mindset && (
+                              <div className="text-xs text-gray-300 mb-1"><strong>Mindset:</strong> {trade.extendedReflection.mindset}</div>
+                            )}
+                            {trade.extendedReflection.setup && (
+                              <div className="text-xs text-gray-300 mb-1"><strong>Setup:</strong> {trade.extendedReflection.setup}</div>
+                            )}
+                            {trade.extendedReflection.riskManagement && (
+                              <div className="text-xs text-gray-300 mb-1"><strong>Risk:</strong> {trade.extendedReflection.riskManagement}</div>
+                            )}
+                            {trade.extendedReflection.lessons && (
+                              <div className="text-xs text-gray-300 mb-1"><strong>Lessons:</strong> {trade.extendedReflection.lessons}</div>
+                            )}
+                            {trade.extendedReflection.marketContext && (
+                              <div className="text-xs text-gray-300 mb-1"><strong>Market:</strong> {trade.extendedReflection.marketContext}</div>
+                            )}
+                          </div>
+                        )}
+                      </>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
           </div>
         </div>
       </div>
