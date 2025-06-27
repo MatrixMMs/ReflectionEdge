@@ -118,6 +118,7 @@ export const TradeList: React.FC<TradeListProps> = ({ trades, tagGroups, onEditT
               <Th><span onClick={() => handleSort('symbol')} className="cursor-pointer select-none flex items-center">Symbol{sortIndicator('symbol')}</span></Th>
               <Th><span onClick={() => handleSort('direction')} className="cursor-pointer select-none flex items-center">Direction{sortIndicator('direction')}</span></Th>
               <Th><span onClick={() => handleSort('profit')} className="cursor-pointer select-none flex items-center">P&L{sortIndicator('profit')}</span></Th>
+              <Th>&nbsp;</Th>
               <Th>Tags</Th>
               <Th><span onClick={() => handleSort('grade')} className="cursor-pointer select-none flex items-center">Grade{sortIndicator('grade')}</span></Th>
               <Th>Actions</Th>

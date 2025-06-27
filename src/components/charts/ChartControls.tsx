@@ -116,7 +116,7 @@ export const ChartControls: React.FC<ChartControlsProps> = ({
       </div>
        {/* Direction Filter */}
       <div>
-        <label htmlFor="direction-filter" className="block text-sm font-medium mb-1">Trade Direction (Chart Lines):</label>
+        <label htmlFor="direction-filter" className="block text-sm font-medium mb-1">Trade Direction:</label>
         <select
           id="direction-filter"
           value={directionFilter}
@@ -131,7 +131,7 @@ export const ChartControls: React.FC<ChartControlsProps> = ({
       
       {/* Tag Selection for Chart */}
       <div>
-        <h4 className="text-sm font-medium mb-1">Filter by Tags (for chart lines):</h4>
+        <h4 className="text-sm font-medium mb-1">Filter by Tags:</h4>
         {tagGroups.length === 0 && <p className="text-xs text-gray-500">No tags defined yet.</p>}
         {/* Selected Tags Section - spaced below label */}
         {hasSelectedTags() && (
