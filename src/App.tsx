@@ -812,6 +812,14 @@ const App: React.FC = () => {
 
   return (
     <div className="flex min-h-screen bg-gray-900 text-gray-100">
+      {/* Hidden file input for import */}
+      <input
+        type="file"
+        ref={fileInputRef}
+        style={{ display: 'none' }}
+        accept=".csv,.json"
+        onChange={handleFileUpload}
+      />
       {/* Sidebar Navigation */}
       <aside className="w-64 bg-gray-800 flex flex-col justify-between py-6 px-4 min-h-screen fixed left-0 top-0 z-40 shadow-xl">
         <div>
