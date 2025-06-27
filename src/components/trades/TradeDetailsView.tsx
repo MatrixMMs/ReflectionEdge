@@ -1,14 +1,20 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Trade, PlaybookEntry } from '../../types';
 import { CheckIcon, XCircleIcon } from '../ui/Icons'; // Assuming you have these icons
+import { Button } from '../ui/Button';
+import { Input } from '../ui/Input';
 
 interface TradeDetailsViewProps {
   trade: Trade;
   playbookEntries: PlaybookEntry[];
+  onUpdateTrade?: (updatedTrade: Trade) => void;
 }
 
-export const TradeDetailsView: React.FC<TradeDetailsViewProps> = ({ trade, playbookEntries }) => {
+export const TradeDetailsView: React.FC<TradeDetailsViewProps> = ({ trade, playbookEntries, onUpdateTrade }) => {
   const strategy = playbookEntries.find(p => p.id === trade.strategyId);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editedJournal, setEditedJournal] = useState(trade.journal);
+  const [reflectionJournal, setReflectionJournal] = useState(trade.extendedReflection?.lessons || '');
 
   const getGradeColor = (grade: string | null) => {
     if (!grade) return 'text-gray-400';
@@ -20,17 +26,87 @@ export const TradeDetailsView: React.FC<TradeDetailsViewProps> = ({ trade, playb
     return 'text-gray-400';
   };
 
+  const handleSave = () => {
+    if (onUpdateTrade) {
+      const updatedTrade = {
+        ...trade,
+        journal: editedJournal,
+        extendedReflection: {
+          ...trade.extendedReflection,
+          lessons: reflectionJournal,
+        },
+      };
+      onUpdateTrade(updatedTrade);
+    }
+    setIsEditing(false);
+  };
+
+  const handleCancel = () => {
+    setEditedJournal(trade.journal);
+    setReflectionJournal(trade.extendedReflection?.lessons || '');
+    setIsEditing(false);
+  };
+
   return (
     <div className="p-4 bg-gray-800 text-gray-200 rounded-lg max-h-[80vh] overflow-y-auto">
       <header className="mb-6">
         <div className="flex justify-between items-center">
           <h2 className="text-2xl font-bold text-white">{trade.symbol}</h2>
-          <span className={`px-3 py-1 text-sm font-semibold rounded-full ${trade.direction === 'long' ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'}`}>
-            {trade.direction.toUpperCase()}
-          </span>
+          <div className="flex items-center gap-2">
+            {trade.isBestTrade && (
+              <span className="text-2xl" title="Best Trade">⭐</span>
+            )}
+            {trade.isWorstTrade && (
+              <span className="text-2xl" title="Worst Trade">👎</span>
+            )}
+            <span className={`px-3 py-1 text-sm font-semibold rounded-full ${trade.direction === 'long' ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'}`}>
+              {trade.direction.toUpperCase()}
+            </span>
+          </div>
         </div>
         <p className="text-sm text-gray-400">{new Date(trade.date).toLocaleDateString()}</p>
       </header>
+
+      {/* Trade Analysis */}
+      {(trade.isBestTrade || trade.isWorstTrade) && trade.extendedReflection && (
+        <section className="mb-6">
+          <h3 className="text-lg font-semibold text-yellow-400 mb-3">
+            {trade.isBestTrade ? '⭐ Best Trade Analysis' : '👎 Worst Trade Analysis'}
+          </h3>
+          <div className="bg-gray-700 p-4 rounded-lg space-y-4">
+            {trade.extendedReflection.mindset && (
+              <div>
+                <h4 className="font-semibold text-gray-300 mb-1">Mindset</h4>
+                <p className="text-sm text-gray-400 bg-gray-600/50 p-2 rounded">{trade.extendedReflection.mindset}</p>
+              </div>
+            )}
+            {trade.extendedReflection.setup && (
+              <div>
+                <h4 className="font-semibold text-gray-300 mb-1">Setup</h4>
+                <p className="text-sm text-gray-400 bg-gray-600/50 p-2 rounded">{trade.extendedReflection.setup}</p>
+              </div>
+            )}
+            {trade.extendedReflection.riskManagement && (
+              <div>
+                <h4 className="font-semibold text-gray-300 mb-1">Risk Management</h4>
+                <p className="text-sm text-gray-400 bg-gray-600/50 p-2 rounded">{trade.extendedReflection.riskManagement}</p>
+              </div>
+            )}
+            {trade.extendedReflection.lessons && (
+              <div>
+                <h4 className="font-semibold text-gray-300 mb-1">Lessons Learned</h4>
+                <p className="text-sm text-gray-400 bg-gray-600/50 p-2 rounded">{trade.extendedReflection.lessons}</p>
+              </div>
+            )}
+            {trade.extendedReflection.marketContext && (
+              <div>
+                <h4 className="font-semibold text-gray-300 mb-1">Market Context</h4>
+                <p className="text-sm text-gray-400 bg-gray-600/50 p-2 rounded">{trade.extendedReflection.marketContext}</p>
+              </div>
+            )}
+          </div>
+        </section>
+      )}
 
       {/* Financials */}
       <section className="mb-6">
@@ -96,12 +172,74 @@ export const TradeDetailsView: React.FC<TradeDetailsViewProps> = ({ trade, playb
         </section>
       )}
 
-      {/* Journal */}
-      <section>
-        <h3 className="text-lg font-semibold text-blue-400 mb-2">Journal Entry</h3>
-        <div className="bg-gray-700 p-4 rounded-lg">
-          <p className="text-gray-300 whitespace-pre-wrap">{trade.journal || 'No journal entry for this trade.'}</p>
+      {/* Journal Section */}
+      <section className="mb-6">
+        <div className="flex items-center justify-between mb-2">
+          <h3 className="text-lg font-semibold text-blue-400">Trade Journal</h3>
+          {!isEditing ? (
+            <Button variant="secondary" size="sm" onClick={() => setIsEditing(true)}>
+              Edit
+            </Button>
+          ) : (
+            <div className="flex gap-2">
+              <Button size="sm" onClick={handleSave}>
+                Save
+              </Button>
+              <Button variant="secondary" size="sm" onClick={handleCancel}>
+                Cancel
+              </Button>
+            </div>
+          )}
         </div>
+        
+        {isEditing ? (
+          <textarea
+            value={editedJournal}
+            onChange={(e) => setEditedJournal(e.target.value)}
+            className="w-full p-3 bg-gray-700 border border-gray-600 rounded text-gray-200 text-sm"
+            rows={4}
+            placeholder="Enter your trade journal..."
+          />
+        ) : (
+          <div className="bg-gray-700 p-4 rounded-lg">
+            <p className="text-gray-300 whitespace-pre-wrap">{trade.journal || 'No journal entry for this trade.'}</p>
+          </div>
+        )}
+      </section>
+
+      {/* Reflection Journal Section */}
+      <section>
+        <div className="flex items-center justify-between mb-2">
+          <h3 className="text-lg font-semibold text-green-400">Reflection Journal</h3>
+          {!isEditing ? (
+            <Button variant="secondary" size="sm" onClick={() => setIsEditing(true)}>
+              Edit
+            </Button>
+          ) : (
+            <div className="flex gap-2">
+              <Button size="sm" onClick={handleSave}>
+                Save
+              </Button>
+              <Button variant="secondary" size="sm" onClick={handleCancel}>
+                Cancel
+              </Button>
+            </div>
+          )}
+        </div>
+        
+        {isEditing ? (
+          <textarea
+            value={reflectionJournal}
+            onChange={(e) => setReflectionJournal(e.target.value)}
+            className="w-full p-3 bg-gray-700 border border-gray-600 rounded text-gray-200 text-sm"
+            rows={4}
+            placeholder="Add your reflection notes, lessons learned, or additional insights..."
+          />
+        ) : (
+          <div className="bg-gray-700 p-4 rounded-lg">
+            <p className="text-gray-300 whitespace-pre-wrap">{reflectionJournal || 'No reflection notes for this trade.'}</p>
+          </div>
+        )}
       </section>
     </div>
   );

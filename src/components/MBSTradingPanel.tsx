@@ -18,6 +18,15 @@ type TradeLog = {
   mood: number;
   time: string;
   reflection?: string;
+  isBestTrade?: boolean;
+  isWorstTrade?: boolean;
+  extendedReflection?: {
+    mindset?: string;
+    setup?: string;
+    riskManagement?: string;
+    lessons?: string;
+    marketContext?: string;
+  };
 };
 
 const tradeTypes = ['Long', 'Short'];
@@ -74,6 +83,14 @@ export const MBSTradingPanel: React.FC<MBSTradingPanelProps> = ({ isOpen, onEndS
   const [editNotes, setEditNotes] = useState('');
   const [editMood, setEditMood] = useState<number>(4);
   const [editReflection, setEditReflection] = useState('');
+  const [showExtendedJournal, setShowExtendedJournal] = useState<string | null>(null);
+  const [extendedReflection, setExtendedReflection] = useState({
+    mindset: '',
+    setup: '',
+    riskManagement: '',
+    lessons: '',
+    marketContext: '',
+  });
 
   // Start timer on open
   useEffect(() => {
@@ -214,6 +231,51 @@ export const MBSTradingPanel: React.FC<MBSTradingPanelProps> = ({ isOpen, onEndS
     setEditingTradeId(null);
   };
 
+  const handleFlagTrade = (tradeId: string, flagType: 'best' | 'worst') => {
+    setTradeHistory(prev => prev.map(trade => {
+      if (flagType === 'best') {
+        // Toggle best flag for this trade only
+        return {
+          ...trade,
+          isBestTrade: trade.id === tradeId ? !trade.isBestTrade : trade.isBestTrade,
+        };
+      } else {
+        // Toggle worst flag for this trade only
+        return {
+          ...trade,
+          isWorstTrade: trade.id === tradeId ? !trade.isWorstTrade : trade.isWorstTrade,
+        };
+      }
+    }));
+  };
+
+  const handleSaveExtendedReflection = (tradeId: string) => {
+    setTradeHistory(prev => prev.map(trade => 
+      trade.id === tradeId 
+        ? { ...trade, extendedReflection }
+        : trade
+    ));
+    setShowExtendedJournal(null);
+    setExtendedReflection({
+      mindset: '',
+      setup: '',
+      riskManagement: '',
+      lessons: '',
+      marketContext: '',
+    });
+  };
+
+  const handleOpenExtendedJournal = (trade: TradeLog) => {
+    setShowExtendedJournal(trade.id);
+    setExtendedReflection({
+      mindset: trade.extendedReflection?.mindset || '',
+      setup: trade.extendedReflection?.setup || '',
+      riskManagement: trade.extendedReflection?.riskManagement || '',
+      lessons: trade.extendedReflection?.lessons || '',
+      marketContext: trade.extendedReflection?.marketContext || '',
+    });
+  };
+
   return (
     <div className="fixed inset-0 z-50 bg-gray-900 bg-opacity-95 flex flex-col">
       {/* Header */}
@@ -329,7 +391,7 @@ export const MBSTradingPanel: React.FC<MBSTradingPanelProps> = ({ isOpen, onEndS
               const isGood = (trade.result === 'win' && trade.followedPlan) || (trade.result === 'lose' && trade.followedPlan);
               const isEditing = editingTradeId === trade.id;
               return (
-                <div key={trade.id} className={`bg-gray-700 rounded p-4 flex flex-col gap-1 border-2 ${isGood ? 'border-green-400' : 'border-red-400'}`}>
+                <div key={trade.id} className={`bg-gray-700 rounded p-4 flex flex-col gap-1 border-2 ${isGood ? 'border-green-400' : 'border-red-400'} ${trade.isBestTrade ? 'ring-2 ring-yellow-400' : ''} ${trade.isWorstTrade ? 'ring-2 ring-red-400' : ''}`}>
                   {isEditing ? (
                     <>
                       <div className="flex gap-4 text-sm text-gray-300 items-center">
@@ -385,11 +447,52 @@ export const MBSTradingPanel: React.FC<MBSTradingPanelProps> = ({ isOpen, onEndS
                         <span>{trade.result === 'win' ? '🏆 Win' : '❌ Lose'}</span>
                         <span>Plan: {trade.followedPlan ? 'Yes' : 'No'}</span>
                         <span>Mood: {moodToEmoji(trade.mood)}</span>
+                        <div className="flex gap-1">
+                          <button
+                            onClick={() => handleFlagTrade(trade.id, 'best')}
+                            className={`text-lg ${trade.isBestTrade ? 'text-yellow-400' : 'text-gray-400 hover:text-yellow-300'}`}
+                            title={trade.isBestTrade ? 'Remove best trade flag' : 'Mark as best trade'}
+                          >
+                            {trade.isBestTrade ? '⭐' : '☆'}
+                          </button>
+                          <button
+                            onClick={() => handleFlagTrade(trade.id, 'worst')}
+                            className={`text-lg ${trade.isWorstTrade ? 'text-red-400' : 'text-gray-400 hover:text-red-300'}`}
+                            title={trade.isWorstTrade ? 'Remove worst trade flag' : 'Mark as worst trade'}
+                          >
+                            {trade.isWorstTrade ? '👎' : '👍'}
+                          </button>
+                        </div>
                         <Button variant="secondary" size="sm" onClick={() => handleEditTrade(trade)}>Edit</Button>
+                        <Button variant="secondary" size="sm" onClick={() => handleOpenExtendedJournal(trade)}>
+                          {trade.extendedReflection ? '📝 Edit Journal' : '📝 Add Journal'}
+                        </Button>
                       </div>
                       {trade.notes && <div className="text-xs text-gray-400 mt-1">Notes: {trade.notes}</div>}
                       {trade.reflection && (
                         <div className="text-xs text-blue-300 mt-1">Reflection: {trade.reflection}</div>
+                      )}
+                      {(trade.isBestTrade || trade.isWorstTrade) && trade.extendedReflection && (
+                        <div className="mt-2 p-2 bg-gray-800 rounded border-l-4 border-blue-400">
+                          <div className="text-xs text-blue-300 font-semibold mb-1">
+                            {trade.isBestTrade ? '⭐ Best Trade Analysis' : '👎 Worst Trade Analysis'}
+                          </div>
+                          {trade.extendedReflection.mindset && (
+                            <div className="text-xs text-gray-300 mb-1"><strong>Mindset:</strong> {trade.extendedReflection.mindset}</div>
+                          )}
+                          {trade.extendedReflection.setup && (
+                            <div className="text-xs text-gray-300 mb-1"><strong>Setup:</strong> {trade.extendedReflection.setup}</div>
+                          )}
+                          {trade.extendedReflection.riskManagement && (
+                            <div className="text-xs text-gray-300 mb-1"><strong>Risk:</strong> {trade.extendedReflection.riskManagement}</div>
+                          )}
+                          {trade.extendedReflection.lessons && (
+                            <div className="text-xs text-gray-300 mb-1"><strong>Lessons:</strong> {trade.extendedReflection.lessons}</div>
+                          )}
+                          {trade.extendedReflection.marketContext && (
+                            <div className="text-xs text-gray-300 mb-1"><strong>Market:</strong> {trade.extendedReflection.marketContext}</div>
+                          )}
+                        </div>
                       )}
                     </>
                   )}
@@ -440,6 +543,76 @@ export const MBSTradingPanel: React.FC<MBSTradingPanelProps> = ({ isOpen, onEndS
             <div className="text-center text-gray-400">Step away from the screen, stretch, and reset your mind.</div>
             <div className="flex justify-end">
               <Button onClick={handleBreakEnd}>End Break</Button>
+            </div>
+          </div>
+        </Modal>
+      )}
+      {/* Extended Journal Modal */}
+      {showExtendedJournal && (
+        <Modal onClose={() => setShowExtendedJournal(null)} title="Extended Trade Journal">
+          <div className="space-y-4 p-4 max-w-2xl">
+            <div className="text-sm text-gray-400 mb-4">
+              Provide detailed analysis for this {tradeHistory.find(t => t.id === showExtendedJournal)?.isBestTrade ? 'best' : 'worst'} trade
+            </div>
+            
+            <div>
+              <label className="block text-gray-200 mb-1">What was your mindset before this trade?</label>
+              <textarea
+                value={extendedReflection.mindset}
+                onChange={e => setExtendedReflection(prev => ({ ...prev, mindset: e.target.value }))}
+                className="w-full p-2 bg-gray-700 border border-gray-600 rounded text-gray-200 text-sm"
+                rows={2}
+                placeholder="Describe your emotional state, confidence level, and mental preparation..."
+              />
+            </div>
+            
+            <div>
+              <label className="block text-gray-200 mb-1">What specific setup triggered your entry?</label>
+              <textarea
+                value={extendedReflection.setup}
+                onChange={e => setExtendedReflection(prev => ({ ...prev, setup: e.target.value }))}
+                className="w-full p-2 bg-gray-700 border border-gray-600 rounded text-gray-200 text-sm"
+                rows={2}
+                placeholder="Describe the chart pattern, indicator signals, or market conditions..."
+              />
+            </div>
+            
+            <div>
+              <label className="block text-gray-200 mb-1">How did you manage risk in this trade?</label>
+              <textarea
+                value={extendedReflection.riskManagement}
+                onChange={e => setExtendedReflection(prev => ({ ...prev, riskManagement: e.target.value }))}
+                className="w-full p-2 bg-gray-700 border border-gray-600 rounded text-gray-200 text-sm"
+                rows={2}
+                placeholder="Position sizing, stop loss placement, profit targets..."
+              />
+            </div>
+            
+            <div>
+              <label className="block text-gray-200 mb-1">What would you do differently next time?</label>
+              <textarea
+                value={extendedReflection.lessons}
+                onChange={e => setExtendedReflection(prev => ({ ...prev, lessons: e.target.value }))}
+                className="w-full p-2 bg-gray-700 border border-gray-600 rounded text-gray-200 text-sm"
+                rows={2}
+                placeholder="Key lessons learned and specific improvements..."
+              />
+            </div>
+            
+            <div>
+              <label className="block text-gray-200 mb-1">What was happening in the broader market?</label>
+              <textarea
+                value={extendedReflection.marketContext}
+                onChange={e => setExtendedReflection(prev => ({ ...prev, marketContext: e.target.value }))}
+                className="w-full p-2 bg-gray-700 border border-gray-600 rounded text-gray-200 text-sm"
+                rows={2}
+                placeholder="Market trend, volatility, news events, sector rotation..."
+              />
+            </div>
+            
+            <div className="flex justify-end gap-2">
+              <Button variant="secondary" onClick={() => setShowExtendedJournal(null)}>Cancel</Button>
+              <Button onClick={() => handleSaveExtendedReflection(showExtendedJournal)}>Save Journal</Button>
             </div>
           </div>
         </Modal>

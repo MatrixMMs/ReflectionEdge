@@ -12,6 +12,15 @@ interface TradeLog {
   mood: number;
   time: string;
   reflection?: string;
+  isBestTrade?: boolean;
+  isWorstTrade?: boolean;
+  extendedReflection?: {
+    mindset?: string;
+    setup?: string;
+    riskManagement?: string;
+    lessons?: string;
+    marketContext?: string;
+  };
 }
 
 interface MBSPostSessionReviewProps {
@@ -156,6 +165,9 @@ function getSessionFeedback(trades: TradeLog[], sessionGoal: string): string[] {
     return { maxWin, maxLose };
   })();
 
+  const bestTrade = trades.find(t => t.isBestTrade);
+  const worstTrade = trades.find(t => t.isWorstTrade);
+
   const feedback: string[] = [];
 
   // Discipline
@@ -200,8 +212,57 @@ function getSessionFeedback(trades: TradeLog[], sessionGoal: string): string[] {
   if (trades.length > 0 && trades[0].result === 'win') feedback.push(FEEDBACK.pattern[3]);
   if (trades.some(t => t.notes && t.notes.toLowerCase().includes('miss'))) feedback.push(FEEDBACK.pattern[4]);
 
-  // Breaks (stubbed, can be expanded if you track breaks)
-  // ...
+  // Best/Worst Trade Analysis
+  if (bestTrade) {
+    if (bestTrade.result === 'win' && bestTrade.followedPlan) {
+      feedback.push("Your best trade was a win where you followed your plan perfectly. This is the blueprint for success.");
+    } else if (bestTrade.result === 'win' && !bestTrade.followedPlan) {
+      feedback.push("Your best trade was a win, but you didn't follow your plan. While profitable, this isn't sustainable.");
+    } else if (bestTrade.result === 'lose' && bestTrade.followedPlan) {
+      feedback.push("Your best trade was a loss where you followed your plan. This shows excellent discipline.");
+    }
+    
+    if (bestTrade.extendedReflection?.setup) {
+      feedback.push(`Your best trade setup was: "${bestTrade.extendedReflection.setup}". Look for similar setups in future sessions.`);
+    }
+    
+    if (bestTrade.extendedReflection?.mindset) {
+      feedback.push("Your mindset in your best trade was optimal. Recreate this mental state before future trades.");
+    }
+  }
+
+  if (worstTrade) {
+    if (worstTrade.result === 'lose' && !worstTrade.followedPlan) {
+      feedback.push("Your worst trade was a loss where you didn't follow your plan. This confirms why process matters.");
+    } else if (worstTrade.result === 'lose' && worstTrade.followedPlan) {
+      feedback.push("Your worst trade was a loss despite following your plan. Review your setup criteria.");
+    } else if (worstTrade.result === 'win' && !worstTrade.followedPlan) {
+      feedback.push("Your worst trade was actually a win, but you didn't follow your plan. Don't let profits mask poor process.");
+    }
+    
+    if (worstTrade.extendedReflection?.lessons) {
+      feedback.push(`Key lesson from your worst trade: "${worstTrade.extendedReflection.lessons}". Apply this immediately.`);
+    }
+    
+    if (worstTrade.extendedReflection?.mindset) {
+      feedback.push("Your mindset in your worst trade needs improvement. Work on this before your next session.");
+    }
+  }
+
+  // Compare best vs worst
+  if (bestTrade && worstTrade) {
+    if (bestTrade.followedPlan && !worstTrade.followedPlan) {
+      feedback.push("Notice how following your plan led to your best trade while ignoring it led to your worst. Process matters.");
+    }
+    
+    if (bestTrade.mood > worstTrade.mood) {
+      feedback.push("Your mood was better in your best trade than your worst. Emotional state directly impacts performance.");
+    }
+    
+    if (bestTrade.extendedReflection?.setup && worstTrade.extendedReflection?.setup) {
+      feedback.push("Compare the setups between your best and worst trades. What patterns do you notice?");
+    }
+  }
 
   // General
   feedback.push(FEEDBACK.general[Math.floor(Math.random() * FEEDBACK.general.length)]);
@@ -212,7 +273,7 @@ function getSessionFeedback(trades: TradeLog[], sessionGoal: string): string[] {
 
 export const MBSPostSessionReview: React.FC<MBSPostSessionReviewProps> = ({ isOpen, onClose, sessionGoal, tradeHistory, onSetNextSessionGoal }) => {
   const [nextGoal, setNextGoal] = useState('');
-  const feedback = useMemo(() => getSessionFeedback(tradeHistory, sessionGoal), [tradeHistory, sessionGoal]);
+  const sessionFeedback = useMemo(() => getSessionFeedback(tradeHistory, sessionGoal), [tradeHistory, sessionGoal]);
   const total = tradeHistory.length;
   const wins = tradeHistory.filter(t => t.result === 'win').length;
   const losses = tradeHistory.filter(t => t.result === 'lose').length;
@@ -228,6 +289,9 @@ export const MBSPostSessionReview: React.FC<MBSPostSessionReviewProps> = ({ isOp
     });
     return q;
   }, [tradeHistory]);
+
+  const bestTrade = tradeHistory.find(t => t.isBestTrade);
+  const worstTrade = tradeHistory.find(t => t.isWorstTrade);
 
   if (!isOpen) return null;
 
@@ -273,11 +337,80 @@ export const MBSPostSessionReview: React.FC<MBSPostSessionReviewProps> = ({ isOp
             ))}
           </div>
         </div>
+        {/* Best/Worst Trade Analysis */}
+        {(bestTrade || worstTrade) && (
+          <div className="bg-gray-800 rounded-lg p-4 border border-gray-700">
+            <h3 className="text-lg font-semibold text-blue-300 mb-4">Best & Worst Trade Analysis</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {bestTrade && (
+                <div className="bg-green-900/30 border border-green-500 rounded p-3">
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="text-2xl">⭐</span>
+                    <span className="font-semibold text-green-300">Best Trade</span>
+                  </div>
+                  <div className="text-sm text-gray-300 mb-2">
+                    <span className="text-green-400">{bestTrade.type}</span> • 
+                    <span className={bestTrade.result === 'win' ? 'text-green-400' : 'text-red-400'}>
+                      {bestTrade.result === 'win' ? ' Win' : ' Loss'}
+                    </span> • 
+                    <span className={bestTrade.followedPlan ? 'text-green-400' : 'text-yellow-400'}>
+                      Plan: {bestTrade.followedPlan ? 'Yes' : 'No'}
+                    </span>
+                  </div>
+                  {bestTrade.extendedReflection && (
+                    <div className="space-y-1 text-xs">
+                      {bestTrade.extendedReflection.setup && (
+                        <div><strong>Setup:</strong> {bestTrade.extendedReflection.setup}</div>
+                      )}
+                      {bestTrade.extendedReflection.mindset && (
+                        <div><strong>Mindset:</strong> {bestTrade.extendedReflection.mindset}</div>
+                      )}
+                      {bestTrade.extendedReflection.riskManagement && (
+                        <div><strong>Risk:</strong> {bestTrade.extendedReflection.riskManagement}</div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              )}
+              
+              {worstTrade && (
+                <div className="bg-red-900/30 border border-red-500 rounded p-3">
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="text-2xl">👎</span>
+                    <span className="font-semibold text-red-300">Worst Trade</span>
+                  </div>
+                  <div className="text-sm text-gray-300 mb-2">
+                    <span className="text-red-400">{worstTrade.type}</span> • 
+                    <span className={worstTrade.result === 'win' ? 'text-green-400' : 'text-red-400'}>
+                      {worstTrade.result === 'win' ? ' Win' : ' Loss'}
+                    </span> • 
+                    <span className={worstTrade.followedPlan ? 'text-green-400' : 'text-yellow-400'}>
+                      Plan: {worstTrade.followedPlan ? 'Yes' : 'No'}
+                    </span>
+                  </div>
+                  {worstTrade.extendedReflection && (
+                    <div className="space-y-1 text-xs">
+                      {worstTrade.extendedReflection.lessons && (
+                        <div><strong>Lessons:</strong> {worstTrade.extendedReflection.lessons}</div>
+                      )}
+                      {worstTrade.extendedReflection.mindset && (
+                        <div><strong>Mindset:</strong> {worstTrade.extendedReflection.mindset}</div>
+                      )}
+                      {worstTrade.extendedReflection.setup && (
+                        <div><strong>Setup:</strong> {worstTrade.extendedReflection.setup}</div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
         {/* Coach & Risk Manager Feedback */}
         <div className="bg-blue-900/80 border border-blue-500 rounded-lg p-6">
           <div className="text-lg font-bold text-blue-200 mb-2">Coach & Risk Manager Feedback</div>
           <ul className="list-disc pl-6 space-y-2">
-            {feedback.map((f, i) => (
+            {sessionFeedback.map((f, i) => (
               <li key={i} className="text-blue-100">{f}</li>
             ))}
           </ul>

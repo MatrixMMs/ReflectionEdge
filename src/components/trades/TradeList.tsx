@@ -76,6 +76,7 @@ export const TradeList: React.FC<TradeListProps> = ({ trades, tagGroups, onEditT
               <Th>Symbol</Th>
               <Th>Direction</Th>
               <Th>P&L</Th>
+              <Th>Analysis</Th>
               <Th>Tags</Th>
               <Th>Grade</Th>
               <Th>Actions</Th>
@@ -83,7 +84,7 @@ export const TradeList: React.FC<TradeListProps> = ({ trades, tagGroups, onEditT
           </Thead>
           <Tbody>
             {sortedTrades.map(trade => (
-              <Tr key={trade.id}>
+              <Tr key={trade.id} className={`${trade.isBestTrade ? 'ring-2 ring-yellow-400' : ''} ${trade.isWorstTrade ? 'ring-2 ring-red-400' : ''}`}>
                 <Td>{trade.date}</Td>
                 <Td>{trade.symbol || 'N/A'}</Td>
                 <Td>
@@ -95,6 +96,19 @@ export const TradeList: React.FC<TradeListProps> = ({ trades, tagGroups, onEditT
                 </Td>
                 <Td className={trade.profit >= 0 ? 'text-green-400' : 'text-red-400'}>
                   ${trade.profit.toFixed(2)}
+                </Td>
+                <Td>
+                  <div className="flex items-center gap-1">
+                    {trade.isBestTrade && (
+                      <span className="text-yellow-400 text-lg" title="Best Trade">⭐</span>
+                    )}
+                    {trade.isWorstTrade && (
+                      <span className="text-red-400 text-lg" title="Worst Trade">👎</span>
+                    )}
+                    {trade.extendedReflection && (trade.extendedReflection.mindset || trade.extendedReflection.setup) && (
+                      <span className="text-blue-400 text-sm" title="Has Extended Journal">📝</span>
+                    )}
+                  </div>
                 </Td>
                 <Td>
                   <div className="flex flex-wrap gap-1">

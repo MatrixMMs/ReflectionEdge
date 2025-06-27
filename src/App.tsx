@@ -37,6 +37,7 @@ import { MBSSessionGoal } from './components/MBSSessionGoal';
 import { MBSPreTradingChecklist } from './components/MBSPreTradingChecklist';
 import { MBSTradingPanel } from './components/MBSTradingPanel';
 import { MBSPostSessionReview } from './components/MBSPostSessionReview';
+import { BestWorstAnalysis } from './components/analysis/BestWorstAnalysis';
 
 // Helper to normalize CSV headers for detection
 const normalizeHeader = (header: string): string => header.toLowerCase().replace(/\s+/g, '').replace(/\//g, '');
@@ -97,6 +98,9 @@ const App: React.FC = () => {
 
   // Kelly Criterion analysis state
   const [isKellyCriterionModalOpen, setIsKellyCriterionModalOpen] = useState(false);
+
+  // Best & Worst analysis state
+  const [isBestWorstModalOpen, setIsBestWorstModalOpen] = useState(false);
 
   // Export modal state
   const [isExportModalOpen, setIsExportModalOpen] = useState(false);
@@ -241,6 +245,10 @@ const App: React.FC = () => {
 
   const handleDeleteTrade = (tradeId: string) => {
     setTrades(prev => prev.filter(t => t.id !== tradeId));
+  };
+
+  const handleUpdateTradeFromAnalysis = (updatedTrade: Trade) => {
+    setTrades(prev => prev.map(t => t.id === updatedTrade.id ? updatedTrade : t));
   };
 
   const handleEditTrade = (trade: Trade) => {
@@ -840,6 +848,9 @@ const App: React.FC = () => {
               <button onClick={() => setIsExecutionDashboardModalOpen(true)} className="flex items-center w-full px-3 py-2 rounded-lg hover:bg-gray-700 transition-colors">
                 <BrainIcon className="w-5 h-5 mr-3" /> Execution
               </button>
+              <button onClick={() => setIsBestWorstModalOpen(true)} className="flex items-center w-full px-3 py-2 rounded-lg hover:bg-gray-700 transition-colors">
+                <span className="text-lg mr-3">⭐</span> Best & Worst
+              </button>
             </div>
             {/* MBS */}
             <div>
@@ -1021,6 +1032,12 @@ const App: React.FC = () => {
             {isKellyCriterionModalOpen && (
               <Modal title="Kelly Criterion Analysis" onClose={() => setIsKellyCriterionModalOpen(false)} size="full">
                 <KellyCriterionAnalysis trades={trades} tagGroups={tagGroups} />
+              </Modal>
+            )}
+
+            {isBestWorstModalOpen && (
+              <Modal title="Best & Worst Analysis" onClose={() => setIsBestWorstModalOpen(false)} size="full">
+                <BestWorstAnalysis trades={trades} onUpdateTrade={handleUpdateTradeFromAnalysis} />
               </Modal>
             )}
 
