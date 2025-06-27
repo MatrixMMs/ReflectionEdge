@@ -3,7 +3,7 @@ import { Trade, TagGroup, PlaybookEntry } from '../../types';
 import { Table, Thead, Tbody, Tr, Th, Td } from '../ui/Table';
 import { Button } from '../ui/Button';
 import { EyeIcon, PencilIcon, TrashIcon } from '../ui/Icons';
-import { Grade } from '../../utils/grading';
+import { Grade, ALL_GRADES } from '../../utils/grading';
 import { TradeFilters, TradeFilters as TradeFiltersType } from './TradeFilters';
 import { filterTrades, getAvailableSymbols } from '../../utils/tradeFilters';
 
@@ -14,6 +14,8 @@ interface TradeListProps {
   onEditTrade: (trade: Trade) => void;
   onDeleteTrade: (tradeId: string) => void;
   onViewDetails: (trade: Trade) => void;
+  filtersOpen: boolean;
+  setFiltersOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 const getGradeColor = (grade: Grade): string => {
@@ -33,7 +35,7 @@ const getGradeColor = (grade: Grade): string => {
   }
 };
 
-export const TradeList: React.FC<TradeListProps> = ({ trades, tagGroups, onEditTrade, onDeleteTrade, onViewDetails }) => {
+export const TradeList: React.FC<TradeListProps> = ({ trades, tagGroups, onEditTrade, onDeleteTrade, onViewDetails, filtersOpen, setFiltersOpen }) => {
   const [filters, setFilters] = useState<TradeFiltersType>({
     direction: 'all',
     grade: 'all',
@@ -44,6 +46,9 @@ export const TradeList: React.FC<TradeListProps> = ({ trades, tagGroups, onEditT
     maxProfit: '',
     selectedTags: {}
   });
+  const [tagComparisonMode, setTagComparisonMode] = useState<'AND' | 'OR'>('OR');
+  const [sortBy, setSortBy] = useState<'date' | 'symbol' | 'direction' | 'profit' | 'grade'>('date');
+  const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc');
 
   const availableSymbols = useMemo(() => getAvailableSymbols(trades), [trades]);
   
@@ -52,8 +57,41 @@ export const TradeList: React.FC<TradeListProps> = ({ trades, tagGroups, onEditT
   }, [trades, filters]);
 
   const sortedTrades = useMemo(() => {
-    return [...filteredTrades].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-  }, [filteredTrades]);
+    const arr = [...filteredTrades];
+    arr.sort((a, b) => {
+      let cmp = 0;
+      if (sortBy === 'date') {
+        cmp = new Date(a.date).getTime() - new Date(b.date).getTime();
+      } else if (sortBy === 'symbol') {
+        cmp = (a.symbol || '').localeCompare(b.symbol || '', undefined, { numeric: true, sensitivity: 'base' });
+      } else if (sortBy === 'direction') {
+        cmp = (a.direction || '').localeCompare(b.direction || '');
+      } else if (sortBy === 'profit') {
+        cmp = a.profit - b.profit;
+      } else if (sortBy === 'grade') {
+        const gradeA = a.execution?.grade;
+        const gradeB = b.execution?.grade;
+        const idxA = gradeA ? ALL_GRADES.indexOf(gradeA) : ALL_GRADES.length;
+        const idxB = gradeB ? ALL_GRADES.indexOf(gradeB) : ALL_GRADES.length;
+        cmp = idxA - idxB;
+      }
+      return sortDir === 'asc' ? cmp : -cmp;
+    });
+    return arr;
+  }, [filteredTrades, sortBy, sortDir]);
+
+  const handleSort = (col: typeof sortBy) => {
+    if (sortBy === col) {
+      setSortDir(d => (d === 'asc' ? 'desc' : 'asc'));
+    } else {
+      setSortBy(col);
+      setSortDir('asc');
+    }
+  };
+
+  const sortIndicator = (col: typeof sortBy) => sortBy === col ? (
+    <span className="ml-2 inline-block align-middle text-xs">{sortDir === 'asc' ? '▲' : '▼'}</span>
+  ) : null;
 
   return (
     <div>
@@ -62,6 +100,10 @@ export const TradeList: React.FC<TradeListProps> = ({ trades, tagGroups, onEditT
         onFiltersChange={setFilters}
         tagGroups={tagGroups}
         availableSymbols={availableSymbols}
+        isExpanded={filtersOpen}
+        setIsExpanded={setFiltersOpen}
+        tagComparisonMode={tagComparisonMode}
+        setTagComparisonMode={setTagComparisonMode}
       />
       
       <div className="mb-4 text-sm text-gray-400">
@@ -72,12 +114,12 @@ export const TradeList: React.FC<TradeListProps> = ({ trades, tagGroups, onEditT
         <Table>
           <Thead>
             <Tr>
-              <Th>Date</Th>
-              <Th>Symbol</Th>
-              <Th>Direction</Th>
-              <Th>P&L</Th>
+              <Th><span onClick={() => handleSort('date')} className="cursor-pointer select-none flex items-center">Date{sortIndicator('date')}</span></Th>
+              <Th><span onClick={() => handleSort('symbol')} className="cursor-pointer select-none flex items-center">Symbol{sortIndicator('symbol')}</span></Th>
+              <Th><span onClick={() => handleSort('direction')} className="cursor-pointer select-none flex items-center">Direction{sortIndicator('direction')}</span></Th>
+              <Th><span onClick={() => handleSort('profit')} className="cursor-pointer select-none flex items-center">P&L{sortIndicator('profit')}</span></Th>
               <Th>Tags</Th>
-              <Th>Grade</Th>
+              <Th><span onClick={() => handleSort('grade')} className="cursor-pointer select-none flex items-center">Grade{sortIndicator('grade')}</span></Th>
               <Th>Actions</Th>
             </Tr>
           </Thead>

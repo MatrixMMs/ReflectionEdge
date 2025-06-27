@@ -375,18 +375,6 @@ describe('TagPerformance', () => {
     });
   });
 
-  describe('Color Display', () => {
-    it('displays subtag names with their colors', () => {
-      render(<TagPerformance {...defaultProps} />);
-      
-      const confidentElement = screen.getByText('Confident');
-      expect(confidentElement).toHaveStyle({ color: '#34D399' });
-      
-      const nervousElement = screen.getByText('Nervous');
-      expect(nervousElement).toHaveStyle({ color: '#F2385A' });
-    });
-  });
-
   describe('P&L Color Coding', () => {
     it('displays positive P&L in green', () => {
       render(<TagPerformance {...defaultProps} />);

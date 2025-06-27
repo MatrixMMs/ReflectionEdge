@@ -57,6 +57,11 @@ export const ChartControls: React.FC<ChartControlsProps> = ({
     }
   };
 
+  // Helper to check if any tags are actually selected
+  const hasSelectedTags = () => {
+    return Object.values(selectedTags).some(arr => Array.isArray(arr) && arr.length > 0);
+  };
+
   return (
     <div className="space-y-4 text-gray-300">
       {/* Date Range Selection */}
@@ -128,6 +133,37 @@ export const ChartControls: React.FC<ChartControlsProps> = ({
       <div>
         <h4 className="text-sm font-medium mb-1">Filter by Tags (for chart lines):</h4>
         {tagGroups.length === 0 && <p className="text-xs text-gray-500">No tags defined yet.</p>}
+        {/* Selected Tags Section - spaced below label */}
+        {hasSelectedTags() && (
+          <div className="mb-4 mt-3">
+            <div className="flex flex-wrap items-center gap-2 mb-2">
+              {Object.entries(selectedTags).flatMap(([groupId, subTagIds]) =>
+                subTagIds.map(subTagId => {
+                  const group = tagGroups.find(g => g.id === groupId);
+                  const subTag = group?.subtags.find(st => st.id === subTagId);
+                  if (!subTag) return null;
+                  return (
+                    <button
+                      key={groupId + '-' + subTagId}
+                      type="button"
+                      onClick={() => handleTagSelection(groupId, subTagId)}
+                      className="flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-gray-700 text-white mr-2 mb-2 transition-colors hover:bg-gray-600"
+                    >
+                      {subTag.name + ' ×'}
+                    </button>
+                  );
+                })
+              )}
+            </div>
+            <button
+              onClick={() => setSelectedTags({})}
+              className="px-3 py-1 text-sm font-semibold bg-red-600 hover:bg-red-700 text-white rounded shadow-md transition-colors mt-1"
+              style={{ textAlign: 'center', boxShadow: '0 2px 8px 0 rgba(0,0,0,0.15)' }}
+            >
+              Clear All
+            </button>
+          </div>
+        )}
         {tagGroups.map(group => (
           <div key={group.id} className="mb-2">
             <p className="text-xs font-semibold text-gray-400">{group.name}</p>

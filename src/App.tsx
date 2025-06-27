@@ -18,7 +18,7 @@ import { processChartData, filterTradesByDateAndTags } from './utils/chartDataPr
 import { parseCSVToTrades as parseBrokerExportCSV } from './utils/csvImporter';
 import { parseQuantowerCSVToTrades } from './utils/quantowerCsvImporter';
 import { getRandomColor, resetColorUsage } from './utils/colorGenerator';
-import { PlusCircleIcon, ChartBarIcon, TagIcon, TableCellsIcon, DocumentTextIcon, AdjustmentsHorizontalIcon, DocumentArrowUpIcon, CogIcon, AcademicCapIcon, LightBulbIcon, BrainIcon, CalculatorIcon } from './components/ui/Icons'; // Added AcademicCapIcon for consistency if used directly in App.tsx
+import { PlusCircleIcon, ChartBarIcon, TagIcon, TableCellsIcon, DocumentTextIcon, AdjustmentsHorizontalIcon, DocumentArrowUpIcon, CogIcon, AcademicCapIcon, LightBulbIcon, BrainIcon, CalculatorIcon, FilterIcon } from './components/ui/Icons'; // Added AcademicCapIcon for consistency if used directly in App.tsx
 import { Modal } from './components/ui/Modal';
 import { Button } from './components/ui/Button';
 import { NotificationPopup } from './components/ui/NotificationPopup';
@@ -111,6 +111,8 @@ const App: React.FC = () => {
   const [hasSeenLegalDisclaimer, setHasSeenLegalDisclaimer] = useState(false);
 
   const [activeTab, setActiveTab] = useState<'trades' | 'charts' | 'playbook'>('trades');
+
+  const [tradeFiltersOpen, setTradeFiltersOpen] = useState(false);
 
   useEffect(() => {
     const stored = SecureStorage.loadData();
@@ -1255,24 +1257,36 @@ const App: React.FC = () => {
               </div>
 
                 <div id="tradelog-container" className="bg-gray-800 p-6 rounded-xl shadow-2xl">
-                <h2 className="text-2xl font-semibold mb-4 text-purple-400 flex items-center">
-                  <TableCellsIcon className="w-6 h-6 mr-2" /> Trade Log
-                </h2>
-                  {activeTab === 'trades' && (
-                <TradeList 
-                  trades={trades} 
-                  tagGroups={tagGroups}
-                  playbookEntries={playbookEntries}
-                  onDeleteTrade={handleDeleteTrade} 
-                  onEditTrade={handleEditTrade}
-                      onViewDetails={handleViewTradeDetails}
-                    />
-                  )}
-                  {activeTab === 'charts' && (
-                    <div className="space-y-4">
-                      {/* Additional content for charts tab */}
-                    </div>
-                  )}
+                <div className="flex items-center justify-between mb-4">
+                  <h2 className="text-2xl font-semibold text-purple-400 flex items-center">
+                    Trade Log
+                  </h2>
+                  <button
+                    onClick={() => setTradeFiltersOpen((prev: boolean) => !prev)}
+                    aria-label={tradeFiltersOpen ? 'Hide Filters' : 'Show Filters'}
+                    className="text-gray-400 hover:text-white transition-colors focus:outline-none"
+                    style={{ background: 'none', border: 'none', padding: 0 }}
+                  >
+                    <FilterIcon className="w-5 h-5" />
+                  </button>
+                </div>
+                {activeTab === 'trades' && (
+                  <TradeList
+                    trades={trades}
+                    tagGroups={tagGroups}
+                    playbookEntries={playbookEntries}
+                    onDeleteTrade={handleDeleteTrade}
+                    onEditTrade={handleEditTrade}
+                    onViewDetails={handleViewTradeDetails}
+                    filtersOpen={tradeFiltersOpen}
+                    setFiltersOpen={setTradeFiltersOpen}
+                  />
+                )}
+                {activeTab === 'charts' && (
+                  <div className="space-y-4">
+                    {/* Additional content for charts tab */}
+                  </div>
+                )}
               </div>
             </div>
           </main>

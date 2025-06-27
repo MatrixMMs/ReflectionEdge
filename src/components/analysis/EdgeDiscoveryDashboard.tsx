@@ -150,29 +150,35 @@ export const EdgeDiscoveryDashboard: React.FC<EdgeDiscoveryDashboardProps> = ({ 
               AND (all selected tags)
             </button>
           </div>
-          <div className="space-y-3 max-h-60 overflow-y-auto p-2 rounded-md bg-gray-900/50">
-            {tagGroups.map(group => (
-              <div key={group.id}>
-                <p className="font-semibold text-purple-400 text-sm mb-1">{group.name}</p>
-                <div className="flex flex-wrap gap-2">
-                  {group.subtags.map(subtag => (
+          {/* Selected Tags Section */}
+          {Object.keys(selectedTags).length > 0 && (
+            <div className="mb-4 flex flex-wrap items-center gap-2">
+              {Object.entries(selectedTags).flatMap(([groupId, subTagIds]) =>
+                subTagIds.map(subTagId => {
+                  const group = tagGroups.find(g => g.id === groupId);
+                  const subTag = group?.subtags.find(st => st.id === subTagId);
+                  if (!subTag) return null;
+                  return (
                     <button
-                      key={subtag.id}
+                      key={groupId + '-' + subTagId}
                       type="button"
-                      onClick={() => handleTagChange(group.id, subtag.id)}
-                      className={`px-3 py-1 rounded-full text-xs font-semibold transition-colors mr-2 mb-2 ${
-                        selectedTags[group.id]?.includes(subtag.id)
-                          ? 'bg-gray-700 text-white'
-                          : 'bg-gray-600 text-white hover:bg-gray-500'
-                      }`}
+                      onClick={() => handleTagChange(groupId, subTagId)}
+                      className="flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-gray-700 text-white mr-2 mb-2 transition-colors hover:bg-gray-600"
                     >
-                      {subtag.name}
+                      {subTag.name + ' ×'}
                     </button>
-                  ))}
-                </div>
-              </div>
-            ))}
-          </div>
+                  );
+                })
+              )}
+              <button
+                type="button"
+                onClick={() => setSelectedTags({})}
+                className="px-3 py-1 rounded-full text-xs font-semibold bg-red-600 text-white hover:bg-red-700 transition-colors"
+              >
+                Clear all
+              </button>
+            </div>
+          )}
         </div>
         <button
           onClick={() => {
