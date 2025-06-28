@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Trade, TagGroup, TradeDirectionFilterSelection } from '../../types';
 import { Grade, ALL_GRADES } from '../../utils/grading';
 import { Input } from '../ui/Input';
-import { FilterIcon } from '../ui/Icons';
+import { FilterIcon, ChevronDownIcon, ChevronUpIcon } from '../ui/Icons';
 
 export interface TradeFilters {
   direction: TradeDirectionFilterSelection;
@@ -72,6 +72,11 @@ export const TradeFilters: React.FC<TradeFiltersProps> = ({
   // Helper to check if any tags are actually selected
   const hasSelectedTags = () => {
     return Object.values(filters.selectedTags).some(arr => Array.isArray(arr) && arr.length > 0);
+  };
+
+  const [collapsedGroups, setCollapsedGroups] = useState<{ [groupId: string]: boolean }>({});
+  const toggleGroupCollapse = (groupId: string) => {
+    setCollapsedGroups(prev => ({ ...prev, [groupId]: !prev[groupId] }));
   };
 
   return (
@@ -231,37 +236,59 @@ export const TradeFilters: React.FC<TradeFiltersProps> = ({
               </div>
             )}
             {/* Tag selection UI */}
-            <div className="space-y-2 mb-4">
-              {tagGroups.map(group => (
-                <div key={group.id}>
-                  <span className="font-semibold text-purple-300 text-xs">{group.name}</span>
-                  <div className="flex flex-wrap gap-2 mt-1">
-                    {group.subtags.map(subtag => (
-                      <button
-                        key={subtag.id}
-                        type="button"
-                        onClick={() => {
-                          const current = filters.selectedTags[group.id] || [];
-                          const next = current.includes(subtag.id)
-                            ? current.filter(id => id !== subtag.id)
-                            : [...current, subtag.id];
-                          updateFilter('selectedTags', {
-                            ...filters.selectedTags,
-                            [group.id]: next
-                          });
-                        }}
-                        className={`px-3 py-1 rounded-full text-xs font-semibold transition-colors mr-2 mb-2 ${
-                          filters.selectedTags[group.id]?.includes(subtag.id)
-                            ? 'bg-gray-700 text-white'
-                            : 'bg-gray-600 text-white hover:bg-gray-500'
-                        }`}
-                      >
-                        {subtag.name}
-                      </button>
-                    ))}
+            <div className="space-y-3 mb-4">
+              {tagGroups.map(group => {
+                const isCollapsed = collapsedGroups[group.id] || false;
+                return (
+                  <div key={group.id} className="bg-gray-800 border border-gray-700 rounded-xl shadow-sm">
+                    <button
+                      type="button"
+                      className="w-full flex items-center justify-between px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500 rounded-t-xl"
+                      onClick={() => toggleGroupCollapse(group.id)}
+                      aria-expanded={!isCollapsed}
+                      aria-controls={`tag-group-${group.id}`}
+                      style={{ border: 'none', boxShadow: 'none', background: 'none' }}
+                    >
+                      <span className="text-xs font-semibold text-gray-200 tracking-wide">{group.name}</span>
+                      {isCollapsed ? (
+                        <ChevronDownIcon className="w-4 h-4 text-gray-400" />
+                      ) : (
+                        <ChevronUpIcon className="w-4 h-4 text-gray-400" />
+                      )}
+                    </button>
+                    {!isCollapsed && (
+                      <>
+                        <div className="border-t border-gray-700 mx-2" />
+                        <div id={`tag-group-${group.id}`} className="flex flex-wrap gap-2 px-4 pb-3 pt-3">
+                          {group.subtags.map(subtag => (
+                            <button
+                              key={subtag.id}
+                              type="button"
+                              onClick={() => {
+                                const current = filters.selectedTags[group.id] || [];
+                                const next = current.includes(subtag.id)
+                                  ? current.filter(id => id !== subtag.id)
+                                  : [...current, subtag.id];
+                                updateFilter('selectedTags', {
+                                  ...filters.selectedTags,
+                                  [group.id]: next
+                                });
+                              }}
+                              className={`px-3 py-1 rounded-full text-xs font-semibold transition-colors mr-2 mb-2 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-purple-500 ${
+                                filters.selectedTags[group.id]?.includes(subtag.id)
+                                  ? 'bg-gray-700 text-white'
+                                  : 'bg-gray-600 text-white hover:bg-gray-500'
+                              }`}
+                            >
+                              {subtag.name}
+                            </button>
+                          ))}
+                        </div>
+                      </>
+                    )}
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         </div>

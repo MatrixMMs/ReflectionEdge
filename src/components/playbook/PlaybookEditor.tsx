@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { PlaybookEntry, TagGroup } from '../../types';
 import { generateSecureId } from '../../utils/security';
+import { ChevronDownIcon, ChevronUpIcon } from '../ui/Icons';
 
 interface PlaybookEditorProps {
   entry?: PlaybookEntry;
@@ -20,6 +21,11 @@ export const PlaybookEditor: React.FC<PlaybookEditorProps> = ({ entry, tagGroups
   const [editingItemId, setEditingItemId] = useState<string | null>(null);
   const [editingItemText, setEditingItemText] = useState('');
   const editInputRef = useRef<HTMLInputElement>(null);
+
+  const [collapsedGroups, setCollapsedGroups] = React.useState<{ [groupId: string]: boolean }>({});
+  const toggleGroupCollapse = (groupId: string) => {
+    setCollapsedGroups(prev => ({ ...prev, [groupId]: !prev[groupId] }));
+  };
 
   useEffect(() => {
     if (editingItemId && editInputRef.current) {
@@ -103,31 +109,50 @@ export const PlaybookEditor: React.FC<PlaybookEditorProps> = ({ entry, tagGroups
           rows={3}
         />
       </div>
-      <div>
-        <label className="block text-sm font-medium text-gray-300 mb-1">Tags</label>
-        <div className="space-y-2">
-          {tagGroups.map(group => (
-            <div key={group.id}>
-              <span className="font-semibold text-purple-300 text-xs">{group.name}</span>
-              <div className="flex flex-wrap gap-2 mt-1">
-                {group.subtags.map(subtag => (
-                  <button
-                    key={subtag.id}
-                    type="button"
-                    onClick={() => handleTagToggle(group.id, subtag.id)}
-                    className={`px-3 py-1 rounded-full text-sm font-semibold transition-colors ${
-                      tags[group.id]?.includes(subtag.id)
-                        ? 'bg-gray-700 text-white'
-                        : 'bg-gray-600 text-white hover:bg-gray-500'
-                    }`}
-                  >
-                    {subtag.name}
-                  </button>
-                ))}
-              </div>
+      <div className="space-y-3">
+        {tagGroups.map(group => {
+          const isCollapsed = collapsedGroups[group.id] || false;
+          return (
+            <div key={group.id} className="bg-gray-800 border border-gray-700 rounded-xl shadow-sm">
+              <button
+                type="button"
+                className="w-full flex items-center justify-between px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500 rounded-t-xl"
+                onClick={() => toggleGroupCollapse(group.id)}
+                aria-expanded={!isCollapsed}
+                aria-controls={`tag-group-${group.id}`}
+                style={{ border: 'none', boxShadow: 'none', background: 'none' }}
+              >
+                <span className="text-xs font-semibold text-gray-200 tracking-wide">{group.name}</span>
+                {isCollapsed ? (
+                  <ChevronDownIcon className="w-4 h-4 text-gray-400" />
+                ) : (
+                  <ChevronUpIcon className="w-4 h-4 text-gray-400" />
+                )}
+              </button>
+              {!isCollapsed && (
+                <>
+                  <div className="border-t border-gray-700 mx-2" />
+                  <div id={`tag-group-${group.id}`} className="flex flex-wrap gap-2 px-4 pb-3 pt-3">
+                    {group.subtags.map(subtag => (
+                      <button
+                        key={subtag.id}
+                        type="button"
+                        onClick={() => handleTagToggle(group.id, subtag.id)}
+                        className={`px-3 py-1 rounded-full text-sm font-semibold transition-colors border border-gray-600 focus:outline-none focus:ring-2 focus:ring-purple-500 ${
+                          tags[group.id]?.includes(subtag.id)
+                            ? 'bg-gray-700 text-white'
+                            : 'bg-gray-600 text-white hover:bg-gray-500'
+                        }`}
+                      >
+                        {subtag.name}
+                      </button>
+                    ))}
+                  </div>
+                </>
+              )}
             </div>
-          ))}
-        </div>
+          );
+        })}
       </div>
       <div>
         <label className="block text-sm font-medium text-gray-300 mb-1">Checklist</label>
