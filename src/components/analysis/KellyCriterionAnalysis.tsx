@@ -3,7 +3,7 @@ import { Trade, TagGroup } from '../../types';
 import { KellyAnalysis, calculateKellyCriterion, calculateKellyByTimeframe, calculateKellyBySymbol, calculateKellyByTag, getTagMetadata } from '../../utils/kellyCriterion';
 import { filterTradesByDateAndTags } from '../../utils/chartDataProcessor';
 import { Button } from '../ui/Button';
-import { CalculatorIcon, TrendingUpIcon, ShieldCheckIcon, ExclamationTriangleIcon } from '../ui/Icons';
+import { CalculatorIcon, TrendingUpIcon, ShieldCheckIcon, ExclamationTriangleIcon, ChevronDownIcon, ChevronUpIcon } from '../ui/Icons';
 
 interface KellyCriterionAnalysisProps {
   trades: Trade[];
@@ -16,6 +16,7 @@ export const KellyCriterionAnalysis: React.FC<KellyCriterionAnalysisProps> = ({ 
   const [selectedTags, setSelectedTags] = useState<{[groupId: string]: string[]}>({});
   const [tagComparisonMode, setTagComparisonMode] = useState<'AND' | 'OR'>('OR');
   const [showAdvanced, setShowAdvanced] = useState(false);
+  const [collapsedGroups, setCollapsedGroups] = React.useState<{ [groupId: string]: boolean }>({});
 
   const filteredTrades = useMemo(() => {
     const hasSelectedTags = Object.values(selectedTags).some(tags => tags.length > 0);
@@ -99,6 +100,10 @@ export const KellyCriterionAnalysis: React.FC<KellyCriterionAnalysisProps> = ({ 
     if (risk < 0.1) return 'text-green-400';
     if (risk < 0.3) return 'text-yellow-400';
     return 'text-red-400';
+  };
+
+  const toggleGroupCollapse = (groupId: string) => {
+    setCollapsedGroups(prev => ({ ...prev, [groupId]: !prev[groupId] }));
   };
 
   return (
@@ -188,38 +193,50 @@ export const KellyCriterionAnalysis: React.FC<KellyCriterionAnalysisProps> = ({ 
         )}
 
         {/* Tag Filters */}
-        <div>
-          <div className="flex justify-between items-center mb-2">
-            <label className="block text-sm font-medium text-gray-300">Filter by Tags</label>
-            <div className="flex items-center space-x-2">
-              <span className="text-xs text-gray-400">Mode:</span>
-              <Button onClick={() => setTagComparisonMode('AND')} variant={tagComparisonMode === 'AND' ? 'primary' : 'secondary'} size="sm">AND</Button>
-              <Button onClick={() => setTagComparisonMode('OR')} variant={tagComparisonMode === 'OR' ? 'primary' : 'secondary'} size="sm">OR</Button>
-            </div>
-          </div>
-          <div className="bg-gray-700 p-3 rounded-lg space-y-2">
-            {tagGroups.filter(g => g.subtags.length > 0).map(group => (
-              <div key={group.id}>
-                <p className="text-sm font-semibold text-gray-200 mb-1">{group.name}</p>
-                <div className="flex flex-wrap gap-2">
-                  {group.subtags.map(subtag => (
-                    <button
-                      key={subtag.id}
-                      type="button"
-                      onClick={() => handleTagChange(group.id, subtag.id)}
-                      className={`px-3 py-1 rounded-full text-xs font-semibold transition-colors mr-2 mb-2 ${
-                        selectedTags[group.id]?.includes(subtag.id)
-                          ? 'bg-gray-700 text-white'
-                          : 'bg-gray-600 text-white hover:bg-gray-500'
-                      }`}
-                    >
-                      {subtag.name}
-                    </button>
-                  ))}
-                </div>
+        <div className="space-y-3">
+          {tagGroups.filter(g => g.subtags.length > 0).map(group => {
+            const isCollapsed = collapsedGroups[group.id] || false;
+            return (
+              <div key={group.id} className="bg-gray-800 border border-gray-700 rounded-xl shadow-sm">
+                <button
+                  type="button"
+                  className="w-full flex items-center justify-between px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500 rounded-t-xl"
+                  onClick={() => toggleGroupCollapse(group.id)}
+                  aria-expanded={!isCollapsed}
+                  aria-controls={`tag-group-${group.id}`}
+                  style={{ border: 'none', boxShadow: 'none', background: 'none' }}
+                >
+                  <span className="text-xs font-semibold text-gray-200 tracking-wide">{group.name}</span>
+                  {isCollapsed ? (
+                    <ChevronDownIcon className="w-4 h-4 text-gray-400" />
+                  ) : (
+                    <ChevronUpIcon className="w-4 h-4 text-gray-400" />
+                  )}
+                </button>
+                {!isCollapsed && (
+                  <>
+                    <div className="border-t border-gray-700 mx-2" />
+                    <div id={`tag-group-${group.id}`} className="flex flex-wrap gap-2 px-4 pb-3 pt-3">
+                      {group.subtags.map(subtag => (
+                        <button
+                          key={subtag.id}
+                          type="button"
+                          onClick={() => handleTagChange(group.id, subtag.id)}
+                          className={`px-3 py-1 rounded-full text-xs font-semibold transition-colors mr-2 mb-2 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-purple-500 ${
+                            selectedTags[group.id]?.includes(subtag.id)
+                              ? 'bg-gray-700 text-white'
+                              : 'bg-gray-600 text-white hover:bg-gray-500'
+                          }`}
+                        >
+                          {subtag.name}
+                        </button>
+                      ))}
+                    </div>
+                  </>
+                )}
               </div>
-            ))}
-          </div>
+            );
+          })}
         </div>
       </div>
 

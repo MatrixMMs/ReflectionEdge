@@ -2,7 +2,7 @@ import React, { useMemo, useState } from 'react';
 import { Trade, TagGroup, PlaybookEntry } from '../../types';
 import { Table, Thead, Tbody, Tr, Th, Td } from '../ui/Table';
 import { Button } from '../ui/Button';
-import { EyeIcon, PencilIcon, TrashIcon } from '../ui/Icons';
+import { EyeIcon, PencilIcon, TrashIcon, ChevronUpIcon, ChevronDownIcon } from '../ui/Icons';
 import { Grade, ALL_GRADES } from '../../utils/grading';
 import { TradeFilters, TradeFilters as TradeFiltersType } from './TradeFilters';
 import { filterTrades, getAvailableSymbols } from '../../utils/tradeFilters';
@@ -90,7 +90,9 @@ export const TradeList: React.FC<TradeListProps> = ({ trades, tagGroups, onEditT
   };
 
   const sortIndicator = (col: typeof sortBy) => sortBy === col ? (
-    <span className="ml-2 inline-block align-middle text-xs">{sortDir === 'asc' ? '▲' : '▼'}</span>
+    <span className="ml-2 inline-block align-middle text-xs">
+      {sortDir === 'asc' ? <ChevronUpIcon className="w-3 h-3 text-white" /> : <ChevronDownIcon className="w-3 h-3 text-white" />}
+    </span>
   ) : null;
 
   return (

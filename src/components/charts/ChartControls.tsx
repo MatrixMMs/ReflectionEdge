@@ -1,6 +1,7 @@
 import React from 'react';
 import { Input } from '../ui/Input';
 import { ChartYAxisMetric, ChartXAxisMetric, TagGroup, AppDateRange, TradeDirectionFilterSelection } from '../../types';
+import { ChevronDownIcon, ChevronUpIcon } from '../ui/Icons';
 
 interface ChartControlsProps {
   yAxisMetric: ChartYAxisMetric;
@@ -26,6 +27,7 @@ export const ChartControls: React.FC<ChartControlsProps> = ({
   tagGroups, selectedTags, setSelectedTags, tagComparisonMode, setTagComparisonMode,
   directionFilter, setDirectionFilter
 }) => {
+  const [collapsedGroups, setCollapsedGroups] = React.useState<{ [groupId: string]: boolean }>({});
 
   const handleTagSelection = (groupId: string, subTagId: string) => {
     setSelectedTags(prev => {
@@ -60,6 +62,10 @@ export const ChartControls: React.FC<ChartControlsProps> = ({
   // Helper to check if any tags are actually selected
   const hasSelectedTags = () => {
     return Object.values(selectedTags).some(arr => Array.isArray(arr) && arr.length > 0);
+  };
+
+  const toggleGroupCollapse = (groupId: string) => {
+    setCollapsedGroups(prev => ({ ...prev, [groupId]: !prev[groupId] }));
   };
 
   return (
@@ -164,45 +170,68 @@ export const ChartControls: React.FC<ChartControlsProps> = ({
             </button>
           </div>
         )}
-        {tagGroups.map(group => (
-          <div key={group.id} className="mb-2">
-            <p className="text-xs font-semibold text-gray-400">{group.name}</p>
-            <div className="flex flex-wrap gap-2 mt-1">
-              {group.subtags.map(subtag => (
+        <div className="space-y-3">
+          {tagGroups.map(group => {
+            const isCollapsed = collapsedGroups[group.id] || false;
+            return (
+              <div key={group.id} className="bg-gray-800 border border-gray-700 rounded-xl shadow-sm">
                 <button
-                  key={subtag.id}
                   type="button"
-                  onClick={() => handleTagSelection(group.id, subtag.id)}
-                  className={`px-3 py-1 rounded-full text-xs font-semibold transition-colors mr-2 mb-2 ${
-                    selectedTags[group.id]?.includes(subtag.id)
-                      ? 'bg-gray-700 text-white'
-                      : 'bg-gray-600 text-white hover:bg-gray-500'
-                  }`}
+                  className="w-full flex items-center justify-between px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500 rounded-t-xl"
+                  onClick={() => toggleGroupCollapse(group.id)}
+                  aria-expanded={!isCollapsed}
+                  aria-controls={`tag-group-${group.id}`}
+                  style={{ border: 'none', boxShadow: 'none', background: 'none' }}
                 >
-                  {subtag.name}
+                  <span className="text-xs font-semibold text-gray-200 tracking-wide">{group.name}</span>
+                  {isCollapsed ? (
+                    <ChevronDownIcon className="w-4 h-4 text-gray-400" />
+                  ) : (
+                    <ChevronUpIcon className="w-4 h-4 text-gray-400" />
+                  )}
                 </button>
-              ))}
-            </div>
-          </div>
-        ))}
+                {!isCollapsed && (
+                  <>
+                    <div className="border-t border-gray-700 mx-2" />
+                    <div id={`tag-group-${group.id}`} className="flex flex-wrap gap-2 px-4 pb-3 pt-3">
+                      {group.subtags.map(subtag => (
+                        <button
+                          key={subtag.id}
+                          type="button"
+                          onClick={() => handleTagSelection(group.id, subtag.id)}
+                          className={`px-3 py-1 rounded-full text-xs font-semibold transition-colors mr-2 mb-2 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-purple-500 ${
+                            selectedTags[group.id]?.includes(subtag.id)
+                              ? 'bg-gray-700 text-white'
+                              : 'bg-gray-600 text-white hover:bg-gray-500'
+                          }`}
+                        >
+                          {subtag.name}
+                        </button>
+                      ))}
+                    </div>
+                  </>
+                )}
+              </div>
+            );
+          })}
+        </div>
         {Object.keys(selectedTags).length > 0 && (
-            <div className="mt-2">
-                <label htmlFor="tag-comparison-mode" className="block text-xs font-medium mb-1">Tag Logic (for trades with multiple tag group selections):</label>
-                <select
-                    id="tag-comparison-mode"
-                    value={tagComparisonMode}
-                    onChange={e => setTagComparisonMode(e.target.value as 'AND' | 'OR')}
-                    className="w-full bg-gray-700 border border-gray-600 text-gray-100 text-xs rounded-lg focus:ring-purple-500 focus:border-purple-500 p-1.5"
-                >
-                    <option value="OR">Match ANY selected tag (OR logic)</option>
-                    <option value="AND">Match ALL selected tags per group (AND logic)</option>
-                </select>
-                <p className="text-xs text-gray-500 mt-1">
-                    OR: Shows lines for each selected tag individually.
-                    <br/>
-                    AND: Filters trades that have ALL specified tags (across different groups if multiple groups selected).
-                </p>
-            </div>
+          <div className="mt-2">
+            <label htmlFor="tag-comparison-mode" className="block text-xs font-medium mb-1">Tag Logic (for trades with multiple tag group selections):</label>
+            <select
+              id="tag-comparison-mode"
+              value={tagComparisonMode}
+              onChange={e => setTagComparisonMode(e.target.value as 'AND' | 'OR')}
+              className="w-full bg-gray-700 border border-gray-600 text-gray-100 text-xs rounded-lg focus:ring-purple-500 focus:border-purple-500 p-1.5"
+            >
+              <option value="OR">Match ANY selected tag (OR logic)</option>
+              <option value="AND">Match ALL selected tags per group (AND logic)</option>
+            </select>
+            <p className="text-xs text-gray-500 mt-1">
+              OR: Shows lines for each selected tag individually.<br />
+              AND: Filters trades that have ALL specified tags (across different groups if multiple groups selected).
+            </p>
+          </div>
         )}
       </div>
     </div>
