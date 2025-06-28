@@ -138,7 +138,7 @@ export const PlaybookEditor: React.FC<PlaybookEditorProps> = ({ entry, tagGroups
                         key={subtag.id}
                         type="button"
                         onClick={() => handleTagToggle(group.id, subtag.id)}
-                        className={`px-3 py-1 rounded-full text-sm font-semibold transition-colors border border-gray-600 focus:outline-none focus:ring-2 focus:ring-purple-500 ${
+                        className={`px-3 py-1 rounded-full text-sm font-semibold transition-colors border border-gray-600 focus:outline-none ${
                           tags[group.id]?.includes(subtag.id)
                             ? 'bg-gray-700 text-white'
                             : 'bg-gray-600 text-white hover:bg-gray-500'

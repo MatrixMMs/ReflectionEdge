@@ -227,8 +227,8 @@ export const TradeFilters: React.FC<TradeFiltersProps> = ({
                 {hasSelectedTags() && (
                   <button
                     onClick={clearAllFilters}
-                    className="px-3 py-1 text-sm font-semibold bg-red-600 hover:bg-red-700 text-white rounded shadow-md transition-colors mt-1"
-                    style={{ textAlign: 'center', boxShadow: '0 2px 8px 0 rgba(0,0,0,0.15)' }}
+                    className="text-red-500"
+                    style={{ background: 'none', border: 'none', padding: 0, minWidth: 0 }}
                   >
                     Clear All
                   </button>
@@ -274,7 +274,7 @@ export const TradeFilters: React.FC<TradeFiltersProps> = ({
                                   [group.id]: next
                                 });
                               }}
-                              className={`px-3 py-1 rounded-full text-xs font-semibold transition-colors mr-2 mb-2 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-purple-500 ${
+                              className={`px-3 py-1 rounded-full text-xs font-semibold transition-colors mr-2 mb-2 border border-gray-600 focus:outline-none ${
                                 filters.selectedTags[group.id]?.includes(subtag.id)
                                   ? 'bg-gray-700 text-white'
                                   : 'bg-gray-600 text-white hover:bg-gray-500'

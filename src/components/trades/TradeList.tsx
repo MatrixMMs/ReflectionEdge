@@ -1,8 +1,8 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useRef, useEffect } from 'react';
 import { Trade, TagGroup, PlaybookEntry } from '../../types';
 import { Table, Thead, Tbody, Tr, Th, Td } from '../ui/Table';
 import { Button } from '../ui/Button';
-import { EyeIcon, PencilIcon, TrashIcon, ChevronUpIcon, ChevronDownIcon } from '../ui/Icons';
+import { EyeIcon, PencilIcon, TrashIcon, ChevronUpIcon, ChevronDownIcon, DotsVerticalIcon } from '../ui/Icons';
 import { Grade, ALL_GRADES } from '../../utils/grading';
 import { TradeFilters, TradeFilters as TradeFiltersType } from './TradeFilters';
 import { filterTrades, getAvailableSymbols } from '../../utils/tradeFilters';
@@ -49,6 +49,8 @@ export const TradeList: React.FC<TradeListProps> = ({ trades, tagGroups, onEditT
   const [tagComparisonMode, setTagComparisonMode] = useState<'AND' | 'OR'>('OR');
   const [sortBy, setSortBy] = useState<'date' | 'symbol' | 'direction' | 'profit' | 'grade'>('date');
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc');
+  const [menuOpenId, setMenuOpenId] = useState<string | null>(null);
+  const menuRef = useRef<HTMLDivElement | null>(null);
 
   const availableSymbols = useMemo(() => getAvailableSymbols(trades), [trades]);
   
@@ -95,6 +97,19 @@ export const TradeList: React.FC<TradeListProps> = ({ trades, tagGroups, onEditT
     </span>
   ) : null;
 
+  useEffect(() => {
+    if (!menuOpenId) return;
+    function handleClickOutside(event: MouseEvent) {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setMenuOpenId(null);
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [menuOpenId]);
+
   return (
     <div>
       <TradeFilters
@@ -121,9 +136,8 @@ export const TradeList: React.FC<TradeListProps> = ({ trades, tagGroups, onEditT
               <Th><span onClick={() => handleSort('direction')} className="cursor-pointer select-none flex items-center">Direction{sortIndicator('direction')}</span></Th>
               <Th><span onClick={() => handleSort('profit')} className="cursor-pointer select-none flex items-center">P&L{sortIndicator('profit')}</span></Th>
               <Th>&nbsp;</Th>
-              <Th>Tags</Th>
               <Th><span onClick={() => handleSort('grade')} className="cursor-pointer select-none flex items-center">Grade{sortIndicator('grade')}</span></Th>
-              <Th>Actions</Th>
+              <Th></Th>
             </Tr>
           </Thead>
           <Tbody>
@@ -155,40 +169,43 @@ export const TradeList: React.FC<TradeListProps> = ({ trades, tagGroups, onEditT
                   </div>
                 </Td>
                 <Td>
-                  <div className="flex flex-wrap gap-1">
-                    {Object.entries(trade.tags).map(([groupId, subTagId]) => {
-                      const group = tagGroups.find(g => g.id === groupId);
-                      const subTag = group?.subtags.find(st => st.id === subTagId);
-                      if (!subTag) return null;
-                      return (
-                        <span
-                          key={subTag.id}
-                          className="px-3 py-1 text-xs font-bold text-white rounded-full bg-gray-600"
-                        >
-                          {subTag.name}
-                        </span>
-                      );
-                    })}
-                  </div>
-                </Td>
-                <Td>
                   {trade.execution?.grade && (
                     <span className={`px-2 py-1 text-xs font-bold text-white rounded-full ${getGradeColor(trade.execution.grade)}`}>
                       {trade.execution.grade}
                     </span>
                   )}
                 </Td>
-                <Td>
-                  <div className="flex items-center space-x-1">
-                    <Button onClick={() => onViewDetails(trade)} variant="ghost" size="icon" aria-label="View details">
-                      <EyeIcon className="w-5 h-5" />
-                    </Button>
-                    <Button onClick={() => onEditTrade(trade)} variant="ghost" size="icon" aria-label="Edit trade">
-                      <PencilIcon className="w-5 h-5" />
-                    </Button>
-                    <Button onClick={() => onDeleteTrade(trade.id)} variant="ghost" size="icon" aria-label="Delete trade">
-                      <TrashIcon className="w-5 h-5 text-red-500 hover:text-red-400" />
-                    </Button>
+                <Td className="relative">
+                  <div ref={menuRef}>
+                    <button
+                      onClick={() => setMenuOpenId(menuOpenId === trade.id ? null : trade.id)}
+                      className="p-2 rounded hover:bg-gray-700 focus:outline-none"
+                      aria-label="Open menu"
+                    >
+                      <DotsVerticalIcon className="w-6 h-6 text-gray-400" />
+                    </button>
+                    {menuOpenId === trade.id && (
+                      <div className="absolute right-0 z-10 mt-2 w-32 bg-gray-800 border border-gray-700 rounded shadow-lg">
+                        <button
+                          onClick={() => { onViewDetails(trade); setMenuOpenId(null); }}
+                          className="block w-full text-left px-4 py-2 text-sm text-gray-200 hover:bg-gray-700"
+                        >
+                          Details
+                        </button>
+                        <button
+                          onClick={() => { onEditTrade(trade); setMenuOpenId(null); }}
+                          className="block w-full text-left px-4 py-2 text-sm text-gray-200 hover:bg-gray-700"
+                        >
+                          Edit
+                        </button>
+                        <button
+                          onClick={() => { onDeleteTrade(trade.id); setMenuOpenId(null); }}
+                          className="block w-full text-left px-4 py-2 text-sm text-red-500 hover:bg-gray-700"
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    )}
                   </div>
                 </Td>
               </Tr>

@@ -18,7 +18,7 @@ import { processChartData, filterTradesByDateAndTags } from './utils/chartDataPr
 import { parseCSVToTrades as parseBrokerExportCSV } from './utils/csvImporter';
 import { parseQuantowerCSVToTrades } from './utils/quantowerCsvImporter';
 import { getRandomColor, resetColorUsage } from './utils/colorGenerator';
-import { PlusCircleIcon, ChartBarIcon, TagIcon, TableCellsIcon, DocumentTextIcon, AdjustmentsHorizontalIcon, DocumentArrowUpIcon, CogIcon, AcademicCapIcon, LightBulbIcon, BrainIcon, CalculatorIcon, FilterIcon } from './components/ui/Icons'; // Added AcademicCapIcon for consistency if used directly in App.tsx
+import { PlusCircleIcon, ChartBarIcon, TagIcon, TableCellsIcon, DocumentTextIcon, AdjustmentsHorizontalIcon, DocumentArrowUpIcon, CogIcon, AcademicCapIcon, LightBulbIcon, BrainIcon, CalculatorIcon, FilterIcon, ChevronDownIcon, ChevronUpIcon, ArrowTrendingUpIcon, ImportIcon, ExportIcon } from './components/ui/Icons';
 import { Modal } from './components/ui/Modal';
 import { Button } from './components/ui/Button';
 import { NotificationPopup } from './components/ui/NotificationPopup';
@@ -41,6 +41,14 @@ import { BestWorstAnalysis } from './components/analysis/BestWorstAnalysis';
 
 // Helper to normalize CSV headers for detection
 const normalizeHeader = (header: string): string => header.toLowerCase().replace(/\s+/g, '').replace(/\//g, '');
+
+// Add custom ChevronLeft and ChevronRight icons if not available
+const ChevronLeft: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
+  <svg {...props} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" /></svg>
+);
+const ChevronRight: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
+  <svg {...props} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" /></svg>
+);
 
 const App: React.FC = () => {
   const [activeProfileId, setActiveProfileId] = useState<string | null>(null);
@@ -129,6 +137,8 @@ const App: React.FC = () => {
   const [showPostSessionReview, setShowPostSessionReview] = useState(false);
   const [mbsSessionHistory, setMbsSessionHistory] = useState<any[]>([]);
 
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+
   useEffect(() => {
     const stored = SecureStorage.loadData();
     if (stored && stored.activeProfileId && stored.profileData[stored.activeProfileId]) {
@@ -185,7 +195,7 @@ const App: React.FC = () => {
   // Show legal disclaimer on first visit
   useEffect(() => {
     const hasSeenBefore = localStorage.getItem('reflection-edge-legal-seen');
-    if (!hasSeenBefore) {
+    if (!hasSeenBefore) { 
       setShowLegalDisclaimer(true);
     }
   }, []);
@@ -821,82 +831,102 @@ const App: React.FC = () => {
         onChange={handleFileUpload}
       />
       {/* Sidebar Navigation */}
-      <aside className="w-64 bg-gray-800 flex flex-col justify-between py-6 px-4 min-h-screen fixed left-0 top-0 z-40 shadow-xl">
+      <aside className={`bg-gray-800 flex flex-col justify-between py-6 ${sidebarCollapsed ? 'w-20 px-2' : 'w-64 px-4'} min-h-screen fixed left-0 top-0 z-40 shadow-xl transition-all duration-200`}>
         <div>
           {/* Logo/Title */}
-          <div className="flex items-center mb-10">
-            <span className="inline-block w-8 h-8 bg-gradient-to-tr from-purple-400 via-pink-400 to-yellow-400 rounded-lg mr-3"></span>
-            <span className="text-2xl font-bold tracking-tight">Reflection Edge</span>
+          <div className={`flex items-center mb-6 ${sidebarCollapsed ? 'justify-center' : ''}`}>
+            <span className="inline-block w-8 h-8 bg-gradient-to-tr from-purple-400 via-pink-400 to-yellow-400 rounded-lg" />
+            {!sidebarCollapsed && <span className="text-2xl font-bold tracking-tight ml-3">Reflection Edge</span>}
           </div>
           {/* Nav Links */}
-          <nav className="space-y-6">
-            {/* Strategy & Organization */}
+          <nav className="space-y-2">
+            {/* Section 1: Playbook & Tags */}
             <div>
-              <div className="uppercase text-xs text-gray-400 font-bold mb-2 tracking-wider">Strategy & Organization</div>
-              <button onClick={() => setIsPlaybookModalOpen(true)} className="flex items-center w-full px-3 py-2 rounded-lg hover:bg-gray-700 transition-colors">
-                <DocumentTextIcon className="w-5 h-5 mr-3" /> Playbook
+              {!sidebarCollapsed && <div className="uppercase text-xs text-gray-400 font-bold mb-2 tracking-wider">Strategy & Organization</div>}
+              <button onClick={() => setIsPlaybookModalOpen(true)} className={`flex items-center w-full ${sidebarCollapsed ? 'justify-center' : ''} px-3 py-2 rounded-lg hover:bg-gray-700 transition-colors`}>
+                <DocumentTextIcon className="w-5 h-5" />
+                {!sidebarCollapsed && <span className="ml-3">Playbook</span>}
               </button>
-              <button onClick={() => setIsTagManagerModalOpen(true)} className="flex items-center w-full px-3 py-2 rounded-lg hover:bg-gray-700 transition-colors">
-                <TagIcon className="w-5 h-5 mr-3" /> Tags
+              <button onClick={() => setIsTagManagerModalOpen(true)} className={`flex items-center w-full ${sidebarCollapsed ? 'justify-center' : ''} px-3 py-2 rounded-lg hover:bg-gray-700 transition-colors`}>
+                <TagIcon className="w-5 h-5" />
+                {!sidebarCollapsed && <span className="ml-3">Tags</span>}
               </button>
             </div>
-            {/* Performance & Analysis */}
+            <div className="my-2 border-t border-gray-700" />
+            {/* Section 2: Performance & Analysis */}
             <div>
-              <div className="uppercase text-xs text-gray-400 font-bold mb-2 tracking-wider">Performance & Analysis</div>
-              <button onClick={() => setIsPatternAnalysisModalOpen(true)} className="flex items-center w-full px-3 py-2 rounded-lg hover:bg-gray-700 transition-colors">
-                <ChartBarIcon className="w-5 h-5 mr-3" /> Patterns
+              {!sidebarCollapsed && <div className="uppercase text-xs text-gray-400 font-bold mb-2 tracking-wider">Performance & Analysis</div>}
+              <button onClick={() => setIsPatternAnalysisModalOpen(true)} className={`flex items-center w-full ${sidebarCollapsed ? 'justify-center' : ''} px-3 py-2 rounded-lg hover:bg-gray-700 transition-colors`}>
+                <ChartBarIcon className="w-5 h-5" />
+                {!sidebarCollapsed && <span className="ml-3">Patterns</span>}
               </button>
-              <button onClick={() => setIsPatternInsightsModalOpen(true)} className="flex items-center w-full px-3 py-2 rounded-lg hover:bg-gray-700 transition-colors">
-                <LightBulbIcon className="w-5 h-5 mr-3" /> Insights
+              <button onClick={() => setIsPatternInsightsModalOpen(true)} className={`flex items-center w-full ${sidebarCollapsed ? 'justify-center' : ''} px-3 py-2 rounded-lg hover:bg-gray-700 transition-colors`}>
+                <LightBulbIcon className="w-5 h-5" />
+                {!sidebarCollapsed && <span className="ml-3">Insights</span>}
               </button>
-              <button onClick={() => setIsEdgeDiscoveryModalOpen(true)} className="flex items-center w-full px-3 py-2 rounded-lg hover:bg-gray-700 transition-colors">
-                <LightBulbIcon className="w-5 h-5 mr-3" /> Edge
+              <button onClick={() => setIsEdgeDiscoveryModalOpen(true)} className={`flex items-center w-full ${sidebarCollapsed ? 'justify-center' : ''} px-3 py-2 rounded-lg hover:bg-gray-700 transition-colors`}>
+                <ArrowTrendingUpIcon className="w-5 h-5" />
+                {!sidebarCollapsed && <span className="ml-3">Edge</span>}
               </button>
-              <button onClick={() => setIsKellyCriterionModalOpen(true)} className="flex items-center w-full px-3 py-2 rounded-lg hover:bg-gray-700 transition-colors">
-                <CalculatorIcon className="w-5 h-5 mr-3" /> Kelly
+              <button onClick={() => setIsKellyCriterionModalOpen(true)} className={`flex items-center w-full ${sidebarCollapsed ? 'justify-center' : ''} px-3 py-2 rounded-lg hover:bg-gray-700 transition-colors`}>
+                <CalculatorIcon className="w-5 h-5" />
+                {!sidebarCollapsed && <span className="ml-3">Kelly</span>}
               </button>
-              <button onClick={() => setIsExecutionDashboardModalOpen(true)} className="flex items-center w-full px-3 py-2 rounded-lg hover:bg-gray-700 transition-colors">
-                <BrainIcon className="w-5 h-5 mr-3" /> Execution
+              <button onClick={() => setIsExecutionDashboardModalOpen(true)} className={`flex items-center w-full ${sidebarCollapsed ? 'justify-center' : ''} px-3 py-2 rounded-lg hover:bg-gray-700 transition-colors`}>
+                <BrainIcon className="w-5 h-5" />
+                {!sidebarCollapsed && <span className="ml-3">Execution</span>}
               </button>
-              <button onClick={() => setIsBestWorstModalOpen(true)} className="flex items-center w-full px-3 py-2 rounded-lg hover:bg-gray-700 transition-colors">
-                <span className="text-lg mr-3">⭐</span> Best & Worst
+              <button onClick={() => setIsBestWorstModalOpen(true)} className={`flex items-center w-full ${sidebarCollapsed ? 'justify-center' : ''} px-3 py-2 rounded-lg hover:bg-gray-700 transition-colors`}>
+                <span className="text-lg">⭐</span>
+                {!sidebarCollapsed && <span className="ml-3">Best & Worst</span>}
               </button>
             </div>
-            {/* MBS */}
+            <div className="my-2 border-t border-gray-700" />
+            {/* Section 3: MBS */}
             <div>
-              <div className="uppercase text-xs text-gray-400 font-bold mb-2 tracking-wider">MBS</div>
-              <button onClick={() => setIsMBSModalOpen(true)} className="flex items-center w-full px-3 py-2 rounded-lg hover:bg-gray-700 transition-colors">
-                <BrainIcon className="w-5 h-5 mr-3" /> MBS
+              {!sidebarCollapsed && <div className="uppercase text-xs text-gray-400 font-bold mb-2 tracking-wider">MBS</div>}
+              <button onClick={() => setIsMBSModalOpen(true)} className={`flex items-center w-full ${sidebarCollapsed ? 'justify-center' : ''} px-3 py-2 rounded-lg hover:bg-gray-700 transition-colors`}>
+                <AcademicCapIcon className="w-5 h-5" />
+                {!sidebarCollapsed && <span className="ml-3">MBS</span>}
               </button>
             </div>
-            {/* Data & Settings */}
+            <div className="my-2 border-t border-gray-700" />
+            {/* Section 4: Data & Settings */}
             <div>
-              <div className="uppercase text-xs text-gray-400 font-bold mb-2 tracking-wider">Data & Settings</div>
-              <button onClick={() => fileInputRef.current?.click()} className="flex items-center w-full px-3 py-2 rounded-lg hover:bg-gray-700 transition-colors">
-                <DocumentArrowUpIcon className="w-5 h-5 mr-3" /> Import
+              {!sidebarCollapsed && <div className="uppercase text-xs text-gray-400 font-bold mb-2 tracking-wider">Data & Settings</div>}
+              <button onClick={() => fileInputRef.current?.click()} className={`flex items-center w-full ${sidebarCollapsed ? 'justify-center' : ''} px-3 py-2 rounded-lg hover:bg-gray-700 transition-colors`}>
+                <ImportIcon className="w-5 h-5" />
+                {!sidebarCollapsed && <span className="ml-3">Import</span>}
               </button>
-              <button onClick={() => setIsExportModalOpen(true)} className="flex items-center w-full px-3 py-2 rounded-lg hover:bg-gray-700 transition-colors">
-                <DocumentTextIcon className="w-5 h-5 mr-3" /> Export
+              <button onClick={() => setIsExportModalOpen(true)} className={`flex items-center w-full ${sidebarCollapsed ? 'justify-center' : ''} px-3 py-2 rounded-lg hover:bg-gray-700 transition-colors`}>
+                <ExportIcon className="w-5 h-5" />
+                {!sidebarCollapsed && <span className="ml-3">Export</span>}
               </button>
-              <button onClick={() => setIsSettingsModalOpen(true)} className="flex items-center w-full px-3 py-2 rounded-lg hover:bg-gray-700 transition-colors">
-                <CogIcon className="w-5 h-5 mr-3" /> Settings
+              <button onClick={() => setIsSettingsModalOpen(true)} className={`flex items-center w-full ${sidebarCollapsed ? 'justify-center' : ''} px-3 py-2 rounded-lg hover:bg-gray-700 transition-colors`}>
+                <CogIcon className="w-5 h-5" />
+                {!sidebarCollapsed && <span className="ml-3">Settings</span>}
               </button>
             </div>
           </nav>
         </div>
-        {/* User/Settings Section */}
-        <div className="mt-10 border-t border-gray-700 pt-6">
-          <div className="flex items-center">
-            <span className="inline-block w-10 h-10 rounded-full bg-gray-600 mr-3"></span>
-            <div>
-              <div className="font-semibold">Your Name</div>
-              <div className="text-xs text-gray-400">your@email.com</div>
-            </div>
-          </div>
+        {/* Collapse/Expand Button at the bottom center */}
+        <div className="flex justify-center items-end w-full mt-6">
+          <button
+            onClick={() => setSidebarCollapsed((prev) => !prev)}
+            className="text-gray-400 hover:text-white transition-colors focus:outline-none"
+            aria-label={sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+            style={{ background: 'none', border: 'none', padding: 0 }}
+          >
+            {sidebarCollapsed ? (
+              <ChevronRight className="w-6 h-6" />
+            ) : (
+              <ChevronLeft className="w-6 h-6" />
+            )}
+          </button>
         </div>
       </aside>
       {/* Main Content (shifted right) */}
-      <div className="flex-1 ml-64">
+      <div className={`flex-1 ${sidebarCollapsed ? 'ml-20' : 'ml-72'}`}>
         <div className="flex flex-col items-center justify-center min-h-screen bg-gray-900 text-gray-100 p-4">
           <div className="w-full max-w-7xl mx-auto">
             {isTradeFormModalOpen && (
