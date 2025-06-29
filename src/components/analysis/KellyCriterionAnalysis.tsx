@@ -185,9 +185,10 @@ export const KellyCriterionAnalysis: React.FC<KellyCriterionAnalysisProps> = ({ 
             <button
               type="button"
               onClick={() => setSelectedTags({})}
-              className="px-3 py-1 rounded-full text-xs font-semibold bg-red-600 text-white hover:bg-red-700 transition-colors"
+              className="text-red-500"
+              style={{ background: 'none', border: 'none', padding: 0, minWidth: 0 }}
             >
-              Clear all
+              Clear All
             </button>
           </div>
         )}
@@ -222,7 +223,7 @@ export const KellyCriterionAnalysis: React.FC<KellyCriterionAnalysisProps> = ({ 
                           key={subtag.id}
                           type="button"
                           onClick={() => handleTagChange(group.id, subtag.id)}
-                          className={`px-3 py-1 rounded-full text-xs font-semibold transition-colors mr-2 mb-2 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-purple-500 ${
+                          className={`px-3 py-1 rounded-full text-xs font-semibold transition-colors mr-2 mb-2 border border-gray-600 focus:outline-none ${
                             selectedTags[group.id]?.includes(subtag.id)
                               ? 'bg-gray-700 text-white'
                               : 'bg-gray-600 text-white hover:bg-gray-500'
