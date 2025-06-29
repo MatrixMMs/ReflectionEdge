@@ -29,6 +29,15 @@ Reflection Edge separates **process quality** from **outcome quality**. A trade 
 - Analyze performance by any combination of tags
 - Visual tag performance analysis with color-coded metrics
 
+### **🆕 Advanced Tagging System (Coming Soon)**
+- **Objective Tags**: Capture market conditions (Macro Environment, Time of Day, Market Structure, Order Flow, Inter-market correlations)
+- **Subjective Tags**: Track trader psychology (Mental State, Emotional Response, Execution Quality)
+- **Smart Suggestions**: Auto-suggest tags based on time, market conditions, and patterns
+- **Cross-Tag Analysis**: Identify profitable combinations of objective and subjective tags
+- **Enhanced UI**: Collapsible sections, search, filters, and quick selection patterns
+
+*📋 [Complete Implementation Plan](TAGGING_SYSTEM_IMPLEMENTATION.md)*
+
 ## 🧠 **NEW: Monkey Brain Suppressor (MBS) - In-Session Trading Panel**
 
 ### **What It Does**

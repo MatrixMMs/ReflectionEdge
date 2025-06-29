@@ -1,6 +1,20 @@
 export type TradeDirection = 'long' | 'short';
 export type TradeDirectionFilterSelection = 'all' | 'long' | 'short';
 
+// Advanced tagging system types
+export type TagCategory = 'objective' | 'subjective';
+export type TagSubcategory = 
+  // Objective subcategories
+  | 'macro_environment'
+  | 'time_session'
+  | 'market_structure'
+  | 'order_flow'
+  | 'intermarket_volatility'
+  // Subjective subcategories
+  | 'mental_state'
+  | 'emotional_response'
+  | 'execution_process';
+
 export interface Trade {
   id: string;
   date: string; // YYYY-MM-DD
@@ -13,7 +27,10 @@ export interface Trade {
   timeInTrade: number; // in minutes
   profit: number;
   fees?: number; // Optional field for trading fees/commissions
-  tags: { [tagGroupId: string]: string }; // { tagGroupId: subTagId }
+  tags: { [tagGroupId: string]: string }; // { tagGroupId: subTagId } - LEGACY FORMAT
+  // NEW: Advanced tag structure (optional for backward compatibility)
+  objectiveTags?: { [groupId: string]: string[] }; // { groupId: [subTagId1, subTagId2, ...] }
+  subjectiveTags?: { [groupId: string]: string[] }; // { groupId: [subTagId1, subTagId2, ...] }
   journal: string;
   direction: TradeDirection;
   strategyId?: string;
@@ -39,12 +56,161 @@ export interface SubTag {
   name: string;
   color: string;
   groupId: string;
+  // NEW: Advanced properties (optional for backward compatibility)
+  description?: string;
+  relatedTags?: string[]; // IDs of related tags for cross-analysis
+  timeBased?: boolean; // For auto-suggestions based on time
+  marketConditionBased?: boolean; // For auto-suggestions based on market conditions
+  patternBased?: boolean; // For auto-suggestions based on patterns
+  priority?: number; // For ordering in UI (1 = highest priority)
+  isDeprecated?: boolean; // For soft deletion of old tags
+  parentId?: string; // For hierarchical structure
 }
 
 export interface TagGroup {
   id: string;
   name: string;
   subtags: SubTag[];
+  // NEW: Advanced properties (optional for backward compatibility)
+  category?: TagCategory;
+  subcategory?: TagSubcategory;
+  isCollapsible?: boolean;
+  isSearchable?: boolean;
+  autoSuggest?: boolean;
+  description?: string;
+  priority?: number; // For ordering groups in UI
+  isDefault?: boolean; // For migration purposes
+}
+
+// NEW: Advanced tag interfaces for the new system
+export interface AdvancedSubTag extends SubTag {
+  // All SubTag properties plus required advanced properties
+  description: string;
+  relatedTags: string[];
+  timeBased: boolean;
+  marketConditionBased: boolean;
+  patternBased: boolean;
+  priority: number;
+  parentId?: string;
+}
+
+export interface AdvancedTagGroup extends TagGroup {
+  // All TagGroup properties plus required advanced properties
+  category: TagCategory;
+  subcategory: TagSubcategory;
+  isCollapsible: boolean;
+  isSearchable: boolean;
+  autoSuggest: boolean;
+  description: string;
+  priority: number;
+  subtags: AdvancedSubTag[];
+}
+
+// NEW: Tag suggestion types
+export interface TagSuggestion {
+  tagId: string;
+  tagName: string;
+  groupId: string;
+  groupName: string;
+  confidence: number; // 0-1, how confident we are in this suggestion
+  reason: string; // Why this tag was suggested
+  category: TagCategory;
+}
+
+export interface TagSuggestionContext {
+  timeIn: string;
+  symbol: string;
+  marketConditions?: {
+    vix?: number;
+    volume?: number;
+    volatility?: number;
+    trend?: 'up' | 'down' | 'sideways';
+  };
+  recentTrades?: {
+    profit: number;
+    tags: { [groupId: string]: string[] };
+  }[];
+  userPreferences?: {
+    frequentlyUsedTags?: string[];
+    preferredCategories?: TagCategory[];
+  };
+}
+
+// NEW: Cross-tag analysis types
+export interface TagCombination {
+  objectiveTags: string[];
+  subjectiveTags: string[];
+  tradeCount: number;
+  totalPnl: number;
+  avgPnl: number;
+  winRate: number;
+  sharpeRatio?: number;
+}
+
+export interface TagAnalysisResult {
+  combinations: TagCombination[];
+  insights: {
+    mostProfitableCombination: TagCombination;
+    mostFrequentCombination: TagCombination;
+    worstPerformingCombination: TagCombination;
+    recommendations: string[];
+  };
+}
+
+// NEW: Migration types
+export interface LegacyTagMapping {
+  oldGroupId: string;
+  oldSubTagId: string;
+  newGroupId: string;
+  newSubTagId: string;
+  confidence: number; // How confident we are in this mapping
+}
+
+export interface MigrationPlan {
+  mappings: LegacyTagMapping[];
+  unmappedTags: {
+    groupId: string;
+    subTagId: string;
+    name: string;
+  }[];
+  estimatedSuccessRate: number;
+}
+
+// NEW: Tag template types
+export interface TagTemplate {
+  id: string;
+  name: string;
+  description: string;
+  tags: { [groupId: string]: string[] };
+  category: TagCategory;
+  isDefault: boolean;
+  usage: number;
+}
+
+// NEW: UI state types
+export type TagViewMode = 'classic' | 'advanced' | 'hierarchical';
+
+export interface TaggingUIState {
+  viewMode: TagViewMode;
+  expandedCategories: Set<string>;
+  selectedTags: Set<string>;
+  searchQuery: string;
+  filterOptions: TagFilterOptions;
+  batchMode: BatchTaggingMode;
+}
+
+export interface TagFilterOptions {
+  categories: TagCategory[];
+  confidence: number;
+  timeRange: { start: string; end: string };
+  usage: 'frequent' | 'recent' | 'favorite' | 'all';
+}
+
+export interface BatchTaggingMode {
+  isActive: boolean;
+  selectedTrades: string[];
+  pendingTags: { [groupId: string]: string[] };
+  template?: TagTemplate;
 }
 
 export enum ChartYAxisMetric {

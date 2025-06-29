@@ -140,7 +140,7 @@ export const MBSTradingPanel: React.FC<MBSTradingPanelProps> = ({ isOpen, onEndS
       const allNoPlan = lastThree.every(t => !t.followedPlan);
       if (allNoPlan && !timeoutActive) {
         setTimeoutActive(true);
-        setTimeoutSeconds(300);
+        setTimeoutSeconds(900); // 15 minutes
         setTimeoutReason('no-plan');
       }
     }
