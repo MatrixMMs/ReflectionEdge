@@ -18,7 +18,7 @@ import { processChartData, filterTradesByDateAndTags } from './utils/chartDataPr
 import { parseCSVToTrades as parseBrokerExportCSV } from './utils/csvImporter';
 import { parseQuantowerCSVToTrades } from './utils/quantowerCsvImporter';
 import { getRandomColor, resetColorUsage } from './utils/colorGenerator';
-import { PlusCircleIcon, ChartBarIcon, TagIcon, TableCellsIcon, DocumentTextIcon, AdjustmentsHorizontalIcon, DocumentArrowUpIcon, CogIcon, AcademicCapIcon, LightBulbIcon, BrainIcon, CalculatorIcon, FilterIcon, ChevronDownIcon, ChevronUpIcon, ArrowTrendingUpIcon, ImportIcon, ExportIcon } from './components/ui/Icons';
+import { PlusCircleIcon, ChartBarIcon, TagIcon, TableCellsIcon, DocumentTextIcon, AdjustmentsHorizontalIcon, DocumentArrowUpIcon, CogIcon, AcademicCapIcon, LightBulbIcon, BrainIcon, CalculatorIcon, FilterIcon, ChevronDownIcon, ChevronUpIcon, ArrowTrendingUpIcon, ImportIcon, ExportIcon, DashboardIcon } from './components/ui/Icons';
 import { Modal } from './components/ui/Modal';
 import { Button } from './components/ui/Button';
 import { NotificationPopup } from './components/ui/NotificationPopup';
@@ -38,6 +38,18 @@ import { MBSPreTradingChecklist } from './components/MBSPreTradingChecklist';
 import { MBSTradingPanel } from './components/MBSTradingPanel';
 import { MBSPostSessionReview } from './components/MBSPostSessionReview';
 import { BestWorstAnalysis } from './components/analysis/BestWorstAnalysis';
+import { BrowserRouter as Router, Routes, Route, Link, useNavigate, Navigate } from 'react-router-dom';
+import PlaybookPage from './pages/PlaybookPage';
+import TagsPage from './pages/TagsPage';
+import PatternsPage from './pages/PatternsPage';
+import InsightsPage from './pages/InsightsPage';
+import EdgePage from './pages/EdgePage';
+import ImportTradePickerModal from './components/trades/ImportTradePickerModal';
+import KellyPage from './pages/KellyPage';
+import ExecutionPage from './pages/ExecutionPage';
+import BestWorstPage from './pages/BestWorstPage';
+import ExportPage from './pages/ExportPage';
+import SettingsPage from './pages/SettingsPage';
 
 // Helper to normalize CSV headers for detection
 const normalizeHeader = (header: string): string => header.toLowerCase().replace(/\s+/g, '').replace(/\//g, '');
@@ -141,6 +153,9 @@ const App: React.FC = () => {
   const [mbsSessionHistory, setMbsSessionHistory] = useState<any[]>([]);
 
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+
+  const [pendingImportedTrades, setPendingImportedTrades] = useState<Trade[]>([]);
+  const [showImportPicker, setShowImportPicker] = useState(false);
 
   useEffect(() => {
     const stored = SecureStorage.loadData();
@@ -466,17 +481,10 @@ const App: React.FC = () => {
                 }
               });
 
-              // Update state with imported data
-              setTrades(sanitizedTrades);
-              setTagGroups(mergedTagGroups);
-              setPlaybookEntries(importedPlaybookEntries || []);
-
-              // Show success notification
-              setImportNotification({
-                title: "Import Complete",
-                message: `Successfully imported ${sanitizedTrades.length} trades, ${mergedTagGroups.length} tag groups, and ${importedPlaybookEntries?.length || 0} playbook entries.`
-              });
-              setShowImportConfirmation(true);
+              // Instead of adding directly, show picker modal
+              setPendingImportedTrades(sanitizedTrades);
+              setShowImportPicker(true);
+              event.target.value = '';
               return;
             }
           }
@@ -860,138 +868,158 @@ const App: React.FC = () => {
     return DEFAULT_TAG_GROUPS.some(group => group.id === groupId);
   };
 
-  return (
-    <div className="flex min-h-screen bg-gray-900 text-gray-100">
-      {/* Hidden file input for import */}
-      <input
-        type="file"
-        ref={fileInputRef}
-        style={{ display: 'none' }}
-        accept=".csv,.json"
-        onChange={handleFileUpload}
-      />
-      {/* Sidebar Navigation */}
-      <aside className={`bg-gray-800 flex flex-col justify-between py-6 ${sidebarCollapsed ? 'w-20 px-2' : 'w-64 px-4'} min-h-screen fixed left-0 top-0 z-40 shadow-xl transition-all duration-200`}>
-        <div>
-          {/* Logo/Title */}
-          <div className={`flex items-center mb-6 ${sidebarCollapsed ? 'justify-center' : ''}`}>
-            <span className="inline-block w-8 h-8 bg-gradient-to-tr from-purple-400 via-pink-400 to-yellow-400 rounded-lg" />
-            {!sidebarCollapsed && <span className="text-2xl font-bold tracking-tight ml-3">Reflection Edge</span>}
-          </div>
-          {/* Nav Links */}
-          <nav className="space-y-2">
-            {/* Section 1: Playbook & Tags */}
-            <div>
-              {!sidebarCollapsed && <div className="uppercase text-xs text-gray-400 font-bold mb-2 tracking-wider">Strategy & Organization</div>}
-              <button onClick={() => setIsPlaybookModalOpen(true)} className={`flex items-center w-full ${sidebarCollapsed ? 'justify-center' : ''} px-3 py-2 rounded-lg hover:bg-gray-700 transition-colors`}>
-                <DocumentTextIcon className="w-5 h-5" />
-                {!sidebarCollapsed && <span className="ml-3">Playbook</span>}
-              </button>
-              <button onClick={() => setIsTagManagerModalOpen(true)} className={`flex items-center w-full ${sidebarCollapsed ? 'justify-center' : ''} px-3 py-2 rounded-lg hover:bg-gray-700 transition-colors`}>
-                <TagIcon className="w-5 h-5" />
-                {!sidebarCollapsed && <span className="ml-3">Tags</span>}
-              </button>
-            </div>
-            <div className="my-2 border-t border-gray-700" />
-            {/* Section 2: Performance & Analysis */}
-            <div>
-              {!sidebarCollapsed && <div className="uppercase text-xs text-gray-400 font-bold mb-2 tracking-wider">Performance & Analysis</div>}
-              <button onClick={() => setIsPatternAnalysisModalOpen(true)} className={`flex items-center w-full ${sidebarCollapsed ? 'justify-center' : ''} px-3 py-2 rounded-lg hover:bg-gray-700 transition-colors`}>
-                <ChartBarIcon className="w-5 h-5" />
-                {!sidebarCollapsed && <span className="ml-3">Patterns</span>}
-              </button>
-              <button onClick={() => setIsPatternInsightsModalOpen(true)} className={`flex items-center w-full ${sidebarCollapsed ? 'justify-center' : ''} px-3 py-2 rounded-lg hover:bg-gray-700 transition-colors`}>
-                <LightBulbIcon className="w-5 h-5" />
-                {!sidebarCollapsed && <span className="ml-3">Insights</span>}
-              </button>
-              <button onClick={() => setIsEdgeDiscoveryModalOpen(true)} className={`flex items-center w-full ${sidebarCollapsed ? 'justify-center' : ''} px-3 py-2 rounded-lg hover:bg-gray-700 transition-colors`}>
-                <ArrowTrendingUpIcon className="w-5 h-5" />
-                {!sidebarCollapsed && <span className="ml-3">Edge</span>}
-              </button>
-              <button onClick={() => setIsKellyCriterionModalOpen(true)} className={`flex items-center w-full ${sidebarCollapsed ? 'justify-center' : ''} px-3 py-2 rounded-lg hover:bg-gray-700 transition-colors`}>
-                <CalculatorIcon className="w-5 h-5" />
-                {!sidebarCollapsed && <span className="ml-3">Kelly</span>}
-              </button>
-              <button onClick={() => setIsExecutionDashboardModalOpen(true)} className={`flex items-center w-full ${sidebarCollapsed ? 'justify-center' : ''} px-3 py-2 rounded-lg hover:bg-gray-700 transition-colors`}>
-                <BrainIcon className="w-5 h-5" />
-                {!sidebarCollapsed && <span className="ml-3">Execution</span>}
-              </button>
-              <button onClick={() => setIsBestWorstModalOpen(true)} className={`flex items-center w-full ${sidebarCollapsed ? 'justify-center' : ''} px-3 py-2 rounded-lg hover:bg-gray-700 transition-colors`}>
-                <span className="text-lg">⭐</span>
-                {!sidebarCollapsed && <span className="ml-3">Best & Worst</span>}
-              </button>
-            </div>
-            <div className="my-2 border-t border-gray-700" />
-            {/* Section 3: MBS */}
-            <div>
-              {!sidebarCollapsed && <div className="uppercase text-xs text-gray-400 font-bold mb-2 tracking-wider">MBS</div>}
-              <button onClick={() => setIsMBSModalOpen(true)} className={`flex items-center w-full ${sidebarCollapsed ? 'justify-center' : ''} px-3 py-2 rounded-lg hover:bg-gray-700 transition-colors`}>
-                <AcademicCapIcon className="w-5 h-5" />
-                {!sidebarCollapsed && <span className="ml-3">MBS</span>}
-              </button>
-            </div>
-            <div className="my-2 border-t border-gray-700" />
-            {/* Section 4: Data & Settings */}
-            <div>
-              {!sidebarCollapsed && <div className="uppercase text-xs text-gray-400 font-bold mb-2 tracking-wider">Data & Settings</div>}
-              <button onClick={() => fileInputRef.current?.click()} className={`flex items-center w-full ${sidebarCollapsed ? 'justify-center' : ''} px-3 py-2 rounded-lg hover:bg-gray-700 transition-colors`}>
-                <ImportIcon className="w-5 h-5" />
-                {!sidebarCollapsed && <span className="ml-3">Import</span>}
-              </button>
-              <button onClick={() => setIsExportModalOpen(true)} className={`flex items-center w-full ${sidebarCollapsed ? 'justify-center' : ''} px-3 py-2 rounded-lg hover:bg-gray-700 transition-colors`}>
-                <ExportIcon className="w-5 h-5" />
-                {!sidebarCollapsed && <span className="ml-3">Export</span>}
-              </button>
-              <button onClick={() => setIsSettingsModalOpen(true)} className={`flex items-center w-full ${sidebarCollapsed ? 'justify-center' : ''} px-3 py-2 rounded-lg hover:bg-gray-700 transition-colors`}>
-                <CogIcon className="w-5 h-5" />
-                {!sidebarCollapsed && <span className="ml-3">Settings</span>}
-              </button>
-            </div>
-          </nav>
-        </div>
-        {/* Collapse/Expand Button at the bottom center */}
-        <div className="flex justify-center items-end w-full mt-6">
-          <button
-            onClick={() => setSidebarCollapsed((prev) => !prev)}
-            className="text-gray-400 hover:text-white transition-colors focus:outline-none"
-            aria-label={sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-            style={{ background: 'none', border: 'none', padding: 0 }}
-          >
-            {sidebarCollapsed ? (
-              <ChevronRight className="w-6 h-6" />
-            ) : (
-              <ChevronLeft className="w-6 h-6" />
-            )}
-          </button>
-        </div>
-      </aside>
-      {/* Main Content (shifted right) */}
-      <div className={`flex-1 ${sidebarCollapsed ? 'ml-20' : 'ml-72'}`}>
-        <div className="flex flex-col items-center justify-center min-h-screen bg-gray-900 text-gray-100 p-4">
-          <div className="w-full max-w-7xl mx-auto">
-            {isTradeFormModalOpen && (
-              <Modal
-                title={editingTrade ? 'Edit Trade' : 'Add New Trade'}
-                onClose={() => {
-                  setIsTradeFormModalOpen(false);
-                  setEditingTrade(null);
-                }}
-                size="large"
-              >
-                <TradeForm 
-                  onSubmit={editingTrade ? handleUpdateTrade : handleAddTrade}
-                  tagGroups={tagGroups} 
-                  playbookEntries={playbookEntries}
-                  tradeToEdit={editingTrade || undefined} 
-                />
-              </Modal>
-            )}
+  // Handler for confirming import from picker
+  const handleConfirmImportTrades = (selectedTrades: Trade[]) => {
+    setTrades(prev => [...prev, ...selectedTrades]);
+    setPendingImportedTrades([]);
+    setShowImportPicker(false);
+    setImportNotification({
+      title: 'Import Complete',
+      message: `${selectedTrades.length} trades imported successfully!`,
+    });
+    setShowImportConfirmation(true);
+  };
 
-            {isTagManagerModalOpen && (
-              <Modal title="Tag Manager" onClose={() => setIsTagManagerModalOpen(false)} size="large">
-                <TagManager 
-                  tagGroups={tagGroups} 
-                  onAddGroup={handleAddTagGroup} 
+  // Handler for canceling import
+  const handleCancelImportTrades = () => {
+    setPendingImportedTrades([]);
+    setShowImportPicker(false);
+  };
+
+  return (
+    <Router>
+      <div className="flex min-h-screen bg-gray-900 text-gray-100">
+        {/* Hidden file input for import */}
+        <input
+          type="file"
+          ref={fileInputRef}
+          style={{ display: 'none' }}
+          accept=".csv,.json"
+          onChange={handleFileUpload}
+        />
+        {/* Sidebar Navigation */}
+        <aside className={`bg-gray-800 flex flex-col justify-between py-6 ${sidebarCollapsed ? 'w-20 px-2' : 'w-64 px-4'} min-h-screen fixed left-0 top-0 z-40 shadow-xl transition-all duration-200`}>
+          <div>
+            {/* Logo/Title */}
+            <div className={`flex items-center mb-6 ${sidebarCollapsed ? 'justify-center' : ''}`}>
+              <span className="inline-block w-8 h-8 bg-gradient-to-tr from-purple-400 via-pink-400 to-yellow-400 rounded-lg" />
+              {!sidebarCollapsed && <span className="text-2xl font-bold tracking-tight ml-3">Reflection Edge</span>}
+            </div>
+            {/* Divider above Dashboard */}
+            <div className="my-2 border-t border-gray-700" />
+            {/* Dashboard Link */}
+            <nav className="space-y-2">
+              <Link to="/" className={`flex items-center w-full ${sidebarCollapsed ? 'justify-center' : ''} px-3 py-2 rounded-lg hover:bg-gray-700 transition-colors`}>
+                <DashboardIcon className="w-5 h-5" />
+                {!sidebarCollapsed && <span className="ml-3">Dashboard</span>}
+              </Link>
+            </nav>
+            {/* Divider below Dashboard */}
+            <div className="my-2 border-t border-gray-700" />
+            {/* Nav Links */}
+            <nav className="space-y-2">
+              {/* Section 1: Playbook & Tags */}
+              <div>
+                {!sidebarCollapsed && <div className="uppercase text-xs text-gray-400 font-bold mb-2 tracking-wider">Strategy & Organization</div>}
+                <Link to="/playbook" className={`flex items-center w-full ${sidebarCollapsed ? 'justify-center' : ''} px-3 py-2 rounded-lg hover:bg-gray-700 transition-colors`}>
+                  <DocumentTextIcon className="w-5 h-5" />
+                  {!sidebarCollapsed && <span className="ml-3">Playbook</span>}
+                </Link>
+                <Link to="/tags" className={`flex items-center w-full ${sidebarCollapsed ? 'justify-center' : ''} px-3 py-2 rounded-lg hover:bg-gray-700 transition-colors`}>
+                  <TagIcon className="w-5 h-5" />
+                  {!sidebarCollapsed && <span className="ml-3">Tags</span>}
+                </Link>
+              </div>
+              <div className="my-2 border-t border-gray-700" />
+              {/* Section 2: Performance & Analysis */}
+              <div>
+                {!sidebarCollapsed && <div className="uppercase text-xs text-gray-400 font-bold mb-2 tracking-wider">Performance & Analysis</div>}
+                <Link to="/patterns" className={`flex items-center w-full ${sidebarCollapsed ? 'justify-center' : ''} px-3 py-2 rounded-lg hover:bg-gray-700 transition-colors`}>
+                  <ChartBarIcon className="w-5 h-5" />
+                  {!sidebarCollapsed && <span className="ml-3">Patterns</span>}
+                </Link>
+                <Link to="/insights" className={`flex items-center w-full ${sidebarCollapsed ? 'justify-center' : ''} px-3 py-2 rounded-lg hover:bg-gray-700 transition-colors`}>
+                  <LightBulbIcon className="w-5 h-5" />
+                  {!sidebarCollapsed && <span className="ml-3">Insights</span>}
+                </Link>
+                <Link to="/edge" className={`flex items-center w-full ${sidebarCollapsed ? 'justify-center' : ''} px-3 py-2 rounded-lg hover:bg-gray-700 transition-colors`}>
+                  <ArrowTrendingUpIcon className="w-5 h-5" />
+                  {!sidebarCollapsed && <span className="ml-3">Edge</span>}
+                </Link>
+                <Link to="/kelly" className={`flex items-center w-full ${sidebarCollapsed ? 'justify-center' : ''} px-3 py-2 rounded-lg hover:bg-gray-700 transition-colors`}>
+                  <CalculatorIcon className="w-5 h-5" />
+                  {!sidebarCollapsed && <span className="ml-3">Kelly</span>}
+                </Link>
+                <Link to="/execution" className={`flex items-center w-full ${sidebarCollapsed ? 'justify-center' : ''} px-3 py-2 rounded-lg hover:bg-gray-700 transition-colors`}>
+                  <BrainIcon className="w-5 h-5" />
+                  {!sidebarCollapsed && <span className="ml-3">Execution</span>}
+                </Link>
+                <Link to="/bestworst" className={`flex items-center w-full ${sidebarCollapsed ? 'justify-center' : ''} px-3 py-2 rounded-lg hover:bg-gray-700 transition-colors`}>
+                  <span className="text-lg">⭐</span>
+                  {!sidebarCollapsed && <span className="ml-3">Best & Worst</span>}
+                </Link>
+              </div>
+              <div className="my-2 border-t border-gray-700" />
+              {/* Section 3: MBS */}
+              <div>
+                {!sidebarCollapsed && <div className="uppercase text-xs text-gray-400 font-bold mb-2 tracking-wider">MBS</div>}
+                <button onClick={() => setIsMBSModalOpen(true)} className={`flex items-center w-full ${sidebarCollapsed ? 'justify-center' : ''} px-3 py-2 rounded-lg hover:bg-gray-700 transition-colors`}>
+                  <AcademicCapIcon className="w-5 h-5" />
+                  {!sidebarCollapsed && <span className="ml-3">MBS</span>}
+                </button>
+              </div>
+              <div className="my-2 border-t border-gray-700" />
+              {/* Section 4: Data & Settings */}
+              <div>
+                {!sidebarCollapsed && <div className="uppercase text-xs text-gray-400 font-bold mb-2 tracking-wider">Data & Settings</div>}
+                <Link to="/export" className={`flex items-center w-full ${sidebarCollapsed ? 'justify-center' : ''} px-3 py-2 rounded-lg hover:bg-gray-700 transition-colors`}>
+                  <ExportIcon className="w-5 h-5" />
+                  {!sidebarCollapsed && <span className="ml-3">Export</span>}
+                </Link>
+                <Link to="/settings" className={`flex items-center w-full ${sidebarCollapsed ? 'justify-center' : ''} px-3 py-2 rounded-lg hover:bg-gray-700 transition-colors`}>
+                  <CogIcon className="w-5 h-5" />
+                  {!sidebarCollapsed && <span className="ml-3">Settings</span>}
+                </Link>
+              </div>
+            </nav>
+          </div>
+          {/* Collapse/Expand Button at the bottom center */}
+          <div className="flex justify-center items-end w-full mt-6">
+            <button
+              onClick={() => setSidebarCollapsed((prev) => !prev)}
+              className="text-gray-400 hover:text-white transition-colors focus:outline-none"
+              aria-label={sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+              style={{ background: 'none', border: 'none', padding: 0 }}
+            >
+              {sidebarCollapsed ? (
+                <ChevronRight className="w-6 h-6" />
+              ) : (
+                <ChevronLeft className="w-6 h-6" />
+              )}
+            </button>
+          </div>
+        </aside>
+        {/* Main Content (shifted right) */}
+        <div className={`flex-1 ${sidebarCollapsed ? 'ml-20' : 'ml-72'}`}>
+          <Routes>
+            <Route
+              path="/playbook"
+              element={
+                <PlaybookPage
+                  playbookEntries={playbookEntries}
+                  tagGroups={tagGroups}
+                  onAddPlaybookEntry={handleAddPlaybookEntry}
+                  onUpdatePlaybookEntry={handleUpdatePlaybookEntry}
+                  onEditPlaybookEntry={handleEditPlaybookEntry}
+                />
+              }
+            />
+            <Route
+              path="/tags"
+              element={
+                <TagsPage
+                  tagGroups={tagGroups}
+                  onAddGroup={handleAddTagGroup}
                   onAddSubTag={handleAddSubTag}
                   onUpdateSubTagColor={handleUpdateSubTagColor}
                   onDeleteGroup={handleDeleteTagGroup}
@@ -999,518 +1027,523 @@ const App: React.FC = () => {
                   onAdvancedTagSelect={handleAdvancedTagSelect}
                   selectedAdvancedTags={selectedAdvancedTags}
                 />
-              </Modal>
-            )}
-
-            {isSettingsModalOpen && (
-              <Modal title="Settings" onClose={() => setIsSettingsModalOpen(false)} size="large">
-                <div className="space-y-4">
-                  <h4 className="text-lg font-semibold text-gray-200">Data Management</h4>
-                  <div className="flex space-x-2">
-                    <Button onClick={handleExportData} variant="secondary">
-                      Export All Data
-                    </Button>
-                    <Button onClick={handleExportFilteredData} variant="secondary">
-                      Export Filtered Data
-                    </Button>
-                  </div>
-                  <p className="text-sm text-gray-400">Export your trade data to a JSON file.</p>
-
-                  <div className="border-t border-gray-700 pt-4">
-                    <h4 className="text-lg font-semibold text-gray-200">Import Data</h4>
-                    <p className="text-sm text-gray-400 mt-1">
-                      Import trades from a JSON backup, or from a CSV export from your broker.
-                    </p>
-                    <div className="mt-2">
-                      <Button onClick={triggerFileInput} variant="secondary">
-                        Import from File
-                      </Button>
-                    </div>
-                  </div>
-
-                  <div className="border-t border-gray-700 pt-4">
-                    <h4 className="text-lg font-semibold text-red-400">Danger Zone</h4>
-                    <Button
-                      onClick={() => {
-                        if (window.confirm('Are you sure you want to delete all data? This cannot be undone.')) {
-                          handleDeleteAllData();
-                        }
-                      }}
-                      variant="danger"
-                    >
-                      Delete All Data
-                    </Button>
-                    <p className="text-sm text-gray-400 mt-1">This will permanently delete all trades, tags, and settings.</p>
-                  </div>
-                </div>
-              </Modal>
-            )}
-
-            {isPlaybookModalOpen && (
-              <Modal 
-                title={selectedPlaybookEntry ? "Edit Strategy" : (isAddingPlaybook ? "Add Strategy" : "Playbook")}
-                onClose={() => {
-                  setIsPlaybookModalOpen(false);
-                  setSelectedPlaybookEntry(null);
-                  setIsAddingPlaybook(false);
-                }}
-                size="large"
-              >
-                {isAddingPlaybook || isEditingPlaybook || selectedPlaybookEntry ? (
-                  <PlaybookEditor
-                    entry={selectedPlaybookEntry || undefined} 
-                    tagGroups={tagGroups}
-                    onSave={(data) => {
-                      if (selectedPlaybookEntry) {
-                        handleUpdatePlaybookEntry(data);
-                      } else {
-                        handleAddPlaybookEntry(data);
-                      }
-                      setIsAddingPlaybook(false);
-                      setIsEditingPlaybook(false);
-                      setSelectedPlaybookEntry(null);
-                    }}
-                    onCancel={() => {
-                      setIsAddingPlaybook(false);
-                      setIsEditingPlaybook(false);
-                      setSelectedPlaybookEntry(null);
-                    }} 
-                  />
-                ) : (
-                  <PlaybookList
-                    entries={playbookEntries}
-                    onSelect={(entry) => setSelectedPlaybookEntry(entry)}
-                    onAdd={() => setIsAddingPlaybook(true)}
-                    onEdit={handleEditPlaybookEntry}
-                  />
-                )}
-              </Modal>
-            )}
-
-            {isPatternAnalysisModalOpen && (
-              <Modal title="Pattern Analysis" onClose={() => setIsPatternAnalysisModalOpen(false)} size="full">
-                <PatternAnalysisDashboard trades={trades} />
-              </Modal>
-            )}
-
-            {isPatternInsightsModalOpen && (
-              <Modal title="Pattern Insights" onClose={() => setIsPatternInsightsModalOpen(false)} size="full">
-                <PatternInsights trades={trades} />
-              </Modal>
-            )}
-
-            {isEdgeDiscoveryModalOpen && (
-              <Modal title="Edge Discovery" onClose={() => setIsEdgeDiscoveryModalOpen(false)} size="large">
-                <EdgeDiscoveryDashboard trades={trades} tagGroups={tagGroups} />
-              </Modal>
-            )}
-
-            {isExecutionDashboardModalOpen && (
-              <Modal title="Execution Dashboard" onClose={() => setIsExecutionDashboardModalOpen(false)} size="full">
-                <ExecutionDashboard trades={trades} playbookEntries={playbookEntries} />
-              </Modal>
-            )}
-
-            {isKellyCriterionModalOpen && (
-              <Modal title="Kelly Criterion Analysis" onClose={() => setIsKellyCriterionModalOpen(false)} size="full">
-                <KellyCriterionAnalysis trades={trades} tagGroups={tagGroups} />
-              </Modal>
-            )}
-
-            {isBestWorstModalOpen && (
-              <Modal title="Best & Worst Analysis" onClose={() => setIsBestWorstModalOpen(false)} size="full">
-                <BestWorstAnalysis trades={trades} onUpdateTrade={handleUpdateTradeFromAnalysis} />
-              </Modal>
-            )}
-
-            {showLegalDisclaimer && (
-              <Modal title="Disclaimer" onClose={handleLegalDisclaimerClose} size="large">
-                <LegalDisclaimer variant="modal" onClose={handleLegalDisclaimerClose} />
-              </Modal>
-            )}
-
-            {importNotification && (
-              <NotificationPopup
-                title={importNotification.title}
-                message={importNotification.message}
-                details={importNotification.details}
-                onClose={() => setImportNotification(null)}
-              />
-            )}
-
-            {isExportModalOpen && (
-              <Modal title="Export Data & Reports" onClose={() => setIsExportModalOpen(false)}>
-                <div className="space-y-6">
-                  {/* Date Range Selection */}
-                  <div>
-                    <h3 className="text-lg font-semibold text-gray-200 mb-3">Select Date Range</h3>
-                    <div className="flex items-center space-x-2 mb-4">
-                      <Button 
-                        onClick={() => setExportDateMode('daily')} 
-                        variant={exportDateMode === 'daily' ? 'primary' : 'secondary'} 
-                        size="sm"
+              }
+            />
+            <Route
+              path="/patterns"
+              element={<PatternsPage trades={trades} />}
+            />
+            <Route
+              path="/insights"
+              element={<InsightsPage trades={trades} />}
+            />
+            <Route
+              path="/edge"
+              element={<EdgePage trades={trades} tagGroups={tagGroups} />}
+            />
+            <Route
+              path="/kelly"
+              element={<KellyPage trades={trades} tagGroups={tagGroups} />}
+            />
+            <Route
+              path="/execution"
+              element={<ExecutionPage trades={trades} playbookEntries={playbookEntries} />}
+            />
+            <Route
+              path="/bestworst"
+              element={<BestWorstPage trades={trades} onUpdateTrade={handleUpdateTradeFromAnalysis} />}
+            />
+            <Route
+              path="/export"
+              element={
+                <ExportPage
+                  exportDateRange={exportDateRange}
+                  setExportDateRange={setExportDateRange}
+                  exportDateMode={exportDateMode}
+                  setExportDateMode={setExportDateMode}
+                  isGeneratingReport={isGeneratingReport}
+                  reportError={reportError}
+                  handleGenerateReport={handleGenerateReport}
+                  handleExportDataWithAnalytics={handleExportDataWithAnalytics}
+                  handleExportFilteredData={handleExportFilteredData}
+                  handleExportData={handleExportData}
+                  baseTradesForChart={baseTradesForChart}
+                  trades={trades}
+                />
+              }
+            />
+            <Route
+              path="/settings"
+              element={
+                <SettingsPage
+                  handleExportData={handleExportData}
+                  handleExportFilteredData={handleExportFilteredData}
+                  triggerFileInput={triggerFileInput}
+                  handleDeleteAllData={handleDeleteAllData}
+                />
+              }
+            />
+            {/* Default route: main dashboard */}
+            <Route
+              path="/"
+              element={
+                <div className="flex flex-col items-center justify-center min-h-screen bg-gray-900 text-gray-100 p-4">
+                  <div className="w-full max-w-7xl mx-auto">
+                    {isTradeFormModalOpen && (
+                      <Modal
+                        title={editingTrade ? 'Edit Trade' : 'Add New Trade'}
+                        onClose={() => {
+                          setIsTradeFormModalOpen(false);
+                          setEditingTrade(null);
+                        }}
+                        size="large"
                       >
-                        Daily
-                      </Button>
-                      <Button 
-                        onClick={() => setExportDateMode('range')} 
-                        variant={exportDateMode === 'range' ? 'primary' : 'secondary'} 
-                        size="sm"
-                      >
-                        Range
-                      </Button>
-                    </div>
+                        <TradeForm 
+                          onSubmit={editingTrade ? handleUpdateTrade : handleAddTrade}
+                          tagGroups={tagGroups} 
+                          playbookEntries={playbookEntries}
+                          tradeToEdit={editingTrade || undefined} 
+                        />
+                      </Modal>
+                    )}
+
+                    {isSettingsModalOpen && (
+                      <Modal title="Settings" onClose={() => setIsSettingsModalOpen(false)} size="large">
+                        <div className="space-y-4">
+                          <h4 className="text-lg font-semibold text-gray-200">Data Management</h4>
+                          <div className="flex space-x-2">
+                            <Button onClick={handleExportData} variant="secondary">
+                              Export All Data
+                            </Button>
+                            <Button onClick={handleExportFilteredData} variant="secondary">
+                              Export Filtered Data
+                            </Button>
+                          </div>
+                          <p className="text-sm text-gray-400">Export your trade data to a JSON file.</p>
+
+                          <div className="border-t border-gray-700 pt-4">
+                            <h4 className="text-lg font-semibold text-gray-200">Import Data</h4>
+                            <p className="text-sm text-gray-400 mt-1">
+                              Import trades from a JSON backup, or from a CSV export from your broker.
+                            </p>
+                            <div className="mt-2">
+                              <Button onClick={triggerFileInput} variant="secondary">
+                                Import from File
+                              </Button>
+                            </div>
+                          </div>
+
+                          <div className="border-t border-gray-700 pt-4">
+                            <h4 className="text-lg font-semibold text-red-400">Danger Zone</h4>
+                            <Button
+                              onClick={() => {
+                                if (window.confirm('Are you sure you want to delete all data? This cannot be undone.')) {
+                                  handleDeleteAllData();
+                                }
+                              }}
+                              variant="danger"
+                            >
+                              Delete All Data
+                            </Button>
+                            <p className="text-sm text-gray-400 mt-1">This will permanently delete all trades, tags, and settings.</p>
+                          </div>
+                        </div>
+                      </Modal>
+                    )}
+
+                    {isExportModalOpen && (
+                      <Modal title="Export Data & Reports" onClose={() => setIsExportModalOpen(false)}>
+                        <div className="space-y-6">
+                          {/* Date Range Selection */}
+                          <div>
+                            <h3 className="text-lg font-semibold text-gray-200 mb-3">Select Date Range</h3>
+                            <div className="flex items-center space-x-2 mb-4">
+                              <Button 
+                                onClick={() => setExportDateMode('daily')} 
+                                variant={exportDateMode === 'daily' ? 'primary' : 'secondary'} 
+                                size="sm"
+                              >
+                                Daily
+                              </Button>
+                              <Button 
+                                onClick={() => setExportDateMode('range')} 
+                                variant={exportDateMode === 'range' ? 'primary' : 'secondary'} 
+                                size="sm"
+                              >
+                                Range
+                              </Button>
+                            </div>
+                            
+                            <div className="mb-4">
+                              {exportDateMode === 'daily' ? (
+                                <div>
+                                  <label htmlFor="export-date" className="block text-sm font-medium text-gray-300 mb-1">Select Date:</label>
+                                  <input
+                                    type="date"
+                                    id="export-date"
+                                    value={exportDateRange.start}
+                                    onChange={(e) => setExportDateRange({ start: e.target.value, end: e.target.value })}
+                                    className="w-full bg-gray-700 border border-gray-600 text-gray-100 sm:text-sm rounded-lg focus:ring-purple-500 focus:border-purple-500 p-2.5"
+                                  />
+                                </div>
+                              ) : (
+                                <div className="flex items-center space-x-2">
+                                  <div>
+                                    <label htmlFor="export-start-date" className="block text-sm font-medium text-gray-300 mb-1">Start Date:</label>
+                                    <input
+                                      type="date"
+                                      id="export-start-date"
+                                      value={exportDateRange.start}
+                                      onChange={(e) => setExportDateRange(prev => ({ ...prev, start: e.target.value }))}
+                                      className="w-full bg-gray-700 border border-gray-600 text-gray-100 sm:text-sm rounded-lg focus:ring-purple-500 focus:border-purple-500 p-2.5"
+                                    />
+                                  </div>
+                                  <div>
+                                    <label htmlFor="export-end-date" className="block text-sm font-medium text-gray-300 mb-1">End Date:</label>
+                                    <input
+                                      type="date"
+                                      id="export-end-date"
+                                      value={exportDateRange.end}
+                                      onChange={(e) => setExportDateRange(prev => ({ ...prev, end: e.target.value }))}
+                                      className="w-full bg-gray-700 border border-gray-600 text-gray-100 sm:text-sm rounded-lg focus:ring-purple-500 focus:border-purple-500 p-2.5"
+                                    />
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+
+                          {/* PDF Report Generation */}
+                          <div>
+                            <h3 className="text-lg font-semibold text-gray-200 mb-2">Generate Full PDF Report</h3>
+                            {reportError && (
+                              <div className="mb-3 p-3 bg-red-900 border border-red-700 rounded-lg">
+                                <p className="text-red-200 text-sm">{reportError}</p>
+                              </div>
+                            )}
+                            <Button
+                              onClick={handleGenerateReport}
+                              variant="primary"
+                              className="w-full bg-green-600 hover:bg-green-700"
+                              leftIcon={<DocumentTextIcon className="w-5 h-5"/>}
+                              disabled={isGeneratingReport}
+                            >
+                              {isGeneratingReport ? 'Generating Full Report...' : 'Generate Full Report'}
+                            </Button>
+                            <p className="text-xs text-gray-400 mt-2">
+                              Generates a comprehensive PDF report for the selected date range, including all performance metrics and analytical insights (Edge, Patterns, Kelly).
+                            </p>
+                            {isGeneratingReport && (
+                              <p className="text-xs text-yellow-400 mt-2">
+                                ⚠️ This may take a few seconds for large datasets...
+                              </p>
+                            )}
+                          </div>
+
+                          <div className="border-t border-gray-600 my-4"></div>
+
+                          {/* Data Export Options */}
+                          <div>
+                            <h3 className="text-lg font-semibold text-gray-200 mb-2">Export Raw Data</h3>
+                            <p className="text-sm text-gray-300 mb-3">Export your trade data to JSON files.</p>
+                            <div className="space-y-3">
+                              <Button
+                                onClick={handleExportDataWithAnalytics}
+                                variant="secondary"
+                                className="w-full bg-blue-600 hover:bg-blue-700"
+                                leftIcon={<DocumentTextIcon className="w-5 h-5"/>}
+                              >
+                                Export with Analytics (Edge, Patterns, Kelly)
+                              </Button>
+                              <Button
+                                onClick={handleExportFilteredData}
+                                variant="secondary"
+                                leftIcon={<DocumentTextIcon className="w-5 h-5"/>}
+                              >
+                                Export Chart Filtered Trades ({baseTradesForChart.length} trades)
+                              </Button>
+                              <Button
+                                onClick={handleExportData}
+                                variant="secondary"
+                                leftIcon={<DocumentTextIcon className="w-5 h-5"/>}
+                              >
+                                Export All Trades ({trades.length} trades)
+                              </Button>
+                            </div>
+                            <p className="text-xs text-gray-400 mt-2">
+                              "Chart Filtered" uses current chart controls. "With Analytics" includes Edge Discovery, Pattern Analysis, and Kelly Criterion calculations.
+                            </p>
+                          </div>
+                        </div>
+                      </Modal>
+                    )}
+                  
+                    {isMBSModalOpen && (
+                      <>
+                        {mbsStep === 1 && (
+                          <MBSStartSession
+                            isOpen={isMBSModalOpen}
+                            onClose={() => { setIsMBSModalOpen(false); setMbsStep(1); }}
+                            onContinue={(mood, note) => {
+                              setMbsMood(mood);
+                              setMbsNote(note);
+                              setMbsStep(2);
+                            }}
+                          />
+                        )}
+                        {mbsStep === 2 && (
+                          <MBSSessionGoal
+                            isOpen={isMBSModalOpen}
+                            onClose={() => { setIsMBSModalOpen(false); setMbsStep(1); }}
+                            onBack={() => setMbsStep(1)}
+                            onContinue={goal => {
+                              setMbsGoal(goal);
+                              setMbsStep(3);
+                            }}
+                            initialGoal={mbsGoal}
+                          />
+                        )}
+                        {mbsStep === 3 && (
+                          <MBSPreTradingChecklist
+                            isOpen={isMBSModalOpen}
+                            onClose={() => { setIsMBSModalOpen(false); setMbsStep(1); }}
+                            onBack={() => setMbsStep(2)}
+                            onBeginTrading={() => {
+                              setIsMBSModalOpen(false);
+                              setMbsStep(1);
+                              setMbsSessionActive(true); // session is now active
+                            }}
+                            sessionGoal={mbsGoal}
+                          />
+                        )}
+                      </>
+                    )}
                     
-                    <div className="mb-4">
-                      {exportDateMode === 'daily' ? (
-                        <div>
-                          <label htmlFor="export-date" className="block text-sm font-medium text-gray-300 mb-1">Select Date:</label>
-                          <input
-                            type="date"
-                            id="export-date"
-                            value={exportDateRange.start}
-                            onChange={(e) => setExportDateRange({ start: e.target.value, end: e.target.value })}
-                            className="w-full bg-gray-700 border border-gray-600 text-gray-100 sm:text-sm rounded-lg focus:ring-purple-500 focus:border-purple-500 p-2.5"
+                    <main className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                      <div className="lg:col-span-1 space-y-6">
+                        <div className="bg-gray-800 p-6 rounded-xl shadow-2xl">
+                          <h2 className="text-2xl font-semibold mb-4 text-purple-400 flex items-center"><AdjustmentsHorizontalIcon className="w-6 h-6 mr-2" />Controls</h2>
+                          <ChartControls
+                            yAxisMetric={yAxisMetric}
+                            setYAxisMetric={setYAxisMetric}
+                            xAxisMetric={xAxisMetric}
+                            setXAxisMetric={setXAxisMetric}
+                            dateRange={chartDateRange}
+                            setDateRange={setChartDateRange}
+                            compareDateRange={compareDateRange}
+                            setCompareDateRange={setCompareDateRange}
+                            tagGroups={tagGroups}
+                            selectedTags={selectedTagsForChart}
+                            setSelectedTags={setSelectedTagsForChart}
+                            tagComparisonMode={tagComparisonMode}
+                            setTagComparisonMode={setTagComparisonMode}
+                            directionFilter={directionFilter}
+                            setDirectionFilter={setDirectionFilter}
                           />
                         </div>
-                      ) : (
-                        <div className="flex items-center space-x-2">
-                          <div>
-                            <label htmlFor="export-start-date" className="block text-sm font-medium text-gray-300 mb-1">Start Date:</label>
-                            <input
-                              type="date"
-                              id="export-start-date"
-                              value={exportDateRange.start}
-                              onChange={(e) => setExportDateRange(prev => ({ ...prev, start: e.target.value }))}
-                              className="w-full bg-gray-700 border border-gray-600 text-gray-100 sm:text-sm rounded-lg focus:ring-purple-500 focus:border-purple-500 p-2.5"
-                            />
+
+                        <div className="bg-gray-800 p-6 rounded-xl shadow-2xl">
+                          <h2 className="text-2xl font-semibold mb-4 text-pink-400 flex items-center"><TableCellsIcon className="w-6 h-6 mr-2" />Summary</h2>
+                          
+                          <div className="flex items-center space-x-2 mb-4">
+                              <Button onClick={() => setSummaryDateMode('daily')} variant={summaryDateMode === 'daily' ? 'primary' : 'secondary'} size="sm">Daily</Button>
+                              <Button onClick={() => setSummaryDateMode('range')} variant={summaryDateMode === 'range' ? 'primary' : 'secondary'} size="sm">Range</Button>
                           </div>
-                          <div>
-                            <label htmlFor="export-end-date" className="block text-sm font-medium text-gray-300 mb-1">End Date:</label>
-                            <input
-                              type="date"
-                              id="export-end-date"
-                              value={exportDateRange.end}
-                              onChange={(e) => setExportDateRange(prev => ({ ...prev, end: e.target.value }))}
-                              className="w-full bg-gray-700 border border-gray-600 text-gray-100 sm:text-sm rounded-lg focus:ring-purple-500 focus:border-purple-500 p-2.5"
-                            />
+                          
+                          <div className="mb-4">
+                            {summaryDateMode === 'daily' ? (
+                              <div>
+                                <label htmlFor="summary-date" className="block text-sm font-medium text-gray-300 mb-1">Select Date:</label>
+                                <input
+                                  type="date"
+                                  id="summary-date"
+                                  value={summaryDateRange.start}
+                                  onChange={(e) => setSummaryDateRange({ start: e.target.value, end: e.target.value })}
+                                  className="w-full bg-gray-700 border border-gray-600 text-gray-100 sm:text-sm rounded-lg focus:ring-purple-500 focus:border-purple-500 p-2.5"
+                                />
+                              </div>
+                            ) : (
+                              <div className="flex items-center space-x-2">
+                                <div>
+                                  <label htmlFor="summary-start-date" className="block text-sm font-medium text-gray-300 mb-1">Start Date:</label>
+                                  <input
+                                    type="date"
+                                    id="summary-start-date"
+                                    value={summaryDateRange.start}
+                                    onChange={(e) => setSummaryDateRange(prev => ({ ...prev, start: e.target.value }))}
+                                    className="w-full bg-gray-700 border border-gray-600 text-gray-100 sm:text-sm rounded-lg focus:ring-purple-500 focus:border-purple-500 p-2.5"
+                                  />
+                                </div>
+                                <div>
+                                  <label htmlFor="summary-end-date" className="block text-sm font-medium text-gray-300 mb-1">End Date:</label>
+                                  <input
+                                    type="date"
+                                    id="summary-end-date"
+                                    value={summaryDateRange.end}
+                                    onChange={(e) => setSummaryDateRange(prev => ({ ...prev, end: e.target.value }))}
+                                    className="w-full bg-gray-700 border border-gray-600 text-gray-100 sm:text-sm rounded-lg focus:ring-purple-500 focus:border-purple-500 p-2.5"
+                                  />
+                                </div>
+                              </div>
+                            )}
                           </div>
+                          <Summary trades={tradesForSummary} />
+                          {directionFilter !== 'all' && <p className="text-xs text-gray-400 mt-2">Showing summary for {directionFilter} trades only.</p>}
                         </div>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* PDF Report Generation */}
-                  <div>
-                    <h3 className="text-lg font-semibold text-gray-200 mb-2">Generate Full PDF Report</h3>
-                    {reportError && (
-                      <div className="mb-3 p-3 bg-red-900 border border-red-700 rounded-lg">
-                        <p className="text-red-200 text-sm">{reportError}</p>
-                      </div>
-                    )}
-                    <Button
-                      onClick={handleGenerateReport}
-                      variant="primary"
-                      className="w-full bg-green-600 hover:bg-green-700"
-                      leftIcon={<DocumentTextIcon className="w-5 h-5"/>}
-                      disabled={isGeneratingReport}
-                    >
-                      {isGeneratingReport ? 'Generating Full Report...' : 'Generate Full Report'}
-                    </Button>
-                    <p className="text-xs text-gray-400 mt-2">
-                      Generates a comprehensive PDF report for the selected date range, including all performance metrics and analytical insights (Edge, Patterns, Kelly).
-                    </p>
-                    {isGeneratingReport && (
-                      <p className="text-xs text-yellow-400 mt-2">
-                        ⚠️ This may take a few seconds for large datasets...
-                      </p>
-                    )}
-                  </div>
-
-                  <div className="border-t border-gray-600 my-4"></div>
-
-                  {/* Data Export Options */}
-                  <div>
-                    <h3 className="text-lg font-semibold text-gray-200 mb-2">Export Raw Data</h3>
-                    <p className="text-sm text-gray-300 mb-3">Export your trade data to JSON files.</p>
-                    <div className="space-y-3">
-                      <Button
-                        onClick={handleExportDataWithAnalytics}
-                        variant="secondary"
-                        className="w-full bg-blue-600 hover:bg-blue-700"
-                        leftIcon={<DocumentTextIcon className="w-5 h-5"/>}
-                      >
-                        Export with Analytics (Edge, Patterns, Kelly)
-                      </Button>
-                      <Button
-                        onClick={handleExportFilteredData}
-                        variant="secondary"
-                        leftIcon={<DocumentTextIcon className="w-5 h-5"/>}
-                      >
-                        Export Chart Filtered Trades ({baseTradesForChart.length} trades)
-                      </Button>
-                      <Button
-                        onClick={handleExportData}
-                        variant="secondary"
-                        leftIcon={<DocumentTextIcon className="w-5 h-5"/>}
-                      >
-                        Export All Trades ({trades.length} trades)
-                      </Button>
-                    </div>
-                    <p className="text-xs text-gray-400 mt-2">
-                      "Chart Filtered" uses current chart controls. "With Analytics" includes Edge Discovery, Pattern Analysis, and Kelly Criterion calculations.
-                    </p>
-                  </div>
-                </div>
-              </Modal>
-            )}
-          
-            {isMBSModalOpen && (
-              <>
-                {mbsStep === 1 && (
-                  <MBSStartSession
-                    isOpen={isMBSModalOpen}
-                    onClose={() => { setIsMBSModalOpen(false); setMbsStep(1); }}
-                    onContinue={(mood, note) => {
-                      setMbsMood(mood);
-                      setMbsNote(note);
-                      setMbsStep(2);
-                    }}
-                  />
-                )}
-                {mbsStep === 2 && (
-                  <MBSSessionGoal
-                    isOpen={isMBSModalOpen}
-                    onClose={() => { setIsMBSModalOpen(false); setMbsStep(1); }}
-                    onBack={() => setMbsStep(1)}
-                    onContinue={goal => {
-                      setMbsGoal(goal);
-                      setMbsStep(3);
-                    }}
-                    initialGoal={mbsGoal}
-                  />
-                )}
-                {mbsStep === 3 && (
-                  <MBSPreTradingChecklist
-                    isOpen={isMBSModalOpen}
-                    onClose={() => { setIsMBSModalOpen(false); setMbsStep(1); }}
-                    onBack={() => setMbsStep(2)}
-                    onBeginTrading={() => {
-                      setIsMBSModalOpen(false);
-                      setMbsStep(1);
-                      setMbsSessionActive(true); // session is now active
-                    }}
-                    sessionGoal={mbsGoal}
-                  />
-                )}
-              </>
-            )}
-            
-            <main className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              <div className="lg:col-span-1 space-y-6">
-                <div className="bg-gray-800 p-6 rounded-xl shadow-2xl">
-                  <h2 className="text-2xl font-semibold mb-4 text-purple-400 flex items-center"><AdjustmentsHorizontalIcon className="w-6 h-6 mr-2" />Controls</h2>
-                  <ChartControls
-                    yAxisMetric={yAxisMetric}
-                    setYAxisMetric={setYAxisMetric}
-                    xAxisMetric={xAxisMetric}
-                    setXAxisMetric={setXAxisMetric}
-                    dateRange={chartDateRange}
-                    setDateRange={setChartDateRange}
-                    compareDateRange={compareDateRange}
-                    setCompareDateRange={setCompareDateRange}
-                    tagGroups={tagGroups}
-                    selectedTags={selectedTagsForChart}
-                    setSelectedTags={setSelectedTagsForChart}
-                    tagComparisonMode={tagComparisonMode}
-                    setTagComparisonMode={setTagComparisonMode}
-                    directionFilter={directionFilter}
-                    setDirectionFilter={setDirectionFilter}
-                  />
-                </div>
-
-                <div className="bg-gray-800 p-6 rounded-xl shadow-2xl">
-                  <h2 className="text-2xl font-semibold mb-4 text-pink-400 flex items-center"><TableCellsIcon className="w-6 h-6 mr-2" />Summary</h2>
-                  
-                  <div className="flex items-center space-x-2 mb-4">
-                      <Button onClick={() => setSummaryDateMode('daily')} variant={summaryDateMode === 'daily' ? 'primary' : 'secondary'} size="sm">Daily</Button>
-                      <Button onClick={() => setSummaryDateMode('range')} variant={summaryDateMode === 'range' ? 'primary' : 'secondary'} size="sm">Range</Button>
-                  </div>
-                  
-                  <div className="mb-4">
-                    {summaryDateMode === 'daily' ? (
-                      <div>
-                        <label htmlFor="summary-date" className="block text-sm font-medium text-gray-300 mb-1">Select Date:</label>
-                        <input
-                          type="date"
-                          id="summary-date"
-                          value={summaryDateRange.start}
-                          onChange={(e) => setSummaryDateRange({ start: e.target.value, end: e.target.value })}
-                          className="w-full bg-gray-700 border border-gray-600 text-gray-100 sm:text-sm rounded-lg focus:ring-purple-500 focus:border-purple-500 p-2.5"
+                        
+                        <TagPerformance 
+                          trades={trades} 
+                          tagGroups={tagGroups} 
+                          chartDateRange={chartDateRange} 
+                          directionFilter={directionFilter} 
                         />
                       </div>
-                    ) : (
-                      <div className="flex items-center space-x-2">
-                        <div>
-                          <label htmlFor="summary-start-date" className="block text-sm font-medium text-gray-300 mb-1">Start Date:</label>
-                          <input
-                            type="date"
-                            id="summary-start-date"
-                            value={summaryDateRange.start}
-                            onChange={(e) => setSummaryDateRange(prev => ({ ...prev, start: e.target.value }))}
-                            className="w-full bg-gray-700 border border-gray-600 text-gray-100 sm:text-sm rounded-lg focus:ring-purple-500 focus:border-purple-500 p-2.5"
+
+                      <div className="lg:col-span-2 space-y-6">
+                          <div id="performance-chart-container" className="bg-gray-800 p-6 rounded-xl shadow-2xl min-h-[400px]">
+                           <h2 className="text-2xl font-semibold mb-4 text-green-400 flex items-center"><ChartBarIcon className="w-6 h-6 mr-2" />Performance Chart</h2>
+                          <LineChartRenderer 
+                            data={chartData} 
+                            comparisonData={comparisonChartData} 
+                            yAxisMetric={yAxisMetric} 
+                            xAxisMetric={xAxisMetric} 
                           />
                         </div>
-                        <div>
-                          <label htmlFor="summary-end-date" className="block text-sm font-medium text-gray-300 mb-1">End Date:</label>
-                          <input
-                            type="date"
-                            id="summary-end-date"
-                            value={summaryDateRange.end}
-                            onChange={(e) => setSummaryDateRange(prev => ({ ...prev, end: e.target.value }))}
-                            className="w-full bg-gray-700 border border-gray-600 text-gray-100 sm:text-sm rounded-lg focus:ring-purple-500 focus:border-purple-500 p-2.5"
-                          />
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                          {Object.values(pieChartDataByGroup).map(groupData => (
+                            <div key={groupData.groupName} className="bg-gray-800 p-4 rounded-xl shadow-2xl">
+                              <h3 className="text-lg font-semibold mb-2 text-center text-pink-400">
+                                {groupData.groupName}
+                              </h3>
+                              <PieChartRenderer 
+                                data={groupData.data} 
+                                height={200}
+                                outerRadius={60}
+                              />
+                              <p className="text-xs text-gray-400 mt-2 text-center">
+                                For trades in selected date range{directionFilter !== 'all' ? ` (${directionFilter} only)` : ''}.
+                              </p>
+                            </div>
+                          ))}
+                        </div>
+
+                          <div id="tradelog-container" className="bg-gray-800 p-6 rounded-xl shadow-2xl">
+                          <div className="flex items-center justify-between mb-4">
+                            <h2 className="text-2xl font-semibold text-purple-400 flex items-center">
+                              Trade Log
+                            </h2>
+                            <button
+                              onClick={() => setTradeFiltersOpen((prev: boolean) => !prev)}
+                              aria-label={tradeFiltersOpen ? 'Hide Filters' : 'Show Filters'}
+                              className="text-gray-400 hover:text-white transition-colors focus:outline-none"
+                              style={{ background: 'none', border: 'none', padding: 0 }}
+                            >
+                              <FilterIcon className="w-5 h-5" />
+                            </button>
+                          </div>
+                          {activeTab === 'trades' && (
+                            <TradeList
+                              trades={trades}
+                              tagGroups={tagGroups}
+                              playbookEntries={playbookEntries}
+                              onDeleteTrade={handleDeleteTrade}
+                              onEditTrade={handleEditTrade}
+                              onViewDetails={handleViewTradeDetails}
+                              filtersOpen={tradeFiltersOpen}
+                              setFiltersOpen={setTradeFiltersOpen}
+                            />
+                          )}
+                          {activeTab === 'charts' && (
+                            <div className="space-y-4">
+                              {/* Additional content for charts tab */}
+                            </div>
+                          )}
                         </div>
                       </div>
+                    </main>
+                      
+                    {/* Legal Disclaimer Footer */}
+                    <FooterDisclaimer />
+                    
+                    {/* Compact Legal Disclaimer and Legal Button */}
+                    <div className="mt-6 flex flex-col items-center space-y-4">
+                      <LegalDisclaimer variant="compact" />
+                      <Button
+                        onClick={() => setShowLegalDisclaimer(true)}
+                        variant="ghost"
+                        size="sm"
+                        leftIcon={<DocumentTextIcon className="w-4 h-4"/>}
+                        className="text-gray-400 hover:text-gray-200"
+                      >
+                        View Full Legal Disclaimers
+                      </Button>
+                    </div>
+
+                    {viewingTrade && (
+                      <Modal title="Trade Details" onClose={handleCloseTradeDetails} size="large">
+                        <TradeDetailsView trade={viewingTrade} playbookEntries={playbookEntries} />
+                      </Modal>
+                    )}
+
+                    {/* Floating Add Trade Button */}
+                    <div className="fixed bottom-8 right-8 z-50">
+                      <button
+                        onClick={openTradeForm}
+                        className="bg-[#218c74] hover:bg-[#218c74] text-white rounded-full w-16 h-16 flex items-center justify-center shadow-lg transition-transform duration-200 transform hover:scale-110 focus:outline-none focus:ring-4 focus:ring-[#218c74]/40"
+                        aria-label="Add Trade"
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+                        </svg>
+                      </button>
+                    </div>
+
+                    {mbsSessionActive && (
+                      <MBSTradingPanel
+                        isOpen={mbsSessionActive}
+                        sessionGoal={mbsGoal}
+                        onEndSession={(sessionTrades: any[]) => {
+                          setMbsSessionActive(false);
+                          setShowPostSessionReview(true);
+                          setMbsSessionHistory(sessionTrades);
+                        }}
+                      />
+                    )}
+
+                    {showPostSessionReview && (
+                      <MBSPostSessionReview
+                        isOpen={showPostSessionReview}
+                        onClose={() => setShowPostSessionReview(false)}
+                        sessionGoal={mbsGoal}
+                        tradeHistory={mbsSessionHistory}
+                        onSetNextSessionGoal={goal => setMbsGoal(goal)}
+                      />
+                    )}
+
+                    {showImportPicker && pendingImportedTrades.length > 0 && (
+                      <ImportTradePickerModal
+                        trades={pendingImportedTrades}
+                        onConfirm={handleConfirmImportTrades}
+                        onCancel={handleCancelImportTrades}
+                      />
                     )}
                   </div>
-                  <Summary trades={tradesForSummary} />
-                  {directionFilter !== 'all' && <p className="text-xs text-gray-400 mt-2">Showing summary for {directionFilter} trades only.</p>}
                 </div>
-                
-                <TagPerformance 
-                  trades={trades} 
-                  tagGroups={tagGroups} 
-                  chartDateRange={chartDateRange} 
-                  directionFilter={directionFilter} 
-                />
-              </div>
-
-              <div className="lg:col-span-2 space-y-6">
-                  <div id="performance-chart-container" className="bg-gray-800 p-6 rounded-xl shadow-2xl min-h-[400px]">
-                   <h2 className="text-2xl font-semibold mb-4 text-green-400 flex items-center"><ChartBarIcon className="w-6 h-6 mr-2" />Performance Chart</h2>
-                  <LineChartRenderer 
-                    data={chartData} 
-                    comparisonData={comparisonChartData} 
-                    yAxisMetric={yAxisMetric} 
-                    xAxisMetric={xAxisMetric} 
-                  />
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {Object.values(pieChartDataByGroup).map(groupData => (
-                    <div key={groupData.groupName} className="bg-gray-800 p-4 rounded-xl shadow-2xl">
-                      <h3 className="text-lg font-semibold mb-2 text-center text-pink-400">
-                        {groupData.groupName}
-                      </h3>
-                      <PieChartRenderer 
-                        data={groupData.data} 
-                        height={200}
-                        outerRadius={60}
-                      />
-                      <p className="text-xs text-gray-400 mt-2 text-center">
-                        For trades in selected date range{directionFilter !== 'all' ? ` (${directionFilter} only)` : ''}.
-                      </p>
-                    </div>
-                  ))}
-                </div>
-
-                  <div id="tradelog-container" className="bg-gray-800 p-6 rounded-xl shadow-2xl">
-                  <div className="flex items-center justify-between mb-4">
-                    <h2 className="text-2xl font-semibold text-purple-400 flex items-center">
-                      Trade Log
-                    </h2>
-                    <button
-                      onClick={() => setTradeFiltersOpen((prev: boolean) => !prev)}
-                      aria-label={tradeFiltersOpen ? 'Hide Filters' : 'Show Filters'}
-                      className="text-gray-400 hover:text-white transition-colors focus:outline-none"
-                      style={{ background: 'none', border: 'none', padding: 0 }}
-                    >
-                      <FilterIcon className="w-5 h-5" />
-                    </button>
-                  </div>
-                  {activeTab === 'trades' && (
-                    <TradeList
-                      trades={trades}
-                      tagGroups={tagGroups}
-                      playbookEntries={playbookEntries}
-                      onDeleteTrade={handleDeleteTrade}
-                      onEditTrade={handleEditTrade}
-                      onViewDetails={handleViewTradeDetails}
-                      filtersOpen={tradeFiltersOpen}
-                      setFiltersOpen={setTradeFiltersOpen}
-                    />
-                  )}
-                  {activeTab === 'charts' && (
-                    <div className="space-y-4">
-                      {/* Additional content for charts tab */}
-                    </div>
-                  )}
-                </div>
-              </div>
-            </main>
-              
-            {/* Legal Disclaimer Footer */}
-            <FooterDisclaimer />
-            
-            {/* Compact Legal Disclaimer and Legal Button */}
-            <div className="mt-6 flex flex-col items-center space-y-4">
-              <LegalDisclaimer variant="compact" />
-              <Button
-                onClick={() => setShowLegalDisclaimer(true)}
-                variant="ghost"
-                size="sm"
-                leftIcon={<DocumentTextIcon className="w-4 h-4"/>}
-                className="text-gray-400 hover:text-gray-200"
-              >
-                View Full Legal Disclaimers
-              </Button>
-            </div>
-
-            {viewingTrade && (
-              <Modal title="Trade Details" onClose={handleCloseTradeDetails} size="large">
-                <TradeDetailsView trade={viewingTrade} playbookEntries={playbookEntries} />
-              </Modal>
-            )}
-
-            {/* Floating Add Trade Button */}
-            <div className="fixed bottom-8 right-8 z-50">
-              <button
-                onClick={openTradeForm}
-                className="bg-[#218c74] hover:bg-[#218c74] text-white rounded-full w-16 h-16 flex items-center justify-center shadow-lg transition-transform duration-200 transform hover:scale-110 focus:outline-none focus:ring-4 focus:ring-[#218c74]/40"
-                aria-label="Add Trade"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
-                </svg>
-              </button>
-            </div>
-
-            {mbsSessionActive && (
-              <MBSTradingPanel
-                isOpen={mbsSessionActive}
-                sessionGoal={mbsGoal}
-                onEndSession={(sessionTrades: any[]) => {
-                  setMbsSessionActive(false);
-                  setShowPostSessionReview(true);
-                  setMbsSessionHistory(sessionTrades);
-                }}
-              />
-            )}
-
-            {showPostSessionReview && (
-              <MBSPostSessionReview
-                isOpen={showPostSessionReview}
-                onClose={() => setShowPostSessionReview(false)}
-                sessionGoal={mbsGoal}
-                tradeHistory={mbsSessionHistory}
-                onSetNextSessionGoal={goal => setMbsGoal(goal)}
-              />
-            )}
-          </div>
+              }
+            />
+            <Route path="*" element={<Navigate to="/" />} />
+          </Routes>
+          {showImportPicker && pendingImportedTrades.length > 0 && (
+            <ImportTradePickerModal
+              trades={pendingImportedTrades}
+              onConfirm={handleConfirmImportTrades}
+              onCancel={handleCancelImportTrades}
+            />
+          )}
         </div>
       </div>
-    </div>
+    </Router>
   );
 };
 

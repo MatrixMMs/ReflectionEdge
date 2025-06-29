@@ -227,3 +227,12 @@ export const DotsVerticalIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props)
     <circle cx="12" cy="19" r="1.5" fill="currentColor" />
   </svg>
 );
+
+export const DashboardIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
+  <svg {...props} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <rect x="4" y="4" width="7" height="7" rx="2" fill="currentColor" fillOpacity="0.8"/>
+    <rect x="13" y="4" width="7" height="7" rx="2" fill="currentColor" fillOpacity="0.8"/>
+    <rect x="4" y="13" width="7" height="7" rx="2" fill="currentColor" fillOpacity="0.8"/>
+    <rect x="13" y="13" width="7" height="7" rx="2" fill="currentColor" fillOpacity="0.8"/>
+  </svg>
+);

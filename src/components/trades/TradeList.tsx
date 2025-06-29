@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useRef, useEffect } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { Trade, TagGroup, PlaybookEntry } from '../../types';
 import { Table, Thead, Tbody, Tr, Th, Td } from '../ui/Table';
 import { Button } from '../ui/Button';
@@ -50,7 +50,6 @@ export const TradeList: React.FC<TradeListProps> = ({ trades, tagGroups, onEditT
   const [sortBy, setSortBy] = useState<'date' | 'symbol' | 'direction' | 'profit' | 'grade'>('date');
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc');
   const [menuOpenId, setMenuOpenId] = useState<string | null>(null);
-  const menuRef = useRef<HTMLDivElement | null>(null);
 
   const availableSymbols = useMemo(() => getAvailableSymbols(trades), [trades]);
   
@@ -100,7 +99,15 @@ export const TradeList: React.FC<TradeListProps> = ({ trades, tagGroups, onEditT
   useEffect(() => {
     if (!menuOpenId) return;
     function handleClickOutside(event: MouseEvent) {
-      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+      // Check if the click is inside any menu
+      const menus = document.querySelectorAll('.trade-menu-dropdown');
+      let clickedInside = false;
+      menus.forEach(menu => {
+        if (menu.contains(event.target as Node)) {
+          clickedInside = true;
+        }
+      });
+      if (!clickedInside) {
         setMenuOpenId(null);
       }
     }
@@ -137,7 +144,7 @@ export const TradeList: React.FC<TradeListProps> = ({ trades, tagGroups, onEditT
               <Th><span onClick={() => handleSort('profit')} className="cursor-pointer select-none flex items-center">P&L{sortIndicator('profit')}</span></Th>
               <Th>&nbsp;</Th>
               <Th><span onClick={() => handleSort('grade')} className="cursor-pointer select-none flex items-center">Grade{sortIndicator('grade')}</span></Th>
-              <Th></Th>
+              <Th>&nbsp;</Th>
             </Tr>
           </Thead>
           <Tbody>
@@ -169,14 +176,14 @@ export const TradeList: React.FC<TradeListProps> = ({ trades, tagGroups, onEditT
                   </div>
                 </Td>
                 <Td>
-                  {trade.execution?.grade && (
+                  {trade.execution?.grade ? (
                     <span className={`px-2 py-1 text-xs font-bold text-white rounded-full ${getGradeColor(trade.execution.grade)}`}>
                       {trade.execution.grade}
                     </span>
-                  )}
+                  ) : ''}
                 </Td>
                 <Td className="relative">
-                  <div ref={menuRef}>
+                  <div>
                     <button
                       onClick={() => setMenuOpenId(menuOpenId === trade.id ? null : trade.id)}
                       className="p-2 rounded hover:bg-gray-700 focus:outline-none"
@@ -185,7 +192,7 @@ export const TradeList: React.FC<TradeListProps> = ({ trades, tagGroups, onEditT
                       <DotsVerticalIcon className="w-6 h-6 text-gray-400" />
                     </button>
                     {menuOpenId === trade.id && (
-                      <div className="absolute right-0 z-10 mt-2 w-32 bg-gray-800 border border-gray-700 rounded shadow-lg">
+                      <div className="trade-menu-dropdown absolute right-0 z-10 mt-2 w-32 bg-gray-800 border border-gray-700 rounded shadow-lg">
                         <button
                           onClick={() => { onViewDetails(trade); setMenuOpenId(null); }}
                           className="block w-full text-left px-4 py-2 text-sm text-gray-200 hover:bg-gray-700"
