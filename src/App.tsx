@@ -446,7 +446,23 @@ const App: React.FC = () => {
             }
 
             const jsonData = parseResult.data;
-            if (jsonData.trades && Array.isArray(jsonData.trades)) {
+            // Support both { trades: [...] } and flat array formats
+            if (Array.isArray(jsonData)) {
+              // Flat array of trades
+              const sanitizedTrades = jsonData.map(trade => ({
+                ...trade,
+                symbol: sanitizeString(trade.symbol || ''),
+                journal: sanitizeString(trade.journal || ''),
+                date: validateDateString(trade.date) ? trade.date : new Date().toISOString().split('T')[0]
+              }));
+              setTrades(sanitizedTrades);
+              setImportNotification({
+                title: "Import Complete",
+                message: `Successfully imported ${sanitizedTrades.length} trades from JSON array.`
+              });
+              setShowImportConfirmation(true);
+              return;
+            } else if (jsonData.trades && Array.isArray(jsonData.trades)) {
               // This is our exported JSON format
               const { trades: importedTrades, tagGroups: importedTagGroups, playbookEntries: importedPlaybookEntries } = jsonData;
               
