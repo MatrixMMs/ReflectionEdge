@@ -48,6 +48,7 @@ const App: React.FC = () => {
   // Legal disclaimer state
   const [showLegalDisclaimer, setShowLegalDisclaimer] = useState(false);
   const [hasSeenLegalDisclaimer, setHasSeenLegalDisclaimer] = useState(false);
+  const [dontShowAgain, setDontShowAgain] = useState(false);
 
   // MBS state
   const [isMBSModalOpen, setIsMBSModalOpen] = useState(false);
@@ -89,6 +90,12 @@ const App: React.FC = () => {
       setTrades(sampleTrades);
       setPlaybookEntries(DEFAULT_PLAYBOOK_ENTRIES);
     }
+
+    // Check if user has seen legal disclaimer
+    const hasSeen = localStorage.getItem('hasSeenLegalDisclaimer');
+    if (!hasSeen) {
+      setShowLegalDisclaimer(true);
+    }
   }, []);
 
   // Save data when it changes
@@ -118,6 +125,7 @@ const App: React.FC = () => {
 
   // Legal disclaimer handlers
   const handleLegalDisclaimerClose = () => {
+    if (!hasSeenLegalDisclaimer) return; // Prevent closing unless acknowledged
     setShowLegalDisclaimer(false);
     setHasSeenLegalDisclaimer(true);
     localStorage.setItem('hasSeenLegalDisclaimer', 'true');
@@ -250,6 +258,10 @@ const App: React.FC = () => {
     setIsMBSModalOpen(true);
   };
 
+  const handleShowLegalDisclaimer = () => {
+    setShowLegalDisclaimer(true);
+  };
+
   return (
     <Router>
       <div className="flex min-h-screen bg-gray-900 text-gray-100">
@@ -280,6 +292,7 @@ const App: React.FC = () => {
                   initialTrades={trades}
                   initialTagGroups={tagGroups}
                   initialPlaybookEntries={playbookEntries}
+                  onShowLegalDisclaimer={handleShowLegalDisclaimer}
                 />
               }
             />
@@ -412,8 +425,31 @@ const App: React.FC = () => {
 
           {/* Global Legal Disclaimer Modal */}
           {showLegalDisclaimer && (
-            <Modal title="Legal Disclaimers" onClose={handleLegalDisclaimerClose} size="large">
+            <Modal title="Legal Disclaimers" onClose={hasSeenLegalDisclaimer ? handleLegalDisclaimerClose : () => {}} size="large">
               <LegalDisclaimer variant="full" />
+              <div className="flex items-center mt-6">
+                <input
+                  type="checkbox"
+                  id="dontShowAgain"
+                  checked={dontShowAgain}
+                  onChange={e => setDontShowAgain(e.target.checked)}
+                  className="mr-2"
+                />
+                <label htmlFor="dontShowAgain" className="text-gray-300">Don't show this again</label>
+              </div>
+              <button
+                className="mt-4 px-6 py-2 bg-green-600 text-white rounded disabled:opacity-50"
+                disabled={!dontShowAgain}
+                onClick={() => {
+                  if (dontShowAgain) {
+                    localStorage.setItem('hasSeenLegalDisclaimer', 'true');
+                  }
+                  setShowLegalDisclaimer(false);
+                  setHasSeenLegalDisclaimer(true);
+                }}
+              >
+                I Understand
+              </button>
             </Modal>
           )}
 

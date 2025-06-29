@@ -21,12 +21,14 @@ interface DashboardPageProps {
   initialTrades: Trade[];
   initialTagGroups: TagGroup[];
   initialPlaybookEntries: PlaybookEntry[];
+  onShowLegalDisclaimer: () => void;
 }
 
 const DashboardPage: React.FC<DashboardPageProps> = ({ 
   initialTrades, 
   initialTagGroups, 
-  initialPlaybookEntries 
+  initialPlaybookEntries,
+  onShowLegalDisclaimer
 }) => {
   const [trades, setTrades] = useState<Trade[]>(initialTrades);
   const [tagGroups, setTagGroups] = useState<TagGroup[]>(initialTagGroups);
@@ -57,9 +59,6 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
   const [editingTrade, setEditingTrade] = useState<Trade | null>(null);
   const [viewingTrade, setViewingTrade] = useState<Trade | null>(null);
   const [tradeFiltersOpen, setTradeFiltersOpen] = useState(false);
-
-  // Legal disclaimer state
-  const [showLegalDisclaimer, setShowLegalDisclaimer] = useState(false);
 
   // Trade handlers
   const handleAddTrade = (trade: Omit<Trade, 'id' | 'timeInTrade'>) => {
@@ -373,7 +372,7 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
         <div className="mt-6 flex flex-col items-center space-y-4">
           <LegalDisclaimer variant="compact" />
           <Button
-            onClick={() => setShowLegalDisclaimer(true)}
+            onClick={onShowLegalDisclaimer}
             variant="ghost"
             size="sm"
             leftIcon={<DocumentTextIcon className="w-4 h-4"/>}
