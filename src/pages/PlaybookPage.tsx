@@ -6,29 +6,53 @@ import { Button } from '../components/ui/Button';
 import { PlusCircleIcon } from '../components/ui/Icons';
 
 interface PlaybookPageProps {
-  playbookEntries: PlaybookEntry[];
   tagGroups: TagGroup[];
-  onAddPlaybookEntry: (entry: Omit<PlaybookEntry, 'id' | 'createdAt' | 'updatedAt'>) => void;
-  onUpdatePlaybookEntry: (entry: Omit<PlaybookEntry, 'id' | 'createdAt' | 'updatedAt'>) => void;
-  onEditPlaybookEntry: (entry: PlaybookEntry) => void;
+  initialPlaybookEntries: PlaybookEntry[];
 }
 
-const PlaybookPage: React.FC<PlaybookPageProps> = ({
-  playbookEntries,
-  tagGroups,
-  onAddPlaybookEntry,
-  onUpdatePlaybookEntry,
-  onEditPlaybookEntry
-}) => {
+const PlaybookPage: React.FC<PlaybookPageProps> = ({ tagGroups, initialPlaybookEntries }) => {
+  const [playbookEntries, setPlaybookEntries] = useState<PlaybookEntry[]>(initialPlaybookEntries);
   const [selectedPlaybookEntry, setSelectedPlaybookEntry] = useState<PlaybookEntry | null>(null);
   const [isAddingPlaybook, setIsAddingPlaybook] = useState(false);
   const [isEditingPlaybook, setIsEditingPlaybook] = useState(false);
 
+  const handleAddPlaybookEntry = (entry: Omit<PlaybookEntry, 'id' | 'createdAt' | 'updatedAt'>) => {
+    const now = new Date().toISOString();
+    const newEntry: PlaybookEntry = {
+      ...entry,
+      id: Date.now().toString(),
+      createdAt: now,
+      updatedAt: now
+    };
+    setPlaybookEntries(prev => [...prev, newEntry]);
+    setIsAddingPlaybook(false);
+  };
+
+  const handleUpdatePlaybookEntry = (entry: Omit<PlaybookEntry, 'id' | 'createdAt' | 'updatedAt'>) => {
+    if (!selectedPlaybookEntry) return;
+    setPlaybookEntries(prev => prev.map(e => 
+      e.id === selectedPlaybookEntry.id ? { 
+        ...entry,
+        id: selectedPlaybookEntry.id,
+        createdAt: selectedPlaybookEntry.createdAt,
+        updatedAt: new Date().toISOString()
+      } : e
+    ));
+    setIsEditingPlaybook(false);
+    setSelectedPlaybookEntry(null);
+  };
+
+  const handleEditPlaybookEntry = (entry: PlaybookEntry) => {
+    setSelectedPlaybookEntry(entry);
+    setIsAddingPlaybook(false);
+    setIsEditingPlaybook(true);
+  };
+
   const handleSave = (data: Omit<PlaybookEntry, 'id' | 'createdAt' | 'updatedAt'>) => {
     if (selectedPlaybookEntry) {
-      onUpdatePlaybookEntry(data);
+      handleUpdatePlaybookEntry(data);
     } else {
-      onAddPlaybookEntry(data);
+      handleAddPlaybookEntry(data);
     }
     setIsAddingPlaybook(false);
     setIsEditingPlaybook(false);
@@ -39,12 +63,6 @@ const PlaybookPage: React.FC<PlaybookPageProps> = ({
     setIsAddingPlaybook(false);
     setIsEditingPlaybook(false);
     setSelectedPlaybookEntry(null);
-  };
-
-  const handleEdit = (entry: PlaybookEntry) => {
-    setSelectedPlaybookEntry(entry);
-    setIsAddingPlaybook(false);
-    setIsEditingPlaybook(true);
   };
 
   const handleAdd = () => {
@@ -70,7 +88,6 @@ const PlaybookPage: React.FC<PlaybookPageProps> = ({
             Add Strategy
           </Button>
         </div>
-
         {/* Content */}
         <div className="bg-gray-800 rounded-xl shadow-2xl p-6">
           {isAddingPlaybook || isEditingPlaybook || selectedPlaybookEntry ? (
@@ -85,7 +102,7 @@ const PlaybookPage: React.FC<PlaybookPageProps> = ({
               entries={playbookEntries}
               onSelect={(entry) => setSelectedPlaybookEntry(entry)}
               onAdd={handleAdd}
-              onEdit={handleEdit}
+              onEdit={handleEditPlaybookEntry}
             />
           )}
         </div>

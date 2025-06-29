@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useRef } from 'react';
 import { Trade, TagGroup, PlaybookEntry, ChartYAxisMetric, ChartXAxisMetric, AppDateRange, TradeDirectionFilterSelection } from '../types';
 import { TradeForm } from '../components/trades/TradeForm';
 import { TradeList } from '../components/trades/TradeList';
@@ -8,43 +8,31 @@ import { LineChartRenderer } from '../components/charts/LineChartRenderer';
 import { PieChartRenderer } from '../components/charts/PieChartRenderer';
 import { ChartControls } from '../components/charts/ChartControls';
 import { Modal } from '../components/ui/Modal';
+import { Button } from '../components/ui/Button';
 import { TradeDetailsView } from '../components/trades/TradeDetailsView';
+import { LegalDisclaimer, FooterDisclaimer } from '../components/ui/LegalDisclaimer';
+import { DocumentTextIcon, ChartBarIcon, TableCellsIcon, AdjustmentsHorizontalIcon, FilterIcon } from '../components/ui/Icons';
 import { processChartData, filterTradesByDateAndTags } from '../utils/chartDataProcessor';
-import { ChartBarIcon, TableCellsIcon, FilterIcon } from '../components/ui/Icons';
+import { calculateFinancials } from '../utils/financialCalculations';
+import { getRandomColor, resetColorUsage } from '../utils/colorGenerator';
+import { DEFAULT_CHART_COLOR, COMPARISON_CHART_COLOR, LONG_TRADE_COLOR, SHORT_TRADE_COLOR } from '../constants';
 
 interface DashboardPageProps {
-  trades: Trade[];
-  tagGroups: TagGroup[];
-  playbookEntries: PlaybookEntry[];
-  onAddTrade: (trade: Omit<Trade, 'id' | 'timeInTrade'>) => void;
-  onUpdateTrade: (updatedTrade: Omit<Trade, 'id' | 'timeInTrade'>) => void;
-  onDeleteTrade: (tradeId: string) => void;
-  onEditTrade: (trade: Trade) => void;
-  onViewTradeDetails: (trade: Trade) => void;
-  onCloseTradeDetails: () => void;
-  viewingTrade: Trade | null;
-  editingTrade: Trade | null;
-  isTradeFormModalOpen: boolean;
-  setIsTradeFormModalOpen: (open: boolean) => void;
-  setEditingTrade: (trade: Trade | null) => void;
+  initialTrades: Trade[];
+  initialTagGroups: TagGroup[];
+  initialPlaybookEntries: PlaybookEntry[];
 }
 
-const DashboardPage: React.FC<DashboardPageProps> = ({
-  trades,
-  tagGroups,
-  playbookEntries,
-  onAddTrade,
-  onUpdateTrade,
-  onDeleteTrade,
-  onEditTrade,
-  onViewTradeDetails,
-  onCloseTradeDetails,
-  viewingTrade,
-  editingTrade,
-  isTradeFormModalOpen,
-  setIsTradeFormModalOpen,
-  setEditingTrade
+const DashboardPage: React.FC<DashboardPageProps> = ({ 
+  initialTrades, 
+  initialTagGroups, 
+  initialPlaybookEntries 
 }) => {
+  const [trades, setTrades] = useState<Trade[]>(initialTrades);
+  const [tagGroups, setTagGroups] = useState<TagGroup[]>(initialTagGroups);
+  const [playbookEntries, setPlaybookEntries] = useState<PlaybookEntry[]>(initialPlaybookEntries);
+
+  // Chart and summary state
   const [selectedDate, setSelectedDate] = useState<string>(new Date().toISOString().split('T')[0]);
   const [summaryDateMode, setSummaryDateMode] = useState<'daily' | 'range'>('daily');
   const [summaryDateRange, setSummaryDateRange] = useState<AppDateRange>({
@@ -64,80 +52,149 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
   const [tagComparisonMode, setTagComparisonMode] = useState<'AND' | 'OR'>('OR');
   const [directionFilter, setDirectionFilter] = useState<TradeDirectionFilterSelection>('all');
 
+  // Trade form and details state
+  const [isTradeFormModalOpen, setIsTradeFormModalOpen] = useState(false);
+  const [editingTrade, setEditingTrade] = useState<Trade | null>(null);
+  const [viewingTrade, setViewingTrade] = useState<Trade | null>(null);
   const [tradeFiltersOpen, setTradeFiltersOpen] = useState(false);
 
-  const baseTradesForChart = useMemo(() => {
-    return filterTradesByDateAndTags(trades, chartDateRange, selectedTagsForChart, tagComparisonMode);
-  }, [trades, chartDateRange, selectedTagsForChart, tagComparisonMode]);
+  // Legal disclaimer state
+  const [showLegalDisclaimer, setShowLegalDisclaimer] = useState(false);
 
-  const chartData = useMemo(() => {
-    return processChartData(baseTradesForChart, xAxisMetric, yAxisMetric, tagGroups, selectedTagsForChart, directionFilter, false);
-  }, [baseTradesForChart, xAxisMetric, yAxisMetric, tagGroups, selectedTagsForChart, directionFilter]);
+  // Trade handlers
+  const handleAddTrade = (trade: Omit<Trade, 'id' | 'timeInTrade'>) => {
+    const now = new Date();
+    const timeInTrade = Math.round((now.getTime() - new Date(trade.timeIn).getTime()) / (1000 * 60));
+    
+    const newTrade: Trade = {
+      ...trade,
+      id: Date.now().toString(),
+      timeInTrade,
+    };
+    
+    setTrades(prev => [...prev, newTrade]);
+    setIsTradeFormModalOpen(false);
+  };
 
-  const comparisonChartData = useMemo(() => {
-    if (!compareDateRange) return null;
-    const baseCompareTrades = filterTradesByDateAndTags(trades, compareDateRange, selectedTagsForChart, tagComparisonMode);
-    return processChartData(baseCompareTrades, xAxisMetric, yAxisMetric, tagGroups, selectedTagsForChart, directionFilter, true);
-  }, [trades, compareDateRange, selectedTagsForChart, tagComparisonMode, xAxisMetric, yAxisMetric, tagGroups, directionFilter]);
+  const handleUpdateTrade = (updatedTrade: Omit<Trade, 'id' | 'timeInTrade'>) => {
+    if (!editingTrade) return;
+    
+    const now = new Date();
+    const timeInTrade = Math.round((now.getTime() - new Date(updatedTrade.timeIn).getTime()) / (1000 * 60));
+    
+    setTrades(prev => prev.map(trade => 
+      trade.id === editingTrade.id 
+        ? { ...updatedTrade, id: editingTrade.id, timeInTrade }
+        : trade
+    ));
+    
+    setIsTradeFormModalOpen(false);
+    setEditingTrade(null);
+  };
 
-  const tradesForSummary = useMemo(() => {
-    let filteredTrades: Trade[];
+  const handleDeleteTrade = (tradeId: string) => {
+    setTrades(prev => prev.filter(trade => trade.id !== tradeId));
+  };
 
-    if (summaryDateMode === 'daily') {
-      filteredTrades = trades.filter(trade => trade.date === summaryDateRange.start);
-    } else {
-      const startDate = new Date(summaryDateRange.start);
-      const endDate = new Date(summaryDateRange.end);
-      filteredTrades = trades.filter(trade => {
-        const tradeDate = new Date(trade.date);
-        return tradeDate >= startDate && tradeDate <= endDate;
-      });
-    }
+  const handleEditTrade = (trade: Trade) => {
+    setEditingTrade(trade);
+    setIsTradeFormModalOpen(true);
+  };
 
-    if (directionFilter !== 'all') {
-      return filteredTrades.filter(trade => trade.direction === directionFilter);
-    }
-    return filteredTrades;
-  }, [trades, summaryDateMode, summaryDateRange, directionFilter]);
+  const handleViewTradeDetails = (trade: Trade) => {
+    setViewingTrade(trade);
+  };
 
-  const pieChartDataByGroup = useMemo(() => {
-    let tradesInDateRange = trades.filter(trade => 
-      new Date(trade.date) >= new Date(chartDateRange.start) && new Date(trade.date) <= new Date(chartDateRange.end)
-    );
-    if (directionFilter !== 'all') {
-      tradesInDateRange = tradesInDateRange.filter(trade => trade.direction === directionFilter);
-    }
-
-    // For each group, count subtags
-    const result: { [groupId: string]: { groupName: string, data: { name: string, value: number, fill: string }[] } } = {};
-    tagGroups.forEach(group => {
-      const tagCounts: { [subTagId: string]: number } = {};
-      tradesInDateRange.forEach(trade => {
-        const subTagId = trade.tags[group.id];
-        if (subTagId) tagCounts[subTagId] = (tagCounts[subTagId] || 0) + 1;
-      });
-      const data = group.subtags
-        .filter(subTag => tagCounts[subTag.id] > 0)
-        .map(subTag => ({
-          name: subTag.name,
-          value: tagCounts[subTag.id],
-          fill: subTag.color,
-        }));
-      if (data.length > 0) {
-        result[group.id] = { groupName: group.name, data };
-      }
-    });
-    return result;
-  }, [trades, chartDateRange, tagGroups, directionFilter]);
+  const handleCloseTradeDetails = () => {
+    setViewingTrade(null);
+  };
 
   const openTradeForm = () => {
     setEditingTrade(null);
     setIsTradeFormModalOpen(true);
   };
 
+  // Chart data processing
+  const baseTradesForChart = useMemo(() => {
+    return filterTradesByDateAndTags(trades, chartDateRange, selectedTagsForChart, tagComparisonMode);
+  }, [trades, chartDateRange, selectedTagsForChart, tagComparisonMode]);
+
+  const filteredTradesForChart = useMemo(() => {
+    if (directionFilter === 'all') return baseTradesForChart;
+    return baseTradesForChart.filter(trade => trade.direction === directionFilter);
+  }, [baseTradesForChart, directionFilter]);
+
+  const chartData = useMemo(() => {
+    return processChartData(filteredTradesForChart, xAxisMetric, yAxisMetric, tagGroups, selectedTagsForChart, directionFilter, false);
+  }, [filteredTradesForChart, xAxisMetric, yAxisMetric, tagGroups, selectedTagsForChart, directionFilter]);
+
+  const comparisonChartData = useMemo(() => {
+    if (!compareDateRange) return null;
+    const comparisonTrades = filterTradesByDateAndTags(trades, compareDateRange, selectedTagsForChart, tagComparisonMode);
+    const filteredComparisonTrades = directionFilter === 'all' 
+      ? comparisonTrades 
+      : comparisonTrades.filter(trade => trade.direction === directionFilter);
+    return processChartData(filteredComparisonTrades, xAxisMetric, yAxisMetric, tagGroups, selectedTagsForChart, directionFilter, true);
+  }, [trades, compareDateRange, selectedTagsForChart, tagComparisonMode, directionFilter, xAxisMetric, yAxisMetric, tagGroups]);
+
+  // Summary data processing
+  const tradesForSummary = useMemo(() => {
+    const summaryTrades = filterTradesByDateAndTags(trades, summaryDateRange, {}, 'OR');
+    return directionFilter === 'all' 
+      ? summaryTrades 
+      : summaryTrades.filter(trade => trade.direction === directionFilter);
+  }, [trades, summaryDateRange, directionFilter]);
+
+  // Pie chart data processing
+  const pieChartDataByGroup = useMemo(() => {
+    const result: { [groupId: string]: { groupName: string; data: any[] } } = {};
+    
+    tagGroups.forEach(group => {
+      const groupTrades = filteredTradesForChart.filter(trade => 
+        trade.tags && trade.tags[group.id]
+      );
+      
+      if (groupTrades.length > 0) {
+        const tagCounts: { [tagId: string]: { name: string; count: number; color: string; profit: number } } = {};
+        
+        groupTrades.forEach(trade => {
+          const tagId = trade.tags[group.id];
+          if (tagId) {
+            const subtag = group.subtags.find(st => st.id === tagId);
+            if (subtag) {
+              if (!tagCounts[tagId]) {
+                tagCounts[tagId] = {
+                  name: subtag.name,
+                  count: 0,
+                  color: subtag.color,
+                  profit: 0
+                };
+              }
+              tagCounts[tagId].count++;
+              tagCounts[tagId].profit += trade.profit;
+            }
+          }
+        });
+        
+        result[group.id] = {
+          groupName: group.name,
+          data: Object.values(tagCounts).map(tag => ({
+            name: tag.name,
+            value: tag.count,
+            fill: tag.color,
+            profit: tag.profit
+          }))
+        };
+      }
+    });
+    
+    return result;
+  }, [filteredTradesForChart, tagGroups]);
+
   return (
-    <div className="min-h-screen bg-gray-900 text-gray-100 p-4">
+    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-900 text-gray-100 p-4">
       <div className="w-full max-w-7xl mx-auto">
+        {/* Trade Form Modal */}
         {isTradeFormModalOpen && (
           <Modal
             title={editingTrade ? 'Edit Trade' : 'Add New Trade'}
@@ -148,7 +205,7 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
             size="large"
           >
             <TradeForm 
-              onSubmit={editingTrade ? onUpdateTrade : onAddTrade}
+              onSubmit={editingTrade ? handleUpdateTrade : handleAddTrade}
               tagGroups={tagGroups} 
               playbookEntries={playbookEntries}
               tradeToEdit={editingTrade || undefined} 
@@ -156,17 +213,14 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
           </Modal>
         )}
 
-        {viewingTrade && (
-          <Modal title="Trade Details" onClose={onCloseTradeDetails} size="large">
-            <TradeDetailsView trade={viewingTrade} playbookEntries={playbookEntries} />
-          </Modal>
-        )}
-
+        {/* Main Dashboard Content */}
         <main className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-1 space-y-6">
+            {/* Chart Controls */}
             <div className="bg-gray-800 p-6 rounded-xl shadow-2xl">
               <h2 className="text-2xl font-semibold mb-4 text-purple-400 flex items-center">
-                <span className="mr-2">📊</span>Controls
+                <AdjustmentsHorizontalIcon className="w-6 h-6 mr-2" />
+                Controls
               </h2>
               <ChartControls
                 yAxisMetric={yAxisMetric}
@@ -187,24 +241,16 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
               />
             </div>
 
+            {/* Summary */}
             <div className="bg-gray-800 p-6 rounded-xl shadow-2xl">
               <h2 className="text-2xl font-semibold mb-4 text-pink-400 flex items-center">
-                <TableCellsIcon className="w-6 h-6 mr-2" />Summary
+                <TableCellsIcon className="w-6 h-6 mr-2" />
+                Summary
               </h2>
               
               <div className="flex items-center space-x-2 mb-4">
-                  <button 
-                    onClick={() => setSummaryDateMode('daily')} 
-                    className={`px-3 py-1 rounded text-sm ${summaryDateMode === 'daily' ? 'bg-purple-600 text-white' : 'bg-gray-700 text-gray-300'}`}
-                  >
-                    Daily
-                  </button>
-                  <button 
-                    onClick={() => setSummaryDateMode('range')} 
-                    className={`px-3 py-1 rounded text-sm ${summaryDateMode === 'range' ? 'bg-purple-600 text-white' : 'bg-gray-700 text-gray-300'}`}
-                  >
-                    Range
-                  </button>
+                <Button onClick={() => setSummaryDateMode('daily')} variant={summaryDateMode === 'daily' ? 'primary' : 'secondary'} size="sm">Daily</Button>
+                <Button onClick={() => setSummaryDateMode('range')} variant={summaryDateMode === 'range' ? 'primary' : 'secondary'} size="sm">Range</Button>
               </div>
               
               <div className="mb-4">
@@ -248,6 +294,7 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
               {directionFilter !== 'all' && <p className="text-xs text-gray-400 mt-2">Showing summary for {directionFilter} trades only.</p>}
             </div>
             
+            {/* Tag Performance */}
             <TagPerformance 
               trades={trades} 
               tagGroups={tagGroups} 
@@ -257,10 +304,12 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
           </div>
 
           <div className="lg:col-span-2 space-y-6">
-              <div id="performance-chart-container" className="bg-gray-800 p-6 rounded-xl shadow-2xl min-h-[400px]">
-               <h2 className="text-2xl font-semibold mb-4 text-green-400 flex items-center">
-                 <ChartBarIcon className="w-6 h-6 mr-2" />Performance Chart
-               </h2>
+            {/* Performance Chart */}
+            <div id="performance-chart-container" className="bg-gray-800 p-6 rounded-xl shadow-2xl min-h-[400px]">
+              <h2 className="text-2xl font-semibold mb-4 text-green-400 flex items-center">
+                <ChartBarIcon className="w-6 h-6 mr-2" />
+                Performance Chart
+              </h2>
               <LineChartRenderer 
                 data={chartData} 
                 comparisonData={comparisonChartData} 
@@ -269,6 +318,7 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
               />
             </div>
 
+            {/* Pie Charts */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {Object.values(pieChartDataByGroup).map(groupData => (
                 <div key={groupData.groupName} className="bg-gray-800 p-4 rounded-xl shadow-2xl">
@@ -287,7 +337,8 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
               ))}
             </div>
 
-              <div id="tradelog-container" className="bg-gray-800 p-6 rounded-xl shadow-2xl">
+            {/* Trade Log */}
+            <div id="tradelog-container" className="bg-gray-800 p-6 rounded-xl shadow-2xl">
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-2xl font-semibold text-purple-400 flex items-center">
                   Trade Log
@@ -305,15 +356,39 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
                 trades={trades}
                 tagGroups={tagGroups}
                 playbookEntries={playbookEntries}
-                onDeleteTrade={onDeleteTrade}
-                onEditTrade={onEditTrade}
-                onViewDetails={onViewTradeDetails}
+                onDeleteTrade={handleDeleteTrade}
+                onEditTrade={handleEditTrade}
+                onViewDetails={handleViewTradeDetails}
                 filtersOpen={tradeFiltersOpen}
                 setFiltersOpen={setTradeFiltersOpen}
               />
             </div>
           </div>
         </main>
+          
+        {/* Legal Disclaimer Footer */}
+        <FooterDisclaimer />
+        
+        {/* Compact Legal Disclaimer and Legal Button */}
+        <div className="mt-6 flex flex-col items-center space-y-4">
+          <LegalDisclaimer variant="compact" />
+          <Button
+            onClick={() => setShowLegalDisclaimer(true)}
+            variant="ghost"
+            size="sm"
+            leftIcon={<DocumentTextIcon className="w-4 h-4"/>}
+            className="text-gray-400 hover:text-gray-200"
+          >
+            View Full Legal Disclaimers
+          </Button>
+        </div>
+
+        {/* Trade Details Modal */}
+        {viewingTrade && (
+          <Modal title="Trade Details" onClose={handleCloseTradeDetails} size="large">
+            <TradeDetailsView trade={viewingTrade} playbookEntries={playbookEntries} />
+          </Modal>
+        )}
 
         {/* Floating Add Trade Button */}
         <div className="fixed bottom-8 right-8 z-50">
