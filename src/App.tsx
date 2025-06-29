@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
-import { Trade, TagGroup, SubTag, ChartYAxisMetric, ChartXAxisMetric, AppDateRange, TradeDirectionFilterSelection, PlaybookEntry, Profile } from './types';
+import { Trade, TagGroup, SubTag, ChartYAxisMetric, ChartXAxisMetric, AppDateRange, TradeDirectionFilterSelection, PlaybookEntry, Profile, TagCategory } from './types';
 import { TradeForm } from './components/trades/TradeForm';
 import { TradeList } from './components/trades/TradeList';
 import { Summary } from './components/trades/Summary';
@@ -81,6 +81,9 @@ const App: React.FC = () => {
   const [isTagManagerModalOpen, setIsTagManagerModalOpen] = useState(false);
   const [editingTrade, setEditingTrade] = useState<Trade | null>(null);
   const [viewingTrade, setViewingTrade] = useState<Trade | null>(null);
+  
+  // Advanced tagging system state
+  const [selectedAdvancedTags, setSelectedAdvancedTags] = useState<{ [category: string]: { [groupId: string]: string[] } }>({});
   
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -354,6 +357,43 @@ const App: React.FC = () => {
       }
       return trade;
     }));
+  };
+
+  // Advanced tagging system handlers
+  const handleAdvancedTagSelect = (category: TagCategory, groupId: string, tagId: string) => {
+    setSelectedAdvancedTags(prev => {
+      const newTags = { ...prev };
+      
+      // Initialize category if it doesn't exist
+      if (!newTags[category]) {
+        newTags[category] = {};
+      }
+      
+      // Initialize group if it doesn't exist
+      if (!newTags[category][groupId]) {
+        newTags[category][groupId] = [];
+      }
+      
+      // Toggle tag selection
+      const currentTags = newTags[category][groupId];
+      const tagIndex = currentTags.indexOf(tagId);
+      
+      if (tagIndex > -1) {
+        // Remove tag if already selected
+        currentTags.splice(tagIndex, 1);
+        if (currentTags.length === 0) {
+          delete newTags[category][groupId];
+        }
+        if (Object.keys(newTags[category]).length === 0) {
+          delete newTags[category];
+        }
+      } else {
+        // Add tag if not selected
+        currentTags.push(tagId);
+      }
+      
+      return newTags;
+    });
   };
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -938,29 +978,31 @@ const App: React.FC = () => {
                 }}
                 size="large"
               >
-              <TradeForm 
+                <TradeForm 
                   onSubmit={editingTrade ? handleUpdateTrade : handleAddTrade}
-                tagGroups={tagGroups} 
-                playbookEntries={playbookEntries}
-                tradeToEdit={editingTrade || undefined} 
-              />
-            </Modal>
-          )}
+                  tagGroups={tagGroups} 
+                  playbookEntries={playbookEntries}
+                  tradeToEdit={editingTrade || undefined} 
+                />
+              </Modal>
+            )}
 
-          {isTagManagerModalOpen && (
+            {isTagManagerModalOpen && (
               <Modal title="Tag Manager" onClose={() => setIsTagManagerModalOpen(false)} size="large">
-              <TagManager 
-                tagGroups={tagGroups} 
-                onAddGroup={handleAddTagGroup} 
-                onAddSubTag={handleAddSubTag}
-                onUpdateSubTagColor={handleUpdateSubTagColor}
-                onDeleteGroup={handleDeleteTagGroup}
+                <TagManager 
+                  tagGroups={tagGroups} 
+                  onAddGroup={handleAddTagGroup} 
+                  onAddSubTag={handleAddSubTag}
+                  onUpdateSubTagColor={handleUpdateSubTagColor}
+                  onDeleteGroup={handleDeleteTagGroup}
                   onDeleteSubTag={handleDeleteSubTag}
-              />
-            </Modal>
-          )}
+                  onAdvancedTagSelect={handleAdvancedTagSelect}
+                  selectedAdvancedTags={selectedAdvancedTags}
+                />
+              </Modal>
+            )}
 
-          {isSettingsModalOpen && (
+            {isSettingsModalOpen && (
               <Modal title="Settings" onClose={() => setIsSettingsModalOpen(false)} size="large">
                 <div className="space-y-4">
                   <h4 className="text-lg font-semibold text-gray-200">Data Management</h4>
@@ -1000,11 +1042,11 @@ const App: React.FC = () => {
                     </Button>
                     <p className="text-sm text-gray-400 mt-1">This will permanently delete all trades, tags, and settings.</p>
                   </div>
-              </div>
-            </Modal>
-          )}
+                </div>
+              </Modal>
+            )}
 
-          {isPlaybookModalOpen && (
+            {isPlaybookModalOpen && (
               <Modal 
                 title={selectedPlaybookEntry ? "Edit Strategy" : (isAddingPlaybook ? "Add Strategy" : "Playbook")}
                 onClose={() => {
@@ -1042,26 +1084,26 @@ const App: React.FC = () => {
                     onEdit={handleEditPlaybookEntry}
                   />
                 )}
-            </Modal>
-          )}
+              </Modal>
+            )}
 
-          {isPatternAnalysisModalOpen && (
+            {isPatternAnalysisModalOpen && (
               <Modal title="Pattern Analysis" onClose={() => setIsPatternAnalysisModalOpen(false)} size="full">
-              <PatternAnalysisDashboard trades={trades} />
-            </Modal>
-          )}
+                <PatternAnalysisDashboard trades={trades} />
+              </Modal>
+            )}
 
-          {isPatternInsightsModalOpen && (
+            {isPatternInsightsModalOpen && (
               <Modal title="Pattern Insights" onClose={() => setIsPatternInsightsModalOpen(false)} size="full">
-              <PatternInsights trades={trades} />
-            </Modal>
-          )}
+                <PatternInsights trades={trades} />
+              </Modal>
+            )}
 
             {isEdgeDiscoveryModalOpen && (
               <Modal title="Edge Discovery" onClose={() => setIsEdgeDiscoveryModalOpen(false)} size="large">
                 <EdgeDiscoveryDashboard trades={trades} tagGroups={tagGroups} />
-            </Modal>
-          )}
+              </Modal>
+            )}
 
             {isExecutionDashboardModalOpen && (
               <Modal title="Execution Dashboard" onClose={() => setIsExecutionDashboardModalOpen(false)} size="full">
@@ -1088,10 +1130,10 @@ const App: React.FC = () => {
             )}
 
             {importNotification && (
-            <NotificationPopup
-              title={importNotification.title}
-              message={importNotification.message}
-              details={importNotification.details}
+              <NotificationPopup
+                title={importNotification.title}
+                message={importNotification.message}
+                details={importNotification.details}
                 onClose={() => setImportNotification(null)}
               />
             )}
@@ -1223,191 +1265,191 @@ const App: React.FC = () => {
               </Modal>
             )}
           
-          {isMBSModalOpen && (
-            <>
-              {mbsStep === 1 && (
-                <MBSStartSession
-                  isOpen={isMBSModalOpen}
-                  onClose={() => { setIsMBSModalOpen(false); setMbsStep(1); }}
-                  onContinue={(mood, note) => {
-                    setMbsMood(mood);
-                    setMbsNote(note);
-                    setMbsStep(2);
-                  }}
-                />
-              )}
-              {mbsStep === 2 && (
-                <MBSSessionGoal
-                  isOpen={isMBSModalOpen}
-                  onClose={() => { setIsMBSModalOpen(false); setMbsStep(1); }}
-                  onBack={() => setMbsStep(1)}
-                  onContinue={goal => {
-                    setMbsGoal(goal);
-                    setMbsStep(3);
-                  }}
-                  initialGoal={mbsGoal}
-                />
-              )}
-              {mbsStep === 3 && (
-                <MBSPreTradingChecklist
-                  isOpen={isMBSModalOpen}
-                  onClose={() => { setIsMBSModalOpen(false); setMbsStep(1); }}
-                  onBack={() => setMbsStep(2)}
-                  onBeginTrading={() => {
-                    setIsMBSModalOpen(false);
-                    setMbsStep(1);
-                    setMbsSessionActive(true); // session is now active
-                  }}
-                  sessionGoal={mbsGoal}
-                />
-              )}
-            </>
-          )}
-          
-          <main className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div className="lg:col-span-1 space-y-6">
-              <div className="bg-gray-800 p-6 rounded-xl shadow-2xl">
-                <h2 className="text-2xl font-semibold mb-4 text-purple-400 flex items-center"><AdjustmentsHorizontalIcon className="w-6 h-6 mr-2" />Controls</h2>
-                <ChartControls
-                  yAxisMetric={yAxisMetric}
-                  setYAxisMetric={setYAxisMetric}
-                  xAxisMetric={xAxisMetric}
-                  setXAxisMetric={setXAxisMetric}
-                  dateRange={chartDateRange}
-                  setDateRange={setChartDateRange}
-                  compareDateRange={compareDateRange}
-                  setCompareDateRange={setCompareDateRange}
-                  tagGroups={tagGroups}
-                  selectedTags={selectedTagsForChart}
-                  setSelectedTags={setSelectedTagsForChart}
-                  tagComparisonMode={tagComparisonMode}
-                  setTagComparisonMode={setTagComparisonMode}
-                  directionFilter={directionFilter}
-                  setDirectionFilter={setDirectionFilter}
+            {isMBSModalOpen && (
+              <>
+                {mbsStep === 1 && (
+                  <MBSStartSession
+                    isOpen={isMBSModalOpen}
+                    onClose={() => { setIsMBSModalOpen(false); setMbsStep(1); }}
+                    onContinue={(mood, note) => {
+                      setMbsMood(mood);
+                      setMbsNote(note);
+                      setMbsStep(2);
+                    }}
+                  />
+                )}
+                {mbsStep === 2 && (
+                  <MBSSessionGoal
+                    isOpen={isMBSModalOpen}
+                    onClose={() => { setIsMBSModalOpen(false); setMbsStep(1); }}
+                    onBack={() => setMbsStep(1)}
+                    onContinue={goal => {
+                      setMbsGoal(goal);
+                      setMbsStep(3);
+                    }}
+                    initialGoal={mbsGoal}
+                  />
+                )}
+                {mbsStep === 3 && (
+                  <MBSPreTradingChecklist
+                    isOpen={isMBSModalOpen}
+                    onClose={() => { setIsMBSModalOpen(false); setMbsStep(1); }}
+                    onBack={() => setMbsStep(2)}
+                    onBeginTrading={() => {
+                      setIsMBSModalOpen(false);
+                      setMbsStep(1);
+                      setMbsSessionActive(true); // session is now active
+                    }}
+                    sessionGoal={mbsGoal}
+                  />
+                )}
+              </>
+            )}
+            
+            <main className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              <div className="lg:col-span-1 space-y-6">
+                <div className="bg-gray-800 p-6 rounded-xl shadow-2xl">
+                  <h2 className="text-2xl font-semibold mb-4 text-purple-400 flex items-center"><AdjustmentsHorizontalIcon className="w-6 h-6 mr-2" />Controls</h2>
+                  <ChartControls
+                    yAxisMetric={yAxisMetric}
+                    setYAxisMetric={setYAxisMetric}
+                    xAxisMetric={xAxisMetric}
+                    setXAxisMetric={setXAxisMetric}
+                    dateRange={chartDateRange}
+                    setDateRange={setChartDateRange}
+                    compareDateRange={compareDateRange}
+                    setCompareDateRange={setCompareDateRange}
+                    tagGroups={tagGroups}
+                    selectedTags={selectedTagsForChart}
+                    setSelectedTags={setSelectedTagsForChart}
+                    tagComparisonMode={tagComparisonMode}
+                    setTagComparisonMode={setTagComparisonMode}
+                    directionFilter={directionFilter}
+                    setDirectionFilter={setDirectionFilter}
+                  />
+                </div>
+
+                <div className="bg-gray-800 p-6 rounded-xl shadow-2xl">
+                  <h2 className="text-2xl font-semibold mb-4 text-pink-400 flex items-center"><TableCellsIcon className="w-6 h-6 mr-2" />Summary</h2>
+                  
+                  <div className="flex items-center space-x-2 mb-4">
+                      <Button onClick={() => setSummaryDateMode('daily')} variant={summaryDateMode === 'daily' ? 'primary' : 'secondary'} size="sm">Daily</Button>
+                      <Button onClick={() => setSummaryDateMode('range')} variant={summaryDateMode === 'range' ? 'primary' : 'secondary'} size="sm">Range</Button>
+                  </div>
+                  
+                  <div className="mb-4">
+                    {summaryDateMode === 'daily' ? (
+                      <div>
+                        <label htmlFor="summary-date" className="block text-sm font-medium text-gray-300 mb-1">Select Date:</label>
+                        <input
+                          type="date"
+                          id="summary-date"
+                          value={summaryDateRange.start}
+                          onChange={(e) => setSummaryDateRange({ start: e.target.value, end: e.target.value })}
+                          className="w-full bg-gray-700 border border-gray-600 text-gray-100 sm:text-sm rounded-lg focus:ring-purple-500 focus:border-purple-500 p-2.5"
+                        />
+                      </div>
+                    ) : (
+                      <div className="flex items-center space-x-2">
+                        <div>
+                          <label htmlFor="summary-start-date" className="block text-sm font-medium text-gray-300 mb-1">Start Date:</label>
+                          <input
+                            type="date"
+                            id="summary-start-date"
+                            value={summaryDateRange.start}
+                            onChange={(e) => setSummaryDateRange(prev => ({ ...prev, start: e.target.value }))}
+                            className="w-full bg-gray-700 border border-gray-600 text-gray-100 sm:text-sm rounded-lg focus:ring-purple-500 focus:border-purple-500 p-2.5"
+                          />
+                        </div>
+                        <div>
+                          <label htmlFor="summary-end-date" className="block text-sm font-medium text-gray-300 mb-1">End Date:</label>
+                          <input
+                            type="date"
+                            id="summary-end-date"
+                            value={summaryDateRange.end}
+                            onChange={(e) => setSummaryDateRange(prev => ({ ...prev, end: e.target.value }))}
+                            className="w-full bg-gray-700 border border-gray-600 text-gray-100 sm:text-sm rounded-lg focus:ring-purple-500 focus:border-purple-500 p-2.5"
+                          />
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                  <Summary trades={tradesForSummary} />
+                  {directionFilter !== 'all' && <p className="text-xs text-gray-400 mt-2">Showing summary for {directionFilter} trades only.</p>}
+                </div>
+                
+                <TagPerformance 
+                  trades={trades} 
+                  tagGroups={tagGroups} 
+                  chartDateRange={chartDateRange} 
+                  directionFilter={directionFilter} 
                 />
               </div>
 
-              <div className="bg-gray-800 p-6 rounded-xl shadow-2xl">
-                <h2 className="text-2xl font-semibold mb-4 text-pink-400 flex items-center"><TableCellsIcon className="w-6 h-6 mr-2" />Summary</h2>
-                
-                <div className="flex items-center space-x-2 mb-4">
-                    <Button onClick={() => setSummaryDateMode('daily')} variant={summaryDateMode === 'daily' ? 'primary' : 'secondary'} size="sm">Daily</Button>
-                    <Button onClick={() => setSummaryDateMode('range')} variant={summaryDateMode === 'range' ? 'primary' : 'secondary'} size="sm">Range</Button>
+              <div className="lg:col-span-2 space-y-6">
+                  <div id="performance-chart-container" className="bg-gray-800 p-6 rounded-xl shadow-2xl min-h-[400px]">
+                   <h2 className="text-2xl font-semibold mb-4 text-green-400 flex items-center"><ChartBarIcon className="w-6 h-6 mr-2" />Performance Chart</h2>
+                  <LineChartRenderer 
+                    data={chartData} 
+                    comparisonData={comparisonChartData} 
+                    yAxisMetric={yAxisMetric} 
+                    xAxisMetric={xAxisMetric} 
+                  />
                 </div>
-                
-                <div className="mb-4">
-                  {summaryDateMode === 'daily' ? (
-                    <div>
-                      <label htmlFor="summary-date" className="block text-sm font-medium text-gray-300 mb-1">Select Date:</label>
-                      <input
-                        type="date"
-                        id="summary-date"
-                        value={summaryDateRange.start}
-                        onChange={(e) => setSummaryDateRange({ start: e.target.value, end: e.target.value })}
-                        className="w-full bg-gray-700 border border-gray-600 text-gray-100 sm:text-sm rounded-lg focus:ring-purple-500 focus:border-purple-500 p-2.5"
+
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {Object.values(pieChartDataByGroup).map(groupData => (
+                    <div key={groupData.groupName} className="bg-gray-800 p-4 rounded-xl shadow-2xl">
+                      <h3 className="text-lg font-semibold mb-2 text-center text-pink-400">
+                        {groupData.groupName}
+                      </h3>
+                      <PieChartRenderer 
+                        data={groupData.data} 
+                        height={200}
+                        outerRadius={60}
                       />
+                      <p className="text-xs text-gray-400 mt-2 text-center">
+                        For trades in selected date range{directionFilter !== 'all' ? ` (${directionFilter} only)` : ''}.
+                      </p>
                     </div>
-                  ) : (
-                    <div className="flex items-center space-x-2">
-                      <div>
-                        <label htmlFor="summary-start-date" className="block text-sm font-medium text-gray-300 mb-1">Start Date:</label>
-                        <input
-                          type="date"
-                          id="summary-start-date"
-                          value={summaryDateRange.start}
-                          onChange={(e) => setSummaryDateRange(prev => ({ ...prev, start: e.target.value }))}
-                          className="w-full bg-gray-700 border border-gray-600 text-gray-100 sm:text-sm rounded-lg focus:ring-purple-500 focus:border-purple-500 p-2.5"
-                        />
-                      </div>
-                      <div>
-                        <label htmlFor="summary-end-date" className="block text-sm font-medium text-gray-300 mb-1">End Date:</label>
-                        <input
-                          type="date"
-                          id="summary-end-date"
-                          value={summaryDateRange.end}
-                          onChange={(e) => setSummaryDateRange(prev => ({ ...prev, end: e.target.value }))}
-                          className="w-full bg-gray-700 border border-gray-600 text-gray-100 sm:text-sm rounded-lg focus:ring-purple-500 focus:border-purple-500 p-2.5"
-                        />
-                      </div>
+                  ))}
+                </div>
+
+                  <div id="tradelog-container" className="bg-gray-800 p-6 rounded-xl shadow-2xl">
+                  <div className="flex items-center justify-between mb-4">
+                    <h2 className="text-2xl font-semibold text-purple-400 flex items-center">
+                      Trade Log
+                    </h2>
+                    <button
+                      onClick={() => setTradeFiltersOpen((prev: boolean) => !prev)}
+                      aria-label={tradeFiltersOpen ? 'Hide Filters' : 'Show Filters'}
+                      className="text-gray-400 hover:text-white transition-colors focus:outline-none"
+                      style={{ background: 'none', border: 'none', padding: 0 }}
+                    >
+                      <FilterIcon className="w-5 h-5" />
+                    </button>
+                  </div>
+                  {activeTab === 'trades' && (
+                    <TradeList
+                      trades={trades}
+                      tagGroups={tagGroups}
+                      playbookEntries={playbookEntries}
+                      onDeleteTrade={handleDeleteTrade}
+                      onEditTrade={handleEditTrade}
+                      onViewDetails={handleViewTradeDetails}
+                      filtersOpen={tradeFiltersOpen}
+                      setFiltersOpen={setTradeFiltersOpen}
+                    />
+                  )}
+                  {activeTab === 'charts' && (
+                    <div className="space-y-4">
+                      {/* Additional content for charts tab */}
                     </div>
                   )}
                 </div>
-                <Summary trades={tradesForSummary} />
-                {directionFilter !== 'all' && <p className="text-xs text-gray-400 mt-2">Showing summary for {directionFilter} trades only.</p>}
               </div>
+            </main>
               
-              <TagPerformance 
-                trades={trades} 
-                tagGroups={tagGroups} 
-                chartDateRange={chartDateRange} 
-                directionFilter={directionFilter} 
-              />
-            </div>
-
-            <div className="lg:col-span-2 space-y-6">
-                <div id="performance-chart-container" className="bg-gray-800 p-6 rounded-xl shadow-2xl min-h-[400px]">
-                 <h2 className="text-2xl font-semibold mb-4 text-green-400 flex items-center"><ChartBarIcon className="w-6 h-6 mr-2" />Performance Chart</h2>
-                <LineChartRenderer 
-                  data={chartData} 
-                  comparisonData={comparisonChartData} 
-                  yAxisMetric={yAxisMetric} 
-                  xAxisMetric={xAxisMetric} 
-                />
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {Object.values(pieChartDataByGroup).map(groupData => (
-                  <div key={groupData.groupName} className="bg-gray-800 p-4 rounded-xl shadow-2xl">
-                    <h3 className="text-lg font-semibold mb-2 text-center text-pink-400">
-                      {groupData.groupName}
-                    </h3>
-                    <PieChartRenderer 
-                      data={groupData.data} 
-                      height={200}
-                      outerRadius={60}
-                    />
-                    <p className="text-xs text-gray-400 mt-2 text-center">
-                      For trades in selected date range{directionFilter !== 'all' ? ` (${directionFilter} only)` : ''}.
-                    </p>
-                  </div>
-                ))}
-              </div>
-
-                <div id="tradelog-container" className="bg-gray-800 p-6 rounded-xl shadow-2xl">
-                <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-2xl font-semibold text-purple-400 flex items-center">
-                    Trade Log
-                  </h2>
-                  <button
-                    onClick={() => setTradeFiltersOpen((prev: boolean) => !prev)}
-                    aria-label={tradeFiltersOpen ? 'Hide Filters' : 'Show Filters'}
-                    className="text-gray-400 hover:text-white transition-colors focus:outline-none"
-                    style={{ background: 'none', border: 'none', padding: 0 }}
-                  >
-                    <FilterIcon className="w-5 h-5" />
-                  </button>
-                </div>
-                {activeTab === 'trades' && (
-                  <TradeList
-                    trades={trades}
-                    tagGroups={tagGroups}
-                    playbookEntries={playbookEntries}
-                    onDeleteTrade={handleDeleteTrade}
-                    onEditTrade={handleEditTrade}
-                    onViewDetails={handleViewTradeDetails}
-                    filtersOpen={tradeFiltersOpen}
-                    setFiltersOpen={setTradeFiltersOpen}
-                  />
-                )}
-                {activeTab === 'charts' && (
-                  <div className="space-y-4">
-                    {/* Additional content for charts tab */}
-                  </div>
-                )}
-              </div>
-            </div>
-          </main>
-            
             {/* Legal Disclaimer Footer */}
             <FooterDisclaimer />
             
