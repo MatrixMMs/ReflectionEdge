@@ -1,7 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Input } from '../ui/Input';
 import { ChartYAxisMetric, ChartXAxisMetric, TagGroup, AppDateRange, TradeDirectionFilterSelection } from '../../types';
 import { ChevronDownIcon, ChevronUpIcon } from '../ui/Icons';
+import { ADVANCED_TAGS } from '../../constants/advancedTags';
+import { AdvancedTagGroup } from '../../types';
 
 interface ChartControlsProps {
   yAxisMetric: ChartYAxisMetric;
@@ -28,6 +30,7 @@ export const ChartControls: React.FC<ChartControlsProps> = ({
   directionFilter, setDirectionFilter
 }) => {
   const [collapsedGroups, setCollapsedGroups] = React.useState<{ [groupId: string]: boolean }>({});
+  const [tagSearch, setTagSearch] = useState('');
 
   const handleTagSelection = (groupId: string, subTagId: string) => {
     setSelectedTags(prev => {
@@ -66,6 +69,37 @@ export const ChartControls: React.FC<ChartControlsProps> = ({
 
   const toggleGroupCollapse = (groupId: string) => {
     setCollapsedGroups(prev => ({ ...prev, [groupId]: !prev[groupId] }));
+  };
+
+  // Replace tagGroups with advanced tag groups
+  const objectiveTagGroups = ADVANCED_TAGS.filter(g => g.category === 'objective');
+  const subjectiveTagGroups = ADVANCED_TAGS.filter(g => g.category === 'subjective');
+
+  // Filter groups and subtags by search
+  const filterGroups = (groups: AdvancedTagGroup[]) => {
+    if (!tagSearch.trim()) return groups;
+    const q = tagSearch.trim().toLowerCase();
+    return groups
+      .map(group => {
+        // Check if group name matches
+        const groupMatch = group.name.toLowerCase().includes(q);
+        // Filter subtags by name
+        const filteredSubtags = group.subtags.filter(subtag => subtag.name.toLowerCase().includes(q));
+        if (groupMatch || filteredSubtags.length > 0) {
+          return { ...group, subtags: groupMatch ? group.subtags : filteredSubtags };
+        }
+        return null;
+      })
+      .filter(Boolean) as AdvancedTagGroup[];
+  };
+
+  // Helper to highlight search match in tag name
+  const highlightMatch = (name: string) => {
+    if (!tagSearch.trim()) return name;
+    const q = tagSearch.trim();
+    const i = name.toLowerCase().indexOf(q.toLowerCase());
+    if (i === -1) return name;
+    return <>{name.slice(0, i)}<span className="bg-yellow-300 text-gray-900 rounded px-1">{name.slice(i, i + q.length)}</span>{name.slice(i + q.length)}</>;
   };
 
   return (
@@ -135,55 +169,36 @@ export const ChartControls: React.FC<ChartControlsProps> = ({
         </select>
       </div>
       
-      {/* Tag Selection for Chart */}
+      {/* Tag Search Bar */}
+      <div>
+        <Input
+          label="Search Tags"
+          type="text"
+          value={tagSearch}
+          onChange={e => setTagSearch(e.target.value)}
+          placeholder="Type to search tags..."
+        />
+      </div>
+
+      {/* Tag Filter Sections */}
       <div>
         <h4 className="text-sm font-medium mb-1">Filter by Tags:</h4>
-        {tagGroups.length === 0 && <p className="text-xs text-gray-500">No tags defined yet.</p>}
-        {/* Selected Tags Section - spaced below label */}
-        {hasSelectedTags() && (
-          <div className="mb-4 mt-3">
-            <div className="flex flex-wrap items-center gap-2 mb-2">
-              {Object.entries(selectedTags).flatMap(([groupId, subTagIds]) =>
-                subTagIds.map(subTagId => {
-                  const group = tagGroups.find(g => g.id === groupId);
-                  const subTag = group?.subtags.find(st => st.id === subTagId);
-                  if (!subTag) return null;
-                  return (
-                    <button
-                      key={groupId + '-' + subTagId}
-                      type="button"
-                      onClick={() => handleTagSelection(groupId, subTagId)}
-                      className="flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-gray-700 text-white mr-2 mb-2 transition-colors hover:bg-gray-600"
-                    >
-                      {subTag.name + ' ×'}
-                    </button>
-                  );
-                })
-              )}
-            </div>
-            <button
-              onClick={() => setSelectedTags({})}
-              className="text-red-500"
-              style={{ background: 'none', border: 'none', padding: 0, minWidth: 0 }}
-            >
-              Clear All
-            </button>
-          </div>
-        )}
-        <div className="space-y-3">
-          {tagGroups.map(group => {
+        {/* Objective Tags */}
+        <div className="mb-4">
+          <div className="text-xs font-bold text-blue-400 mb-2">Objective Tags (Market's Story)</div>
+          {filterGroups(objectiveTagGroups).map(group => {
             const isCollapsed = collapsedGroups[group.id] || false;
             return (
-              <div key={group.id} className="bg-gray-800 border border-gray-700 rounded-xl shadow-sm">
+              <div key={group.id} className="bg-gray-800 border border-gray-700 rounded-xl shadow-sm mb-2">
                 <button
                   type="button"
-                  className="w-full flex items-center justify-between px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500 rounded-t-xl"
-                  onClick={() => toggleGroupCollapse(group.id)}
+                  className="w-full flex items-center justify-between px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-t-xl"
+                  onClick={() => setCollapsedGroups(prev => ({ ...prev, [group.id]: !prev[group.id] }))}
                   aria-expanded={!isCollapsed}
                   aria-controls={`tag-group-${group.id}`}
                   style={{ border: 'none', boxShadow: 'none', background: 'none' }}
                 >
-                  <span className="text-xs font-semibold text-gray-200 tracking-wide">{group.name}</span>
+                  <span className="text-xs font-semibold text-gray-200 tracking-wide">{highlightMatch(group.name)}</span>
                   {isCollapsed ? (
                     <ChevronDownIcon className="w-4 h-4 text-gray-400" />
                   ) : (
@@ -199,13 +214,54 @@ export const ChartControls: React.FC<ChartControlsProps> = ({
                           key={subtag.id}
                           type="button"
                           onClick={() => handleTagSelection(group.id, subtag.id)}
-                          className={`px-3 py-1 rounded-full text-xs font-semibold transition-colors mr-2 mb-2 border border-gray-600 focus:outline-none ${
-                            selectedTags[group.id]?.includes(subtag.id)
-                              ? 'bg-gray-700 text-white'
-                              : 'bg-gray-600 text-white hover:bg-gray-500'
-                          }`}
+                          className={`px-3 py-1 rounded-full text-xs font-semibold transition-colors mr-2 mb-2 ${selectedTags[group.id]?.includes(subtag.id) ? 'ring-2 ring-blue-400' : ''}`}
+                          style={{ background: subtag.color, color: '#fff' }}
                         >
-                          {subtag.name}
+                          {highlightMatch(subtag.name)}
+                        </button>
+                      ))}
+                    </div>
+                  </>
+                )}
+              </div>
+            );
+          })}
+        </div>
+        {/* Subjective Tags */}
+        <div>
+          <div className="text-xs font-bold text-yellow-400 mb-2">Subjective Tags (Trader's Story)</div>
+          {filterGroups(subjectiveTagGroups).map(group => {
+            const isCollapsed = collapsedGroups[group.id] || false;
+            return (
+              <div key={group.id} className="bg-gray-800 border border-gray-700 rounded-xl shadow-sm mb-2">
+                <button
+                  type="button"
+                  className="w-full flex items-center justify-between px-4 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500 rounded-t-xl"
+                  onClick={() => setCollapsedGroups(prev => ({ ...prev, [group.id]: !prev[group.id] }))}
+                  aria-expanded={!isCollapsed}
+                  aria-controls={`tag-group-${group.id}`}
+                  style={{ border: 'none', boxShadow: 'none', background: 'none' }}
+                >
+                  <span className="text-xs font-semibold text-gray-200 tracking-wide">{highlightMatch(group.name)}</span>
+                  {isCollapsed ? (
+                    <ChevronDownIcon className="w-4 h-4 text-gray-400" />
+                  ) : (
+                    <ChevronUpIcon className="w-4 h-4 text-gray-400" />
+                  )}
+                </button>
+                {!isCollapsed && (
+                  <>
+                    <div className="border-t border-gray-700 mx-2" />
+                    <div id={`tag-group-${group.id}`} className="flex flex-wrap gap-2 px-4 pb-3 pt-3">
+                      {group.subtags.map(subtag => (
+                        <button
+                          key={subtag.id}
+                          type="button"
+                          onClick={() => handleTagSelection(group.id, subtag.id)}
+                          className={`px-3 py-1 rounded-full text-xs font-semibold transition-colors mr-2 mb-2 ${selectedTags[group.id]?.includes(subtag.id) ? 'ring-2 ring-yellow-400' : ''}`}
+                          style={{ background: subtag.color, color: '#fff' }}
+                        >
+                          {highlightMatch(subtag.name)}
                         </button>
                       ))}
                     </div>
