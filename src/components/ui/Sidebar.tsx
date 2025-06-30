@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { DocumentTextIcon, TagIcon, ChartBarIcon, LightBulbIcon, ArrowTrendingUpIcon, CalculatorIcon, BrainIcon, AcademicCapIcon, ExportIcon, CogIcon, DashboardIcon, ImportIcon, PlusCircleIcon } from './Icons';
+import { PlusCircleIcon, CustomCalculatorIcon, CustomDashboardIcon, CustomPlaybookIcon, CustomSettingsIcon, CustomBestWorstIcon, CustomExecutionIcon, CustomInsightsIcon, CustomPatternIcon, CustomTagsIcon, CustomMBSIcon, CustomExportIcon, CustomImportIcon, CustomEdgeIcon } from './Icons';
 
 // Add custom ChevronLeft and ChevronRight icons
 const ChevronLeft: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
@@ -69,7 +69,7 @@ const Sidebar: React.FC<SidebarProps> = ({
         {/* Dashboard Link */}
         <nav className="space-y-2">
           <Link to="/" className="flex items-center w-full justify-start px-3 py-2 rounded-lg hover:bg-gray-700 transition-colors">
-            <DashboardIcon className={`w-5 h-5 flex-shrink-0 transition-all duration-300 ${sidebarCollapsed ? 'ml-2' : ''}`} />
+            <CustomDashboardIcon className={`w-5 h-5 flex-shrink-0 transition-all duration-300 ${sidebarCollapsed ? 'ml-2' : ''}`} />
             <span className={`sidebar-label ml-3 ${sidebarCollapsed ? 'collapsed' : 'expanded'}`}>Dashboard</span>
           </Link>
         </nav>
@@ -82,11 +82,11 @@ const Sidebar: React.FC<SidebarProps> = ({
           {/* Section 1: Playbook & Tags */}
           <div>
             <Link to="/playbook" className="flex items-center w-full justify-start px-3 py-2 rounded-lg hover:bg-gray-700 transition-colors">
-              <DocumentTextIcon className={`w-5 h-5 flex-shrink-0 transition-all duration-300 ${sidebarCollapsed ? 'ml-2' : ''}`} />
+              <CustomPlaybookIcon className={`w-5 h-5 flex-shrink-0 transition-all duration-300 ${sidebarCollapsed ? 'ml-2' : ''}`} />
               <span className={`sidebar-label ml-3 ${sidebarCollapsed ? 'collapsed' : 'expanded'}`}>Playbook</span>
             </Link>
             <Link to="/tags" className="flex items-center w-full justify-start px-3 py-2 rounded-lg hover:bg-gray-700 transition-colors">
-              <TagIcon className={`w-5 h-5 flex-shrink-0 transition-all duration-300 ${sidebarCollapsed ? 'ml-2' : ''}`} />
+              <CustomTagsIcon className={`w-5 h-5 flex-shrink-0 transition-all duration-300 ${sidebarCollapsed ? 'ml-2' : ''}`} />
               <span className={`sidebar-label ml-3 ${sidebarCollapsed ? 'collapsed' : 'expanded'}`}>Tags</span>
             </Link>
           </div>
@@ -96,27 +96,27 @@ const Sidebar: React.FC<SidebarProps> = ({
           {/* Section 2: Performance & Analysis */}
           <div>
             <Link to="/patterns" className="flex items-center w-full justify-start px-3 py-2 rounded-lg hover:bg-gray-700 transition-colors">
-              <ChartBarIcon className={`w-5 h-5 flex-shrink-0 transition-all duration-300 ${sidebarCollapsed ? 'ml-2' : ''}`} />
+              <CustomPatternIcon className={`w-5 h-5 flex-shrink-0 transition-all duration-300 ${sidebarCollapsed ? 'ml-2' : ''}`} />
               <span className={`sidebar-label ml-3 ${sidebarCollapsed ? 'collapsed' : 'expanded'}`}>Patterns</span>
             </Link>
             <Link to="/insights" className="flex items-center w-full justify-start px-3 py-2 rounded-lg hover:bg-gray-700 transition-colors">
-              <LightBulbIcon className={`w-5 h-5 flex-shrink-0 transition-all duration-300 ${sidebarCollapsed ? 'ml-2' : ''}`} />
+              <CustomInsightsIcon className={`w-5 h-5 flex-shrink-0 transition-all duration-300 ${sidebarCollapsed ? 'ml-2' : ''}`} />
               <span className={`sidebar-label ml-3 ${sidebarCollapsed ? 'collapsed' : 'expanded'}`}>Insights</span>
             </Link>
             <Link to="/edge" className="flex items-center w-full justify-start px-3 py-2 rounded-lg hover:bg-gray-700 transition-colors">
-              <ArrowTrendingUpIcon className={`w-5 h-5 flex-shrink-0 transition-all duration-300 ${sidebarCollapsed ? 'ml-2' : ''}`} />
+              <CustomEdgeIcon className={`w-5 h-5 flex-shrink-0 transition-all duration-300 ${sidebarCollapsed ? 'ml-2' : ''}`} />
               <span className={`sidebar-label ml-3 ${sidebarCollapsed ? 'collapsed' : 'expanded'}`}>Edge</span>
             </Link>
             <Link to="/kelly" className="flex items-center w-full justify-start px-3 py-2 rounded-lg hover:bg-gray-700 transition-colors">
-              <CalculatorIcon className={`w-5 h-5 flex-shrink-0 transition-all duration-300 ${sidebarCollapsed ? 'ml-2' : ''}`} />
+              <CustomCalculatorIcon className={`w-5 h-5 flex-shrink-0 transition-all duration-300 ${sidebarCollapsed ? 'ml-2' : ''}`} />
               <span className={`sidebar-label ml-3 ${sidebarCollapsed ? 'collapsed' : 'expanded'}`}>Kelly</span>
             </Link>
             <Link to="/execution" className="flex items-center w-full justify-start px-3 py-2 rounded-lg hover:bg-gray-700 transition-colors">
-              <BrainIcon className={`w-5 h-5 flex-shrink-0 transition-all duration-300 ${sidebarCollapsed ? 'ml-2' : ''}`} />
+              <CustomExecutionIcon className={`w-5 h-5 flex-shrink-0 transition-all duration-300 ${sidebarCollapsed ? 'ml-2' : ''}`} />
               <span className={`sidebar-label ml-3 ${sidebarCollapsed ? 'collapsed' : 'expanded'}`}>Execution</span>
             </Link>
             <Link to="/bestworst" className="flex items-center w-full justify-start px-3 py-2 rounded-lg hover:bg-gray-700 transition-colors">
-              <span className={`text-lg flex-shrink-0 transition-all duration-300 ${sidebarCollapsed ? 'ml-2' : ''}`}>★</span>
+              <CustomBestWorstIcon className={`w-5 h-5 flex-shrink-0 transition-all duration-300 ${sidebarCollapsed ? 'ml-2' : ''}`} />
               <span className={`sidebar-label ml-3 ${sidebarCollapsed ? 'collapsed' : 'expanded'}`}>Best & Worst</span>
             </Link>
           </div>
@@ -129,7 +129,7 @@ const Sidebar: React.FC<SidebarProps> = ({
               onClick={onMBSClick} 
               className="flex items-center w-full justify-start px-3 py-2 rounded-lg hover:bg-gray-700 transition-colors text-left"
             >
-              <AcademicCapIcon className={`w-5 h-5 flex-shrink-0 transition-all duration-300 ${sidebarCollapsed ? 'ml-2' : ''}`} />
+              <CustomMBSIcon className={`w-5 h-5 flex-shrink-0 transition-all duration-300 ${sidebarCollapsed ? 'ml-2' : ''}`} />
               <span className={`sidebar-label ml-3 ${sidebarCollapsed ? 'collapsed' : 'expanded'}`}>MBS</span>
             </button>
           </div>
@@ -142,15 +142,15 @@ const Sidebar: React.FC<SidebarProps> = ({
               onClick={onImportClick} 
               className="flex items-center w-full justify-start px-3 py-2 rounded-lg hover:bg-gray-700 transition-colors text-left"
             >
-              <ImportIcon className={`w-5 h-5 flex-shrink-0 transition-all duration-300 ${sidebarCollapsed ? 'ml-2' : ''}`} />
+              <CustomImportIcon className={`w-5 h-5 flex-shrink-0 transition-all duration-300 ${sidebarCollapsed ? 'ml-2' : ''}`} />
               <span className={`sidebar-label ml-3 ${sidebarCollapsed ? 'collapsed' : 'expanded'}`}>Import</span>
             </button>
             <Link to="/export" className="flex items-center w-full justify-start px-3 py-2 rounded-lg hover:bg-gray-700 transition-colors">
-              <ExportIcon className={`w-5 h-5 flex-shrink-0 transition-all duration-300 ${sidebarCollapsed ? 'ml-2' : ''}`} />
+              <CustomExportIcon className={`w-5 h-5 flex-shrink-0 transition-all duration-300 ${sidebarCollapsed ? 'ml-2' : ''}`} />
               <span className={`sidebar-label ml-3 ${sidebarCollapsed ? 'collapsed' : 'expanded'}`}>Export</span>
             </Link>
             <Link to="/settings" className="flex items-center w-full justify-start px-3 py-2 rounded-lg hover:bg-gray-700 transition-colors">
-              <CogIcon className={`w-5 h-5 flex-shrink-0 transition-all duration-300 ${sidebarCollapsed ? 'ml-2' : ''}`} />
+              <CustomSettingsIcon className={`w-5 h-5 flex-shrink-0 transition-all duration-300 ${sidebarCollapsed ? 'ml-2' : ''}`} />
               <span className={`sidebar-label ml-3 ${sidebarCollapsed ? 'collapsed' : 'expanded'}`}>Settings</span>
             </Link>
             <div className="flex justify-center w-full">
