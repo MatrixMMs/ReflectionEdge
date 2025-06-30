@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Trade, TagGroup, TradeDirection, PlaybookEntry } from '../../types';
+import { Trade, TagGroup, TradeDirection, PlaybookEntry, AdvancedTagGroup } from '../../types';
 import { Input, Textarea } from '../ui/Input';
 import { Button } from '../ui/Button';
-import { PlusCircleIcon, XMarkIcon } from '../ui/Icons';
+import { PlusCircleIcon, XMarkIcon, ChevronDownIcon, ChevronUpIcon } from '../ui/Icons';
 import { validateTradeSymbol, validateNumericInput, validateDateString, validateTimeString, sanitizeString, SECURITY_CONFIG } from '../../utils/security';
 import { Modal } from '../ui/Modal';
+import { ADVANCED_TAGS } from '../../constants/advancedTags';
 
 interface TradeFormProps {
   onSubmit: (trade: Omit<Trade, 'id' | 'timeInTrade'>) => void;
@@ -25,7 +26,10 @@ export const TradeForm: React.FC<TradeFormProps> = ({ onSubmit, tagGroups, playb
   const [timeOut, setTimeOut] = useState('');
   const [profit, setProfit] = useState('');
   const [journal, setJournal] = useState('');
-  const [selectedTags, setSelectedTags] = useState<{ [groupId: string]: string[] }>({});
+  const [selectedObjectiveTags, setSelectedObjectiveTags] = useState<{ [groupId: string]: string[] }>({});
+  const [selectedSubjectiveTags, setSelectedSubjectiveTags] = useState<{ [groupId: string]: string[] }>({});
+  const [tagSearch, setTagSearch] = useState('');
+  const [collapsedGroups, setCollapsedGroups] = useState<{ [groupId: string]: boolean }>({});
   const [selectedStrategy, setSelectedStrategy] = useState<string>('');
   const [executionChecklist, setExecutionChecklist] = useState<{ [checklistItemId: string]: boolean }>({});
   const [isBestTrade, setIsBestTrade] = useState(false);
@@ -64,12 +68,8 @@ export const TradeForm: React.FC<TradeFormProps> = ({ onSubmit, tagGroups, playb
         lessons: tradeToEdit.extendedReflection?.lessons || '',
         marketContext: tradeToEdit.extendedReflection?.marketContext || '',
       });
-      // Convert the tags object to our internal format
-      const convertedTags = Object.entries(tradeToEdit.tags).reduce((acc, [groupId, subtagId]) => ({
-        ...acc,
-        [groupId]: [subtagId]
-      }), {} as { [groupId: string]: string[] });
-      setSelectedTags(convertedTags);
+      setSelectedObjectiveTags(tradeToEdit.objectiveTags || {});
+      setSelectedSubjectiveTags(tradeToEdit.subjectiveTags || {});
     } else {
       // Reset form for new trade
       setDate(new Date().toISOString().split('T')[0]);
@@ -82,7 +82,8 @@ export const TradeForm: React.FC<TradeFormProps> = ({ onSubmit, tagGroups, playb
       setTimeOut('');
       setProfit('');
       setJournal('');
-      setSelectedTags({});
+      setSelectedObjectiveTags({});
+      setSelectedSubjectiveTags({});
       setSelectedStrategy('');
       setExecutionChecklist({});
       setIsBestTrade(false);
@@ -156,15 +157,6 @@ export const TradeForm: React.FC<TradeFormProps> = ({ onSubmit, tagGroups, playb
     const fullTimeIn = `${date}T${timeIn}:00.000Z`;
     const fullTimeOut = `${date}T${timeOut}:00.000Z`;
 
-    // Convert our internal tag format to the expected format
-    const convertedTags = Object.entries(selectedTags).reduce((acc, [groupId, subtagIds]) => {
-      // Take the first selected subtag for each group
-      if (subtagIds.length > 0) {
-        acc[groupId] = subtagIds[0];
-      }
-      return acc;
-    }, {} as { [groupId: string]: string });
-
     onSubmit({
       date,
       direction,
@@ -176,7 +168,9 @@ export const TradeForm: React.FC<TradeFormProps> = ({ onSubmit, tagGroups, playb
       timeOut: fullTimeOut,
       profit: parseFloat(profit),
       journal: sanitizeString(journal),
-      tags: convertedTags,
+      tags: {}, // Add empty legacy tags for compatibility
+      objectiveTags: selectedObjectiveTags,
+      subjectiveTags: selectedSubjectiveTags,
       strategyId: selectedStrategy || undefined,
       execution: {
         checklist: executionChecklist,
@@ -201,7 +195,8 @@ export const TradeForm: React.FC<TradeFormProps> = ({ onSubmit, tagGroups, playb
     setTimeOut('');
     setProfit('');
     setJournal('');
-    setSelectedTags({});
+    setSelectedObjectiveTags({});
+    setSelectedSubjectiveTags({});
     setSelectedStrategy('');
     setExecutionChecklist({});
     setIsBestTrade(false);
@@ -215,18 +210,24 @@ export const TradeForm: React.FC<TradeFormProps> = ({ onSubmit, tagGroups, playb
     });
   };
 
-  const handleTagSelection = (groupId: string, subtagId: string) => {
-    setSelectedTags(prev => {
-      const currentTags = prev[groupId] || [];
-      const newTags = currentTags.includes(subtagId)
-        ? currentTags.filter(id => id !== subtagId)
-        : [...currentTags, subtagId];
-      
-      return {
-        ...prev,
-        [groupId]: newTags
-      };
-    });
+  const handleTagSelection = (category: 'objective' | 'subjective', groupId: string, subTagId: string) => {
+    if (category === 'objective') {
+      setSelectedObjectiveTags(prev => {
+        const current = prev[groupId] || [];
+        const next = current.includes(subTagId)
+          ? current.filter(id => id !== subTagId)
+          : [...current, subTagId];
+        return { ...prev, [groupId]: next };
+      });
+    } else {
+      setSelectedSubjectiveTags(prev => {
+        const current = prev[groupId] || [];
+        const next = current.includes(subTagId)
+          ? current.filter(id => id !== subTagId)
+          : [...current, subTagId];
+        return { ...prev, [groupId]: next };
+      });
+    }
   };
 
   const handleFlagChange = (flagType: 'best' | 'worst') => {
@@ -236,6 +237,35 @@ export const TradeForm: React.FC<TradeFormProps> = ({ onSubmit, tagGroups, playb
       setIsWorstTrade(!isWorstTrade);
     }
   };
+
+  // Filter groups and subtags by search
+  const filterGroups = (groups: AdvancedTagGroup[]) => {
+    if (!tagSearch.trim()) return groups;
+    const q = tagSearch.trim().toLowerCase();
+    return groups
+      .map(group => {
+        const groupMatch = group.name.toLowerCase().includes(q);
+        const filteredSubtags = group.subtags.filter(subtag => subtag.name.toLowerCase().includes(q));
+        if (groupMatch || filteredSubtags.length > 0) {
+          return { ...group, subtags: groupMatch ? group.subtags : filteredSubtags };
+        }
+        return null;
+      })
+      .filter(Boolean) as AdvancedTagGroup[];
+  };
+
+  // Helper to highlight search match in tag name
+  const highlightMatch = (name: string) => {
+    if (!tagSearch.trim()) return name;
+    const q = tagSearch.trim();
+    const i = name.toLowerCase().indexOf(q.toLowerCase());
+    if (i === -1) return name;
+    return <>{name.slice(0, i)}<span className="bg-yellow-300 text-gray-900 rounded px-1">{name.slice(i, i + q.length)}</span>{name.slice(i + q.length)}</>;
+  };
+
+  // Replace legacy tag UI with new advanced tag UI
+  const objectiveTagGroups = ADVANCED_TAGS.filter(g => g.category === 'objective');
+  const subjectiveTagGroups = ADVANCED_TAGS.filter(g => g.category === 'subjective');
 
   return (
     <>
@@ -376,39 +406,103 @@ export const TradeForm: React.FC<TradeFormProps> = ({ onSubmit, tagGroups, playb
           </div>
         )}
 
+        {/* Tag Search Bar */}
         <div>
-          <label className="block text-sm font-medium text-gray-300 mb-1">Tags</label>
-          <div className="space-y-2">
-            {tagGroups.map(group => (
-              <div key={group.id}>
-                <span className="font-semibold text-purple-300 text-xs">{group.name}</span>
-                <div className="flex flex-wrap gap-2 mt-1">
-                  {group.subtags.map(subtag => (
-                    <button
-                      key={subtag.id}
-                      type="button"
-                      onClick={() => {
-                        setSelectedTags(prev => {
-                          const current = prev[group.id] || [];
-                          const next = current.includes(subtag.id)
-                            ? current.filter(id => id !== subtag.id)
-                            : [...current, subtag.id];
-                          return { ...prev, [group.id]: next };
-                        });
-                      }}
-                      className={`px-3 py-1 rounded-full text-sm font-semibold transition-colors mr-2 mb-2 ${
-                        selectedTags[group.id]?.includes(subtag.id)
-                          ? 'bg-gray-700 text-white'
-                          : 'bg-gray-600 text-white hover:bg-gray-500'
-                      }`}
-                    >
-                      {subtag.name}
-                    </button>
-                  ))}
-                </div>
+          <Input
+            label="Search Tags"
+            type="text"
+            value={tagSearch}
+            onChange={e => setTagSearch(e.target.value)}
+            placeholder="Type to search tags..."
+          />
+        </div>
+        {/* Objective Tags */}
+        <div className="mb-4">
+          <div className="text-xs font-bold text-blue-400 mb-2">Objective Tags (Market's Story)</div>
+          {filterGroups(objectiveTagGroups).map(group => {
+            const isCollapsed = collapsedGroups[group.id] || false;
+            return (
+              <div key={group.id} className="bg-gray-800 border border-gray-700 rounded-xl shadow-sm mb-2">
+                <button
+                  type="button"
+                  className="w-full flex items-center justify-between px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-t-xl"
+                  onClick={() => setCollapsedGroups(prev => ({ ...prev, [group.id]: !prev[group.id] }))}
+                  aria-expanded={!isCollapsed}
+                  aria-controls={`tag-group-${group.id}`}
+                  style={{ border: 'none', boxShadow: 'none', background: 'none' }}
+                >
+                  <span className="text-xs font-semibold text-gray-200 tracking-wide">{highlightMatch(group.name)}</span>
+                  {isCollapsed ? (
+                    <ChevronDownIcon className="w-4 h-4 text-gray-400" />
+                  ) : (
+                    <ChevronUpIcon className="w-4 h-4 text-gray-400" />
+                  )}
+                </button>
+                {!isCollapsed && (
+                  <>
+                    <div className="border-t border-gray-700 mx-2" />
+                    <div id={`tag-group-${group.id}`} className="flex flex-wrap gap-2 px-4 pb-3 pt-3">
+                      {group.subtags.map(subtag => (
+                        <button
+                          key={subtag.id}
+                          type="button"
+                          onClick={() => handleTagSelection('objective', group.id, subtag.id)}
+                          className={`px-3 py-1 rounded-full text-xs font-semibold transition-colors mr-2 mb-2 ${selectedObjectiveTags[group.id]?.includes(subtag.id) ? 'ring-2 ring-blue-400' : ''}`}
+                          style={{ background: subtag.color, color: '#fff' }}
+                        >
+                          {highlightMatch(subtag.name)}
+                        </button>
+                      ))}
+                    </div>
+                  </>
+                )}
               </div>
-            ))}
-          </div>
+            );
+          })}
+        </div>
+        {/* Subjective Tags */}
+        <div>
+          <div className="text-xs font-bold text-yellow-400 mb-2">Subjective Tags (Trader's Story)</div>
+          {filterGroups(subjectiveTagGroups).map(group => {
+            const isCollapsed = collapsedGroups[group.id] || false;
+            return (
+              <div key={group.id} className="bg-gray-800 border border-gray-700 rounded-xl shadow-sm mb-2">
+                <button
+                  type="button"
+                  className="w-full flex items-center justify-between px-4 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500 rounded-t-xl"
+                  onClick={() => setCollapsedGroups(prev => ({ ...prev, [group.id]: !prev[group.id] }))}
+                  aria-expanded={!isCollapsed}
+                  aria-controls={`tag-group-${group.id}`}
+                  style={{ border: 'none', boxShadow: 'none', background: 'none' }}
+                >
+                  <span className="text-xs font-semibold text-gray-200 tracking-wide">{highlightMatch(group.name)}</span>
+                  {isCollapsed ? (
+                    <ChevronDownIcon className="w-4 h-4 text-gray-400" />
+                  ) : (
+                    <ChevronUpIcon className="w-4 h-4 text-gray-400" />
+                  )}
+                </button>
+                {!isCollapsed && (
+                  <>
+                    <div className="border-t border-gray-700 mx-2" />
+                    <div id={`tag-group-${group.id}`} className="flex flex-wrap gap-2 px-4 pb-3 pt-3">
+                      {group.subtags.map(subtag => (
+                        <button
+                          key={subtag.id}
+                          type="button"
+                          onClick={() => handleTagSelection('subjective', group.id, subtag.id)}
+                          className={`px-3 py-1 rounded-full text-xs font-semibold transition-colors mr-2 mb-2 ${selectedSubjectiveTags[group.id]?.includes(subtag.id) ? 'ring-2 ring-yellow-400' : ''}`}
+                          style={{ background: subtag.color, color: '#fff' }}
+                        >
+                          {highlightMatch(subtag.name)}
+                        </button>
+                      ))}
+                    </div>
+                  </>
+                )}
+              </div>
+            );
+          })}
         </div>
 
         <div>
