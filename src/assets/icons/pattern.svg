@@ -1,24 +1,7 @@
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
 <!-- Uploaded to: SVG Repo, www.svgrepo.com, Transformed by: SVG Repo Mixer Tools -->
-<svg width="800px" height="800px" viewBox="0 0 24 24" id="Layer_1" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" fill="#000000">
+<svg fill="#1C274D" height="64px" width="64px" version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 512 512" xml:space="preserve">
 <g id="SVGRepo_bgCarrier" stroke-width="0"/>
 <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"/>
-<g id="SVGRepo_iconCarrier">
-<defs>
-<style>.cls-1{fill:none;stroke:#1C274C;stroke-miterlimit:10;stroke-width:1.91px;}</style>
-</defs>
-<circle class="cls-1" cx="3.41" cy="3.41" r="1.91"/>
-<circle class="cls-1" cx="12" cy="3.41" r="1.91"/>
-<circle class="cls-1" cx="20.59" cy="3.41" r="1.91"/>
-<circle class="cls-1" cx="3.41" cy="12" r="1.91"/>
-<circle class="cls-1" cx="12" cy="12" r="1.91"/>
-<circle class="cls-1" cx="20.59" cy="12" r="1.91"/>
-<circle class="cls-1" cx="3.41" cy="20.59" r="1.91"/>
-<circle class="cls-1" cx="12" cy="20.59" r="1.91"/>
-<circle class="cls-1" cx="20.59" cy="20.59" r="1.91"/>
-<line class="cls-1" x1="10.65" y1="10.65" x2="4.76" y2="4.76"/>
-<line class="cls-1" x1="12" y1="18.68" x2="12" y2="13.91"/>
-<line class="cls-1" x1="18.68" y1="3.41" x2="13.91" y2="3.41"/>
-<line class="cls-1" x1="10.09" y1="3.41" x2="5.32" y2="3.41"/>
-</g>
+<g id="SVGRepo_iconCarrier"> <g> <g> <path d="M139.323,146.482h136.757c10.743,54.695,59.046,96.086,116.842,96.086C458.581,242.568,512,189.15,512,123.49 C512,57.829,458.581,4.411,392.921,4.411c-57.796,0-106.1,41.391-116.843,96.087H139.323 C129.744,72.26,103.035,51.93,71.559,51.93C32.038,51.93,0,83.968,0,123.49c0,31.475,20.33,58.184,48.567,67.763v177.014 C20.33,377.845,0,404.554,0,436.03c0,39.521,32.038,71.559,71.559,71.559c31.475,0,58.184-20.33,67.763-48.568h116.225 c9.579,28.238,36.288,48.567,67.763,48.567c39.522,0,71.559-32.039,71.559-71.559c0-39.521-32.038-71.559-71.559-71.559 c-31.474,0-58.183,20.329-67.762,48.567H139.323c-7.131-21.019-23.752-37.64-44.771-44.77V191.252 C115.57,184.122,132.192,167.501,139.323,146.482z M392.921,61.891c33.965,0,61.599,27.633,61.599,61.599 c0,33.965-27.633,61.599-61.599,61.599c-33.965,0-61.599-27.632-61.599-61.599C331.323,89.524,358.956,61.891,392.921,61.891z"/> </g> </g> </g>
 </svg>
