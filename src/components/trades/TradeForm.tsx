@@ -11,9 +11,10 @@ interface TradeFormProps {
   tagGroups: TagGroup[];
   playbookEntries: PlaybookEntry[];
   tradeToEdit?: Trade;
+  loading?: boolean;
 }
 
-export const TradeForm: React.FC<TradeFormProps> = ({ onSubmit, tagGroups, playbookEntries, tradeToEdit }) => {
+export const TradeForm: React.FC<TradeFormProps> = ({ onSubmit, tagGroups, playbookEntries, tradeToEdit, loading = false }) => {
   const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
   const [direction, setDirection] = useState<TradeDirection>('long');
   const [symbol, setSymbol] = useState('');
@@ -105,6 +106,7 @@ export const TradeForm: React.FC<TradeFormProps> = ({ onSubmit, tagGroups, playb
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (loading) return;
 
     // Input validation
     const errors: string[] = [];
@@ -462,8 +464,8 @@ export const TradeForm: React.FC<TradeFormProps> = ({ onSubmit, tagGroups, playb
           <Button type="button" variant="secondary" onClick={resetForm}>
             Reset
           </Button>
-          <Button type="submit" variant="primary" leftIcon={<PlusCircleIcon className="w-5 h-5"/>}>
-            {tradeToEdit ? 'Update Trade' : 'Add Trade'}
+          <Button type="submit" disabled={loading} variant="primary" leftIcon={<PlusCircleIcon className="w-5 h-5"/>}>
+            {loading ? 'Saving...' : (tradeToEdit ? 'Update Trade' : 'Add Trade')}
           </Button>
         </div>
       </form>

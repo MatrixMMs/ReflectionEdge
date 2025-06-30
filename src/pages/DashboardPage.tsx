@@ -393,7 +393,7 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
         <div className="fixed bottom-8 right-8 z-50">
           <button
             onClick={openTradeForm}
-            className="bg-[#218c74] hover:bg-[#218c74] text-white rounded-full w-16 h-16 flex items-center justify-center shadow-lg transition-transform duration-200 transform hover:scale-110 focus:outline-none focus:ring-4 focus:ring-[#218c74]/40"
+            className={`flex items-center justify-center w-full mt-4 bg-gradient-to-r from-green-400 to-green-500 text-white rounded-full shadow-md px-4 py-1 text-sm transition-transform duration-100 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-green-300`}
             aria-label="Add Trade"
           >
             <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
