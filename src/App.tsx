@@ -28,6 +28,7 @@ import ExecutionPage from './pages/ExecutionPage';
 import BestWorstPage from './pages/BestWorstPage';
 import ExportPage from './pages/ExportPage';
 import SettingsPage from './pages/SettingsPage';
+import { TradeForm } from './components/trades/TradeForm';
 
 // Helper to normalize CSV headers for detection
 const normalizeHeader = (header: string): string => header.toLowerCase().replace(/\s+/g, '').replace(/\//g, '');
@@ -64,6 +65,10 @@ const App: React.FC = () => {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  // Add Trade state
+  const [isAddTradeModalOpen, setIsAddTradeModalOpen] = useState(false);
+  const [addTradeLoading, setAddTradeLoading] = useState(false);
+
   // Load data on mount
   useEffect(() => {
     const stored = SecureStorage.loadData();
@@ -97,7 +102,7 @@ const App: React.FC = () => {
       setShowLegalDisclaimer(true);
     }
   }, []);
-
+  
   // Save data when it changes
   const saveData = useCallback(() => {
     if (!activeProfileId) return;
@@ -162,7 +167,7 @@ const App: React.FC = () => {
             const result = parseBrokerExportCSV(content, tagGroups);
             importedTrades = result.successfulTrades.map(trade => ({
               ...trade,
-              id: Date.now().toString(),
+          id: Date.now().toString(), 
               timeInTrade: Math.round((new Date(trade.timeOut).getTime() - new Date(trade.timeIn).getTime()) / (1000 * 60))
             })) || [];
           } else if (headers.includes('date') && headers.includes('symbol') && headers.includes('pnl')) {
@@ -183,10 +188,10 @@ const App: React.FC = () => {
               trade && typeof trade === 'object' && 
               'id' in trade && 'date' in trade && 'symbol' in trade
             );
-          } else {
-            throw new Error('Invalid JSON format. Expected an array of trade objects.');
-          }
         } else {
+            throw new Error('Invalid JSON format. Expected an array of trade objects.');
+        }
+      } else {
           throw new Error('Unsupported file format. Please use CSV or JSON files.');
         }
 
@@ -196,8 +201,8 @@ const App: React.FC = () => {
             message: 'No valid trades were found in the uploaded file.',
             details: 'Please ensure the file contains properly formatted trade data.'
           });
-          return;
-        }
+        return;
+      }
 
         // Rate limiting check
         if (!rateLimiter.isAllowed('import')) {
@@ -206,8 +211,8 @@ const App: React.FC = () => {
             message: 'Too many import attempts. Please wait before trying again.',
             details: 'Import limit: 10 attempts per minute.'
           });
-          return;
-        }
+        return;
+      }
 
         // Show import picker
         setPendingImportedTrades(importedTrades);
@@ -221,7 +226,7 @@ const App: React.FC = () => {
 
       } catch (error) {
         console.error('Import error:', error);
-        setImportNotification({
+              setImportNotification({
           title: 'Import Failed',
           message: error instanceof Error ? error.message : 'Unknown error occurred during import.',
           details: 'Please check the file format and try again.'
@@ -229,7 +234,7 @@ const App: React.FC = () => {
       }
     };
 
-    reader.readAsText(file);
+      reader.readAsText(file);
     event.target.value = ''; // Reset file input
   };
 
@@ -262,24 +267,43 @@ const App: React.FC = () => {
     setShowLegalDisclaimer(true);
   };
 
+  const handleAddTradeClick = () => {
+    setIsAddTradeModalOpen(true);
+  };
+
+  const handleAddTradeGlobal = async (trade: Omit<Trade, 'id' | 'timeInTrade'>) => {
+    setAddTradeLoading(true);
+    const now = new Date();
+    const timeInTrade = Math.round((now.getTime() - new Date(trade.timeIn).getTime()) / (1000 * 60));
+    const newTrade: Trade = {
+      ...trade,
+      id: Date.now().toString(),
+      timeInTrade,
+    };
+    setTrades(prev => [...prev, newTrade]);
+    setIsAddTradeModalOpen(false);
+    setAddTradeLoading(false);
+  };
+
   return (
     <Router>
-      <div className="flex min-h-screen bg-gray-900 text-gray-100">
-        {/* Hidden file input for import */}
-        <input
-          type="file"
-          ref={fileInputRef}
-          style={{ display: 'none' }}
-          accept=".csv,.json"
-          onChange={handleFileUpload}
-        />
+    <div className="flex min-h-screen bg-gray-900 text-gray-100">
+      {/* Hidden file input for import */}
+      <input
+        type="file"
+        ref={fileInputRef}
+        style={{ display: 'none' }}
+        accept=".csv,.json"
+        onChange={handleFileUpload}
+      />
 
-        {/* Sidebar Navigation */}
+      {/* Sidebar Navigation */}
         <Sidebar
           sidebarCollapsed={sidebarCollapsed}
           setSidebarCollapsed={setSidebarCollapsed}
           onImportClick={triggerFileInput}
           onMBSClick={handleMBSClick}
+          onAddTradeClick={handleAddTradeClick}
         />
 
         {/* Main Content */}
@@ -301,7 +325,7 @@ const App: React.FC = () => {
               element={
                 <PlaybookPage
                   initialPlaybookEntries={playbookEntries}
-                  tagGroups={tagGroups}
+                    tagGroups={tagGroups}
                 />
               }
             />
@@ -358,70 +382,70 @@ const App: React.FC = () => {
           )}
 
           {/* MBS Modals */}
-          {isMBSModalOpen && (
-            <>
-              {mbsStep === 1 && (
-                <MBSStartSession
-                  isOpen={isMBSModalOpen}
-                  onClose={() => { setIsMBSModalOpen(false); setMbsStep(1); }}
-                  onContinue={(mood, note) => {
-                    setMbsMood(mood);
-                    setMbsNote(note);
-                    setMbsStep(2);
-                  }}
-                />
-              )}
-              {mbsStep === 2 && (
-                <MBSSessionGoal
-                  isOpen={isMBSModalOpen}
-                  onClose={() => { setIsMBSModalOpen(false); setMbsStep(1); }}
-                  onBack={() => setMbsStep(1)}
-                  onContinue={goal => {
-                    setMbsGoal(goal);
-                    setMbsStep(3);
-                  }}
-                  initialGoal={mbsGoal}
-                />
-              )}
-              {mbsStep === 3 && (
-                <MBSPreTradingChecklist
-                  isOpen={isMBSModalOpen}
-                  onClose={() => { setIsMBSModalOpen(false); setMbsStep(1); }}
-                  onBack={() => setMbsStep(2)}
-                  onBeginTrading={() => {
-                    setIsMBSModalOpen(false);
-                    setMbsStep(1);
+            {isMBSModalOpen && (
+              <>
+                {mbsStep === 1 && (
+                  <MBSStartSession
+                    isOpen={isMBSModalOpen}
+                    onClose={() => { setIsMBSModalOpen(false); setMbsStep(1); }}
+                    onContinue={(mood, note) => {
+                      setMbsMood(mood);
+                      setMbsNote(note);
+                      setMbsStep(2);
+                    }}
+                  />
+                )}
+                {mbsStep === 2 && (
+                  <MBSSessionGoal
+                    isOpen={isMBSModalOpen}
+                    onClose={() => { setIsMBSModalOpen(false); setMbsStep(1); }}
+                    onBack={() => setMbsStep(1)}
+                    onContinue={goal => {
+                      setMbsGoal(goal);
+                      setMbsStep(3);
+                    }}
+                    initialGoal={mbsGoal}
+                  />
+                )}
+                {mbsStep === 3 && (
+                  <MBSPreTradingChecklist
+                    isOpen={isMBSModalOpen}
+                    onClose={() => { setIsMBSModalOpen(false); setMbsStep(1); }}
+                    onBack={() => setMbsStep(2)}
+                    onBeginTrading={() => {
+                      setIsMBSModalOpen(false);
+                      setMbsStep(1);
                     setMbsSessionActive(true);
-                  }}
-                  sessionGoal={mbsGoal}
-                />
-              )}
-            </>
-          )}
-
+                    }}
+                    sessionGoal={mbsGoal}
+                  />
+                )}
+              </>
+            )}
+            
           {/* MBS Trading Panel */}
-          {mbsSessionActive && (
-            <MBSTradingPanel
-              isOpen={mbsSessionActive}
-              sessionGoal={mbsGoal}
-              onEndSession={(sessionTrades: any[]) => {
-                setMbsSessionActive(false);
-                setShowPostSessionReview(true);
-                setMbsSessionHistory(sessionTrades);
-              }}
-            />
-          )}
+            {mbsSessionActive && (
+              <MBSTradingPanel
+                isOpen={mbsSessionActive}
+                sessionGoal={mbsGoal}
+                onEndSession={(sessionTrades: any[]) => {
+                  setMbsSessionActive(false);
+                  setShowPostSessionReview(true);
+                  setMbsSessionHistory(sessionTrades);
+                }}
+              />
+            )}
 
           {/* MBS Post Session Review */}
-          {showPostSessionReview && (
-            <MBSPostSessionReview
-              isOpen={showPostSessionReview}
-              onClose={() => setShowPostSessionReview(false)}
-              sessionGoal={mbsGoal}
-              tradeHistory={mbsSessionHistory}
-              onSetNextSessionGoal={goal => setMbsGoal(goal)}
-            />
-          )}
+            {showPostSessionReview && (
+              <MBSPostSessionReview
+                isOpen={showPostSessionReview}
+                onClose={() => setShowPostSessionReview(false)}
+                sessionGoal={mbsGoal}
+                tradeHistory={mbsSessionHistory}
+                onSetNextSessionGoal={goal => setMbsGoal(goal)}
+              />
+            )}
 
           {/* Global Legal Disclaimer Modal */}
           {showLegalDisclaimer && (
@@ -436,7 +460,7 @@ const App: React.FC = () => {
                   className="mr-2"
                 />
                 <label htmlFor="dontShowAgain" className="text-gray-300">Don't show this again</label>
-              </div>
+          </div>
               <button
                 className="mt-4 px-6 py-2 bg-green-600 text-white rounded disabled:opacity-50"
                 disabled={!dontShowAgain}
@@ -461,6 +485,22 @@ const App: React.FC = () => {
               details={importNotification.details}
               onClose={() => setImportNotification(null)}
             />
+          )}
+
+          {/* Global Add Trade Modal */}
+          {isAddTradeModalOpen && (
+            <Modal
+              title="Add New Trade"
+              onClose={() => setIsAddTradeModalOpen(false)}
+              size="large"
+            >
+              <TradeForm
+                onSubmit={handleAddTradeGlobal}
+                tagGroups={tagGroups}
+                playbookEntries={playbookEntries}
+                loading={addTradeLoading}
+              />
+            </Modal>
           )}
         </div>
       </div>

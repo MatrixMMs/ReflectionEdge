@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { DocumentTextIcon, TagIcon, ChartBarIcon, LightBulbIcon, ArrowTrendingUpIcon, CalculatorIcon, BrainIcon, AcademicCapIcon, ExportIcon, CogIcon, DashboardIcon, ImportIcon } from './Icons';
+import { DocumentTextIcon, TagIcon, ChartBarIcon, LightBulbIcon, ArrowTrendingUpIcon, CalculatorIcon, BrainIcon, AcademicCapIcon, ExportIcon, CogIcon, DashboardIcon, ImportIcon, PlusCircleIcon } from './Icons';
 
 // Add custom ChevronLeft and ChevronRight icons
 const ChevronLeft: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
@@ -15,21 +15,52 @@ interface SidebarProps {
   setSidebarCollapsed: (collapsed: boolean) => void;
   onImportClick: () => void;
   onMBSClick: () => void;
+  onAddTradeClick: () => void;
 }
 
 const Sidebar: React.FC<SidebarProps> = ({ 
   sidebarCollapsed, 
   setSidebarCollapsed, 
   onImportClick,
-  onMBSClick
+  onMBSClick,
+  onAddTradeClick
 }) => {
   return (
-    <aside className={`bg-gray-800 flex flex-col justify-between py-6 ${sidebarCollapsed ? 'w-20 px-2' : 'w-64 px-4'} min-h-screen fixed left-0 top-0 z-40 shadow-xl transition-all duration-200`}>
+    <aside
+      className={
+        `bg-gray-800 flex flex-col justify-between py-6 min-h-screen fixed left-0 top-0 z-40 shadow-xl transition-[width,padding] duration-300`
+      }
+      style={{
+        width: sidebarCollapsed ? '5rem' : '16rem',
+        paddingLeft: sidebarCollapsed ? '0.5rem' : '1rem',
+        paddingRight: sidebarCollapsed ? '0.5rem' : '1rem',
+      }}
+    >
+      <style>{`
+        .sidebar-label {
+          display: inline-block;
+          overflow: hidden;
+          white-space: nowrap;
+          text-overflow: ellipsis;
+          transition: width 0.3s, opacity 0.3s, transform 0.3s;
+        }
+        .sidebar-label.collapsed {
+          width: 0;
+          opacity: 0;
+          transform: translateX(24px);
+          pointer-events: none;
+        }
+        .sidebar-label.expanded {
+          width: 180px;
+          opacity: 1;
+          transform: translateX(0);
+        }
+      `}</style>
       <div>
         {/* Logo/Title */}
-        <div className={`flex items-center mb-6 ${sidebarCollapsed ? 'justify-center' : ''}`}>
-          <span className="inline-block w-8 h-8 bg-gradient-to-tr from-purple-400 via-pink-400 to-yellow-400 rounded-lg" />
-          {!sidebarCollapsed && <span className="text-2xl font-bold tracking-tight ml-3">Reflection Edge</span>}
+        <div className="flex items-center mb-6 justify-start">
+          <span className={`inline-block w-8 h-8 bg-gradient-to-tr from-purple-400 via-pink-400 to-yellow-400 rounded-lg flex-shrink-0 transition-all duration-300 ${sidebarCollapsed ? 'ml-3.5' : 'ml-1'}`} />
+          <span className={`sidebar-label ml-3 ${sidebarCollapsed ? 'collapsed' : 'expanded'} text-2xl font-bold tracking-tight align-middle`}>Reflection Edge</span>
         </div>
         
         {/* Divider above Dashboard */}
@@ -37,9 +68,9 @@ const Sidebar: React.FC<SidebarProps> = ({
         
         {/* Dashboard Link */}
         <nav className="space-y-2">
-          <Link to="/" className={`flex items-center w-full ${sidebarCollapsed ? 'justify-center' : ''} px-3 py-2 rounded-lg hover:bg-gray-700 transition-colors`}>
-            <DashboardIcon className="w-5 h-5" />
-            {!sidebarCollapsed && <span className="ml-3">Dashboard</span>}
+          <Link to="/" className="flex items-center w-full justify-start px-3 py-2 rounded-lg hover:bg-gray-700 transition-colors">
+            <DashboardIcon className={`w-5 h-5 flex-shrink-0 transition-all duration-300 ${sidebarCollapsed ? 'ml-2' : ''}`} />
+            <span className={`sidebar-label ml-3 ${sidebarCollapsed ? 'collapsed' : 'expanded'}`}>Dashboard</span>
           </Link>
         </nav>
         
@@ -50,14 +81,13 @@ const Sidebar: React.FC<SidebarProps> = ({
         <nav className="space-y-2">
           {/* Section 1: Playbook & Tags */}
           <div>
-            {!sidebarCollapsed && <div className="uppercase text-xs text-gray-400 font-bold mb-2 tracking-wider">Strategy & Organization</div>}
-            <Link to="/playbook" className={`flex items-center w-full ${sidebarCollapsed ? 'justify-center' : ''} px-3 py-2 rounded-lg hover:bg-gray-700 transition-colors`}>
-              <DocumentTextIcon className="w-5 h-5" />
-              {!sidebarCollapsed && <span className="ml-3">Playbook</span>}
+            <Link to="/playbook" className="flex items-center w-full justify-start px-3 py-2 rounded-lg hover:bg-gray-700 transition-colors">
+              <DocumentTextIcon className={`w-5 h-5 flex-shrink-0 transition-all duration-300 ${sidebarCollapsed ? 'ml-2' : ''}`} />
+              <span className={`sidebar-label ml-3 ${sidebarCollapsed ? 'collapsed' : 'expanded'}`}>Playbook</span>
             </Link>
-            <Link to="/tags" className={`flex items-center w-full ${sidebarCollapsed ? 'justify-center' : ''} px-3 py-2 rounded-lg hover:bg-gray-700 transition-colors`}>
-              <TagIcon className="w-5 h-5" />
-              {!sidebarCollapsed && <span className="ml-3">Tags</span>}
+            <Link to="/tags" className="flex items-center w-full justify-start px-3 py-2 rounded-lg hover:bg-gray-700 transition-colors">
+              <TagIcon className={`w-5 h-5 flex-shrink-0 transition-all duration-300 ${sidebarCollapsed ? 'ml-2' : ''}`} />
+              <span className={`sidebar-label ml-3 ${sidebarCollapsed ? 'collapsed' : 'expanded'}`}>Tags</span>
             </Link>
           </div>
           
@@ -65,30 +95,29 @@ const Sidebar: React.FC<SidebarProps> = ({
           
           {/* Section 2: Performance & Analysis */}
           <div>
-            {!sidebarCollapsed && <div className="uppercase text-xs text-gray-400 font-bold mb-2 tracking-wider">Performance & Analysis</div>}
-            <Link to="/patterns" className={`flex items-center w-full ${sidebarCollapsed ? 'justify-center' : ''} px-3 py-2 rounded-lg hover:bg-gray-700 transition-colors`}>
-              <ChartBarIcon className="w-5 h-5" />
-              {!sidebarCollapsed && <span className="ml-3">Patterns</span>}
+            <Link to="/patterns" className="flex items-center w-full justify-start px-3 py-2 rounded-lg hover:bg-gray-700 transition-colors">
+              <ChartBarIcon className={`w-5 h-5 flex-shrink-0 transition-all duration-300 ${sidebarCollapsed ? 'ml-2' : ''}`} />
+              <span className={`sidebar-label ml-3 ${sidebarCollapsed ? 'collapsed' : 'expanded'}`}>Patterns</span>
             </Link>
-            <Link to="/insights" className={`flex items-center w-full ${sidebarCollapsed ? 'justify-center' : ''} px-3 py-2 rounded-lg hover:bg-gray-700 transition-colors`}>
-              <LightBulbIcon className="w-5 h-5" />
-              {!sidebarCollapsed && <span className="ml-3">Insights</span>}
+            <Link to="/insights" className="flex items-center w-full justify-start px-3 py-2 rounded-lg hover:bg-gray-700 transition-colors">
+              <LightBulbIcon className={`w-5 h-5 flex-shrink-0 transition-all duration-300 ${sidebarCollapsed ? 'ml-2' : ''}`} />
+              <span className={`sidebar-label ml-3 ${sidebarCollapsed ? 'collapsed' : 'expanded'}`}>Insights</span>
             </Link>
-            <Link to="/edge" className={`flex items-center w-full ${sidebarCollapsed ? 'justify-center' : ''} px-3 py-2 rounded-lg hover:bg-gray-700 transition-colors`}>
-              <ArrowTrendingUpIcon className="w-5 h-5" />
-              {!sidebarCollapsed && <span className="ml-3">Edge</span>}
+            <Link to="/edge" className="flex items-center w-full justify-start px-3 py-2 rounded-lg hover:bg-gray-700 transition-colors">
+              <ArrowTrendingUpIcon className={`w-5 h-5 flex-shrink-0 transition-all duration-300 ${sidebarCollapsed ? 'ml-2' : ''}`} />
+              <span className={`sidebar-label ml-3 ${sidebarCollapsed ? 'collapsed' : 'expanded'}`}>Edge</span>
             </Link>
-            <Link to="/kelly" className={`flex items-center w-full ${sidebarCollapsed ? 'justify-center' : ''} px-3 py-2 rounded-lg hover:bg-gray-700 transition-colors`}>
-              <CalculatorIcon className="w-5 h-5" />
-              {!sidebarCollapsed && <span className="ml-3">Kelly</span>}
+            <Link to="/kelly" className="flex items-center w-full justify-start px-3 py-2 rounded-lg hover:bg-gray-700 transition-colors">
+              <CalculatorIcon className={`w-5 h-5 flex-shrink-0 transition-all duration-300 ${sidebarCollapsed ? 'ml-2' : ''}`} />
+              <span className={`sidebar-label ml-3 ${sidebarCollapsed ? 'collapsed' : 'expanded'}`}>Kelly</span>
             </Link>
-            <Link to="/execution" className={`flex items-center w-full ${sidebarCollapsed ? 'justify-center' : ''} px-3 py-2 rounded-lg hover:bg-gray-700 transition-colors`}>
-              <BrainIcon className="w-5 h-5" />
-              {!sidebarCollapsed && <span className="ml-3">Execution</span>}
+            <Link to="/execution" className="flex items-center w-full justify-start px-3 py-2 rounded-lg hover:bg-gray-700 transition-colors">
+              <BrainIcon className={`w-5 h-5 flex-shrink-0 transition-all duration-300 ${sidebarCollapsed ? 'ml-2' : ''}`} />
+              <span className={`sidebar-label ml-3 ${sidebarCollapsed ? 'collapsed' : 'expanded'}`}>Execution</span>
             </Link>
-            <Link to="/bestworst" className={`flex items-center w-full ${sidebarCollapsed ? 'justify-center' : ''} px-3 py-2 rounded-lg hover:bg-gray-700 transition-colors`}>
-              <span className="text-lg">⭐</span>
-              {!sidebarCollapsed && <span className="ml-3">Best & Worst</span>}
+            <Link to="/bestworst" className="flex items-center w-full justify-start px-3 py-2 rounded-lg hover:bg-gray-700 transition-colors">
+              <span className={`text-lg flex-shrink-0 transition-all duration-300 ${sidebarCollapsed ? 'ml-2' : ''}`}>★</span>
+              <span className={`sidebar-label ml-3 ${sidebarCollapsed ? 'collapsed' : 'expanded'}`}>Best & Worst</span>
             </Link>
           </div>
           
@@ -96,13 +125,12 @@ const Sidebar: React.FC<SidebarProps> = ({
           
           {/* Section 3: MBS */}
           <div>
-            {!sidebarCollapsed && <div className="uppercase text-xs text-gray-400 font-bold mb-2 tracking-wider">MBS</div>}
             <button 
               onClick={onMBSClick} 
-              className={`flex items-center w-full ${sidebarCollapsed ? 'justify-center' : ''} px-3 py-2 rounded-lg hover:bg-gray-700 transition-colors`}
+              className="flex items-center w-full justify-start px-3 py-2 rounded-lg hover:bg-gray-700 transition-colors text-left"
             >
-              <AcademicCapIcon className="w-5 h-5" />
-              {!sidebarCollapsed && <span className="ml-3">MBS</span>}
+              <AcademicCapIcon className={`w-5 h-5 flex-shrink-0 transition-all duration-300 ${sidebarCollapsed ? 'ml-2' : ''}`} />
+              <span className={`sidebar-label ml-3 ${sidebarCollapsed ? 'collapsed' : 'expanded'}`}>MBS</span>
             </button>
           </div>
           
@@ -110,22 +138,38 @@ const Sidebar: React.FC<SidebarProps> = ({
           
           {/* Section 4: Data & Settings */}
           <div>
-            {!sidebarCollapsed && <div className="uppercase text-xs text-gray-400 font-bold mb-2 tracking-wider">Data & Settings</div>}
             <button 
               onClick={onImportClick} 
-              className={`flex items-center w-full ${sidebarCollapsed ? 'justify-center' : ''} px-3 py-2 rounded-lg hover:bg-gray-700 transition-colors`}
+              className="flex items-center w-full justify-start px-3 py-2 rounded-lg hover:bg-gray-700 transition-colors text-left"
             >
-              <ImportIcon className="w-5 h-5" />
-              {!sidebarCollapsed && <span className="ml-3">Import</span>}
+              <ImportIcon className={`w-5 h-5 flex-shrink-0 transition-all duration-300 ${sidebarCollapsed ? 'ml-2' : ''}`} />
+              <span className={`sidebar-label ml-3 ${sidebarCollapsed ? 'collapsed' : 'expanded'}`}>Import</span>
             </button>
-            <Link to="/export" className={`flex items-center w-full ${sidebarCollapsed ? 'justify-center' : ''} px-3 py-2 rounded-lg hover:bg-gray-700 transition-colors`}>
-              <ExportIcon className="w-5 h-5" />
-              {!sidebarCollapsed && <span className="ml-3">Export</span>}
+            <Link to="/export" className="flex items-center w-full justify-start px-3 py-2 rounded-lg hover:bg-gray-700 transition-colors">
+              <ExportIcon className={`w-5 h-5 flex-shrink-0 transition-all duration-300 ${sidebarCollapsed ? 'ml-2' : ''}`} />
+              <span className={`sidebar-label ml-3 ${sidebarCollapsed ? 'collapsed' : 'expanded'}`}>Export</span>
             </Link>
-            <Link to="/settings" className={`flex items-center w-full ${sidebarCollapsed ? 'justify-center' : ''} px-3 py-2 rounded-lg hover:bg-gray-700 transition-colors`}>
-              <CogIcon className="w-5 h-5" />
-              {!sidebarCollapsed && <span className="ml-3">Settings</span>}
+            <Link to="/settings" className="flex items-center w-full justify-start px-3 py-2 rounded-lg hover:bg-gray-700 transition-colors">
+              <CogIcon className={`w-5 h-5 flex-shrink-0 transition-all duration-300 ${sidebarCollapsed ? 'ml-2' : ''}`} />
+              <span className={`sidebar-label ml-3 ${sidebarCollapsed ? 'collapsed' : 'expanded'}`}>Settings</span>
             </Link>
+            <div className="flex justify-center w-full">
+              <button
+                onClick={onAddTradeClick}
+                className={`flex items-center mt-4 bg-gradient-to-r from-green-400 to-green-500 text-white rounded-lg shadow-md text-sm transition-transform duration-100 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-green-300 ${sidebarCollapsed ? 'w-10 h-10 px-0 justify-center' : 'w-full h-10 px-4 justify-center'}`}
+                style={{ minHeight: '40px', minWidth: sidebarCollapsed ? '40px' : undefined }}
+                title="Add Trade"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className={`w-5 h-5 transition-all duration-300 ${sidebarCollapsed ? '' : 'mr-2'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v12m6-6H6" />
+                </svg>
+                <span
+                  className={`sidebar-label font-medium transition-all duration-300${sidebarCollapsed ? ' collapsed' : ' expanded'}`}
+                >
+                  Add Trade
+                </span>
+              </button>
+            </div>
           </div>
         </nav>
       </div>
