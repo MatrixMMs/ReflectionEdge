@@ -388,19 +388,6 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
             <TradeDetailsView trade={viewingTrade} playbookEntries={playbookEntries} />
           </Modal>
         )}
-
-        {/* Floating Add Trade Button */}
-        <div className="fixed bottom-8 right-8 z-50">
-          <button
-            onClick={openTradeForm}
-            className={`flex items-center justify-center w-full mt-4 bg-gradient-to-r from-green-400 to-green-500 text-white rounded-full shadow-md px-4 py-1 text-sm transition-transform duration-100 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-green-300`}
-            aria-label="Add Trade"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
-            </svg>
-          </button>
-        </div>
       </div>
     </div>
   );
