@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { Trade, TagGroup, PlaybookEntry, Profile } from './types';
+import { Trade, AdvancedTagGroup, PlaybookEntry, Profile } from './types';
 import { DEFAULT_TAG_GROUPS, DEFAULT_PLAYBOOK_ENTRIES } from './constants';
 import { parseCSVToTrades as parseBrokerExportCSV } from './utils/csvImporter';
 import { parseQuantowerCSVToTrades } from './utils/quantowerCsvImporter';
@@ -28,7 +28,9 @@ import ExecutionPage from './pages/ExecutionPage';
 import BestWorstPage from './pages/BestWorstPage';
 import ExportPage from './pages/ExportPage';
 import SettingsPage from './pages/SettingsPage';
+import MBSHistoryPage from './pages/MBSHistoryPage';
 import { TradeForm } from './components/trades/TradeForm';
+import { createMBSSession, saveMBSSession } from './utils/mbsHistory';
 
 // Helper to normalize CSV headers for detection
 const normalizeHeader = (header: string): string => header.toLowerCase().replace(/\s+/g, '').replace(/\//g, '');
@@ -38,7 +40,7 @@ const App: React.FC = () => {
   const [activeProfileId, setActiveProfileId] = useState<string | null>(null);
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [trades, setTrades] = useState<Trade[]>([]);
-  const [tagGroups, setTagGroups] = useState<TagGroup[]>(DEFAULT_TAG_GROUPS);
+  const [tagGroups, setTagGroups] = useState<AdvancedTagGroup[]>(DEFAULT_TAG_GROUPS as AdvancedTagGroup[]);
   const [playbookEntries, setPlaybookEntries] = useState<PlaybookEntry[]>([]);
 
   // Import state
@@ -58,6 +60,7 @@ const App: React.FC = () => {
   const [mbsNote, setMbsNote] = useState('');
   const [mbsGoal, setMbsGoal] = useState('');
   const [mbsSessionActive, setMbsSessionActive] = useState(false);
+  const [mbsSessionStartTime, setMbsSessionStartTime] = useState<string>('');
   const [showPostSessionReview, setShowPostSessionReview] = useState(false);
   const [mbsSessionHistory, setMbsSessionHistory] = useState<any[]>([]);
 
@@ -77,7 +80,7 @@ const App: React.FC = () => {
       setActiveProfileId(stored.activeProfileId);
       setProfiles(stored.profiles);
       setTrades(activeData.trades || sampleTrades);
-      setTagGroups(activeData.tagGroups || DEFAULT_TAG_GROUPS);
+      setTagGroups(activeData.tagGroups || DEFAULT_TAG_GROUPS as AdvancedTagGroup[]);
       
       // Merge default playbook entries with stored ones
       const storedPlaybook = activeData.playbookEntries || [];
@@ -313,9 +316,12 @@ const App: React.FC = () => {
               path="/"
               element={
                 <DashboardPage
-                  initialTrades={trades}
-                  initialTagGroups={tagGroups}
-                  initialPlaybookEntries={playbookEntries}
+                  trades={trades}
+                  setTrades={setTrades}
+                  tagGroups={tagGroups}
+                  setTagGroups={setTagGroups}
+                  playbookEntries={playbookEntries}
+                  setPlaybookEntries={setPlaybookEntries}
                   onShowLegalDisclaimer={handleShowLegalDisclaimer}
                 />
               }
@@ -369,6 +375,10 @@ const App: React.FC = () => {
               path="/settings"
               element={<SettingsPage initialSettings={{}} />}
             />
+            <Route
+              path="/mbs-history"
+              element={<MBSHistoryPage />}
+            />
             <Route path="*" element={<Navigate to="/" />} />
           </Routes>
 
@@ -415,7 +425,8 @@ const App: React.FC = () => {
                     onBeginTrading={() => {
                       setIsMBSModalOpen(false);
                       setMbsStep(1);
-                    setMbsSessionActive(true);
+                      setMbsSessionActive(true);
+                      setMbsSessionStartTime(new Date().toISOString());
                     }}
                     sessionGoal={mbsGoal}
                   />
@@ -429,6 +440,25 @@ const App: React.FC = () => {
                 isOpen={mbsSessionActive}
                 sessionGoal={mbsGoal}
                 onEndSession={(sessionTrades: any[]) => {
+                  const endTime = new Date().toISOString();
+                  const startTime = new Date(mbsSessionStartTime);
+                  const endTimeDate = new Date(endTime);
+                  const durationMs = endTimeDate.getTime() - startTime.getTime();
+                  const hours = Math.floor(durationMs / (1000 * 60 * 60));
+                  const minutes = Math.floor((durationMs % (1000 * 60 * 60)) / (1000 * 60));
+                  const seconds = Math.floor((durationMs % (1000 * 60)) / 1000);
+                  const sessionDuration = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+                  
+                  // Create and save the MBS session
+                  const mbsSession = createMBSSession(
+                    mbsGoal,
+                    sessionTrades,
+                    mbsSessionStartTime,
+                    endTime,
+                    sessionDuration
+                  );
+                  saveMBSSession(mbsSession);
+                  
                   setMbsSessionActive(false);
                   setShowPostSessionReview(true);
                   setMbsSessionHistory(sessionTrades);

@@ -8,6 +8,7 @@ export type TagSubcategory =
   | 'time_session'
   | 'market_structure'
   | 'order_flow'
+  | 'liquidity_microstructure'
   | 'intermarket_volatility'
   // Subjective subcategories
   | 'mental_state'

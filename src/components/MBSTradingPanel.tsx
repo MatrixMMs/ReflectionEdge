@@ -2,32 +2,13 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Button } from './ui/Button';
 import { Input } from './ui/Input';
 import { Modal } from './ui/Modal';
+import { MBSTradeLog } from '../types';
 
 interface MBSTradingPanelProps {
   isOpen: boolean;
-  onEndSession: (tradeHistory: TradeLog[]) => void;
+  onEndSession: (tradeHistory: MBSTradeLog[]) => void;
   sessionGoal: string;
 }
-
-type TradeLog = {
-  id: string;
-  type: string;
-  result: 'win' | 'lose';
-  followedPlan: boolean;
-  notes: string;
-  mood: number;
-  time: string;
-  reflection?: string;
-  isBestTrade?: boolean;
-  isWorstTrade?: boolean;
-  extendedReflection?: {
-    mindset?: string;
-    setup?: string;
-    riskManagement?: string;
-    lessons?: string;
-    marketContext?: string;
-  };
-};
 
 const tradeTypes = ['Long', 'Short'];
 
@@ -59,7 +40,7 @@ export const MBSTradingPanel: React.FC<MBSTradingPanelProps> = ({ isOpen, onEndS
   const [quadrant, setQuadrant] = useState<{ result: 'win' | 'lose'; followedPlan: boolean } | null>(null);
   const [notes, setNotes] = useState('');
   const [mood, setMood] = useState(3);
-  const [tradeHistory, setTradeHistory] = useState<TradeLog[]>([]);
+  const [tradeHistory, setTradeHistory] = useState<MBSTradeLog[]>([]);
   const [showDetails, setShowDetails] = useState(false);
   const [showGutCheck, setShowGutCheck] = useState(false);
   const [gutMood, setGutMood] = useState(3);
@@ -202,7 +183,7 @@ export const MBSTradingPanel: React.FC<MBSTradingPanelProps> = ({ isOpen, onEndS
 
   const handleLogTrade = () => {
     if (!quadrant) return;
-    const newTrade: TradeLog = {
+    const newTrade: MBSTradeLog = {
       id: Date.now().toString(),
       type: tradeType,
       result: quadrant.result,
@@ -256,7 +237,7 @@ export const MBSTradingPanel: React.FC<MBSTradingPanelProps> = ({ isOpen, onEndS
     });
   };
 
-  const handleEditTrade = (trade: TradeLog) => {
+  const handleEditTrade = (trade: MBSTradeLog) => {
     setEditingTradeId(trade.id);
     setEditTradeType(trade.type);
     setEditQuadrant({ result: trade.result, followedPlan: trade.followedPlan });
@@ -312,7 +293,7 @@ export const MBSTradingPanel: React.FC<MBSTradingPanelProps> = ({ isOpen, onEndS
     });
   };
 
-  const handleOpenExtendedJournal = (trade: TradeLog) => {
+  const handleOpenExtendedJournal = (trade: MBSTradeLog) => {
     setShowExtendedJournal(trade.id);
     setExtendedReflection({
       mindset: trade.extendedReflection?.mindset || '',

@@ -1,22 +1,27 @@
 import React, { useState, useMemo } from 'react';
-import { Trade, TagGroup } from '../../types';
+import { Trade, AdvancedTagGroup, TagCategory } from '../../types';
 import { KellyAnalysis, calculateKellyCriterion, calculateKellyByTimeframe, calculateKellyBySymbol, calculateKellyByTag, getTagMetadata } from '../../utils/kellyCriterion';
 import { filterTradesByDateAndTags } from '../../utils/chartDataProcessor';
 import { Button } from '../ui/Button';
-import { CalculatorIcon, TrendingUpIcon, ShieldCheckIcon, ExclamationTriangleIcon, ChevronDownIcon, ChevronUpIcon } from '../ui/Icons';
+import { CalculatorIcon, TrendingUpIcon, ShieldCheckIcon, ExclamationTriangleIcon, ChevronDownIcon, ChevronUpIcon, LightBulbIcon, BrainIcon } from '../ui/Icons';
+import { ADVANCED_TAGS } from '../../constants/advancedTags';
 
 interface KellyCriterionAnalysisProps {
   trades: Trade[];
-  tagGroups: TagGroup[];
+  tagGroups: AdvancedTagGroup[];
 }
 
-export const KellyCriterionAnalysis: React.FC<KellyCriterionAnalysisProps> = ({ trades, tagGroups }) => {
+export const KellyCriterionAnalysis: React.FC<KellyCriterionAnalysisProps> = ({ 
+  trades, 
+  tagGroups = ADVANCED_TAGS
+}) => {
   const [selectedTimeframe, setSelectedTimeframe] = useState<string>('All Trades');
   const [selectedSymbol, setSelectedSymbol] = useState<string>('All Symbols');
   const [selectedTags, setSelectedTags] = useState<{[groupId: string]: string[]}>({});
   const [tagComparisonMode, setTagComparisonMode] = useState<'AND' | 'OR'>('OR');
   const [showAdvanced, setShowAdvanced] = useState(false);
-  const [collapsedGroups, setCollapsedGroups] = React.useState<{ [groupId: string]: boolean }>({});
+  const [collapsedCategories, setCollapsedCategories] = React.useState<{ [category: string]: boolean }>({});
+  const [searchQuery, setSearchQuery] = useState('');
 
   const filteredTrades = useMemo(() => {
     const hasSelectedTags = Object.values(selectedTags).some(tags => tags.length > 0);
@@ -78,6 +83,14 @@ export const KellyCriterionAnalysis: React.FC<KellyCriterionAnalysisProps> = ({ 
     });
   };
 
+  const handleAdvancedTagSelect = (category: TagCategory, groupId: string, tagId: string) => {
+    handleTagChange(groupId, tagId);
+  };
+
+  const isTagSelected = (category: TagCategory, groupId: string, tagId: string) => {
+    return selectedTags[groupId]?.includes(tagId) || false;
+  };
+
   const getConfidenceColor = (confidence: string) => {
     switch (confidence) {
       case 'high': return 'text-green-400';
@@ -102,9 +115,15 @@ export const KellyCriterionAnalysis: React.FC<KellyCriterionAnalysisProps> = ({ 
     return 'text-red-400';
   };
 
-  const toggleGroupCollapse = (groupId: string) => {
-    setCollapsedGroups(prev => ({ ...prev, [groupId]: !prev[groupId] }));
+  const toggleCategoryCollapse = (category: string) => {
+    setCollapsedCategories(prev => ({ ...prev, [category]: !prev[category] }));
   };
+
+  const filteredAdvancedTags = tagGroups.filter(group => {
+    if (!searchQuery) return true;
+    return group.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+           group.subtags.some(tag => tag.name.toLowerCase().includes(searchQuery.toLowerCase()));
+  });
 
   return (
     <div className="space-y-6">
@@ -114,14 +133,17 @@ export const KellyCriterionAnalysis: React.FC<KellyCriterionAnalysisProps> = ({ 
           <h2 className="text-2xl font-bold text-gray-100 flex items-center gap-2">
             <CalculatorIcon className="w-6 h-6" />
             Kelly Criterion Analysis
+            <span className="text-sm text-blue-400">(Advanced Tags)</span>
           </h2>
-          <Button
-            onClick={() => setShowAdvanced(!showAdvanced)}
-            variant="secondary"
-            size="sm"
-          >
-            {showAdvanced ? 'Hide Advanced' : 'Show Advanced'}
-          </Button>
+          <div className="flex gap-2">
+            <Button
+              onClick={() => setShowAdvanced(!showAdvanced)}
+              variant="secondary"
+              size="sm"
+            >
+              {showAdvanced ? 'Hide Advanced' : 'Show Advanced'}
+            </Button>
+          </div>
         </div>
         
         <p className="text-gray-300 mb-4">
@@ -148,9 +170,6 @@ export const KellyCriterionAnalysis: React.FC<KellyCriterionAnalysisProps> = ({ 
               value={selectedSymbol}
               onChange={(e) => {
                 setSelectedSymbol(e.target.value);
-                // When a symbol is selected, also filter timeframes to only those relevant for the symbol
-                const symbolTrades = e.target.value === 'All Symbols' ? filteredTrades : filteredTrades.filter(t => t.symbol === e.target.value);
-                // This part is complex, for now, just filter by symbol.
               }}
               className="w-full bg-gray-700 border border-gray-600 text-gray-100 rounded p-2"
             >
@@ -193,51 +212,126 @@ export const KellyCriterionAnalysis: React.FC<KellyCriterionAnalysisProps> = ({ 
           </div>
         )}
 
-        {/* Tag Filters */}
-        <div className="space-y-3">
-          {tagGroups.filter(g => g.subtags.length > 0).map(group => {
-            const isCollapsed = collapsedGroups[group.id] || false;
-            return (
-              <div key={group.id} className="bg-gray-800 border border-gray-700 rounded-xl shadow-sm">
-                <button
-                  type="button"
-                  className="w-full flex items-center justify-between px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500 rounded-t-xl"
-                  onClick={() => toggleGroupCollapse(group.id)}
-                  aria-expanded={!isCollapsed}
-                  aria-controls={`tag-group-${group.id}`}
-                  style={{ border: 'none', boxShadow: 'none', background: 'none' }}
-                >
-                  <span className="text-xs font-semibold text-gray-200 tracking-wide">{group.name}</span>
-                  {isCollapsed ? (
-                    <ChevronDownIcon className="w-4 h-4 text-gray-400" />
-                  ) : (
-                    <ChevronUpIcon className="w-4 h-4 text-gray-400" />
-                  )}
-                </button>
-                {!isCollapsed && (
-                  <>
-                    <div className="border-t border-gray-700 mx-2" />
-                    <div id={`tag-group-${group.id}`} className="flex flex-wrap gap-2 px-4 pb-3 pt-3">
-                      {group.subtags.map(subtag => (
-                        <button
-                          key={subtag.id}
-                          type="button"
-                          onClick={() => handleTagChange(group.id, subtag.id)}
-                          className={`px-3 py-1 rounded-full text-xs font-semibold transition-colors mr-2 mb-2 border border-gray-600 focus:outline-none ${
-                            selectedTags[group.id]?.includes(subtag.id)
-                              ? 'bg-gray-700 text-white'
-                              : 'bg-gray-600 text-white hover:bg-gray-500'
-                          }`}
-                        >
-                          {subtag.name}
-                        </button>
-                      ))}
-                    </div>
-                  </>
+        {/* Advanced Tag System */}
+        <div className="space-y-4">
+          {/* Search Bar */}
+          <div>
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={e => setSearchQuery(e.target.value)}
+              placeholder="Search tags..."
+              className="w-full bg-gray-700 border border-gray-600 text-gray-100 rounded p-2"
+            />
+          </div>
+
+          {/* Objective Tags */}
+          <div>
+            <div className="flex items-center justify-between">
+              <button
+                onClick={() => toggleCategoryCollapse('objective')}
+                className="flex items-center space-x-2 text-lg font-semibold text-blue-400 hover:text-blue-300"
+              >
+                {collapsedCategories['objective'] ? (
+                  <ChevronDownIcon className="w-5 h-5" />
+                ) : (
+                  <ChevronUpIcon className="w-5 h-5" />
                 )}
+                <LightBulbIcon className="w-5 h-5" />
+                <span>Objective Tags (Market's Story)</span>
+              </button>
+            </div>
+
+            {!collapsedCategories['objective'] && (
+              <div className="ml-6 space-y-4 mt-3">
+                {filteredAdvancedTags
+                  .filter(group => group.category === 'objective')
+                  .map(group => (
+                    <div key={group.id} className="bg-gray-800 p-4 rounded-lg border-l-4 border-blue-500">
+                      <div className="flex justify-between items-center mb-3">
+                        <h4 className="text-md font-medium text-blue-300">
+                          {group.name}
+                          <span className="ml-2 text-xs text-gray-400">({group.subcategory.replace('_', ' ')})</span>
+                        </h4>
+                        <span className="text-xs text-gray-400">{group.subtags.length} tags</span>
+                      </div>
+                      <p className="text-sm text-gray-400 mb-3">{group.description}</p>
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
+                        {group.subtags.map(tag => (
+                          <button
+                            key={tag.id}
+                            onClick={() => handleAdvancedTagSelect('objective', group.id, tag.id)}
+                            className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+                              isTagSelected('objective', group.id, tag.id)
+                                ? 'ring-2 ring-blue-400 ring-offset-2 ring-offset-gray-800'
+                                : 'hover:bg-gray-700'
+                            }`}
+                            style={{ backgroundColor: tag.color }}
+                            title={tag.description}
+                          >
+                            {tag.name}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
               </div>
-            );
-          })}
+            )}
+          </div>
+
+          {/* Subjective Tags */}
+          <div>
+            <div className="flex items-center justify-between">
+              <button
+                onClick={() => toggleCategoryCollapse('subjective')}
+                className="flex items-center space-x-2 text-lg font-semibold text-orange-400 hover:text-orange-300"
+              >
+                {collapsedCategories['subjective'] ? (
+                  <ChevronDownIcon className="w-5 h-5" />
+                ) : (
+                  <ChevronUpIcon className="w-5 h-5" />
+                )}
+                <BrainIcon className="w-5 h-5" />
+                <span>Subjective Tags (Trader's Story)</span>
+              </button>
+            </div>
+
+            {!collapsedCategories['subjective'] && (
+              <div className="ml-6 space-y-4 mt-3">
+                {filteredAdvancedTags
+                  .filter(group => group.category === 'subjective')
+                  .map(group => (
+                    <div key={group.id} className="bg-gray-800 p-4 rounded-lg border-l-4 border-orange-500">
+                      <div className="flex justify-between items-center mb-3">
+                        <h4 className="text-md font-medium text-orange-300">
+                          {group.name}
+                          <span className="ml-2 text-xs text-gray-400">({group.subcategory.replace('_', ' ')})</span>
+                        </h4>
+                        <span className="text-xs text-gray-400">{group.subtags.length} tags</span>
+                      </div>
+                      <p className="text-sm text-gray-400 mb-3">{group.description}</p>
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
+                        {group.subtags.map(tag => (
+                          <button
+                            key={tag.id}
+                            onClick={() => handleAdvancedTagSelect('subjective', group.id, tag.id)}
+                            className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+                              isTagSelected('subjective', group.id, tag.id)
+                                ? 'ring-2 ring-orange-400 ring-offset-2 ring-offset-gray-800'
+                                : 'hover:bg-gray-700'
+                            }`}
+                            style={{ backgroundColor: tag.color }}
+                            title={tag.description}
+                          >
+                            {tag.name}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+              </div>
+            )}
+          </div>
         </div>
       </div>
 

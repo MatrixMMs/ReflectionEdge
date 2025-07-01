@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { PlusCircleIcon, CustomCalculatorIcon, CustomDashboardIcon, CustomPlaybookIcon, CustomSettingsIcon, CustomBestWorstIcon, CustomExecutionIcon, CustomInsightsIcon, CustomPatternIcon, CustomTagsIcon, CustomMBSIcon, CustomExportIcon, CustomImportIcon, CustomEdgeIcon } from './Icons';
+import { PlusCircleIcon, CustomCalculatorIcon, CustomDashboardIcon, CustomPlaybookIcon, CustomSettingsIcon, CustomBestWorstIcon, CustomExecutionIcon, CustomInsightsIcon, CustomPatternIcon, CustomTagsIcon, CustomMBSIcon, CustomMBSHistoryIcon, CustomExportIcon, CustomImportIcon, CustomEdgeIcon } from './Icons';
 
 // Add custom ChevronLeft and ChevronRight icons
 const ChevronLeft: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
@@ -55,6 +55,26 @@ const Sidebar: React.FC<SidebarProps> = ({
           opacity: 1;
           transform: translateX(0);
         }
+        .sidebar-tooltip {
+          position: absolute;
+          left: 110%;
+          top: 50%;
+          transform: translateY(-50%);
+          background: #374151;
+          color: #fff;
+          padding: 0.25rem 0.75rem;
+          border-radius: 0.375rem;
+          font-size: 0.875rem;
+          white-space: nowrap;
+          opacity: 0;
+          pointer-events: none;
+          transition: opacity 0.2s;
+          z-index: 50;
+        }
+        .group:hover .sidebar-tooltip {
+          opacity: 1;
+          pointer-events: auto;
+        }
       `}</style>
       <div>
         {/* Logo/Title */}
@@ -68,9 +88,10 @@ const Sidebar: React.FC<SidebarProps> = ({
         
         {/* Dashboard Link */}
         <nav className="space-y-2">
-          <Link to="/" className="flex items-center w-full justify-start px-3 py-2 rounded-lg hover:bg-gray-700 transition-colors">
+          <Link to="/" className="group relative flex items-center w-full justify-start px-3 py-2 rounded-lg hover:bg-gray-700 transition-colors">
             <CustomDashboardIcon className={`w-5 h-5 flex-shrink-0 transition-all duration-300 ${sidebarCollapsed ? 'ml-2' : ''}`} />
             <span className={`sidebar-label ml-3 ${sidebarCollapsed ? 'collapsed' : 'expanded'}`}>Dashboard</span>
+            {sidebarCollapsed && <span className="sidebar-tooltip">Dashboard</span>}
           </Link>
         </nav>
         
@@ -81,13 +102,15 @@ const Sidebar: React.FC<SidebarProps> = ({
         <nav className="space-y-2">
           {/* Section 1: Playbook & Tags */}
           <div>
-            <Link to="/playbook" className="flex items-center w-full justify-start px-3 py-2 rounded-lg hover:bg-gray-700 transition-colors">
+            <Link to="/playbook" className="group relative flex items-center w-full justify-start px-3 py-2 rounded-lg hover:bg-gray-700 transition-colors">
               <CustomPlaybookIcon className={`w-5 h-5 flex-shrink-0 transition-all duration-300 ${sidebarCollapsed ? 'ml-2' : ''}`} />
               <span className={`sidebar-label ml-3 ${sidebarCollapsed ? 'collapsed' : 'expanded'}`}>Playbook</span>
+              {sidebarCollapsed && <span className="sidebar-tooltip">Playbook</span>}
             </Link>
-            <Link to="/tags" className="flex items-center w-full justify-start px-3 py-2 rounded-lg hover:bg-gray-700 transition-colors">
+            <Link to="/tags" className="group relative flex items-center w-full justify-start px-3 py-2 rounded-lg hover:bg-gray-700 transition-colors">
               <CustomTagsIcon className={`w-5 h-5 flex-shrink-0 transition-all duration-300 ${sidebarCollapsed ? 'ml-2' : ''}`} />
               <span className={`sidebar-label ml-3 ${sidebarCollapsed ? 'collapsed' : 'expanded'}`}>Tags</span>
+              {sidebarCollapsed && <span className="sidebar-tooltip">Tags</span>}
             </Link>
           </div>
           
@@ -95,29 +118,35 @@ const Sidebar: React.FC<SidebarProps> = ({
           
           {/* Section 2: Performance & Analysis */}
           <div>
-            <Link to="/patterns" className="flex items-center w-full justify-start px-3 py-2 rounded-lg hover:bg-gray-700 transition-colors">
+            <Link to="/patterns" className="group relative flex items-center w-full justify-start px-3 py-2 rounded-lg hover:bg-gray-700 transition-colors">
               <CustomPatternIcon className={`w-5 h-5 flex-shrink-0 transition-all duration-300 ${sidebarCollapsed ? 'ml-2' : ''}`} />
               <span className={`sidebar-label ml-3 ${sidebarCollapsed ? 'collapsed' : 'expanded'}`}>Patterns</span>
+              {sidebarCollapsed && <span className="sidebar-tooltip">Patterns</span>}
             </Link>
-            <Link to="/insights" className="flex items-center w-full justify-start px-3 py-2 rounded-lg hover:bg-gray-700 transition-colors">
+            <Link to="/insights" className="group relative flex items-center w-full justify-start px-3 py-2 rounded-lg hover:bg-gray-700 transition-colors">
               <CustomInsightsIcon className={`w-5 h-5 flex-shrink-0 transition-all duration-300 ${sidebarCollapsed ? 'ml-2' : ''}`} />
               <span className={`sidebar-label ml-3 ${sidebarCollapsed ? 'collapsed' : 'expanded'}`}>Insights</span>
+              {sidebarCollapsed && <span className="sidebar-tooltip">Insights</span>}
             </Link>
-            <Link to="/edge" className="flex items-center w-full justify-start px-3 py-2 rounded-lg hover:bg-gray-700 transition-colors">
+            <Link to="/edge" className="group relative flex items-center w-full justify-start px-3 py-2 rounded-lg hover:bg-gray-700 transition-colors">
               <CustomEdgeIcon className={`w-5 h-5 flex-shrink-0 transition-all duration-300 ${sidebarCollapsed ? 'ml-2' : ''}`} />
               <span className={`sidebar-label ml-3 ${sidebarCollapsed ? 'collapsed' : 'expanded'}`}>Edge</span>
+              {sidebarCollapsed && <span className="sidebar-tooltip">Edge</span>}
             </Link>
-            <Link to="/kelly" className="flex items-center w-full justify-start px-3 py-2 rounded-lg hover:bg-gray-700 transition-colors">
+            <Link to="/kelly" className="group relative flex items-center w-full justify-start px-3 py-2 rounded-lg hover:bg-gray-700 transition-colors">
               <CustomCalculatorIcon className={`w-5 h-5 flex-shrink-0 transition-all duration-300 ${sidebarCollapsed ? 'ml-2' : ''}`} />
               <span className={`sidebar-label ml-3 ${sidebarCollapsed ? 'collapsed' : 'expanded'}`}>Kelly</span>
+              {sidebarCollapsed && <span className="sidebar-tooltip">Kelly</span>}
             </Link>
-            <Link to="/execution" className="flex items-center w-full justify-start px-3 py-2 rounded-lg hover:bg-gray-700 transition-colors">
+            <Link to="/execution" className="group relative flex items-center w-full justify-start px-3 py-2 rounded-lg hover:bg-gray-700 transition-colors">
               <CustomExecutionIcon className={`w-5 h-5 flex-shrink-0 transition-all duration-300 ${sidebarCollapsed ? 'ml-2' : ''}`} />
               <span className={`sidebar-label ml-3 ${sidebarCollapsed ? 'collapsed' : 'expanded'}`}>Execution</span>
+              {sidebarCollapsed && <span className="sidebar-tooltip">Execution</span>}
             </Link>
-            <Link to="/bestworst" className="flex items-center w-full justify-start px-3 py-2 rounded-lg hover:bg-gray-700 transition-colors">
+            <Link to="/bestworst" className="group relative flex items-center w-full justify-start px-3 py-2 rounded-lg hover:bg-gray-700 transition-colors">
               <CustomBestWorstIcon className={`w-5 h-5 flex-shrink-0 transition-all duration-300 ${sidebarCollapsed ? 'ml-2' : ''}`} />
               <span className={`sidebar-label ml-3 ${sidebarCollapsed ? 'collapsed' : 'expanded'}`}>Best & Worst</span>
+              {sidebarCollapsed && <span className="sidebar-tooltip">Best & Worst</span>}
             </Link>
           </div>
           
@@ -127,11 +156,17 @@ const Sidebar: React.FC<SidebarProps> = ({
           <div>
             <button 
               onClick={onMBSClick} 
-              className="flex items-center w-full justify-start px-3 py-2 rounded-lg hover:bg-gray-700 transition-colors text-left"
+              className="group relative flex items-center w-full justify-start px-3 py-2 rounded-lg hover:bg-gray-700 transition-colors text-left"
             >
               <CustomMBSIcon className={`w-5 h-5 flex-shrink-0 transition-all duration-300 ${sidebarCollapsed ? 'ml-2' : ''}`} />
               <span className={`sidebar-label ml-3 ${sidebarCollapsed ? 'collapsed' : 'expanded'}`}>MBS</span>
+              {sidebarCollapsed && <span className="sidebar-tooltip">MBS</span>}
             </button>
+            <Link to="/mbs-history" className="group relative flex items-center w-full justify-start px-3 py-2 rounded-lg hover:bg-gray-700 transition-colors">
+              <CustomMBSHistoryIcon className={`w-5 h-5 flex-shrink-0 transition-all duration-300 ${sidebarCollapsed ? 'ml-2' : ''}`} />
+              <span className={`sidebar-label ml-3 ${sidebarCollapsed ? 'collapsed' : 'expanded'}`}>MBS History</span>
+              {sidebarCollapsed && <span className="sidebar-tooltip">MBS History</span>}
+            </Link>
           </div>
           
           <div className="my-2 border-t border-gray-700" />
@@ -140,53 +175,91 @@ const Sidebar: React.FC<SidebarProps> = ({
           <div>
             <button 
               onClick={onImportClick} 
-              className="flex items-center w-full justify-start px-3 py-2 rounded-lg hover:bg-gray-700 transition-colors text-left"
+              className="group relative flex items-center w-full justify-start px-3 py-2 rounded-lg hover:bg-gray-700 transition-colors text-left"
             >
               <CustomImportIcon className={`w-5 h-5 flex-shrink-0 transition-all duration-300 ${sidebarCollapsed ? 'ml-2' : ''}`} />
               <span className={`sidebar-label ml-3 ${sidebarCollapsed ? 'collapsed' : 'expanded'}`}>Import</span>
+              {sidebarCollapsed && <span className="sidebar-tooltip">Import</span>}
             </button>
-            <Link to="/export" className="flex items-center w-full justify-start px-3 py-2 rounded-lg hover:bg-gray-700 transition-colors">
+            <Link to="/export" className="group relative flex items-center w-full justify-start px-3 py-2 rounded-lg hover:bg-gray-700 transition-colors">
               <CustomExportIcon className={`w-5 h-5 flex-shrink-0 transition-all duration-300 ${sidebarCollapsed ? 'ml-2' : ''}`} />
               <span className={`sidebar-label ml-3 ${sidebarCollapsed ? 'collapsed' : 'expanded'}`}>Export</span>
+              {sidebarCollapsed && <span className="sidebar-tooltip">Export</span>}
             </Link>
-            <Link to="/settings" className="flex items-center w-full justify-start px-3 py-2 rounded-lg hover:bg-gray-700 transition-colors">
+            <Link to="/settings" className="group relative flex items-center w-full justify-start px-3 py-2 rounded-lg hover:bg-gray-700 transition-colors">
               <CustomSettingsIcon className={`w-5 h-5 flex-shrink-0 transition-all duration-300 ${sidebarCollapsed ? 'ml-2' : ''}`} />
               <span className={`sidebar-label ml-3 ${sidebarCollapsed ? 'collapsed' : 'expanded'}`}>Settings</span>
+              {sidebarCollapsed && <span className="sidebar-tooltip">Settings</span>}
             </Link>
-            <div className="flex justify-center w-full">
+            <div className="flex justify-center w-full" style={{ position: 'relative' }}>
+              {/* Expanded state button (rectangle) */}
               <button
                 onClick={onAddTradeClick}
-                className={`flex items-center mt-4 bg-gradient-to-r from-green-400 to-green-500 text-white rounded-lg shadow-md text-sm transition-transform duration-100 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-green-300 ${sidebarCollapsed ? 'w-10 h-10 px-0 justify-center' : 'w-full h-10 px-4 justify-center'}`}
-                style={{ minHeight: '40px', minWidth: sidebarCollapsed ? '40px' : undefined }}
+                className={`group flex items-center mt-4 bg-gradient-to-r from-green-400 to-green-500 text-white rounded-lg shadow-md text-sm transition-all duration-300 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-green-300 w-full h-10 px-4 justify-center`}
+                style={{ 
+                  minHeight: '40px',
+                  position: 'absolute',
+                  left: '50%',
+                  transform: 'translateX(-50%)',
+                  opacity: sidebarCollapsed ? 0 : 1,
+                  pointerEvents: sidebarCollapsed ? 'none' : 'auto',
+                  transition: 'opacity 0.3s ease'
+                }}
                 title="Add Trade"
               >
-                <svg xmlns="http://www.w3.org/2000/svg" className={`w-5 h-5 transition-all duration-300 ${sidebarCollapsed ? '' : 'mr-2'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <span className="font-medium">Add Trade</span>
+              </button>
+              
+              {/* Collapsed state button (square) */}
+              <button
+                onClick={onAddTradeClick}
+                className={`group flex items-center mt-4 bg-gradient-to-r from-green-400 to-green-500 text-white rounded-lg shadow-md text-sm transition-all duration-300 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-green-300 w-10 h-10 px-0 justify-center`}
+                style={{ 
+                  minHeight: '40px',
+                  minWidth: '40px',
+                  position: 'absolute',
+                  left: '50%',
+                  transform: 'translateX(-50%)',
+                  opacity: sidebarCollapsed ? 1 : 0,
+                  pointerEvents: sidebarCollapsed ? 'auto' : 'none',
+                  transition: 'opacity 0.3s ease'
+                }}
+                title="Add Trade"
+              >
+                <svg 
+                  xmlns="http://www.w3.org/2000/svg" 
+                  className="w-5 h-5" 
+                  fill="none" 
+                  viewBox="0 0 24 24" 
+                  stroke="currentColor" 
+                  strokeWidth={2}
+                >
                   <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v12m6-6H6" />
                 </svg>
-                <span
-                  className={`sidebar-label font-medium transition-all duration-300${sidebarCollapsed ? ' collapsed' : ' expanded'}`}
-                >
-                  Add Trade
-                </span>
+                {sidebarCollapsed && <span className="sidebar-tooltip">Add Trade</span>}
               </button>
             </div>
           </div>
         </nav>
       </div>
       
-      {/* Collapse/Expand Button */}
-      <div className="flex justify-center items-end w-full mt-6">
+      {/* Collapse/Expand Button - floating at right edge with roll animation */}
+      <div style={{ position: 'absolute', right: '-18px', bottom: '32px', zIndex: 60 }}>
         <button
           onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-          className="text-gray-400 hover:text-white transition-colors focus:outline-none"
+          className="flex items-center justify-center w-9 h-9 rounded-full bg-gray-800 text-gray-400 hover:text-white hover:bg-gray-700 transition-colors focus:outline-none"
           aria-label={sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-          style={{ background: 'none', border: 'none', padding: 0 }}
+          style={{ border: 'none', padding: 0, outline: 'none' }}
         >
-          {sidebarCollapsed ? (
-            <ChevronRight className="w-6 h-6" />
-          ) : (
+          <span
+            style={{
+              display: 'inline-block',
+              transition: 'transform 0.4s cubic-bezier(0.4,0,0.2,1)',
+              transform: sidebarCollapsed ? 'rotate(0deg)' : 'rotate(-180deg)'
+            }}
+          >
             <ChevronLeft className="w-6 h-6" />
-          )}
+          </span>
         </button>
       </div>
     </aside>
