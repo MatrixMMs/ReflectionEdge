@@ -2,32 +2,13 @@ import React, { useMemo, useState } from 'react';
 import { Modal } from './ui/Modal';
 import { Button } from './ui/Button';
 import { Input } from './ui/Input';
-
-interface TradeLog {
-  id: string;
-  type: string;
-  result: 'win' | 'lose';
-  followedPlan: boolean;
-  notes: string;
-  mood: number;
-  time: string;
-  reflection?: string;
-  isBestTrade?: boolean;
-  isWorstTrade?: boolean;
-  extendedReflection?: {
-    mindset?: string;
-    setup?: string;
-    riskManagement?: string;
-    lessons?: string;
-    marketContext?: string;
-  };
-}
+import { MBSTradeLog } from '../types';
 
 interface MBSPostSessionReviewProps {
   isOpen: boolean;
   onClose: () => void;
   sessionGoal: string;
-  tradeHistory: TradeLog[];
+  tradeHistory: MBSTradeLog[];
   onSetNextSessionGoal: (goal: string) => void;
 }
 
@@ -141,7 +122,7 @@ const FEEDBACK = {
   ],
 };
 
-function getSessionFeedback(trades: TradeLog[], sessionGoal: string): string[] {
+function getSessionFeedback(trades: MBSTradeLog[], sessionGoal: string): string[] {
   // Heuristic triggers for each feedback group
   const total = trades.length;
   const followedPlan = trades.filter(t => t.followedPlan).length;
