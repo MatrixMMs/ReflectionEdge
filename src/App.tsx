@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { Trade, TagGroup, PlaybookEntry, Profile } from './types';
+import { Trade, AdvancedTagGroup, PlaybookEntry, Profile } from './types';
 import { DEFAULT_TAG_GROUPS, DEFAULT_PLAYBOOK_ENTRIES } from './constants';
 import { parseCSVToTrades as parseBrokerExportCSV } from './utils/csvImporter';
 import { parseQuantowerCSVToTrades } from './utils/quantowerCsvImporter';
@@ -40,7 +40,7 @@ const App: React.FC = () => {
   const [activeProfileId, setActiveProfileId] = useState<string | null>(null);
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [trades, setTrades] = useState<Trade[]>([]);
-  const [tagGroups, setTagGroups] = useState<TagGroup[]>(DEFAULT_TAG_GROUPS);
+  const [tagGroups, setTagGroups] = useState<AdvancedTagGroup[]>(DEFAULT_TAG_GROUPS as AdvancedTagGroup[]);
   const [playbookEntries, setPlaybookEntries] = useState<PlaybookEntry[]>([]);
 
   // Import state
@@ -80,7 +80,7 @@ const App: React.FC = () => {
       setActiveProfileId(stored.activeProfileId);
       setProfiles(stored.profiles);
       setTrades(activeData.trades || sampleTrades);
-      setTagGroups(activeData.tagGroups || DEFAULT_TAG_GROUPS);
+      setTagGroups(activeData.tagGroups || DEFAULT_TAG_GROUPS as AdvancedTagGroup[]);
       
       // Merge default playbook entries with stored ones
       const storedPlaybook = activeData.playbookEntries || [];
@@ -316,9 +316,12 @@ const App: React.FC = () => {
               path="/"
               element={
                 <DashboardPage
-                  initialTrades={trades}
-                  initialTagGroups={tagGroups}
-                  initialPlaybookEntries={playbookEntries}
+                  trades={trades}
+                  setTrades={setTrades}
+                  tagGroups={tagGroups}
+                  setTagGroups={setTagGroups}
+                  playbookEntries={playbookEntries}
+                  setPlaybookEntries={setPlaybookEntries}
                   onShowLegalDisclaimer={handleShowLegalDisclaimer}
                 />
               }

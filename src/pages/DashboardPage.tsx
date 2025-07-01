@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useRef } from 'react';
-import { Trade, TagGroup, PlaybookEntry, ChartYAxisMetric, ChartXAxisMetric, AppDateRange, TradeDirectionFilterSelection } from '../types';
+import { Trade, AdvancedTagGroup, PlaybookEntry, ChartYAxisMetric, ChartXAxisMetric, AppDateRange, TradeDirectionFilterSelection } from '../types';
 import { TradeForm } from '../components/trades/TradeForm';
 import { TradeList } from '../components/trades/TradeList';
 import { Summary } from '../components/trades/Summary';
@@ -18,22 +18,24 @@ import { getRandomColor, resetColorUsage } from '../utils/colorGenerator';
 import { DEFAULT_CHART_COLOR, COMPARISON_CHART_COLOR, LONG_TRADE_COLOR, SHORT_TRADE_COLOR } from '../constants';
 
 interface DashboardPageProps {
-  initialTrades: Trade[];
-  initialTagGroups: TagGroup[];
-  initialPlaybookEntries: PlaybookEntry[];
+  trades: Trade[];
+  setTrades: React.Dispatch<React.SetStateAction<Trade[]>>;
+  tagGroups: AdvancedTagGroup[];
+  setTagGroups: React.Dispatch<React.SetStateAction<AdvancedTagGroup[]>>;
+  playbookEntries: PlaybookEntry[];
+  setPlaybookEntries: React.Dispatch<React.SetStateAction<PlaybookEntry[]>>;
   onShowLegalDisclaimer: () => void;
 }
 
 const DashboardPage: React.FC<DashboardPageProps> = ({ 
-  initialTrades, 
-  initialTagGroups, 
-  initialPlaybookEntries,
+  trades, 
+  setTrades, 
+  tagGroups, 
+  setTagGroups, 
+  playbookEntries, 
+  setPlaybookEntries,
   onShowLegalDisclaimer
 }) => {
-  const [trades, setTrades] = useState<Trade[]>(initialTrades);
-  const [tagGroups, setTagGroups] = useState<TagGroup[]>(initialTagGroups);
-  const [playbookEntries, setPlaybookEntries] = useState<PlaybookEntry[]>(initialPlaybookEntries);
-
   // Chart and summary state
   const [selectedDate, setSelectedDate] = useState<string>(new Date().toISOString().split('T')[0]);
   const [summaryDateMode, setSummaryDateMode] = useState<'daily' | 'range'>('daily');
