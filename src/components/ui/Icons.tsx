@@ -435,3 +435,9 @@ export const CustomClockIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) 
     <path d="M12 7V12H15M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
   </svg>
 );
+
+export const ChartIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" {...props}>
+    <path d="M21 21H7.8C6.11984 21 5.27976 21 4.63803 20.673C4.07354 20.3854 3.6146 19.9265 3.32698 19.362C3 18.7202 3 17.8802 3 16.2V3M15 10V17M7 13V17M19 5V17M11 7V17" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+  </svg>
+);

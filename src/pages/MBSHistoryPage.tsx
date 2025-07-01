@@ -3,7 +3,8 @@ import { MBSSession, MBSTradeLog } from '../types';
 import { getMBSSessions, deleteMBSSession, getMBSStats, clearMBSHistory } from '../utils/mbsHistory';
 import { Button } from '../components/ui/Button';
 import { Modal } from '../components/ui/Modal';
-import { TrashIcon, EyeIcon, CalendarIcon, ClockIcon, ChartBarIcon, CustomDetailsIcon, CustomDeleteIcon, CustomWinIcon, CustomPlanIcon, CustomClockIcon } from '../components/ui/Icons';
+import { TrashIcon, EyeIcon, CalendarIcon, ClockIcon, ChartBarIcon, CustomDetailsIcon, CustomDeleteIcon, CustomWinIcon, CustomPlanIcon, CustomClockIcon, ChartIcon } from '../components/ui/Icons';
+import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, BarChart, Bar, CartesianGrid, Legend } from 'recharts';
 
 const moodEmojis = [
   { value: 1, emoji: '😡', label: 'Very Frustrated' },
@@ -144,7 +145,7 @@ const syntheticSessions = [
     date: 'June 29, 2025',
     sessions: [
       {
-        goal: 'Test discipline', startTime: '09:00 AM', trades: 4, mood: '😐', planAdherence: 75, winRate: 50,
+        goal: 'Test discipline', startTime: '09:00 AM', trades: 4, mood: '😐', planAdherence: 75, winRate: 50, pnl: 20.5,
         tradeHistory: [
           { time: '09:01 AM', type: 'Long', result: 'win', followedPlan: true, mood: 4, notes: 'Good entry', reflection: 'Followed plan well.' },
           { time: '09:10 AM', type: 'Short', result: 'lose', followedPlan: false, mood: 2, notes: 'Impulsive', reflection: 'Did not wait for setup.' },
@@ -153,7 +154,7 @@ const syntheticSessions = [
         ],
       },
       {
-        goal: 'Aggressive entries', startTime: '01:30 PM', trades: 6, mood: '😞', planAdherence: 50, winRate: 33.3,
+        goal: 'Aggressive entries', startTime: '01:30 PM', trades: 6, mood: '😞', planAdherence: 50, winRate: 33.3, pnl: -61.58,
         tradeHistory: [
           { time: '01:31 PM', type: 'Long', result: 'lose', followedPlan: false, mood: 2, notes: '', reflection: '' },
           { time: '01:40 PM', type: 'Short', result: 'win', followedPlan: true, mood: 4, notes: '', reflection: '' },
@@ -164,7 +165,7 @@ const syntheticSessions = [
         ],
       },
       {
-        goal: 'End strong', startTime: '04:00 PM', trades: 5, mood: '🙂', planAdherence: 90, winRate: 80,
+        goal: 'End strong', startTime: '04:00 PM', trades: 5, mood: '🙂', planAdherence: 90, winRate: 80, pnl: 49.87,
         tradeHistory: [
           { time: '04:01 PM', type: 'Long', result: 'win', followedPlan: true, mood: 6, notes: '', reflection: '' },
           { time: '04:10 PM', type: 'Short', result: 'win', followedPlan: true, mood: 6, notes: '', reflection: '' },
@@ -179,7 +180,7 @@ const syntheticSessions = [
     date: 'June 28, 2025',
     sessions: [
       {
-        goal: 'Patience focus', startTime: '10:00 AM', trades: 5, mood: '🙂', planAdherence: 80, winRate: 60,
+        goal: 'Patience focus', startTime: '10:00 AM', trades: 5, mood: '🙂', planAdherence: 80, winRate: 60, pnl: 22.01,
         tradeHistory: [
           { time: '10:01 AM', type: 'Long', result: 'win', followedPlan: true, mood: 5, notes: '', reflection: '' },
           { time: '10:10 AM', type: 'Short', result: 'lose', followedPlan: false, mood: 2, notes: '', reflection: '' },
@@ -189,7 +190,7 @@ const syntheticSessions = [
         ],
       },
       {
-        goal: 'No FOMO', startTime: '12:30 PM', trades: 3, mood: '😃', planAdherence: 100, winRate: 100,
+        goal: 'No FOMO', startTime: '12:30 PM', trades: 3, mood: '😃', planAdherence: 100, winRate: 100, pnl: 0.0,
         tradeHistory: [
           { time: '12:31 PM', type: 'Long', result: 'win', followedPlan: true, mood: 7, notes: '', reflection: '' },
           { time: '12:40 PM', type: 'Short', result: 'win', followedPlan: true, mood: 7, notes: '', reflection: '' },
@@ -197,7 +198,7 @@ const syntheticSessions = [
         ],
       },
       {
-        goal: 'Quick scalps', startTime: '03:00 PM', trades: 7, mood: '😡', planAdherence: 30, winRate: 14.3,
+        goal: 'Quick scalps', startTime: '03:00 PM', trades: 7, mood: '😡', planAdherence: 30, winRate: 14.3, pnl: -108.67,
         tradeHistory: [
           { time: '03:01 PM', type: 'Long', result: 'lose', followedPlan: false, mood: 1, notes: '', reflection: '' },
           { time: '03:10 PM', type: 'Short', result: 'lose', followedPlan: false, mood: 1, notes: '', reflection: '' },
@@ -214,7 +215,7 @@ const syntheticSessions = [
     date: 'June 24, 2025',
     sessions: [
       {
-        goal: 'Follow signals', startTime: '11:00 AM', trades: 3, mood: '😃', planAdherence: 100, winRate: 100,
+        goal: 'Follow signals', startTime: '11:00 AM', trades: 3, mood: '😃', planAdherence: 100, winRate: 100, pnl: 91.03,
         tradeHistory: [
           { time: '11:01 AM', type: 'Long', result: 'win', followedPlan: true, mood: 7, notes: '', reflection: '' },
           { time: '11:10 AM', type: 'Short', result: 'win', followedPlan: true, mood: 7, notes: '', reflection: '' },
@@ -222,14 +223,14 @@ const syntheticSessions = [
         ],
       },
       {
-        goal: 'No revenge trades', startTime: '03:00 PM', trades: 2, mood: '😡', planAdherence: 0, winRate: 0,
+        goal: 'No revenge trades', startTime: '03:00 PM', trades: 2, mood: '😡', planAdherence: 0, winRate: 0, pnl: -62.05,
         tradeHistory: [
           { time: '03:01 PM', type: 'Long', result: 'lose', followedPlan: false, mood: 1, notes: '', reflection: '' },
           { time: '03:10 PM', type: 'Short', result: 'lose', followedPlan: false, mood: 1, notes: '', reflection: '' },
         ],
       },
       {
-        goal: 'Risk management', startTime: '08:00 AM', trades: 4, mood: '🙂', planAdherence: 75, winRate: 50,
+        goal: 'Risk management', startTime: '08:00 AM', trades: 4, mood: '🙂', planAdherence: 75, winRate: 50, pnl: 0.0,
         tradeHistory: [
           { time: '08:01 AM', type: 'Long', result: 'win', followedPlan: true, mood: 5, notes: '', reflection: '' },
           { time: '08:10 AM', type: 'Short', result: 'lose', followedPlan: false, mood: 2, notes: '', reflection: '' },
@@ -292,6 +293,7 @@ const MBSHistoryPage: React.FC = () => {
   const [showFullHistory, setShowFullHistory] = useState(false);
   const [sortBy, setSortBy] = useState('date');
   const [filterOpen, setFilterOpen] = useState(false);
+  const [showPerformance, setShowPerformance] = useState(false);
 
   // --- LIVE DATA INTEGRATION ---
   // Get live sessions from local storage
@@ -450,15 +452,66 @@ const MBSHistoryPage: React.FC = () => {
   // Helper to check if session is live (has tradeHistory)
   const isLiveSession = (session: any) => Array.isArray(session.tradeHistory);
 
+  // Determine which sessions are currently visible (context-aware)
+  const visibleSessions = showFullHistory
+    ? filteredHistory.flatMap(g => g.sessions)
+    : todaySessions;
+
+  // --- Key Stats Calculation ---
+  // For demo, use random/sum P&L for synthetic and 0 for mock
+  const getPnl = (session: any) => {
+    const val = Number(session.pnl);
+    return Number.isFinite(val) ? val : 0;
+  };
+  const sessionPnls = visibleSessions.map(getPnl);
+  const totalPnl = sessionPnls.reduce((a, b) => a + b, 0);
+  const avgPnlSession = sessionPnls.length ? totalPnl / sessionPnls.length : 0;
+  const totalTrades = visibleSessions.reduce((a, s) => a + (s.trades || 0), 0);
+  const avgPnlTrade = totalTrades ? totalPnl / totalTrades : 0;
+  const bestSession = sessionPnls.length ? Math.max(...sessionPnls) : 0;
+  const worstSession = sessionPnls.length ? Math.min(...sessionPnls) : 0;
+  const goalCounts = visibleSessions.reduce((acc, s) => {
+    acc[s.goal] = (acc[s.goal] || 0) + 1;
+    return acc;
+  }, {} as Record<string, number>);
+  const mostFrequentGoal = Object.entries(goalCounts).sort((a, b) => b[1] - a[1])[0]?.[0] || '-';
+
+  // --- Chart Data ---
+  // P&L Over Time (Equity Curve)
+  let cumulative = 0;
+  const equityCurve = sessionPnls.map((pnl, i) => {
+    cumulative += pnl;
+    return { name: `S${i + 1}`, pnl: cumulative };
+  });
+  // Performance by Goal
+  const goalStats: Record<string, { total: number; count: number }> = {};
+  visibleSessions.forEach(s => {
+    if (!goalStats[s.goal]) goalStats[s.goal] = { total: 0, count: 0 };
+    goalStats[s.goal].total += getPnl(s);
+    goalStats[s.goal].count += 1;
+  });
+  const perfByGoal = Object.entries(goalStats).map(([goal, stat]) => ({
+    goal,
+    avgPnl: stat.count ? stat.total / stat.count : 0,
+  }));
+
+  // --- Panel Styles ---
+  const panelBg = 'bg-gray-950';
+
   return (
     <div className="min-h-screen bg-gray-900 text-white p-6">
       <div className="max-w-7xl mx-auto">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-8">
+        {/* Header and Top Controls */}
+        <div className="mb-8 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div>
             <h1 className="text-3xl font-bold text-blue-300">MBS Session History</h1>
+            <p className="text-gray-400 mt-2">Review your Mindful Business Strategy trading sessions.</p>
           </div>
-          <div className="flex gap-3">
+          <div className="flex gap-2 items-center">
+            <Button variant="primary" onClick={() => setShowPerformance(v => !v)} className="flex items-center gap-2">
+              <ChartIcon className="w-5 h-5" />
+              {showPerformance ? 'Hide Performance Overview' : 'Show Performance Overview'}
+            </Button>
             <Button
               variant="secondary"
               onClick={() => setShowClearConfirm(true)}
@@ -467,6 +520,73 @@ const MBSHistoryPage: React.FC = () => {
               Clear History
             </Button>
           </div>
+        </div>
+
+        {/* Performance Overview Panel */}
+        <div
+          className={`overflow-hidden transition-all duration-500 ${showPerformance ? 'max-h-[1000px] opacity-100 my-6' : 'max-h-0 opacity-0 my-0'} ${panelBg} rounded-lg border border-gray-700`}
+          aria-hidden={!showPerformance}
+        >
+          {showPerformance && (
+            <div className="flex flex-col md:flex-row gap-8 p-8">
+              {/* Key Stats */}
+              <div className="flex-1 min-w-[250px]">
+                <h3 className="text-lg font-bold mb-4 text-blue-200">Key Stats</h3>
+                <div className="space-y-2">
+                  <div>
+                    <span className="text-gray-400">Total Net P&amp;L:</span>
+                    <span className={`ml-2 text-2xl font-bold ${totalPnl >= 0 ? 'text-green-400' : 'text-red-400'}`}>{totalPnl.toFixed(2)}</span>
+                  </div>
+                  <div>
+                    <span className="text-gray-400">Avg P&amp;L per Session:</span>
+                    <span className="ml-2 text-lg">{avgPnlSession.toFixed(2)}</span>
+                  </div>
+                  <div>
+                    <span className="text-gray-400">Avg P&amp;L per Trade:</span>
+                    <span className="ml-2 text-lg">{avgPnlTrade.toFixed(2)}</span>
+                  </div>
+                  <div>
+                    <span className="text-gray-400">Best Session (P&amp;L):</span>
+                    <span className="ml-2 text-green-400">{bestSession.toFixed(2)}</span>
+                  </div>
+                  <div>
+                    <span className="text-gray-400">Worst Session (P&amp;L):</span>
+                    <span className="ml-2 text-red-400">{worstSession.toFixed(2)}</span>
+                  </div>
+                  <div>
+                    <span className="text-gray-400">Most Frequent Goal:</span>
+                    <span className="ml-2 text-blue-300">{mostFrequentGoal}</span>
+                  </div>
+                </div>
+              </div>
+              {/* Visual Charts */}
+              <div className="flex-1 min-w-[300px]">
+                <h3 className="text-lg font-bold mb-4 text-blue-200">Visual Charts</h3>
+                <div className="mb-6">
+                  <div className="text-gray-400 mb-1">P&amp;L Over Time</div>
+                  <ResponsiveContainer width="100%" height={180}>
+                    <LineChart data={equityCurve} margin={{ left: 0, right: 0, top: 10, bottom: 0 }}>
+                      <XAxis dataKey="name" stroke="#888" fontSize={12} />
+                      <YAxis stroke="#888" fontSize={12} />
+                      <Tooltip />
+                      <Line type="monotone" dataKey="pnl" stroke="#34d399" strokeWidth={2} dot={false} />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </div>
+                <div>
+                  <div className="text-gray-400 mb-1">Performance by Goal</div>
+                  <ResponsiveContainer width="100%" height={180}>
+                    <BarChart data={perfByGoal} layout="vertical" margin={{ left: 0, right: 0, top: 10, bottom: 0 }}>
+                      <XAxis type="number" stroke="#888" fontSize={12} />
+                      <YAxis dataKey="goal" type="category" stroke="#888" fontSize={12} width={120} />
+                      <Tooltip />
+                      <Bar dataKey="avgPnl" fill="#6366f1" />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Stats Overview */}
