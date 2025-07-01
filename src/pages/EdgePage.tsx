@@ -1,15 +1,15 @@
 import React, { useState } from 'react';
-import { Trade, TagGroup } from '../types';
+import { Trade, AdvancedTagGroup } from '../types';
 import { EdgeDiscoveryDashboard } from '../components/analysis/EdgeDiscoveryDashboard';
 
 interface EdgePageProps {
   initialTrades: Trade[];
-  initialTagGroups: TagGroup[];
+  initialTagGroups: AdvancedTagGroup[];
 }
 
 const EdgePage: React.FC<EdgePageProps> = ({ initialTrades, initialTagGroups }) => {
   const [trades, setTrades] = useState<Trade[]>(initialTrades);
-  const [tagGroups, setTagGroups] = useState<TagGroup[]>(initialTagGroups);
+  const [tagGroups, setTagGroups] = useState<AdvancedTagGroup[]>(initialTagGroups);
 
   // Add any edge-specific handlers here
 

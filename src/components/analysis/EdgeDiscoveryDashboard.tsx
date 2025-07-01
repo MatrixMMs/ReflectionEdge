@@ -1,20 +1,25 @@
 import React, { useState, useMemo } from 'react';
-import { Trade, TagGroup } from '../../types';
+import { Trade, AdvancedTagGroup, TagCategory } from '../../types';
 import { discoverEdges, EdgeDiscoveryResult, EdgeAnalysis, MarketCondition, BehavioralPattern } from '../../utils/edgeDiscovery';
-import { TrendingUpIcon, ShieldCheckIcon, ExclamationTriangleIcon, LightBulbIcon, ClockIcon, FilterIcon, ChevronDownIcon, ChevronUpIcon } from '../ui/Icons';
+import { TrendingUpIcon, ShieldCheckIcon, ExclamationTriangleIcon, LightBulbIcon, ClockIcon, FilterIcon, ChevronDownIcon, ChevronUpIcon, BrainIcon } from '../ui/Icons';
 import { filterTradesByDateAndTags } from '../../utils/chartDataProcessor';
+import { ADVANCED_TAGS } from '../../constants/advancedTags';
 
 interface EdgeDiscoveryDashboardProps {
   trades: Trade[];
-  tagGroups: TagGroup[];
+  tagGroups: AdvancedTagGroup[];
 }
 
-export const EdgeDiscoveryDashboard: React.FC<EdgeDiscoveryDashboardProps> = ({ trades, tagGroups }) => {
+export const EdgeDiscoveryDashboard: React.FC<EdgeDiscoveryDashboardProps> = ({ 
+  trades, 
+  tagGroups = ADVANCED_TAGS 
+}) => {
   const [startDate, setStartDate] = useState<string | null>(null);
   const [endDate, setEndDate] = useState<string | null>(null);
   const [selectedTags, setSelectedTags] = useState<{[groupId: string]: string[]}>({});
   const [tagFilterLogic, setTagFilterLogic] = useState<'AND' | 'OR'>('OR');
-  const [collapsedGroups, setCollapsedGroups] = React.useState<{ [groupId: string]: boolean }>({});
+  const [collapsedCategories, setCollapsedCategories] = React.useState<{ [category: string]: boolean }>({});
+  const [searchQuery, setSearchQuery] = useState('');
   
   const handleTagChange = (groupId: string, subTagId: string) => {
     setSelectedTags(prev => {
@@ -32,9 +37,23 @@ export const EdgeDiscoveryDashboard: React.FC<EdgeDiscoveryDashboardProps> = ({ 
     });
   };
 
-  const toggleGroupCollapse = (groupId: string) => {
-    setCollapsedGroups(prev => ({ ...prev, [groupId]: !prev[groupId] }));
+  const handleAdvancedTagSelect = (category: TagCategory, groupId: string, tagId: string) => {
+    handleTagChange(groupId, tagId);
   };
+
+  const isTagSelected = (category: TagCategory, groupId: string, tagId: string) => {
+    return selectedTags[groupId]?.includes(tagId) || false;
+  };
+
+  const toggleCategoryCollapse = (category: string) => {
+    setCollapsedCategories(prev => ({ ...prev, [category]: !prev[category] }));
+  };
+
+  const filteredAdvancedTags = tagGroups.filter(group => {
+    if (!searchQuery) return true;
+    return group.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+           group.subtags.some(tag => tag.name.toLowerCase().includes(searchQuery.toLowerCase()));
+  });
 
   const filteredTrades = useMemo(() => {
     const dateRange = {
@@ -115,6 +134,7 @@ export const EdgeDiscoveryDashboard: React.FC<EdgeDiscoveryDashboardProps> = ({ 
         <h3 className="text-lg font-semibold mb-4 text-gray-100 flex items-center gap-2">
           <FilterIcon className="w-5 h-5" />
           Filter Analysis
+          <span className="text-sm text-blue-400">(Advanced Tags)</span>
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
           <div>
@@ -155,51 +175,127 @@ export const EdgeDiscoveryDashboard: React.FC<EdgeDiscoveryDashboardProps> = ({ 
               AND (all selected tags)
             </button>
           </div>
-          {/* Tag Filters */}
-          <div className="space-y-3">
-            {tagGroups.filter(g => g.subtags.length > 0).map(group => {
-              const isCollapsed = collapsedGroups[group.id] || false;
-              return (
-                <div key={group.id} className="bg-gray-800 border border-gray-700 rounded-xl shadow-sm">
-                  <button
-                    type="button"
-                    className="w-full flex items-center justify-between px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500 rounded-t-xl"
-                    onClick={() => toggleGroupCollapse(group.id)}
-                    aria-expanded={!isCollapsed}
-                    aria-controls={`tag-group-${group.id}`}
-                    style={{ border: 'none', boxShadow: 'none', background: 'none' }}
-                  >
-                    <span className="text-xs font-semibold text-gray-200 tracking-wide">{group.name}</span>
-                    {isCollapsed ? (
-                      <ChevronDownIcon className="w-4 h-4 text-gray-400" />
-                    ) : (
-                      <ChevronUpIcon className="w-4 h-4 text-gray-400" />
-                    )}
-                  </button>
-                  {!isCollapsed && (
-                    <>
-                      <div className="border-t border-gray-700 mx-2" />
-                      <div id={`tag-group-${group.id}`} className="flex flex-wrap gap-2 px-4 pb-3 pt-3">
-                        {group.subtags.map(subtag => (
-                          <button
-                            key={subtag.id}
-                            type="button"
-                            onClick={() => handleTagChange(group.id, subtag.id)}
-                            className={`px-3 py-1 rounded-full text-xs font-semibold transition-colors mr-2 mb-2 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-purple-500 ${
-                              selectedTags[group.id]?.includes(subtag.id)
-                                ? 'bg-gray-700 text-white'
-                                : 'bg-gray-600 text-white hover:bg-gray-500'
-                            }`}
-                          >
-                            {subtag.name}
-                          </button>
-                        ))}
-                      </div>
-                    </>
+
+          {/* Search Bar */}
+          <div className="mb-4">
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={e => setSearchQuery(e.target.value)}
+              placeholder="Search tags..."
+              className="w-full bg-gray-700 border border-gray-600 text-gray-100 rounded p-2"
+            />
+          </div>
+
+          {/* Advanced Tag System */}
+          <div className="space-y-4">
+            {/* Objective Tags */}
+            <div>
+              <div className="flex items-center justify-between">
+                <button
+                  onClick={() => toggleCategoryCollapse('objective')}
+                  className="flex items-center space-x-2 text-lg font-semibold text-blue-400 hover:text-blue-300"
+                >
+                  {collapsedCategories['objective'] ? (
+                    <ChevronDownIcon className="w-5 h-5" />
+                  ) : (
+                    <ChevronUpIcon className="w-5 h-5" />
                   )}
+                  <LightBulbIcon className="w-5 h-5" />
+                  <span>Objective Tags (Market's Story)</span>
+                </button>
+              </div>
+
+              {!collapsedCategories['objective'] && (
+                <div className="ml-6 space-y-4 mt-3">
+                  {filteredAdvancedTags
+                    .filter(group => group.category === 'objective')
+                    .map(group => (
+                      <div key={group.id} className="bg-gray-800 p-4 rounded-lg border-l-4 border-blue-500">
+                        <div className="flex justify-between items-center mb-3">
+                          <h4 className="text-md font-medium text-blue-300">
+                            {group.name}
+                            <span className="ml-2 text-xs text-gray-400">({group.subcategory.replace('_', ' ')})</span>
+                          </h4>
+                          <span className="text-xs text-gray-400">{group.subtags.length} tags</span>
+                        </div>
+                        <p className="text-sm text-gray-400 mb-3">{group.description}</p>
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
+                          {group.subtags.map(tag => (
+                            <button
+                              key={tag.id}
+                              onClick={() => handleAdvancedTagSelect('objective', group.id, tag.id)}
+                              className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+                                isTagSelected('objective', group.id, tag.id)
+                                  ? 'ring-2 ring-blue-400 ring-offset-2 ring-offset-gray-800'
+                                  : 'hover:bg-gray-700'
+                              }`}
+                              style={{ backgroundColor: tag.color }}
+                              title={tag.description}
+                            >
+                              {tag.name}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
                 </div>
-              );
-            })}
+              )}
+            </div>
+
+            {/* Subjective Tags */}
+            <div>
+              <div className="flex items-center justify-between">
+                <button
+                  onClick={() => toggleCategoryCollapse('subjective')}
+                  className="flex items-center space-x-2 text-lg font-semibold text-orange-400 hover:text-orange-300"
+                >
+                  {collapsedCategories['subjective'] ? (
+                    <ChevronDownIcon className="w-5 h-5" />
+                  ) : (
+                    <ChevronUpIcon className="w-5 h-5" />
+                  )}
+                  <BrainIcon className="w-5 h-5" />
+                  <span>Subjective Tags (Trader's Story)</span>
+                </button>
+              </div>
+
+              {!collapsedCategories['subjective'] && (
+                <div className="ml-6 space-y-4 mt-3">
+                  {filteredAdvancedTags
+                    .filter(group => group.category === 'subjective')
+                    .map(group => (
+                      <div key={group.id} className="bg-gray-800 p-4 rounded-lg border-l-4 border-orange-500">
+                        <div className="flex justify-between items-center mb-3">
+                          <h4 className="text-md font-medium text-orange-300">
+                            {group.name}
+                            <span className="ml-2 text-xs text-gray-400">({group.subcategory.replace('_', ' ')})</span>
+                          </h4>
+                          <span className="text-xs text-gray-400">{group.subtags.length} tags</span>
+                        </div>
+                        <p className="text-sm text-gray-400 mb-3">{group.description}</p>
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
+                          {group.subtags.map(tag => (
+                            <button
+                              key={tag.id}
+                              onClick={() => handleAdvancedTagSelect('subjective', group.id, tag.id)}
+                              className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+                                isTagSelected('subjective', group.id, tag.id)
+                                  ? 'ring-2 ring-orange-400 ring-offset-2 ring-offset-gray-800'
+                                  : 'hover:bg-gray-700'
+                              }`}
+                              style={{ backgroundColor: tag.color }}
+                              title={tag.description}
+                            >
+                              {tag.name}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                </div>
+              )}
+            </div>
           </div>
         </div>
         <button
@@ -207,6 +303,7 @@ export const EdgeDiscoveryDashboard: React.FC<EdgeDiscoveryDashboardProps> = ({ 
             setStartDate(null);
             setEndDate(null);
             setSelectedTags({});
+            setSearchQuery('');
           }}
           className="text-sm text-gray-400 hover:text-white transition-colors"
         >

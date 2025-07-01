@@ -1,32 +1,39 @@
 import React from 'react';
-import { Trade, TagGroup, SubTag, AppDateRange, TradeDirectionFilterSelection } from '../../types';
+import { Trade, AdvancedTagGroup, AdvancedSubTag, AppDateRange, TradeDirectionFilterSelection, TagCategory } from '../../types';
 import { calculateSharpeRatio } from '../../utils/financialCalculations';
-import { AcademicCapIcon } from '../ui/Icons'; // Using TagIcon or another existing one
+import { AcademicCapIcon } from '../ui/Icons';
+import { ADVANCED_TAGS } from '../../constants/advancedTags';
 
 interface TagPerformanceProps {
   trades: Trade[];
-  tagGroups: TagGroup[];
+  tagGroups: AdvancedTagGroup[];
   chartDateRange: AppDateRange;
   directionFilter: TradeDirectionFilterSelection;
 }
 
 interface TagPerformanceData {
-  subTag: SubTag;
+  subTag: AdvancedSubTag;
   totalPnl: number;
   tradeCount: number;
   sharpeRatio: number | null;
+  category: TagCategory;
+  groupName: string;
 }
 
 const formatSharpeRatioValue = (sharpe: number | null): string => {
   if (sharpe === null) return "N/A";
   if (sharpe === Infinity) return "High (∞)";
   if (sharpe === -Infinity) return "Low (-∞)";
-  if (isNaN(sharpe)) return "N/A"; // Should not happen with current calc logic if null handles NaN path
+  if (isNaN(sharpe)) return "N/A";
   return sharpe.toFixed(2);
 };
 
-
-export const TagPerformance: React.FC<TagPerformanceProps> = ({ trades, tagGroups, chartDateRange, directionFilter }) => {
+export const TagPerformance: React.FC<TagPerformanceProps> = ({ 
+  trades, 
+  tagGroups = ADVANCED_TAGS, 
+  chartDateRange, 
+  directionFilter
+}) => {
   const performanceData: TagPerformanceData[] = [];
 
   const tradesInDateRange = trades.filter(trade => {
@@ -41,9 +48,15 @@ export const TagPerformance: React.FC<TagPerformanceProps> = ({ trades, tagGroup
 
   tagGroups.forEach(group => {
     group.subtags.forEach(subTag => {
-      let filteredTradesForTag = tradesInDateRange.filter(trade => 
-        Object.values(trade.tags).includes(subTag.id)
-      );
+      // For advanced tags, check both objective and subjective tags
+      let filteredTradesForTag = tradesInDateRange.filter(trade => {
+        const objectiveTags = trade.objectiveTags || {};
+        const subjectiveTags = trade.subjectiveTags || {};
+        
+        // Check if this tag is in any of the objective or subjective tag groups
+        const allTagGroups = { ...objectiveTags, ...subjectiveTags };
+        return Object.values(allTagGroups).flat().includes(subTag.id);
+      });
 
       if (directionFilter !== 'all') {
         filteredTradesForTag = filteredTradesForTag.filter(trade => trade.direction === directionFilter);
@@ -59,6 +72,8 @@ export const TagPerformance: React.FC<TagPerformanceProps> = ({ trades, tagGroup
           totalPnl,
           tradeCount: filteredTradesForTag.length,
           sharpeRatio: sharpe,
+          category: group.category,
+          groupName: group.name,
         });
       }
     });
@@ -68,7 +83,9 @@ export const TagPerformance: React.FC<TagPerformanceProps> = ({ trades, tagGroup
     return (
       <div className="bg-gray-800 p-6 rounded-xl shadow-2xl">
         <h2 className="text-2xl font-semibold mb-4 text-yellow-400 flex items-center">
-          <AcademicCapIcon className="w-6 h-6 mr-2" /> Tag Performance
+          <AcademicCapIcon className="w-6 h-6 mr-2" /> 
+          Tag Performance
+          <span className="text-sm text-blue-400 ml-2">(Advanced)</span>
         </h2>
         <p className="text-gray-500 text-sm">
           No trades with tags found in the selected date range {directionFilter !== 'all' ? `(${directionFilter} only)`: ''}.
@@ -77,23 +94,42 @@ export const TagPerformance: React.FC<TagPerformanceProps> = ({ trades, tagGroup
     );
   }
   
-  // Sort by subtag name for consistent display
-  performanceData.sort((a,b) => a.subTag.name.localeCompare(b.subTag.name));
+  // Sort by category first, then by name
+  performanceData.sort((a, b) => {
+    if (a.category !== b.category) {
+      return a.category.localeCompare(b.category);
+    }
+    return a.subTag.name.localeCompare(b.subTag.name);
+  });
 
   return (
     <div className="bg-gray-800 p-6 rounded-xl shadow-2xl">
       <h2 className="text-2xl font-semibold mb-4 text-yellow-400 flex items-center">
-        <AcademicCapIcon className="w-6 h-6 mr-2" /> Tag Performance
+        <AcademicCapIcon className="w-6 h-6 mr-2" /> 
+        Tag Performance
+        <span className="text-sm text-blue-400 ml-2">(Advanced)</span>
       </h2>
       <div className="space-y-3 max-h-96 overflow-y-auto pr-2">
         {performanceData.map(item => (
           <div key={item.subTag.id} className="p-3 bg-gray-700 rounded-lg shadow">
             <div className="flex justify-between items-center mb-1">
-              <span className="font-semibold text-md px-3 py-1 rounded-full bg-gray-600 text-white">
-                {item.subTag.name}
-              </span>
+              <div className="flex items-center space-x-2">
+                <span 
+                  className="font-semibold text-md px-3 py-1 rounded-full text-white"
+                  style={{ backgroundColor: item.subTag.color }}
+                >
+                  {item.subTag.name}
+                </span>
+                <span className={`text-xs px-2 py-1 rounded ${
+                  item.category === 'objective' 
+                    ? 'bg-blue-900 text-blue-200' 
+                    : 'bg-orange-900 text-orange-200'
+                }`}>
+                  {item.category}
+                </span>
+              </div>
               <span className="text-xs text-gray-400">
-                {tagGroups.find(tg => tg.id === item.subTag.groupId)?.name}
+                {item.groupName}
               </span>
             </div>
             <div className="text-xs grid grid-cols-3 gap-2 text-gray-300">
@@ -116,7 +152,7 @@ export const TagPerformance: React.FC<TagPerformanceProps> = ({ trades, tagGroup
         ))}
       </div>
        <p className="text-xs text-gray-400 mt-2 text-center">
-        For trades in selected date range{directionFilter !== 'all' ? ` (${directionFilter} only)` : ''}. Sharpe Ratio based on P&Ls.
+        For trades in selected date range{directionFilter !== 'all' ? ` (${directionFilter} only)` : ''}. Sharpe Ratio based on P&Ls. Advanced tagging system active.
        </p>
     </div>
   );
