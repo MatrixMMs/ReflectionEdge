@@ -28,7 +28,9 @@ import ExecutionPage from './pages/ExecutionPage';
 import BestWorstPage from './pages/BestWorstPage';
 import ExportPage from './pages/ExportPage';
 import SettingsPage from './pages/SettingsPage';
+import MBSHistoryPage from './pages/MBSHistoryPage';
 import { TradeForm } from './components/trades/TradeForm';
+import { createMBSSession, saveMBSSession } from './utils/mbsHistory';
 
 // Helper to normalize CSV headers for detection
 const normalizeHeader = (header: string): string => header.toLowerCase().replace(/\s+/g, '').replace(/\//g, '');
@@ -58,6 +60,7 @@ const App: React.FC = () => {
   const [mbsNote, setMbsNote] = useState('');
   const [mbsGoal, setMbsGoal] = useState('');
   const [mbsSessionActive, setMbsSessionActive] = useState(false);
+  const [mbsSessionStartTime, setMbsSessionStartTime] = useState<string>('');
   const [showPostSessionReview, setShowPostSessionReview] = useState(false);
   const [mbsSessionHistory, setMbsSessionHistory] = useState<any[]>([]);
 
@@ -369,6 +372,10 @@ const App: React.FC = () => {
               path="/settings"
               element={<SettingsPage initialSettings={{}} />}
             />
+            <Route
+              path="/mbs-history"
+              element={<MBSHistoryPage />}
+            />
             <Route path="*" element={<Navigate to="/" />} />
           </Routes>
 
@@ -415,7 +422,8 @@ const App: React.FC = () => {
                     onBeginTrading={() => {
                       setIsMBSModalOpen(false);
                       setMbsStep(1);
-                    setMbsSessionActive(true);
+                      setMbsSessionActive(true);
+                      setMbsSessionStartTime(new Date().toISOString());
                     }}
                     sessionGoal={mbsGoal}
                   />
@@ -429,6 +437,25 @@ const App: React.FC = () => {
                 isOpen={mbsSessionActive}
                 sessionGoal={mbsGoal}
                 onEndSession={(sessionTrades: any[]) => {
+                  const endTime = new Date().toISOString();
+                  const startTime = new Date(mbsSessionStartTime);
+                  const endTimeDate = new Date(endTime);
+                  const durationMs = endTimeDate.getTime() - startTime.getTime();
+                  const hours = Math.floor(durationMs / (1000 * 60 * 60));
+                  const minutes = Math.floor((durationMs % (1000 * 60 * 60)) / (1000 * 60));
+                  const seconds = Math.floor((durationMs % (1000 * 60)) / 1000);
+                  const sessionDuration = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+                  
+                  // Create and save the MBS session
+                  const mbsSession = createMBSSession(
+                    mbsGoal,
+                    sessionTrades,
+                    mbsSessionStartTime,
+                    endTime,
+                    sessionDuration
+                  );
+                  saveMBSSession(mbsSession);
+                  
                   setMbsSessionActive(false);
                   setShowPostSessionReview(true);
                   setMbsSessionHistory(sessionTrades);
