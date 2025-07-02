@@ -260,7 +260,7 @@ const Sidebar: React.FC<SidebarProps> = ({
             style={{
               display: 'inline-block',
               transition: 'transform 0.4s cubic-bezier(0.4,0,0.2,1)',
-              transform: sidebarCollapsed ? 'rotate(0deg)' : 'rotate(-180deg)'
+              transform: sidebarCollapsed ? 'rotate(180deg)' : 'rotate(0deg)'
             }}
           >
             <ChevronLeft className="w-6 h-6" />
