@@ -93,6 +93,11 @@ const Sidebar: React.FC<SidebarProps> = ({
             <span className={`sidebar-label ml-3 ${sidebarCollapsed ? 'collapsed' : 'expanded'}`}>Dashboard</span>
             {sidebarCollapsed && <span className="sidebar-tooltip">Dashboard</span>}
           </Link>
+          <Link to="/dashboard-test" className="group relative flex items-center w-full justify-start px-3 py-2 rounded-lg hover:bg-gray-700 transition-colors">
+            <CustomDashboardIcon className={`w-5 h-5 flex-shrink-0 transition-all duration-300 ${sidebarCollapsed ? 'ml-2' : ''}`} />
+            <span className={`sidebar-label ml-3 ${sidebarCollapsed ? 'collapsed' : 'expanded'}`}>Dashboard Test</span>
+            {sidebarCollapsed && <span className="sidebar-tooltip">Dashboard Test</span>}
+          </Link>
         </nav>
         
         {/* Divider below Dashboard */}
@@ -255,7 +260,7 @@ const Sidebar: React.FC<SidebarProps> = ({
             style={{
               display: 'inline-block',
               transition: 'transform 0.4s cubic-bezier(0.4,0,0.2,1)',
-              transform: sidebarCollapsed ? 'rotate(0deg)' : 'rotate(-180deg)'
+              transform: sidebarCollapsed ? 'rotate(180deg)' : 'rotate(0deg)'
             }}
           >
             <ChevronLeft className="w-6 h-6" />
