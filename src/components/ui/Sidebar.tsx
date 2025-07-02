@@ -112,6 +112,11 @@ const Sidebar: React.FC<SidebarProps> = ({
               <span className={`sidebar-label ml-3 ${sidebarCollapsed ? 'collapsed' : 'expanded'}`}>Playbook</span>
               {sidebarCollapsed && <span className="sidebar-tooltip">Playbook</span>}
             </Link>
+            <Link to="/playbook-sandbox" className="group relative flex items-center w-full justify-start px-3 py-2 rounded-lg hover:bg-gray-700 transition-colors">
+              <CustomPlaybookIcon className={`w-5 h-5 flex-shrink-0 transition-all duration-300 ${sidebarCollapsed ? 'ml-2' : ''}`} />
+              <span className={`sidebar-label ml-3 ${sidebarCollapsed ? 'collapsed' : 'expanded'}`}>Playbook Sandbox</span>
+              {sidebarCollapsed && <span className="sidebar-tooltip">Playbook Sandbox</span>}
+            </Link>
             <Link to="/tags" className="group relative flex items-center w-full justify-start px-3 py-2 rounded-lg hover:bg-gray-700 transition-colors">
               <CustomTagsIcon className={`w-5 h-5 flex-shrink-0 transition-all duration-300 ${sidebarCollapsed ? 'ml-2' : ''}`} />
               <span className={`sidebar-label ml-3 ${sidebarCollapsed ? 'collapsed' : 'expanded'}`}>Tags</span>

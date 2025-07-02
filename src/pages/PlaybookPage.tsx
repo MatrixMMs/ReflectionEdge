@@ -4,7 +4,6 @@ import { PlaybookList } from '../components/playbook/PlaybookList';
 import { PlaybookEditor } from '../components/playbook/PlaybookEditor';
 import { Button } from '../components/ui/Button';
 import { PlusCircleIcon } from '../components/ui/Icons';
-import PlaybookSandbox from '../components/playbook/PlaybookSandbox';
 
 interface PlaybookPageProps {
   tagGroups: TagGroup[];
@@ -16,7 +15,6 @@ const PlaybookPage: React.FC<PlaybookPageProps> = ({ tagGroups, initialPlaybookE
   const [selectedPlaybookEntry, setSelectedPlaybookEntry] = useState<PlaybookEntry | null>(null);
   const [isAddingPlaybook, setIsAddingPlaybook] = useState(false);
   const [isEditingPlaybook, setIsEditingPlaybook] = useState(false);
-  const [showSandbox, setShowSandbox] = useState(false);
 
   const handleAddPlaybookEntry = (entry: Omit<PlaybookEntry, 'id' | 'createdAt' | 'updatedAt'>) => {
     const now = new Date().toISOString();
@@ -68,7 +66,6 @@ const PlaybookPage: React.FC<PlaybookPageProps> = ({ tagGroups, initialPlaybookE
   };
 
   const handleAdd = () => {
-    setShowSandbox(true);
     setIsAddingPlaybook(false);
     setIsEditingPlaybook(false);
     setSelectedPlaybookEntry(null);
@@ -91,26 +88,11 @@ const PlaybookPage: React.FC<PlaybookPageProps> = ({ tagGroups, initialPlaybookE
             >
               Add Strategy
             </Button>
-            <Button
-              onClick={() => setShowSandbox(true)}
-              variant="secondary"
-            >
-              Open Playbook Sandbox
-            </Button>
           </div>
         </div>
         {/* Content */}
         <div className="bg-gray-800 rounded-xl shadow-2xl p-6">
-          {showSandbox ? (
-            <>
-              <div className="flex justify-end mb-4">
-                <Button variant="secondary" onClick={() => setShowSandbox(false)}>
-                  Close Sandbox
-                </Button>
-              </div>
-              <PlaybookSandbox />
-            </>
-          ) : isAddingPlaybook || isEditingPlaybook || selectedPlaybookEntry ? (
+          {isAddingPlaybook || isEditingPlaybook || selectedPlaybookEntry ? (
             <PlaybookEditor
               entry={selectedPlaybookEntry || undefined}
               onSave={handleSave}

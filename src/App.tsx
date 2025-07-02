@@ -32,6 +32,7 @@ import MBSHistoryPage from './pages/MBSHistoryPage';
 import { TradeForm } from './components/trades/TradeForm';
 import { createMBSSession, saveMBSSession } from './utils/mbsHistory';
 import DashboardTestPage from './pages/DashboardTestPage';
+import PlaybookSandboxPage from './pages/PlaybookSandboxPage';
 
 // Helper to normalize CSV headers for detection
 const normalizeHeader = (header: string): string => header.toLowerCase().replace(/\s+/g, '').replace(/\//g, '');
@@ -380,6 +381,10 @@ const App: React.FC = () => {
             <Route
               path="/mbs-history"
               element={<MBSHistoryPage />}
+            />
+            <Route
+              path="/playbook-sandbox"
+              element={<PlaybookSandboxPage />}
             />
             <Route path="*" element={<Navigate to="/" />} />
           </Routes>

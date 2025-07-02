@@ -13,9 +13,10 @@ import ReactFlow, {
   Handle,
   Position,
 } from 'react-flow-renderer';
+import { initialNodes, initialEdges } from '../../data/initialPlaybookNodes';
 
 // --- Node type schema ---
-type NodeType =
+export type NodeType =
   | 'philosophy'
   | 'setup'
   | 'criteria'
@@ -23,7 +24,7 @@ type NodeType =
   | 'review'
   | 'process';
 
-interface PlaybookNodeData {
+export interface PlaybookNodeData {
   type: NodeType;
   name: string;
   description?: string;
@@ -95,21 +96,6 @@ const PlaybookCardNode: React.FC<NodeProps<PlaybookNodeData>> = ({ data, id }) =
 const nodeTypes = {
   playbookCard: PlaybookCardNode,
 };
-
-const initialNodes: Node<PlaybookNodeData>[] = [
-  {
-    id: '1',
-    type: 'playbookCard',
-    data: {
-      type: 'philosophy',
-      name: 'Protect Capital',
-      description: 'Rule #1: Don\'t lose money. Rule #2: Follow the process.',
-    },
-    position: { x: 250, y: 5 },
-  },
-];
-
-const initialEdges: Edge[] = [];
 
 const LOCAL_STORAGE_KEY = 'playbook-mindmap';
 
@@ -418,7 +404,7 @@ const PlaybookSandbox: React.FC = () => {
   };
 
   return (
-    <div style={{ width: '100%', height: '80vh', background: '#18181b', borderRadius: 12, position: 'relative' }}>
+    <div style={{ width: '100%', height: '100vh', background: '#18181b', borderRadius: 12, position: 'relative' }}>
       {/* Toolbar */}
       <div style={{
         position: 'absolute',
