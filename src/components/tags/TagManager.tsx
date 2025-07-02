@@ -5,6 +5,7 @@ import { Button } from '../ui/Button';
 import { ColorPicker } from '../ui/ColorPicker';
 import { PlusCircleIcon, TrashIcon, ChevronDownIcon, ChevronUpIcon, LightBulbIcon, BrainIcon } from '../ui/Icons';
 import { ADVANCED_TAGS } from '../../constants/advancedTags';
+import { TagTemplate } from '../../types/advancedTags';
 
 interface TagManagerProps {
   tagGroups: TagGroup[];
@@ -32,6 +33,12 @@ export const TagManager: React.FC<TagManagerProps> = ({
   const [newSubTagName, setNewSubTagName] = useState<{ [groupId: string]: string }>({});
   const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set(['objective']));
   const [searchQuery, setSearchQuery] = useState('');
+  const [templates, setTemplates] = useState<TagTemplate[]>(() => {
+    const saved = localStorage.getItem('tagTemplates');
+    return saved ? JSON.parse(saved) : [];
+  });
+  const [showTemplateModal, setShowTemplateModal] = useState(false);
+  const [editingTemplate, setEditingTemplate] = useState<TagTemplate | null>(null);
 
   const handleAddGroup = () => {
     if (newGroupName.trim()) {
@@ -80,6 +87,38 @@ export const TagManager: React.FC<TagManagerProps> = ({
     return group.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
            group.subtags.some(tag => tag.name.toLowerCase().includes(searchQuery.toLowerCase()));
   });
+
+  const saveTemplates = (newTemplates: TagTemplate[]) => {
+    setTemplates(newTemplates);
+    localStorage.setItem('tagTemplates', JSON.stringify(newTemplates));
+  };
+
+  const handleCreateTemplate = () => {
+    setEditingTemplate(null);
+    setShowTemplateModal(true);
+  };
+  const handleEditTemplate = (template: TagTemplate) => {
+    setEditingTemplate(template);
+    setShowTemplateModal(true);
+  };
+  const handleDeleteTemplate = (id: string) => {
+    const newTemplates = templates.filter(t => t.id !== id);
+    saveTemplates(newTemplates);
+  };
+  const handleSaveTemplate = (template: TagTemplate) => {
+    let newTemplates;
+    if (editingTemplate) {
+      newTemplates = templates.map(t => t.id === template.id ? template : t);
+    } else {
+      newTemplates = [...templates, { ...template, id: Date.now().toString() }];
+    }
+    saveTemplates(newTemplates);
+    setShowTemplateModal(false);
+  };
+  const handleApplyTemplate = (template: TagTemplate) => {
+    // This should trigger tag selection in the parent, but for now just log
+    alert('Apply template: ' + template.name);
+  };
 
   return (
     <div className="space-y-6 text-gray-200">
@@ -140,7 +179,7 @@ export const TagManager: React.FC<TagManagerProps> = ({
                   </div>
                   <p className="text-sm text-gray-400 mb-3">{group.description}</p>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
-                    {group.subtags.map(tag => (
+                    {group.subtags.filter(tag => !tag.isDeprecated).map(tag => (
                       <button
                         key={tag.id}
                         onClick={() => handleAdvancedTagSelect('objective', group.id, tag.id)}
@@ -194,7 +233,7 @@ export const TagManager: React.FC<TagManagerProps> = ({
                   </div>
                   <p className="text-sm text-gray-400 mb-3">{group.description}</p>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
-                    {group.subtags.map(tag => (
+                    {group.subtags.filter(tag => !tag.isDeprecated).map(tag => (
                       <button
                         key={tag.id}
                         onClick={() => handleAdvancedTagSelect('subjective', group.id, tag.id)}
@@ -254,95 +293,102 @@ export const TagManager: React.FC<TagManagerProps> = ({
         </div>
       )}
 
-      {/* Legacy Tag Management (for backward compatibility with existing data) */}
-      <div className="border-t border-gray-700 pt-6">
-        <h3 className="text-lg font-semibold text-gray-300 mb-4">Legacy Tag Management</h3>
-        <div className="space-y-4">
-          <div>
-            <h4 className="text-md font-medium text-gray-300 mb-2">Add New Tag Group</h4>
-            <div className="flex space-x-2">
-              <Input 
-                type="text" 
-                value={newGroupName} 
-                onChange={e => setNewGroupName(e.target.value)} 
-                placeholder="e.g., Strategy, Time of Day"
-                className="flex-grow"
-              />
-              <Button onClick={handleAddGroup} variant="primary" size="md" leftIcon={<PlusCircleIcon className="w-5 h-5"/>}>Add Group</Button>
-            </div>
-          </div>
-
-          <div className="space-y-4">
-            <h4 className="text-md font-medium text-gray-300">Existing Tag Groups</h4>
-            {tagGroups.length === 0 && <p className="text-sm text-gray-400">No tag groups yet. Add one above to get started!</p>}
-            {tagGroups.map(group => (
-              <div key={group.id} className="bg-gray-800 p-4 rounded-lg">
-                <div className="flex justify-between items-center mb-2">
-                  <h5 className="text-sm font-medium text-gray-300">
-                    {group.name}
-                    {isDefaultGroup(group.id) && (
-                      <span className="ml-2 text-xs text-gray-400">(Default)</span>
-                    )}
-                  </h5>
-                  {!isDefaultGroup(group.id) && (
-                    <Button 
-                      onClick={() => onDeleteGroup(group.id)} 
-                      variant="ghost" 
-                      size="sm"
-                      className="text-red-500 hover:text-red-400"
-                    >
-                      <TrashIcon className="w-5 h-5" />
-                    </Button>
-                  )}
+      <div className="mb-8">
+        <div className="flex items-center justify-between mb-2">
+          <h3 className="text-lg font-semibold text-purple-300">Tag Templates</h3>
+          <Button onClick={handleCreateTemplate} variant="primary" size="sm">Create New Template</Button>
+        </div>
+        {templates.length === 0 ? (
+          <div className="text-gray-400 text-sm">No templates yet.</div>
+        ) : (
+          <div className="space-y-2">
+            {templates.map(template => (
+              <div key={template.id} className="bg-gray-800 p-3 rounded flex items-center justify-between">
+                <div>
+                  <div className="font-medium text-gray-100">{template.name}</div>
+                  <div className="text-xs text-gray-400">Tags: {template.objectiveTagIds.length}</div>
+                  {template.strategyId && <div className="text-xs text-blue-400">Strategy: {template.strategyId}</div>}
                 </div>
-                <div className="space-y-2">
-                  {group.subtags.map(subtag => (
-                    <div key={subtag.id} className="flex items-center justify-between space-x-2">
-                      <span 
-                        className="px-3 py-1 rounded-full text-sm font-semibold text-white"
-                        style={{ backgroundColor: subtag.color }}
-                      >
-                        {subtag.name}
-                      </span>
-                      {!isDefaultGroup(group.id) && (
-                        <Button 
-                          onClick={() => onDeleteSubTag(group.id, subtag.id)} 
-                          variant="ghost" 
-                          size="icon"
-                          className="text-red-500 hover:text-red-400"
-                          aria-label="Delete subtag"
-                        >
-                          <TrashIcon className="w-4 h-4" />
-                        </Button>
-                      )}
-                    </div>
-                  ))}
-                  {!isDefaultGroup(group.id) && (
-                    <div className="flex space-x-2 mt-2">
-                      <Input
-                        type="text"
-                        value={newSubTagName[group.id] || ''}
-                        onChange={e => setNewSubTagName(prev => ({ ...prev, [group.id]: e.target.value }))}
-                        placeholder="New subtag name"
-                        className="flex-grow"
-                      />
-                      <Button 
-                        onClick={() => handleAddSubTag(group.id)} 
-                        variant="secondary" 
-                        size="sm"
-                        leftIcon={<PlusCircleIcon className="w-4 h-4"/>}
-                      >
-                        Add
-                      </Button>
-                    </div>
-                  )}
+                <div className="flex gap-2">
+                  <Button onClick={() => handleApplyTemplate(template)} size="sm">Apply</Button>
+                  <Button onClick={() => handleEditTemplate(template)} size="sm">Edit</Button>
+                  <Button onClick={() => handleDeleteTemplate(template.id)} size="sm" variant="danger">Delete</Button>
                 </div>
               </div>
             ))}
           </div>
+        )}
+      </div>
+      {showTemplateModal && (
+        <TemplateModal
+          template={editingTemplate}
+          onSave={handleSaveTemplate}
+          onCancel={() => setShowTemplateModal(false)}
+          objectiveTagGroups={ADVANCED_TAGS.filter(g => g.category === 'objective')}
+        />
+      )}
+    </div>
+  );
+};
+
+interface TemplateModalProps {
+  template: TagTemplate | null;
+  onSave: (template: TagTemplate) => void;
+  onCancel: () => void;
+  objectiveTagGroups: AdvancedTagGroup[];
+}
+
+function TemplateModal({ template, onSave, onCancel, objectiveTagGroups }: TemplateModalProps) {
+  const [name, setName] = useState(template?.name || '');
+  const [selectedTagIds, setSelectedTagIds] = useState<string[]>(template?.objectiveTagIds || []);
+  const [strategyId, setStrategyId] = useState(template?.strategyId || '');
+
+  const toggleTag = (tagId: string) => {
+    setSelectedTagIds(ids => ids.includes(tagId) ? ids.filter(id => id !== tagId) : [...ids, tagId]);
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div className="bg-gray-900 rounded-lg w-full max-w-md max-h-[80vh] flex flex-col shadow-lg">
+        <div className="p-6 overflow-y-auto flex-1">
+          <h2 className="text-xl font-bold mb-4">{template ? 'Edit Template' : 'Create Template'}</h2>
+          <div className="mb-3">
+            <label className="block text-sm font-medium mb-1">Template Name</label>
+            <Input value={name} onChange={e => setName(e.target.value)} className="w-full" />
+          </div>
+          <div className="mb-3">
+            <label className="block text-sm font-medium mb-1">Select Objective Tags</label>
+            <div className="space-y-3">
+              {objectiveTagGroups.map((group: AdvancedTagGroup) => (
+                <div key={group.id} className="mb-2">
+                  <div className="font-semibold text-blue-300 mb-1">{group.name}</div>
+                  <div className="flex flex-wrap gap-2 mb-2">
+                    {group.subtags.map((tag: AdvancedSubTag) => (
+                      <button
+                        key={tag.id}
+                        onClick={() => toggleTag(tag.id)}
+                        className={`px-3 py-1 rounded-full text-xs font-semibold border ${selectedTagIds.includes(tag.id) ? 'bg-blue-500 text-white' : 'bg-gray-700 text-gray-200'}`}
+                        style={{ backgroundColor: selectedTagIds.includes(tag.id) ? tag.color : undefined }}
+                      >
+                        {tag.name}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+          <div className="mb-3">
+            <label className="block text-sm font-medium mb-1">Strategy/Playbook (optional)</label>
+            <Input value={strategyId} onChange={e => setStrategyId(e.target.value)} className="w-full" placeholder="Enter strategy or playbook name" />
+          </div>
+        </div>
+        <div className="flex justify-end gap-2 p-4 border-t border-gray-800 bg-gray-900 sticky bottom-0 z-10">
+          <Button onClick={onCancel} variant="secondary">Cancel</Button>
+          <Button onClick={() => onSave({ id: template?.id || '', name, objectiveTagIds: selectedTagIds, strategyId })} variant="primary">Save</Button>
         </div>
       </div>
     </div>
   );
-};
+}
     

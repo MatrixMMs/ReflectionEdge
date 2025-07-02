@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { Trade, TagGroup, TradeDirection, PlaybookEntry, AdvancedTagGroup } from '../../types';
+import { TagTemplate } from '../../types/advancedTags';
+import { ADVANCED_TAGS } from '../../constants/advancedTags';
 import { Input, Textarea } from '../ui/Input';
 import { Button } from '../ui/Button';
 import { PlusCircleIcon, XMarkIcon, ChevronDownIcon, ChevronUpIcon } from '../ui/Icons';
 import { validateTradeSymbol, validateNumericInput, validateDateString, validateTimeString, sanitizeString, SECURITY_CONFIG } from '../../utils/security';
 import { Modal } from '../ui/Modal';
-import { ADVANCED_TAGS } from '../../constants/advancedTags';
 
 interface TradeFormProps {
   onSubmit: (trade: Omit<Trade, 'id' | 'timeInTrade'>) => void;
@@ -42,6 +43,13 @@ export const TradeForm: React.FC<TradeFormProps> = ({ onSubmit, tagGroups, playb
     lessons: '',
     marketContext: '',
   });
+
+  // Template state
+  const [templates, setTemplates] = useState<TagTemplate[]>(() => {
+    const saved = localStorage.getItem('tagTemplates');
+    return saved ? JSON.parse(saved) : [];
+  });
+  const [selectedTemplateId, setSelectedTemplateId] = useState<string>('');
 
   const activePlaybookEntry = playbookEntries.find(p => p.id === selectedStrategy);
 
@@ -267,6 +275,25 @@ export const TradeForm: React.FC<TradeFormProps> = ({ onSubmit, tagGroups, playb
   const objectiveTagGroups = ADVANCED_TAGS.filter(g => g.category === 'objective');
   const subjectiveTagGroups = ADVANCED_TAGS.filter(g => g.category === 'subjective');
 
+  // Helper: Map tag IDs to groupings for objective tags
+  const groupObjectiveTagsByGroupId = (tagIds: string[]): { [groupId: string]: string[] } => {
+    const groupMap: { [groupId: string]: string[] } = {};
+    tagIds.forEach(tagId => {
+      const group = ADVANCED_TAGS.find(g => g.category === 'objective' && g.subtags.some(st => st.id === tagId));
+      if (group) {
+        if (!groupMap[group.id]) groupMap[group.id] = [];
+        groupMap[group.id].push(tagId);
+      }
+    });
+    return groupMap;
+  };
+
+  const handleApplyTemplate = (template: TagTemplate) => {
+    setSelectedTemplateId(template.id);
+    setSelectedObjectiveTags(groupObjectiveTagsByGroupId(template.objectiveTagIds));
+    if (template.strategyId) setSelectedStrategy(template.strategyId);
+  };
+
   return (
     <>
       <form onSubmit={handleSubmit} className="space-y-6 bg-gray-800 p-6 rounded-lg">
@@ -416,6 +443,35 @@ export const TradeForm: React.FC<TradeFormProps> = ({ onSubmit, tagGroups, playb
             placeholder="Type to search tags..."
           />
         </div>
+        {/* Tag Template Selector UI */}
+        {templates.length > 0 && (
+          <div className="mb-4">
+            <label className="block text-xs font-bold text-purple-400 mb-1">Apply Tag Template</label>
+            <div className="flex gap-2 items-center">
+              <select
+                className="bg-gray-700 border border-gray-600 text-gray-100 rounded p-2 text-xs"
+                value={selectedTemplateId}
+                onChange={e => {
+                  const t = templates.find(t => t.id === e.target.value);
+                  if (t) handleApplyTemplate(t);
+                }}
+              >
+                <option value="">Select a template...</option>
+                {templates.map(t => (
+                  <option key={t.id} value={t.id}>{t.name}</option>
+                ))}
+              </select>
+              {selectedTemplateId && (
+                <Button type="button" size="sm" variant="secondary" onClick={() => {
+                  setSelectedTemplateId('');
+                  setSelectedObjectiveTags({});
+                }}>
+                  Clear
+                </Button>
+              )}
+            </div>
+          </div>
+        )}
         {/* Objective Tags */}
         <div className="mb-4">
           <div className="text-xs font-bold text-blue-400 mb-2">Objective Tags (Market's Story)</div>
@@ -442,17 +498,25 @@ export const TradeForm: React.FC<TradeFormProps> = ({ onSubmit, tagGroups, playb
                   <>
                     <div className="border-t border-gray-700 mx-2" />
                     <div id={`tag-group-${group.id}`} className="flex flex-wrap gap-2 px-4 pb-3 pt-3">
-                      {group.subtags.map(subtag => (
-                        <button
-                          key={subtag.id}
-                          type="button"
-                          onClick={() => handleTagSelection('objective', group.id, subtag.id)}
-                          className={`px-3 py-1 rounded-full text-xs font-semibold transition-colors mr-2 mb-2 ${selectedObjectiveTags[group.id]?.includes(subtag.id) ? 'ring-2 ring-blue-400' : ''}`}
-                          style={{ background: subtag.color, color: '#fff' }}
-                        >
-                          {highlightMatch(subtag.name)}
-                        </button>
-                      ))}
+                      {group.subtags.map(subtag => {
+                        const isSelected = selectedObjectiveTags[group.id]?.includes(subtag.id);
+                        return (
+                          <button
+                            key={subtag.id}
+                            type="button"
+                            onClick={() => handleTagSelection('objective', group.id, subtag.id)}
+                            className={`px-3 py-1 rounded-full text-xs font-semibold transition-colors mr-2 mb-2 ${
+                              isSelected ? 'ring-2 ring-blue-400' : 'hover:bg-gray-600'
+                            }`}
+                            style={{ 
+                              background: isSelected ? subtag.color : '#374151', 
+                              color: isSelected ? '#fff' : '#9CA3AF' 
+                            }}
+                          >
+                            {highlightMatch(subtag.name)}
+                          </button>
+                        );
+                      })}
                     </div>
                   </>
                 )}
@@ -486,17 +550,25 @@ export const TradeForm: React.FC<TradeFormProps> = ({ onSubmit, tagGroups, playb
                   <>
                     <div className="border-t border-gray-700 mx-2" />
                     <div id={`tag-group-${group.id}`} className="flex flex-wrap gap-2 px-4 pb-3 pt-3">
-                      {group.subtags.map(subtag => (
-                        <button
-                          key={subtag.id}
-                          type="button"
-                          onClick={() => handleTagSelection('subjective', group.id, subtag.id)}
-                          className={`px-3 py-1 rounded-full text-xs font-semibold transition-colors mr-2 mb-2 ${selectedSubjectiveTags[group.id]?.includes(subtag.id) ? 'ring-2 ring-yellow-400' : ''}`}
-                          style={{ background: subtag.color, color: '#fff' }}
-                        >
-                          {highlightMatch(subtag.name)}
-                        </button>
-                      ))}
+                      {group.subtags.map(subtag => {
+                        const isSelected = selectedSubjectiveTags[group.id]?.includes(subtag.id);
+                        return (
+                          <button
+                            key={subtag.id}
+                            type="button"
+                            onClick={() => handleTagSelection('subjective', group.id, subtag.id)}
+                            className={`px-3 py-1 rounded-full text-xs font-semibold transition-colors mr-2 mb-2 ${
+                              isSelected ? 'ring-2 ring-yellow-400' : 'hover:bg-gray-600'
+                            }`}
+                            style={{ 
+                              background: isSelected ? subtag.color : '#374151', 
+                              color: isSelected ? '#fff' : '#9CA3AF' 
+                            }}
+                          >
+                            {highlightMatch(subtag.name)}
+                          </button>
+                        );
+                      })}
                     </div>
                   </>
                 )}

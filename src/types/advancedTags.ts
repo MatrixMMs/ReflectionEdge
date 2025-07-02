@@ -147,4 +147,11 @@ export interface MigrationPlan {
     name: string;
   }[];
   estimatedSuccessRate: number;
+}
+
+export interface TagTemplate {
+  id: string;
+  name: string;
+  objectiveTagIds: string[];
+  strategyId?: string;
 } 

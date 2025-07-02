@@ -209,17 +209,25 @@ export const ChartControls: React.FC<ChartControlsProps> = ({
                   <>
                     <div className="border-t border-gray-700 mx-2" />
                     <div id={`tag-group-${group.id}`} className="flex flex-wrap gap-2 px-4 pb-3 pt-3">
-                      {group.subtags.map(subtag => (
-                        <button
-                          key={subtag.id}
-                          type="button"
-                          onClick={() => handleTagSelection(group.id, subtag.id)}
-                          className={`px-3 py-1 rounded-full text-xs font-semibold transition-colors mr-2 mb-2 ${selectedTags[group.id]?.includes(subtag.id) ? 'ring-2 ring-blue-400' : ''}`}
-                          style={{ background: subtag.color, color: '#fff' }}
-                        >
-                          {highlightMatch(subtag.name)}
-                        </button>
-                      ))}
+                      {group.subtags.map(subtag => {
+                        const isSelected = selectedTags[group.id]?.includes(subtag.id);
+                        return (
+                          <button
+                            key={subtag.id}
+                            type="button"
+                            onClick={() => handleTagSelection(group.id, subtag.id)}
+                            className={`px-3 py-1 rounded-full text-xs font-semibold transition-colors mr-2 mb-2 ${
+                              isSelected ? 'ring-2 ring-blue-400' : 'hover:bg-gray-600'
+                            }`}
+                            style={{
+                              background: isSelected ? subtag.color : '#374151',
+                              color: isSelected ? '#fff' : '#9CA3AF'
+                            }}
+                          >
+                            {highlightMatch(subtag.name)}
+                          </button>
+                        );
+                      })}
                     </div>
                   </>
                 )}
@@ -253,17 +261,25 @@ export const ChartControls: React.FC<ChartControlsProps> = ({
                   <>
                     <div className="border-t border-gray-700 mx-2" />
                     <div id={`tag-group-${group.id}`} className="flex flex-wrap gap-2 px-4 pb-3 pt-3">
-                      {group.subtags.map(subtag => (
-                        <button
-                          key={subtag.id}
-                          type="button"
-                          onClick={() => handleTagSelection(group.id, subtag.id)}
-                          className={`px-3 py-1 rounded-full text-xs font-semibold transition-colors mr-2 mb-2 ${selectedTags[group.id]?.includes(subtag.id) ? 'ring-2 ring-yellow-400' : ''}`}
-                          style={{ background: subtag.color, color: '#fff' }}
-                        >
-                          {highlightMatch(subtag.name)}
-                        </button>
-                      ))}
+                      {group.subtags.map(subtag => {
+                        const isSelected = selectedTags[group.id]?.includes(subtag.id);
+                        return (
+                          <button
+                            key={subtag.id}
+                            type="button"
+                            onClick={() => handleTagSelection(group.id, subtag.id)}
+                            className={`px-3 py-1 rounded-full text-xs font-semibold transition-colors mr-2 mb-2 ${
+                              isSelected ? 'ring-2 ring-yellow-400' : 'hover:bg-gray-600'
+                            }`}
+                            style={{
+                              background: isSelected ? subtag.color : '#374151',
+                              color: isSelected ? '#fff' : '#9CA3AF'
+                            }}
+                          >
+                            {highlightMatch(subtag.name)}
+                          </button>
+                        );
+                      })}
                     </div>
                   </>
                 )}

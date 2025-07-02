@@ -16,7 +16,6 @@ import {
   getTagById,
   ADVANCED_TAGS
 } from '../constants/advancedTags';
-import { createDefaultTemplates } from './tagMigration';
 
 // Time-based suggestion rules
 const TIME_SUGGESTIONS: { [key: string]: { tagId: string; confidence: number; reason: string }[] } = {
@@ -297,37 +296,6 @@ const getUserPreferenceSuggestions = (context: TagSuggestionContext): TagSuggest
   return suggestions;
 };
 
-// Helper function to get template-based suggestions
-const getTemplateSuggestions = (context: TagSuggestionContext): TagSuggestion[] => {
-  const suggestions: TagSuggestion[] = [];
-  const templates = createDefaultTemplates();
-  
-  // Find relevant templates based on context
-  templates.forEach(template => {
-    if (template.category === 'objective' && context.marketConditions) {
-      // Objective template - check if market conditions match
-      Object.entries(template.tags).forEach(([groupId, tagIds]) => {
-        tagIds.forEach(tagId => {
-          const tag = getTagById(tagId);
-          if (tag) {
-            suggestions.push({
-              tagId: tagId,
-              tagName: tag.name,
-              groupId: tag.groupId,
-              groupName: ADVANCED_TAGS.find(g => g.id === tag.groupId)?.name || '',
-              confidence: 0.5,
-              reason: `From template: ${template.name}`,
-              category: ADVANCED_TAGS.find(g => g.id === tag.groupId)?.category || 'subjective'
-            });
-          }
-        });
-      });
-    }
-  });
-  
-  return suggestions;
-};
-
 // Main function to generate smart tag suggestions
 export const generateSmartTagSuggestions = (
   trade: Trade, 
@@ -351,10 +319,6 @@ export const generateSmartTagSuggestions = (
   // 4. User preference based suggestions
   const userSuggestions = getUserPreferenceSuggestions(context);
   allSuggestions.push(...userSuggestions);
-  
-  // 5. Template-based suggestions
-  const templateSuggestions = getTemplateSuggestions(context);
-  allSuggestions.push(...templateSuggestions);
   
   // Remove duplicates and sort by confidence
   const uniqueSuggestions = allSuggestions.reduce((acc, suggestion) => {
