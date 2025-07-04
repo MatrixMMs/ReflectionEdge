@@ -18,11 +18,35 @@ export const Button: React.FC<ButtonProps> = ({
 }) => {
   const baseStyles = 'font-semibold rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-opacity-75 transition-all duration-150 ease-in-out inline-flex items-center justify-center';
 
-  const variantStyles = {
-    primary: 'bg-purple-600 hover:bg-purple-700 text-white focus:ring-purple-500',
-    secondary: 'bg-gray-600 hover:bg-gray-700 text-gray-100 focus:ring-gray-500',
-    danger: 'bg-red-600 hover:bg-red-700 text-white focus:ring-red-500',
-    ghost: 'bg-transparent hover:bg-gray-700 text-gray-300 hover:text-white focus:ring-gray-500 border border-gray-600'
+  const getVariantStyles = (variant: string) => {
+    switch (variant) {
+      case 'primary':
+        return {
+          backgroundColor: 'var(--accent-purple)',
+          color: 'var(--text-white)',
+          borderColor: 'var(--accent-purple)'
+        };
+      case 'secondary':
+        return {
+          backgroundColor: 'var(--background-tertiary)',
+          color: 'var(--text-white)',
+          borderColor: 'var(--border-main)'
+        };
+      case 'danger':
+        return {
+          backgroundColor: 'var(--accent-red)',
+          color: 'var(--text-white)',
+          borderColor: 'var(--accent-red)'
+        };
+      case 'ghost':
+        return {
+          backgroundColor: 'transparent',
+          color: 'var(--text-secondary)',
+          borderColor: 'var(--border-main)'
+        };
+      default:
+        return {};
+    }
   };
 
   const sizeStyles = {
@@ -34,7 +58,12 @@ export const Button: React.FC<ButtonProps> = ({
 
   return (
     <button
-      className={`${baseStyles} ${variantStyles[variant]} ${sizeStyles[size]} ${className}`}
+      className={`${baseStyles} ${sizeStyles[size]} ${className}`}
+      style={{
+        ...getVariantStyles(variant),
+        borderWidth: '1px',
+        borderStyle: 'solid'
+      }}
       {...props}
     >
       {leftIcon && <span className="mr-2">{leftIcon}</span>}

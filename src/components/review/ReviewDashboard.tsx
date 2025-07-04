@@ -36,7 +36,7 @@ const ReviewDashboard: React.FC<ReviewDashboardProps> = ({ trades, cards, setTra
 
   return (
     <div style={{ padding: 24 }}>
-      <h1 style={{ color: '#fff', fontSize: 28, marginBottom: 16 }}>Review Dashboard</h1>
+      <h1 style={{ color: 'var(--text-main)', fontSize: 28, marginBottom: 16 }}>Review Dashboard</h1>
       <div style={{ display: 'flex', gap: 16, marginBottom: 24 }}>
         <input type="date" value={filterDate} onChange={e => setFilterDate(e.target.value)} />
         <select value={filterCard} onChange={e => setFilterCard(e.target.value)}>
@@ -44,9 +44,9 @@ const ReviewDashboard: React.FC<ReviewDashboardProps> = ({ trades, cards, setTra
           {cards.map(card => <option key={card.id} value={card.id}>{card.name}</option>)}
         </select>
       </div>
-      <table style={{ width: '100%', background: '#232136', color: '#fff', borderRadius: 8, overflow: 'hidden' }}>
+      <table style={{ width: '100%', background: 'var(--background-secondary)', color: 'var(--text-main)', borderRadius: 8, overflow: 'hidden' }}>
         <thead>
-          <tr style={{ background: '#18181b' }}>
+          <tr style={{ background: 'var(--background-main)' }}>
             <th>Date</th>
             <th>Symbol</th>
             <th>Direction</th>

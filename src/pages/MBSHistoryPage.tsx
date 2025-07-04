@@ -41,7 +41,7 @@ const getPercentChange = (current: number, prev: number) => {
 const ArrowIndicator: React.FC<{ change: number }> = ({ change }) => {
   if (change === 0) return null;
   const isUp = change > 0;
-  const color = isUp ? 'text-green-400' : 'text-red-400';
+  const color = isUp ? 'text-success' : 'text-error';
   return (
     <span className={`ml-2 font-normal text-base ${color} inline-flex items-baseline`} style={{ fontWeight: 400, lineHeight: '1.5' }}>
       <span className="inline-block relative" style={{ top: '-4px' }}>
@@ -64,10 +64,10 @@ type KPICardProps = {
   changeColor?: string;
 };
 const KPICard: React.FC<KPICardProps> = ({ icon, label, value, change, changeColor }) => (
-  <div className="bg-gray-800 rounded-lg p-4 border border-gray-700 flex flex-col justify-between min-w-[200px]">
-    <div className="flex items-center gap-2 mb-2">{icon}<span className="text-gray-400">{label}</span></div>
+  <div className="rounded-lg p-4 border flex flex-col justify-between min-w-[200px]" style={{ backgroundColor: 'var(--background-secondary)', borderColor: 'var(--border-main)' }}>
+    <div className="flex items-center gap-2 mb-2">{icon}<span style={{ color: 'var(--text-secondary)' }}>{label}</span></div>
     <div className="flex items-baseline gap-2">
-      <span className="text-2xl font-bold text-white">{value}</span>
+      <span className="text-2xl font-bold" style={{ color: 'var(--text-white)' }}>{value}</span>
       {change !== undefined && (
         <span className={`text-sm font-normal ${changeColor}`}>{change}</span>
       )}
@@ -91,35 +91,40 @@ const SessionCard: React.FC<SessionCardProps & { onView: (s: any) => void; onDel
   const winRateWidth = Math.max(0, Math.min(100, session.winRate));
   return (
     <div
-      className="bg-gray-800 rounded-lg p-4 border border-gray-700 flex flex-col mb-4 shadow-sm transition-shadow hover:shadow-lg hover:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-400"
+      className="rounded-lg p-4 border flex flex-col mb-4 shadow-sm transition-shadow hover:shadow-lg focus:outline-none focus:ring-2"
+      style={{ 
+        backgroundColor: 'var(--background-secondary)', 
+        borderColor: 'var(--border-main)',
+        boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
+      }}
       tabIndex={0}
       aria-label={`Session card for goal: ${session.goal}`}
       role="region"
     >
       <div className="flex justify-between items-center mb-2">
-        <span className="font-bold text-blue-200">Goal: {session.goal}</span>
-        <span className="text-sm text-gray-400">{session.startTime}</span>
+        <span className="font-bold" style={{ color: 'var(--text-main)' }}>Goal: {session.goal}</span>
+        <span className="text-sm" style={{ color: 'var(--text-secondary)' }}>{session.startTime}</span>
       </div>
       <div className="flex items-center gap-6">
-        <span className="text-gray-400">Trades: <span className="text-white">{session.trades}</span></span>
-        <span className="text-gray-400">Avg Mood: <span>{session.mood}</span></span>
-        <span className="text-gray-400 flex items-center">Plan Adherence:
-          <span className="relative bg-gray-700 rounded h-3 w-24 inline-block align-middle mx-2 overflow-hidden" aria-label="Plan adherence progress bar" role="progressbar" aria-valuenow={planAdherenceWidth} aria-valuemin={0} aria-valuemax={100}>
+        <span style={{ color: 'var(--text-secondary)' }}>Trades: <span style={{ color: 'var(--text-white)' }}>{session.trades}</span></span>
+        <span style={{ color: 'var(--text-secondary)' }}>Avg Mood: <span>{session.mood}</span></span>
+        <span style={{ color: 'var(--text-secondary)' }} className="flex items-center">Plan Adherence:
+          <span className="relative rounded h-3 w-24 inline-block align-middle mx-2 overflow-hidden" style={{ backgroundColor: 'var(--background-tertiary)' }} aria-label="Plan adherence progress bar" role="progressbar" aria-valuenow={planAdherenceWidth} aria-valuemin={0} aria-valuemax={100}>
             <span
-              className="absolute left-0 top-0 h-3 rounded bg-purple-500 transition-all duration-500"
-              style={{ width: `${planAdherenceWidth}%` }}
+              className="absolute left-0 top-0 h-3 rounded transition-all duration-500"
+              style={{ width: `${planAdherenceWidth}%`, backgroundColor: 'var(--text-accent)' }}
             />
           </span>
-          <span className="text-white ml-1">{session.planAdherence}%</span>
+          <span style={{ color: 'var(--text-white)' }} className="ml-1">{session.planAdherence}%</span>
         </span>
-        <span className="text-gray-400 flex items-center">Win Rate:
-          <span className="relative bg-gray-700 rounded h-3 w-24 inline-block align-middle mx-2 overflow-hidden" aria-label="Win rate progress bar" role="progressbar" aria-valuenow={winRateWidth} aria-valuemin={0} aria-valuemax={100}>
+        <span style={{ color: 'var(--text-secondary)' }} className="flex items-center">Win Rate:
+          <span className="relative rounded h-3 w-24 inline-block align-middle mx-2 overflow-hidden" style={{ backgroundColor: 'var(--background-tertiary)' }} aria-label="Win rate progress bar" role="progressbar" aria-valuenow={winRateWidth} aria-valuemin={0} aria-valuemax={100}>
             <span
-              className="absolute left-0 top-0 h-3 rounded bg-green-500 transition-all duration-500"
-              style={{ width: `${winRateWidth}%` }}
+              className="absolute left-0 top-0 h-3 rounded transition-all duration-500"
+              style={{ width: `${winRateWidth}%`, backgroundColor: 'var(--accent-green)' }}
             />
           </span>
-          <span className="text-green-400 ml-1">{session.winRate}%</span>
+          <span style={{ color: 'var(--text-green)' }} className="ml-1">{session.winRate}%</span>
         </span>
         <div className="ml-auto flex gap-2">
           <Button size="sm" variant="secondary" className="p-2" aria-label="View session" tabIndex={0} onClick={() => onView(session)}><CustomDetailsIcon className="w-4 h-4" /></Button>
@@ -247,10 +252,10 @@ const FilterModal: React.FC<{ open: boolean; onClose: () => void }> = ({ open, o
   if (!open) return null;
   return (
     <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50" role="dialog" aria-modal="true" aria-label="Advanced Filter Modal">
-      <div className="bg-gray-800 p-6 rounded-lg shadow-lg min-w-[300px]">
-        <h2 className="text-lg font-bold mb-4 text-blue-200">Advanced Filter (Coming Soon)</h2>
-        <p className="text-gray-300 mb-4">This will allow you to filter sessions by mood, trade count, and more.</p>
-        <button className="px-4 py-2 bg-blue-500 text-white rounded" onClick={onClose} aria-label="Close filter modal">Close</button>
+      <div className="p-6 rounded-lg shadow-lg min-w-[300px]" style={{ backgroundColor: 'var(--background-secondary)' }}>
+        <h2 className="text-lg font-bold mb-4" style={{ color: 'var(--text-accent)' }}>Advanced Filter (Coming Soon)</h2>
+        <p className="mb-4" style={{ color: 'var(--text-secondary)' }}>This will allow you to filter sessions by mood, trade count, and more.</p>
+        <button className="px-4 py-2 rounded" style={{ backgroundColor: 'var(--accent-blue)', color: 'var(--text-white)' }} onClick={onClose} aria-label="Close filter modal">Close</button>
       </div>
     </div>
   );
@@ -449,6 +454,13 @@ const MBSHistoryPage: React.FC = () => {
     }
   };
 
+  // Handle clear history
+  const handleClearHistory = () => {
+    clearMBSHistory();
+    setShowClearConfirm(false);
+    window.location.reload(); // Refresh to reflect changes
+  };
+
   // Helper to check if session is live (has tradeHistory)
   const isLiveSession = (session: any) => Array.isArray(session.tradeHistory);
 
@@ -474,7 +486,7 @@ const MBSHistoryPage: React.FC = () => {
     acc[s.goal] = (acc[s.goal] || 0) + 1;
     return acc;
   }, {} as Record<string, number>);
-  const mostFrequentGoal = Object.entries(goalCounts).sort((a, b) => b[1] - a[1])[0]?.[0] || '-';
+  const mostFrequentGoal = Object.entries(goalCounts).sort((a, b) => (b[1] as number) - (a[1] as number))[0]?.[0] || '-';
 
   // --- Chart Data ---
   // P&L Over Time (Equity Curve)
@@ -496,16 +508,15 @@ const MBSHistoryPage: React.FC = () => {
   }));
 
   // --- Panel Styles ---
-  const panelBg = 'bg-gray-950';
+  const panelBg = 'var(--background-main)';
 
   return (
-    <div className="min-h-screen bg-gray-900 text-white p-6">
+    <div className="min-h-screen p-6" style={{ backgroundColor: 'var(--background-main)', color: 'var(--text-white)' }}>
       <div className="max-w-7xl mx-auto">
         {/* Header and Top Controls */}
         <div className="mb-8 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-bold text-blue-300">MBS Session History</h1>
-            <p className="text-gray-400 mt-2">Review your Mindful Business Strategy trading sessions.</p>
+            <h1 className="text-3xl font-bold" style={{ color: 'var(--text-main)' }}>MBS Session History</h1>
           </div>
           <div className="flex gap-2 items-center">
             <Button variant="primary" onClick={() => setShowPerformance(v => !v)} className="flex items-center gap-2">
@@ -524,63 +535,64 @@ const MBSHistoryPage: React.FC = () => {
 
         {/* Performance Overview Panel */}
         <div
-          className={`overflow-hidden transition-all duration-500 ${showPerformance ? 'max-h-[1000px] opacity-100 my-6' : 'max-h-0 opacity-0 my-0'} ${panelBg} rounded-lg border border-gray-700`}
+          className={`overflow-hidden transition-all duration-500 ${showPerformance ? 'max-h-[1000px] opacity-100 my-6' : 'max-h-0 opacity-0 my-0'} rounded-lg border`}
+          style={{ backgroundColor: panelBg, borderColor: 'var(--border-main)' }}
           aria-hidden={!showPerformance}
         >
           {showPerformance && (
             <div className="flex flex-col md:flex-row gap-8 p-8">
               {/* Key Stats */}
               <div className="flex-1 min-w-[250px]">
-                <h3 className="text-lg font-bold mb-4 text-blue-200">Key Stats</h3>
+                <h3 className="text-lg font-bold mb-4" style={{ color: 'var(--text-accent)' }}>Key Stats</h3>
                 <div className="space-y-2">
                   <div>
-                    <span className="text-gray-400">Total Net P&amp;L:</span>
-                    <span className={`ml-2 text-2xl font-bold ${totalPnl >= 0 ? 'text-green-400' : 'text-red-400'}`}>{totalPnl.toFixed(2)}</span>
+                    <span style={{ color: 'var(--text-secondary)' }}>Total Net P&amp;L:</span>
+                    <span className={`ml-2 text-2xl font-bold ${totalPnl >= 0 ? 'text-success' : 'text-error'}`}>{totalPnl.toFixed(2)}</span>
                   </div>
                   <div>
-                    <span className="text-gray-400">Avg P&amp;L per Session:</span>
+                    <span style={{ color: 'var(--text-secondary)' }}>Avg P&amp;L per Session:</span>
                     <span className="ml-2 text-lg">{avgPnlSession.toFixed(2)}</span>
                   </div>
                   <div>
-                    <span className="text-gray-400">Avg P&amp;L per Trade:</span>
+                    <span style={{ color: 'var(--text-secondary)' }}>Avg P&amp;L per Trade:</span>
                     <span className="ml-2 text-lg">{avgPnlTrade.toFixed(2)}</span>
                   </div>
                   <div>
-                    <span className="text-gray-400">Best Session (P&amp;L):</span>
-                    <span className="ml-2 text-green-400">{bestSession.toFixed(2)}</span>
+                    <span style={{ color: 'var(--text-secondary)' }}>Best Session (P&amp;L):</span>
+                    <span className="ml-2 text-success">{bestSession.toFixed(2)}</span>
                   </div>
                   <div>
-                    <span className="text-gray-400">Worst Session (P&amp;L):</span>
-                    <span className="ml-2 text-red-400">{worstSession.toFixed(2)}</span>
+                    <span style={{ color: 'var(--text-secondary)' }}>Worst Session (P&amp;L):</span>
+                    <span className="ml-2 text-error">{worstSession.toFixed(2)}</span>
                   </div>
                   <div>
-                    <span className="text-gray-400">Most Frequent Goal:</span>
-                    <span className="ml-2 text-blue-300">{mostFrequentGoal}</span>
+                    <span style={{ color: 'var(--text-secondary)' }}>Most Frequent Goal:</span>
+                    <span className="ml-2" style={{ color: 'var(--text-accent)' }}>{mostFrequentGoal}</span>
                   </div>
                 </div>
               </div>
               {/* Visual Charts */}
               <div className="flex-1 min-w-[300px]">
-                <h3 className="text-lg font-bold mb-4 text-blue-200">Visual Charts</h3>
+                <h3 className="text-lg font-bold mb-4" style={{ color: 'var(--text-accent)' }}>Visual Charts</h3>
                 <div className="mb-6">
-                  <div className="text-gray-400 mb-1">P&amp;L Over Time</div>
+                  <div style={{ color: 'var(--text-secondary)' }} className="mb-1">P&amp;L Over Time</div>
                   <ResponsiveContainer width="100%" height={180}>
                     <LineChart data={equityCurve} margin={{ left: 0, right: 0, top: 10, bottom: 0 }}>
-                      <XAxis dataKey="name" stroke="#888" fontSize={12} />
-                      <YAxis stroke="#888" fontSize={12} />
+                      <XAxis dataKey="name" stroke="var(--text-secondary)" fontSize={12} />
+                      <YAxis stroke="var(--text-secondary)" fontSize={12} />
                       <Tooltip />
-                      <Line type="monotone" dataKey="pnl" stroke="#34d399" strokeWidth={2} dot={false} />
+                      <Line type="monotone" dataKey="pnl" stroke="var(--accent-green)" strokeWidth={2} dot={false} />
                     </LineChart>
                   </ResponsiveContainer>
                 </div>
                 <div>
-                  <div className="text-gray-400 mb-1">Performance by Goal</div>
+                  <div style={{ color: 'var(--text-secondary)' }} className="mb-1">Performance by Goal</div>
                   <ResponsiveContainer width="100%" height={180}>
                     <BarChart data={perfByGoal} layout="vertical" margin={{ left: 0, right: 0, top: 10, bottom: 0 }}>
-                      <XAxis type="number" stroke="#888" fontSize={12} />
-                      <YAxis dataKey="goal" type="category" stroke="#888" fontSize={12} width={120} />
+                      <XAxis type="number" stroke="var(--text-secondary)" fontSize={12} />
+                      <YAxis dataKey="goal" type="category" stroke="var(--text-secondary)" fontSize={12} width={120} />
                       <Tooltip />
-                      <Bar dataKey="avgPnl" fill="#6366f1" />
+                      <Bar dataKey="avgPnl" fill="var(--text-accent)" />
                     </BarChart>
                   </ResponsiveContainer>
                 </div>
@@ -592,39 +604,39 @@ const MBSHistoryPage: React.FC = () => {
         {/* Stats Overview */}
         {sessions.length > 0 && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-            <div className="bg-gray-800 rounded-lg p-4 border border-gray-700">
+            <div className="rounded-lg p-4 border" style={{ backgroundColor: 'var(--background-secondary)', borderColor: 'var(--border-main)' }}>
               <div className="flex items-center gap-2 mb-2">
-                <ChartBarIcon className="w-5 h-5 text-blue-400" />
-                <span className="text-gray-400">Total Sessions</span>
+                <ChartBarIcon className="w-5 h-5" style={{ color: 'var(--accent-blue)' }} />
+                <span style={{ color: 'var(--text-secondary)' }}>Total Sessions</span>
               </div>
-              <div className="text-2xl font-bold text-blue-300">{stats.totalSessions}</div>
+              <div className="text-2xl font-bold" style={{ color: 'var(--text-accent)' }}>{stats.totalSessions}</div>
             </div>
-            <div className="bg-gray-800 rounded-lg p-4 border border-gray-700">
+            <div className="rounded-lg p-4 border" style={{ backgroundColor: 'var(--background-secondary)', borderColor: 'var(--border-main)' }}>
               <div className="flex items-center gap-2 mb-2">
-                <CustomWinIcon className="w-5 h-5 text-green-400" />
-                <span className="text-gray-400">Win Rate</span>
+                <CustomWinIcon className="w-5 h-5" style={{ color: 'var(--accent-green)' }} />
+                <span style={{ color: 'var(--text-secondary)' }}>Win Rate</span>
               </div>
-              <div className="text-2xl font-bold text-green-300 flex items-baseline">
+              <div className="text-2xl font-bold flex items-baseline" style={{ color: 'var(--text-green)' }}>
                 {winRate.toFixed(1)}%
                 {winRateChange !== null && <ArrowIndicator change={winRateChange} />}
               </div>
             </div>
-            <div className="bg-gray-800 rounded-lg p-4 border border-gray-700">
+            <div className="rounded-lg p-4 border" style={{ backgroundColor: 'var(--background-secondary)', borderColor: 'var(--border-main)' }}>
               <div className="flex items-center gap-2 mb-2">
-                <CustomClockIcon className="w-5 h-5 text-yellow-400" />
-                <span className="text-gray-400">Avg Duration</span>
+                <CustomClockIcon className="w-5 h-5" style={{ color: 'var(--accent-yellow)' }} />
+                <span style={{ color: 'var(--text-secondary)' }}>Avg Duration</span>
               </div>
-              <div className="text-2xl font-bold text-yellow-300 flex items-baseline">
+              <div className="text-2xl font-bold flex items-baseline" style={{ color: 'var(--accent-yellow)' }}>
                 {stats.avgSessionDuration}
                 {avgDurationChange !== null && <ArrowIndicator change={avgDurationChange} />}
               </div>
             </div>
-            <div className="bg-gray-800 rounded-lg p-4 border border-gray-700">
+            <div className="rounded-lg p-4 border" style={{ backgroundColor: 'var(--background-secondary)', borderColor: 'var(--border-main)' }}>
               <div className="flex items-center gap-2 mb-2">
-                <CustomPlanIcon className="w-5 h-5 text-purple-400" />
-                <span className="text-gray-400">Plan Adherence</span>
+                <CustomPlanIcon className="w-5 h-5" style={{ color: 'var(--text-accent)' }} />
+                <span style={{ color: 'var(--text-secondary)' }}>Plan Adherence</span>
               </div>
-              <div className="text-2xl font-bold text-purple-300 flex items-baseline">
+              <div className="text-2xl font-bold flex items-baseline" style={{ color: 'var(--text-accent)' }}>
                 {planAdherence.toFixed(1)}%
                 {planAdherenceChange !== null && <ArrowIndicator change={planAdherenceChange} />}
               </div>
@@ -639,7 +651,12 @@ const MBSHistoryPage: React.FC = () => {
             placeholder="Search sessions by goal or ID..."
             value={search}
             onChange={e => setSearch(e.target.value)}
-            className="flex-1 px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-blue-500"
+            className="flex-1 px-4 py-2 border rounded-lg focus:outline-none"
+            style={{ 
+              backgroundColor: 'var(--background-secondary)', 
+              borderColor: 'var(--border-main)', 
+              color: 'var(--text-white)'
+            }}
           />
           <div className="flex gap-2 items-center">
             <Button onClick={() => setShowFullHistory(v => !v)}>
@@ -650,7 +667,12 @@ const MBSHistoryPage: React.FC = () => {
                 <select
                   value={sortBy}
                   onChange={e => setSortBy(e.target.value)}
-                  className="px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-blue-500"
+                  className="px-4 py-2 border rounded-lg focus:outline-none"
+                  style={{ 
+                    backgroundColor: 'var(--background-secondary)', 
+                    borderColor: 'var(--border-main)', 
+                    color: 'var(--text-white)' 
+                  }}
                 >
                   <option value="date">Sort by Date</option>
                   <option value="winRate">Sort by Win Rate</option>
@@ -669,9 +691,9 @@ const MBSHistoryPage: React.FC = () => {
         <div aria-live="polite">
           {!showFullHistory ? (
             <div>
-              <h2 className="text-xl font-semibold text-blue-200 mb-4">Today's Sessions</h2>
+              <h2 className="text-xl font-semibold mb-4" style={{ color: 'var(--text-main)' }}>Today's Sessions</h2>
               {todaySessions.length === 0 ? (
-                <div className="text-center py-12 text-gray-400">No sessions recorded today. Start a new session to begin.</div>
+                <div className="text-center py-12" style={{ color: 'var(--text-secondary)' }}>No sessions recorded today. Start a new session to begin.</div>
               ) : (
                 todaySessions.map((session, idx) => <SessionCard key={session.id || idx} session={session} onView={handleViewSession} onDelete={handleDeleteSession} isLive={!!session.id} />)
               )}
@@ -680,7 +702,7 @@ const MBSHistoryPage: React.FC = () => {
             <div>
               {filteredHistory.map(group => (
                 <div key={group.date} className="mb-8">
-                  <div className="text-lg font-bold text-gray-300 mb-2">{group.date}</div>
+                  <div className="text-lg font-bold mb-2" style={{ color: 'var(--text-secondary)' }}>{group.date}</div>
                   {group.sessions.map((session, idx) => <SessionCard key={session.id || idx} session={session} onView={handleViewSession} onDelete={handleDeleteSession} isLive={!!session.id} />)}
                 </div>
               ))}
@@ -692,7 +714,7 @@ const MBSHistoryPage: React.FC = () => {
       {/* Session Details Modal */}
       {showSessionDetails && selectedSession && (
         <Modal
-          title={`Session Details - ${selectedSession.goal}`}
+          title={<h2 className="text-2xl font-bold mb-4" style={{ color: 'var(--text-main)' }}>Session Details - {selectedSession.goal}</h2>}
           onClose={() => { setShowSessionDetails(false); setSelectedSession(null); }}
           size="large"
         >
@@ -707,11 +729,11 @@ const MBSHistoryPage: React.FC = () => {
             </div>
             {isLiveSession(selectedSession) ? (
               <div className="mt-4">
-                <h3 className="text-lg font-semibold text-blue-300 mb-2">Trade Breakdown</h3>
+                <h3 className="text-lg font-semibold text-accent mb-2">Trade Breakdown</h3>
                 <div className="overflow-x-auto">
                   <table className="min-w-full text-sm text-left">
                     <thead>
-                      <tr className="text-gray-400 border-b border-gray-700">
+                      <tr className="text-gray-400 border-b border-main">
                         <th className="py-1 pr-4">Time</th>
                         <th className="py-1 pr-4">Type</th>
                         <th className="py-1 pr-4">Result</th>
@@ -723,11 +745,11 @@ const MBSHistoryPage: React.FC = () => {
                     </thead>
                     <tbody>
                       {selectedSession.tradeHistory.map((trade: any, idx: number) => (
-                        <tr key={trade.id || idx} className="border-b border-gray-800 hover:bg-gray-800">
+                        <tr key={trade.id || idx} className="border-b border-secondary hover:bg-gray-800">
                           <td className="py-1 pr-4">{trade.time}</td>
                           <td className="py-1 pr-4">{trade.type}</td>
-                          <td className={`py-1 pr-4 font-bold ${trade.result === 'win' ? 'text-green-400' : 'text-red-400'}`}>{trade.result === 'win' ? '🏆 Win' : '❌ Lose'}</td>
-                          <td className={`py-1 pr-4 ${trade.followedPlan ? 'text-green-400' : 'text-red-400'}`}>{trade.followedPlan ? 'Yes' : 'No'}</td>
+                          <td className={`py-1 pr-4 font-bold ${trade.result === 'win' ? 'text-green' : 'text-red'}`}>{trade.result === 'win' ? '🏆 Win' : '❌ Lose'}</td>
+                          <td className={`py-1 pr-4 ${trade.followedPlan ? 'text-green' : 'text-red'}`}>{trade.followedPlan ? 'Yes' : 'No'}</td>
                           <td className="py-1 pr-4">{typeof trade.mood === 'number' ? moodToEmoji(trade.mood) : trade.mood}</td>
                           <td className="py-1 pr-4">{trade.notes || '-'}</td>
                           <td className="py-1 pr-4">{trade.reflection || '-'}</td>

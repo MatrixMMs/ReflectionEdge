@@ -391,7 +391,7 @@ export const CustomDetailsIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props
     <g id="SVGRepo_bgCarrier" strokeWidth="0"/>
     <g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round"/>
     <g id="SVGRepo_iconCarrier">
-      <path d="M320 89.6h640v76.8H320V89.6z m0 768h640v76.8H320v-76.8z m-256-768h128v76.8H64V89.6z m256 384h640v76.8H320V473.6z m-256 0h128v76.8H64V473.6z m0 384h128v76.8H64v-76.8z" fill="#fff"/>
+      <path d="M320 89.6h640v76.8H320V89.6z m0 768h640v76.8H320v-76.8z m-256-768h128v76.8H64V89.6z m256 384h640v76.8H320V473.6z m-256 0h128v76.8H64V473.6z m0 384h128v76.8H64v-76.8z" fill="var(--text-white)"/>
     </g>
   </svg>
 );
@@ -401,11 +401,11 @@ export const CustomDeleteIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props)
     <g id="SVGRepo_bgCarrier" strokeWidth="0"/>
     <g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round"/>
     <g id="SVGRepo_iconCarrier">
-      <path d="M10 12V17" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-      <path d="M14 12V17" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-      <path d="M4 7H20" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-      <path d="M6 10V18C6 19.6569 7.34315 21 9 21H15C16.6569 21 18 19.6569 18 18V10" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-      <path d="M9 5C9 3.89543 9.89543 3 11 3H13C14.1046 3 15 3.89543 15 5V7H9V5Z" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+      <path d="M10 12V17" stroke="var(--text-white)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+      <path d="M14 12V17" stroke="var(--text-white)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+      <path d="M4 7H20" stroke="var(--text-white)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+      <path d="M6 10V18C6 19.6569 7.34315 21 9 21H15C16.6569 21 18 19.6569 18 18V10" stroke="var(--text-white)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+      <path d="M9 5C9 3.89543 9.89543 3 11 3H13C14.1046 3 15 3.89543 15 5V7H9V5Z" stroke="var(--text-white)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
     </g>
   </svg>
 );
@@ -415,7 +415,7 @@ export const CustomWinIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) =>
     <g id="SVGRepo_bgCarrier" strokeWidth="0"/>
     <g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round"/>
     <g id="SVGRepo_iconCarrier">
-      <path d="M24,4H8C4.822,4,3,5.822,3,9c0,2.721,2.399,5.817,4.553,6.895l0.784,0.392 c0.894,2.99,3.492,5.246,6.663,5.644V24c0,1.105-0.895,2-2,2h-2v2h10v-2h-2c-1.105,0-2-0.895-2-2v-2.069 c3.171-0.398,5.769-2.654,6.663-5.644l0.784-0.392C26.601,14.817,29,11.721,29,9C29,5.822,27.178,4,24,4z M5,9c0-2.075,0.925-3,3-3 v7.83C6.427,12.79,5,10.56,5,9z M22,14c0,3.309-2.691,6-6,6s-6-2.691-6-6V6h12V14z M24,13.83V6c2.075,0,3,0.925,3,3 C27,10.56,25.573,12.79,24,13.83z M11,14h2c0,1.654,1.346,3,3,3v2C13.243,19,11,16.757,11,14z" fill="#fff"/>
+      <path d="M24,4H8C4.822,4,3,5.822,3,9c0,2.721,2.399,5.817,4.553,6.895l0.784,0.392 c0.894,2.99,3.492,5.246,6.663,5.644V24c0,1.105-0.895,2-2,2h-2v2h10v-2h-2c-1.105,0-2-0.895-2-2v-2.069 c3.171-0.398,5.769-2.654,6.663-5.644l0.784-0.392C26.601,14.817,29,11.721,29,9C29,5.822,27.178,4,24,4z M5,9c0-2.075,0.925-3,3-3 v7.83C6.427,12.79,5,10.56,5,9z M22,14c0,3.309-2.691,6-6,6s-6-2.691-6-6V6h12V14z M24,13.83V6c2.075,0,3,0.925,3,3 C27,10.56,25.573,12.79,24,13.83z M11,14h2c0,1.654,1.346,3,3,3v2C13.243,19,11,16.757,11,14z" fill="var(--text-white)"/>
     </g>
   </svg>
 );
@@ -425,19 +425,19 @@ export const CustomPlanIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) =
     <g id="SVGRepo_bgCarrier" strokeWidth="0"/>
     <g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round"/>
     <g id="SVGRepo_iconCarrier">
-      <path d="M5,2v28h22V2H5z M25,28H7V4h18V28z M15,6H9v6h6V6z M13,10h-2V8h2V10z M23,10h-7V8h7V10z M15,13 H9v6h6V13z M13,17h-2v-2h2V17z M23,17h-7v-2h7V17z M15,20H9v6h6V20z M13,24h-2v-2h2V24z M23,24h-7v-2h7V24z" fill="#fff"/>
+      <path d="M5,2v28h22V2H5z M25,28H7V4h18V28z M15,6H9v6h6V6z M13,10h-2V8h2V10z M23,10h-7V8h7V10z M15,13 H9v6h6V13z M13,17h-2v-2h2V17z M23,17h-7v-2h7V17z M15,20H9v6h6V20z M13,24h-2v-2h2V24z M23,24h-7v-2h7V24z" fill="var(--text-white)"/>
     </g>
   </svg>
 );
 
 export const CustomClockIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" {...props}>
-    <path d="M12 7V12H15M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+    <path d="M12 7V12H15M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="var(--text-white)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
   </svg>
 );
 
 export const ChartIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" {...props}>
-    <path d="M21 21H7.8C6.11984 21 5.27976 21 4.63803 20.673C4.07354 20.3854 3.6146 19.9265 3.32698 19.362C3 18.7202 3 17.8802 3 16.2V3M15 10V17M7 13V17M19 5V17M11 7V17" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+    <path d="M21 21H7.8C6.11984 21 5.27976 21 4.63803 20.673C4.07354 20.3854 3.6146 19.9265 3.32698 19.362C3 18.7202 3 17.8802 3 16.2V3M15 10V17M7 13V17M19 5V17M11 7V17" stroke="var(--text-white)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
   </svg>
 );

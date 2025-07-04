@@ -169,7 +169,7 @@ export const TagManager: React.FC<TagManagerProps> = ({
             {filteredAdvancedTags
               .filter(group => group.category === 'objective')
               .map(group => (
-                <div key={group.id} className="bg-gray-800 p-4 rounded-lg border-l-4 border-blue-500">
+                <div key={group.id} className="bg-gray-800 p-4 rounded-lg border-l-4 border-blue-500" style={{ background: 'var(--background-secondary)' }}>
                   <div className="flex justify-between items-center mb-3">
                     <h4 className="text-md font-medium text-blue-300">
                       {group.name}
@@ -223,7 +223,7 @@ export const TagManager: React.FC<TagManagerProps> = ({
             {filteredAdvancedTags
               .filter(group => group.category === 'subjective')
               .map(group => (
-                <div key={group.id} className="bg-gray-800 p-4 rounded-lg border-l-4 border-orange-500">
+                <div key={group.id} className="bg-gray-800 p-4 rounded-lg border-l-4 border-orange-500" style={{ background: 'var(--background-secondary)' }}>
                   <div className="flex justify-between items-center mb-3">
                     <h4 className="text-md font-medium text-orange-300">
                       {group.name}

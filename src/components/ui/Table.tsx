@@ -7,7 +7,7 @@ export const Table: React.FC<{ children: React.ReactNode; className?: string }> 
 );
 
 export const Thead: React.FC<{ children: React.ReactNode; className?: string }> = ({ children, className = '' }) => (
-  <thead className={`text-xs text-gray-300 uppercase bg-gray-700 ${className}`}>
+  <thead className={`text-xs text-gray-300 uppercase bg-gray-700 ${className}`} style={{ backgroundColor: 'var(--background-tertiary)', color: 'var(--text-secondary)' }}>
     {children}
   </thead>
 );
@@ -19,7 +19,7 @@ export const Tbody: React.FC<{ children: React.ReactNode; className?: string }> 
 );
 
 export const Tr: React.FC<{ children: React.ReactNode; className?: string }> = ({ children, className = '' }) => (
-  <tr className={`border-b border-gray-700 hover:bg-gray-700/50 ${className}`}>
+  <tr className={`border-b border-gray-700 hover:bg-gray-700/50 ${className}`} style={{ borderBottomColor: 'var(--border-main)' }}>
     {children}
   </tr>
 );

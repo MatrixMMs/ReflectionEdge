@@ -18,19 +18,19 @@ const PlaybookToolbar: React.FC<PlaybookToolbarProps> = ({ addType, setAddType, 
     zIndex: 10,
     display: 'flex',
     gap: 12,
-    background: '#232136',
+    background: 'var(--background-secondary)',
     borderRadius: 8,
     padding: '8px 16px',
-    boxShadow: '0 2px 8px #0004',
+    boxShadow: '0 2px 8px rgba(0,0,0,0.25)',
     alignItems: 'center',
   }}>
     <select
       value={addType}
       onChange={e => setAddType(e.target.value)}
       style={{
-        background: '#18181b',
-        color: '#fff',
-        border: '1.5px solid #6366f1',
+        background: 'var(--background-main)',
+        color: 'var(--text-main)',
+        border: '1.5px solid var(--accent-blue)',
         borderRadius: 6,
         padding: '6px 12px',
         fontWeight: 'bold',
@@ -65,7 +65,7 @@ const PlaybookToolbar: React.FC<PlaybookToolbarProps> = ({ addType, setAddType, 
     <button
       onClick={onSave}
       style={{
-        background: '#10b981',
+        background: 'var(--accent-green)',
         color: '#fff',
         border: 'none',
         borderRadius: 6,
@@ -79,7 +79,7 @@ const PlaybookToolbar: React.FC<PlaybookToolbarProps> = ({ addType, setAddType, 
     <button
       onClick={onReset}
       style={{
-        background: '#ef4444',
+        background: 'var(--accent-red)',
         color: '#fff',
         border: 'none',
         borderRadius: 6,

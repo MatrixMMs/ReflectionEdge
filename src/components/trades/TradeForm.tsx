@@ -509,8 +509,8 @@ export const TradeForm: React.FC<TradeFormProps> = ({ onSubmit, tagGroups, playb
                               isSelected ? 'ring-2 ring-blue-400' : 'hover:bg-gray-600'
                             }`}
                             style={{ 
-                              background: isSelected ? subtag.color : '#374151', 
-                              color: isSelected ? '#fff' : '#9CA3AF' 
+                              background: isSelected ? subtag.color : 'var(--background-secondary)', 
+                              color: isSelected ? 'var(--text-white)' : 'var(--text-secondary)' 
                             }}
                           >
                             {highlightMatch(subtag.name)}
@@ -561,8 +561,8 @@ export const TradeForm: React.FC<TradeFormProps> = ({ onSubmit, tagGroups, playb
                               isSelected ? 'ring-2 ring-yellow-400' : 'hover:bg-gray-600'
                             }`}
                             style={{ 
-                              background: isSelected ? subtag.color : '#374151', 
-                              color: isSelected ? '#fff' : '#9CA3AF' 
+                              background: isSelected ? subtag.color : 'var(--background-secondary)', 
+                              color: isSelected ? 'var(--text-white)' : 'var(--text-secondary)' 
                             }}
                           >
                             {highlightMatch(subtag.name)}

@@ -126,9 +126,9 @@ export const PatternAnalysisDashboard: React.FC<PatternAnalysisDashboardProps> =
           <Legend />
           <Bar 
             dataKey="value" 
-            fill={selectedMetric === 'winRate' ? '#34D399' : 
-                  selectedMetric === 'profit' ? '#3B82F6' : 
-                  selectedMetric === 'profitFactor' ? '#F59E0B' : '#8B5CF6'}
+            fill={selectedMetric === 'winRate' ? 'var(--accent-green)' : 
+                  selectedMetric === 'profit' ? 'var(--accent-blue)' : 
+                  selectedMetric === 'profitFactor' ? 'var(--accent-yellow)' : 'var(--accent-purple)'}
           />
         </BarChart>
       </ResponsiveContainer>
@@ -159,13 +159,13 @@ export const PatternAnalysisDashboard: React.FC<PatternAnalysisDashboardProps> =
           <Line 
             type="monotone" 
             dataKey="value" 
-            stroke={selectedMetric === 'winRate' ? '#34D399' : 
-                    selectedMetric === 'profit' ? '#3B82F6' : 
-                    selectedMetric === 'profitFactor' ? '#F59E0B' : '#8B5CF6'}
+            stroke={selectedMetric === 'winRate' ? 'var(--accent-green)' : 
+                    selectedMetric === 'profit' ? 'var(--accent-blue)' : 
+                    selectedMetric === 'profitFactor' ? 'var(--accent-yellow)' : 'var(--accent-purple)'}
             strokeWidth={3}
-            dot={{ fill: selectedMetric === 'winRate' ? '#34D399' : 
-                          selectedMetric === 'profit' ? '#3B82F6' : 
-                          selectedMetric === 'profitFactor' ? '#F59E0B' : '#8B5CF6', strokeWidth: 2, r: 6 }}
+            dot={{ fill: selectedMetric === 'winRate' ? 'var(--accent-green)' : 
+                          selectedMetric === 'profit' ? 'var(--accent-blue)' : 
+                          selectedMetric === 'profitFactor' ? 'var(--accent-yellow)' : 'var(--accent-purple)', strokeWidth: 2, r: 6 }}
           />
         </LineChart>
       </ResponsiveContainer>
@@ -278,17 +278,17 @@ export const PatternAnalysisDashboard: React.FC<PatternAnalysisDashboardProps> =
         if (value === 0 && selectedMetric !== 'trades') return 'bg-gray-800';
         if (selectedMetric === 'winRate') {
             const opacity = Math.max(0.1, Math.min(value / 100, 1));
-            return `rgba(52, 211, 153, ${opacity})`;
+            return `rgba(var(--accent-green), ${opacity})`;
         }
         if (selectedMetric === 'profit') {
             const isLoss = value < 0;
             const absoluteMax = Math.max(Math.abs(minMetric), Math.abs(maxMetric));
             const opacity = absoluteMax > 0 ? Math.max(0.1, Math.min(Math.abs(value) / absoluteMax, 1)) : 0.1;
-            return isLoss ? `rgba(239, 68, 68, ${opacity})` : `rgba(52, 211, 153, ${opacity})`;
+            return isLoss ? `rgba(239, 68, 68, ${opacity})` : `rgba(var(--accent-green), ${opacity})`;
         }
         // trades or profitFactor
         const opacity = maxMetric > 0 ? Math.max(0.1, Math.min(value / maxMetric, 1)) : 0.1;
-        return `rgba(52, 211, 153, ${opacity})`
+        return `rgba(var(--accent-green), ${opacity})`
     }
     
     return (

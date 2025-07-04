@@ -20,14 +20,14 @@ const KellyPage: React.FC<KellyPageProps> = ({ initialTrades, initialTagGroups =
           <h1 className="text-3xl font-bold text-purple-400">Kelly Criterion</h1>
           
           {/* Advanced Tags Badge */}
-          <div className="flex items-center space-x-2 px-3 py-1 bg-blue-900 border border-blue-700 rounded-lg">
+          <div className="flex items-center space-x-2 px-3 py-1 bg-blue-900 border border-blue-700 rounded-lg" style={{ background: 'var(--background-secondary)' }}>
             <BrainIcon className="w-4 h-4 text-blue-400" />
             <span className="text-sm text-blue-200 font-medium">Advanced Tagging System</span>
           </div>
         </div>
 
         {/* Info Banner */}
-        <div className="bg-blue-900 border border-blue-700 rounded-lg p-4 mb-6">
+        <div className="bg-blue-900 border border-blue-700 rounded-lg p-4 mb-6" style={{ background: 'var(--background-secondary)' }}>
           <div className="flex items-start space-x-3">
             <BrainIcon className="w-5 h-5 text-blue-400 mt-0.5" />
             <div>
@@ -40,7 +40,7 @@ const KellyPage: React.FC<KellyPageProps> = ({ initialTrades, initialTagGroups =
           </div>
         </div>
 
-        <div className="bg-gray-800 rounded-xl shadow-2xl p-6">
+        <div className="bg-gray-800 rounded-xl shadow-2xl p-6" style={{ background: 'var(--background-secondary)' }}>
           <KellyCriterionAnalysis 
             trades={trades} 
             tagGroups={tagGroups}

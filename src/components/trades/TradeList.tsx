@@ -20,18 +20,18 @@ interface TradeListProps {
 
 const getGradeColor = (grade: Grade): string => {
   switch (grade) {
-    case 'A+': return 'bg-[#1abc9c]'; // Teal
-    case 'A': return 'bg-[#218c74]'; // Green
-    case 'A-': return 'bg-[#43b581]'; // Lighter green
-    case 'B+': return 'bg-[#3CB371]'; // Medium green
-    case 'B': return 'bg-[#C6D93B]'; // Yellow-green
-    case 'B-': return 'bg-[#E5E059]'; // Yellow
-    case 'C+': return 'bg-[#F0C241]'; // Gold
-    case 'C': return 'bg-[#E07B39]'; // Orange
-    case 'C-': return 'bg-[#E4572E]'; // Orange-red
-    case 'D': return 'bg-[#B22222]'; // Red
-    case 'F': return 'bg-[#8B0000]'; // Dark red
-    default: return 'bg-gray-500';
+    case 'A+': return '#1abc9c'; // Teal
+    case 'A': return '#218c74'; // Green
+    case 'A-': return '#43b581'; // Lighter green
+    case 'B+': return '#3CB371'; // Medium green
+    case 'B': return '#C6D93B'; // Yellow-green
+    case 'B-': return '#E5E059'; // Yellow
+    case 'C+': return '#F0C241'; // Gold
+    case 'C': return '#E07B39'; // Orange
+    case 'C-': return '#E4572E'; // Orange-red
+    case 'D': return '#B22222'; // Red
+    case 'F': return '#8B0000'; // Dark red
+    default: return '#808080';
   }
 };
 
@@ -177,7 +177,7 @@ export const TradeList: React.FC<TradeListProps> = ({ trades, tagGroups, onEditT
                 </Td>
                 <Td>
                   {trade.execution?.grade ? (
-                    <span className={`px-2 py-1 text-xs font-bold text-white rounded-full ${getGradeColor(trade.execution.grade)}`}>
+                    <span className={`px-2 py-1 text-xs font-bold text-white rounded-full`} style={{ background: getGradeColor(trade.execution.grade) }}>
                       {trade.execution.grade}
                     </span>
                   ) : ''}

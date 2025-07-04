@@ -1,32 +1,41 @@
 /* Global CSS Variables */
 :root {
   /* Colors - Backgrounds */
-  --background-main: #1a202c;
-  --background-secondary: #2d3748;
-  --background-tertiary: #374151;
+  --background-main: #1A1D23;
+  --background-secondary: #252932;
+  --background-tertiary: #343A46;
   
   /* Colors - Text */
-  --text-main: #f7fafc;
-  --text-secondary: #a0aec0;
-  --text-accent: #a78bfa;
-  --text-blue: #bfdbfe;
-  --text-green: #4ade80;
-  --text-red: #f87171;
-  --text-white: #ffffff;
+  --text-main: #E6E6E6;
+  --text-secondary: #A8B2C2;
+  --text-accent: #5A95E3;
+  --text-blue: #5A95E3;
+  --text-green: #2DCF7A;
+  --text-red: #E55A5A;
+  --text-white: #FFFFFF;
   
   /* Colors - Accent/Buttons */
-  --accent-blue: #2563eb;
-  --accent-blue-dark: #1d4ed8;
-  --accent-green: #4ade80;
-  --accent-green-dark: #22c55e;
+  --accent-blue: #5A95E3;
+  --accent-blue-dark: #487AC1;
+  --accent-green: #2DCF7A;
+  --accent-green-dark: #24A662;
+  --accent-yellow: #F59E0B;
+  
+  /* Colors - Status */
+  --success: #2DCF7A;
+  --error: #E55A5A;
   
   /* Colors - Gradients */
-  --gradient-green-from: #4ade80;
-  --gradient-green-to: #22c55e;
+  --gradient-green-from: #2DCF7A;
+  --gradient-green-to: #27AB66;
   
   /* Colors - Borders */
-  --border-main: #374151;
-  --border-blue: #1d4ed8;
+  --border-main: #3E4450;
+  --border-blue: #5A95E3;
+  
+  /* Colors - Scrollbar */
+  --scrollbar-thumb: #343A46;
+  --scrollbar-thumb-hover: #484F5C;
   
   /* Typography */
   --font-family-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
@@ -73,12 +82,12 @@
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #4a5568;
+  background: var(--scrollbar-thumb);
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #718096;
+  background: var(--scrollbar-thumb-hover);
 }
 
 /* Notification Popup Animation */

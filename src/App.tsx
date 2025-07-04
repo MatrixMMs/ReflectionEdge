@@ -292,7 +292,7 @@ const App: React.FC = () => {
 
   return (
     <Router>
-    <div className="flex min-h-screen bg-gray-900 text-gray-100">
+    <div className="flex min-h-screen" style={{ backgroundColor: 'var(--background-main)', color: 'var(--text-main)' }}>
       {/* Hidden file input for import */}
       <input
         type="file"
@@ -496,10 +496,11 @@ const App: React.FC = () => {
                   onChange={e => setDontShowAgain(e.target.checked)}
                   className="mr-2"
                 />
-                <label htmlFor="dontShowAgain" className="text-gray-300">Don't show this again</label>
+                <label htmlFor="dontShowAgain" style={{ color: 'var(--text-secondary)' }}>Don't show this again</label>
           </div>
               <button
-                className="mt-4 px-6 py-2 bg-green-600 text-white rounded disabled:opacity-50"
+                className="mt-4 px-6 py-2 rounded disabled:opacity-50"
+                style={{ backgroundColor: 'var(--accent-green)', color: 'var(--text-white)' }}
                 disabled={!dontShowAgain}
                 onClick={() => {
                   if (dontShowAgain) {

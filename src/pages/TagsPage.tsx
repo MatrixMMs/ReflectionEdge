@@ -28,9 +28,9 @@ const TagsPage: React.FC<TagsPageProps> = ({ initialTagGroups }) => {
   const handleDeleteSubTag = () => {};
 
   return (
-    <div className="min-h-screen bg-gray-900 text-gray-100 p-6">
+    <div className="min-h-screen bg-gray-900 text-gray-100 p-6" style={{ background: 'var(--background-main)' }}>
       <div className="max-w-4xl mx-auto">
-        <h1 className="text-3xl font-bold text-purple-400 mb-6">Tags</h1>
+        <h1 className="text-3xl font-bold text-purple-400 mb-6" style={{ color: 'var(--text-accent)' }}>Tags</h1>
         <TagManager
           tagGroups={tagGroups}
           onAddGroup={handleAddGroup}

@@ -193,7 +193,7 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
   }, [filteredTradesForChart, tagGroups]);
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-900 text-gray-100 p-4">
+    <div className="flex flex-col items-center justify-center min-h-screen text-gray-100 p-4" style={{ background: 'var(--background-main)' }}>
       <div className="w-full max-w-7xl mx-auto">
         {/* Trade Form Modal */}
         {isTradeFormModalOpen && (
@@ -218,7 +218,7 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
         <main className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-1 space-y-6">
             {/* Chart Controls */}
-            <div className="bg-gray-800 p-6 rounded-xl shadow-2xl">
+            <div className="bg-gray-800 p-6 rounded-xl shadow-2xl" style={{ background: 'var(--background-secondary)' }}>
               <h2 className="text-2xl font-semibold mb-4 text-purple-400 flex items-center">
                 <AdjustmentsHorizontalIcon className="w-6 h-6 mr-2" />
                 Controls
@@ -243,7 +243,7 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
             </div>
 
             {/* Summary */}
-            <div className="bg-gray-800 p-6 rounded-xl shadow-2xl">
+            <div className="bg-gray-800 p-6 rounded-xl shadow-2xl" style={{ background: 'var(--background-secondary)' }}>
               <h2 className="text-2xl font-semibold mb-4 text-pink-400 flex items-center">
                 <TableCellsIcon className="w-6 h-6 mr-2" />
                 Summary
@@ -306,7 +306,7 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
 
           <div className="lg:col-span-2 space-y-6">
             {/* Performance Chart */}
-            <div id="performance-chart-container" className="bg-gray-800 p-6 rounded-xl shadow-2xl min-h-[400px]">
+            <div id="performance-chart-container" className="bg-gray-800 p-6 rounded-xl shadow-2xl min-h-[400px]" style={{ background: 'var(--background-secondary)' }}>
               <h2 className="text-2xl font-semibold mb-4 text-green-400 flex items-center">
                 <ChartBarIcon className="w-6 h-6 mr-2" />
                 Performance Chart
@@ -322,7 +322,7 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
             {/* Pie Charts */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {Object.values(pieChartDataByGroup).map(groupData => (
-                <div key={groupData.groupName} className="bg-gray-800 p-4 rounded-xl shadow-2xl">
+                <div key={groupData.groupName} className="bg-gray-800 p-4 rounded-xl shadow-2xl" style={{ background: 'var(--background-secondary)' }}>
                   <h3 className="text-lg font-semibold mb-2 text-center text-pink-400">
                     {groupData.groupName}
                   </h3>
@@ -339,7 +339,7 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
             </div>
 
             {/* Trade Log */}
-            <div id="tradelog-container" className="bg-gray-800 p-6 rounded-xl shadow-2xl">
+            <div id="tradelog-container" className="bg-gray-800 p-6 rounded-xl shadow-2xl" style={{ background: 'var(--background-secondary)' }}>
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-2xl font-semibold text-purple-400 flex items-center">
                   Trade Log
@@ -368,7 +368,7 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
         </main>
           
         {/* Legal Disclaimer Footer */}
-        <FooterDisclaimer />
+        {/* <FooterDisclaimer /> */}
         
         {/* Compact Legal Disclaimer and Legal Button */}
         <div className="mt-6 flex flex-col items-center space-y-4">

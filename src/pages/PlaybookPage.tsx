@@ -72,13 +72,13 @@ const PlaybookPage: React.FC<PlaybookPageProps> = ({ tagGroups, initialPlaybookE
   };
 
   return (
-    <div className="min-h-screen bg-gray-900 text-gray-100 p-6">
+    <div className="min-h-screen" style={{ background: 'var(--background-main)' }}>
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-purple-400">Playbook</h1>
-            <p className="text-gray-400 mt-2">Manage your trading strategies and setups</p>
+            <h1 className="text-3xl font-bold text-purple-400" style={{ color: 'var(--text-accent)' }}>Playbook</h1>
+            <p className="text-gray-400 mt-2" style={{ color: 'var(--text-secondary)' }}>Manage your trading strategies and setups</p>
           </div>
           <div className="flex gap-2">
             <Button
@@ -91,7 +91,7 @@ const PlaybookPage: React.FC<PlaybookPageProps> = ({ tagGroups, initialPlaybookE
           </div>
         </div>
         {/* Content */}
-        <div className="bg-gray-800 rounded-xl shadow-2xl p-6">
+        <div className="bg-gray-800 rounded-xl shadow-2xl p-6" style={{ background: 'var(--background-secondary)' }}>
           {isAddingPlaybook || isEditingPlaybook || selectedPlaybookEntry ? (
             <PlaybookEditor
               entry={selectedPlaybookEntry || undefined}
