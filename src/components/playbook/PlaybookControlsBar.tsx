@@ -16,7 +16,7 @@ interface PlaybookControlsBarProps {
   onZoomIn: () => void;
   onZoomOut: () => void;
   onFitView: () => void;
-  onTestResizer: () => void;
+
   canUndo: boolean;
   canRedo: boolean;
   nodeTypes: Array<{ type: string; label: string; icon: string; color: string }>;
@@ -71,7 +71,7 @@ const PlaybookControlsBar: React.FC<PlaybookControlsBarProps> = ({
   onZoomIn,
   onZoomOut,
   onFitView,
-  onTestResizer,
+
   canUndo,
   canRedo,
   nodeTypes
@@ -218,14 +218,7 @@ const PlaybookControlsBar: React.FC<PlaybookControlsBarProps> = ({
           📥
         </ControlButton>
 
-        {/* Test Resizer */}
-        <ControlButton
-          onClick={onTestResizer}
-          title="Test Resizer"
-          style={{ background: '#ec4899' }}
-        >
-          📏
-        </ControlButton>
+
 
         {/* Spacer */}
         <div style={{ marginLeft: 'auto' }} />

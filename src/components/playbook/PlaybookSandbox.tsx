@@ -14,8 +14,6 @@ import ReactFlow, {
   getBezierPath,
 } from 'react-flow-renderer';
 import CustomMiniMap from './CustomMiniMap';
-import CustomNodeResizer from './CustomNodeResizer';
-import SimpleResizer from './SimpleResizer';
 import PlaybookControlsBar from './PlaybookControlsBar';
 import NodeEditor from './NodeEditor';
 
@@ -61,6 +59,10 @@ const initialNodes = [
       tags: ['important', 'setup'],
       dueDate: '',
       assignee: '',
+      riskWrong: '',
+      riskStop: '',
+      journal: '',
+      advancedTags: {},
     },
     style: { width: 120, height: 60 },
   },
@@ -78,6 +80,10 @@ const initialNodes = [
       tags: ['criteria', 'success'],
       dueDate: '',
       assignee: '',
+      riskWrong: '',
+      riskStop: '',
+      journal: '',
+      advancedTags: {},
     },
     style: { width: 120, height: 60 },
   },
@@ -107,7 +113,10 @@ const CustomNode = ({ data, id, selected }: { data: any; id: string; selected?: 
   };
 
   const handleSaveNode = (nodeId: string, updatedData: any) => {
-    Object.assign(data, updatedData);
+    // Use the global function to update the node
+    if (typeof window !== 'undefined' && (window as any).updateNodeData) {
+      (window as any).updateNodeData(nodeId, updatedData);
+    }
   };
 
   return (
@@ -115,21 +124,21 @@ const CustomNode = ({ data, id, selected }: { data: any; id: string; selected?: 
       <div
         style={{
           background: '#fff',
-          borderRadius: 8,
-          padding: 16,
+    borderRadius: 8,
+    padding: 16,
           minWidth: nodeSize.width,
           minHeight: nodeSize.height,
           textAlign: 'center',
           fontWeight: 500,
           fontSize: 18,
-          boxShadow: '0 2px 8px #0002',
+    boxShadow: '0 2px 8px #0002',
           border: `2px solid ${nodeType.color}`,
           position: 'relative',
           width: nodeSize.width,
           height: nodeSize.height,
           overflow: 'hidden',
-          cursor: 'pointer',
-          display: 'flex',
+    cursor: 'pointer',
+    display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
         }}
@@ -212,7 +221,7 @@ const CustomNode = ({ data, id, selected }: { data: any; id: string; selected?: 
           onMouseOver={e => e.currentTarget.style.boxShadow = `0 0 0 6px #8888`}
           onMouseOut={e => e.currentTarget.style.boxShadow = '0 2px 6px #0003'}
         />
-      </div>
+  </div>
       <NodeEditor
         node={{ id, data }}
         nodeTypes={NODE_TYPES}
@@ -233,7 +242,6 @@ const PlaybookSandbox: React.FC = () => {
   const [reactFlowInstance, setReactFlowInstance] = useState<ReactFlowInstance | null>(null);
   const [history, setHistory] = useState<{ nodes: any[]; edges: any[] }[]>([]);
   const [historyIndex, setHistoryIndex] = useState(-1);
-  const [showTestResizer, setShowTestResizer] = useState(false);
   const [strategyList, setStrategyList] = useState<string[]>([]);
   const [selectedStrategy, setSelectedStrategy] = useState<string>('');
 
@@ -307,6 +315,10 @@ const PlaybookSandbox: React.FC = () => {
           tags: [],
           dueDate: '',
           assignee: '',
+          riskWrong: '',
+          riskStop: '',
+          journal: '',
+          advancedTags: {},
         },
         style: { width: 120, height: 60 },
       },
@@ -394,9 +406,7 @@ const PlaybookSandbox: React.FC = () => {
     }
   };
 
-  const handleTestResize = (width: number, height: number) => {
-    console.log('Test resize:', width, height);
-  };
+
 
   // Style edges for thickness, color, and arrow (default edge type)
   const styledEdges = edges.map(e => ({
@@ -419,7 +429,7 @@ const PlaybookSandbox: React.FC = () => {
           x: parent.position.x,
           y: parent.position.y + parentHeight + 80,
         },
-        data: {
+      data: {
           label: 'New Node',
           type: parent.data.type,
           description: '',
@@ -429,12 +439,27 @@ const PlaybookSandbox: React.FC = () => {
           tags: [],
           dueDate: '',
           assignee: '',
+          riskWrong: '',
+          riskStop: '',
+          journal: '',
+          advancedTags: {},
         },
         style: { width: 120, height: 60 },
       };
       setEdges(eds => ([...eds, { id: `e${parentId}-${id}`, source: parentId, target: id }]));
       return [...nds, newNode];
     });
+  };
+
+  // Update node data from NodeEditor
+  (window as any).updateNodeData = (nodeId: string, updatedData: any) => {
+    setNodes(nds => nds.map(node => 
+      node.id === nodeId 
+        ? { ...node, data: { ...node.data, ...updatedData } }
+        : node
+    ));
+    // Save to history for undo/redo
+    setTimeout(() => saveToHistory(), 0);
   };
 
   return (
@@ -455,7 +480,6 @@ const PlaybookSandbox: React.FC = () => {
         onZoomIn={handleZoomIn}
         onZoomOut={handleZoomOut}
         onFitView={handleFitView}
-        onTestResizer={() => setShowTestResizer(!showTestResizer)}
         canUndo={historyIndex > 0}
         canRedo={historyIndex < history.length - 1}
         nodeTypes={NODE_TYPES}
@@ -499,25 +523,7 @@ const PlaybookSandbox: React.FC = () => {
         onNodeClick={handleMiniMapNodeClick}
       />
 
-      {/* Test Resizer */}
-      {showTestResizer && (
-        <div style={{
-          position: 'fixed',
-          top: 100,
-          left: 20,
-          zIndex: 10000,
-          background: '#232136',
-          padding: 20,
-          borderRadius: 8,
-          border: '2px solid #444',
-        }}>
-          <h3 style={{ color: '#fff', marginBottom: 10 }}>Test Resizer</h3>
-          <SimpleResizer onResize={handleTestResize} color="#6366f1" />
-          <p style={{ color: '#fff', fontSize: 12, marginTop: 10 }}>
-            Try dragging the bottom-right handle to resize
-          </p>
-        </div>
-      )}
+
     </div>
   );
 };
