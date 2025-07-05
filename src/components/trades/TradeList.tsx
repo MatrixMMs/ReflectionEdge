@@ -140,18 +140,21 @@ export const TradeList: React.FC<TradeListProps> = ({ trades, tagGroups, onEditT
             <Tr>
               <Th><span onClick={() => handleSort('date')} className="cursor-pointer select-none flex items-center">Date{sortIndicator('date')}</span></Th>
               <Th><span onClick={() => handleSort('symbol')} className="cursor-pointer select-none flex items-center">Symbol{sortIndicator('symbol')}</span></Th>
+              <Th>Entry</Th>
+              <Th>Exit</Th>
               <Th><span onClick={() => handleSort('direction')} className="cursor-pointer select-none flex items-center">Direction{sortIndicator('direction')}</span></Th>
-              <Th><span onClick={() => handleSort('profit')} className="cursor-pointer select-none flex items-center">P&L{sortIndicator('profit')}</span></Th>
-              <Th>&nbsp;</Th>
-              <Th><span onClick={() => handleSort('grade')} className="cursor-pointer select-none flex items-center">Grade{sortIndicator('grade')}</span></Th>
+              <Th>Contracts</Th>
+              <Th><span onClick={() => handleSort('profit')} className="cursor-pointer select-none flex items-center">Return (P&L){sortIndicator('profit')}</span></Th>
               <Th>&nbsp;</Th>
             </Tr>
           </Thead>
           <Tbody>
             {sortedTrades.map(trade => (
-              <Tr key={trade.id} className={`${trade.isBestTrade ? 'ring-2 ring-yellow-400' : ''} ${trade.isWorstTrade ? 'ring-2 ring-red-400' : ''}`}>
+              <Tr key={trade.id}>
                 <Td>{trade.date}</Td>
                 <Td>{trade.symbol || 'N/A'}</Td>
+                <Td>{trade.entry != null ? trade.entry : '-'}</Td>
+                <Td>{trade.exit != null ? trade.exit : '-'}</Td>
                 <Td>
                   <span className={`px-2 py-1 text-xs font-semibold rounded-full ${
                     trade.direction === 'long' ? 'bg-green-900 text-green-300' : 'bg-red-900 text-red-300'
@@ -159,28 +162,9 @@ export const TradeList: React.FC<TradeListProps> = ({ trades, tagGroups, onEditT
                     {trade.direction === 'long' ? 'Long' : 'Short'}
                   </span>
                 </Td>
+                <Td>{trade.contracts != null ? trade.contracts : '-'}</Td>
                 <Td className={trade.profit >= 0 ? 'text-green-400' : 'text-red-400'}>
                   ${trade.profit.toFixed(2)}
-                </Td>
-                <Td>
-                  <div className="flex items-center gap-1">
-                    {trade.isBestTrade && (
-                      <span className="text-yellow-400 text-lg" title="Best Trade">⭐</span>
-                    )}
-                    {trade.isWorstTrade && (
-                      <span className="text-red-400 text-lg" title="Worst Trade">👎</span>
-                    )}
-                    {trade.extendedReflection && (trade.extendedReflection.mindset || trade.extendedReflection.setup) && (
-                      <span className="text-blue-400 text-sm" title="Has Extended Journal">📝</span>
-                    )}
-                  </div>
-                </Td>
-                <Td>
-                  {trade.execution?.grade ? (
-                    <span className={`px-2 py-1 text-xs font-bold text-white rounded-full`} style={{ background: getGradeColor(trade.execution.grade) }}>
-                      {trade.execution.grade}
-                    </span>
-                  ) : ''}
                 </Td>
                 <Td className="relative">
                   <div>

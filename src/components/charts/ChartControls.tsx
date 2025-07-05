@@ -10,12 +10,10 @@ interface ChartControlsProps {
   setYAxisMetric: (metric: ChartYAxisMetric) => void;
   xAxisMetric: ChartXAxisMetric;
   setXAxisMetric: (metric: ChartXAxisMetric) => void;
-  dateRange: AppDateRange;
-  setDateRange: (range: AppDateRange) => void;
   compareDateRange: AppDateRange | null;
   setCompareDateRange: (range: AppDateRange | null) => void;
   tagGroups: TagGroup[];
-  selectedTags: { [groupId: string]: string[] }; 
+  selectedTags: { [groupId: string]: string[] };
   setSelectedTags: React.Dispatch<React.SetStateAction<{ [groupId: string]: string[] }>>;
   tagComparisonMode: 'AND' | 'OR';
   setTagComparisonMode: (mode: 'AND' | 'OR') => void;
@@ -25,7 +23,7 @@ interface ChartControlsProps {
 
 export const ChartControls: React.FC<ChartControlsProps> = ({
   yAxisMetric, setYAxisMetric, xAxisMetric, setXAxisMetric,
-  dateRange, setDateRange, compareDateRange, setCompareDateRange,
+  compareDateRange, setCompareDateRange,
   tagGroups, selectedTags, setSelectedTags, tagComparisonMode, setTagComparisonMode,
   directionFilter, setDirectionFilter
 }) => {
@@ -51,14 +49,7 @@ export const ChartControls: React.FC<ChartControlsProps> = ({
     if (compareDateRange) {
       setCompareDateRange(null);
     } else {
-      const startDate = new Date(dateRange.start);
-      const endDate = new Date(startDate);
-      endDate.setDate(startDate.getDate() - 1);
-      startDate.setDate(startDate.getDate() - 7);
-      setCompareDateRange({
-        start: startDate.toISOString().split('T')[0],
-        end: endDate.toISOString().split('T')[0],
-      });
+      setCompareDateRange({ start: '', end: '' });
     }
   };
 
@@ -103,52 +94,46 @@ export const ChartControls: React.FC<ChartControlsProps> = ({
   };
 
   return (
-    <div className="space-y-4 text-gray-300">
-      {/* Date Range Selection */}
-      <div className="grid grid-cols-2 gap-4">
-        <Input label="Chart Start Date" type="date" value={dateRange.start} onChange={e => setDateRange({ ...dateRange, start: e.target.value })} />
-        <Input label="Chart End Date" type="date" value={dateRange.end} onChange={e => setDateRange({ ...dateRange, end: e.target.value })} />
-      </div>
-
+    <div className="space-y-2 text-gray-300 text-xs">
       {/* Comparison Date Range */}
       <div>
-        <label className="flex items-center space-x-2 cursor-pointer">
+        <label className="flex items-center space-x-1 cursor-pointer text-xs">
           <input 
             type="checkbox" 
             checked={!!compareDateRange} 
             onChange={toggleCompareDateRange}
-            className="form-checkbox h-5 w-5 text-purple-600 bg-gray-700 border-gray-500 rounded focus:ring-purple-500"
+            className="form-checkbox h-4 w-4 text-purple-600 bg-gray-700 border-gray-500 rounded focus:ring-purple-500"
           />
           <span>Compare with another period</span>
         </label>
         {compareDateRange && (
-          <div className="grid grid-cols-2 gap-4 mt-2 pl-7">
-            <Input label="Compare Start" type="date" value={compareDateRange.start} onChange={e => setCompareDateRange({ ...compareDateRange, start: e.target.value })} />
-            <Input label="Compare End" type="date" value={compareDateRange.end} onChange={e => setCompareDateRange({ ...compareDateRange, end: e.target.value })} />
+          <div className="grid grid-cols-2 gap-2 mt-1 pl-4">
+            <Input label="Compare Start" type="date" value={compareDateRange.start} onChange={e => setCompareDateRange({ ...compareDateRange, start: e.target.value })} className="h-7 text-xs p-1" />
+            <Input label="Compare End" type="date" value={compareDateRange.end} onChange={e => setCompareDateRange({ ...compareDateRange, end: e.target.value })} className="h-7 text-xs p-1" />
           </div>
         )}
       </div>
 
       {/* Axis Metric Selection */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
         <div>
-          <label htmlFor="y-axis-metric" className="block text-sm font-medium mb-1">Y-Axis Metric:</label>
+          <label htmlFor="y-axis-metric" className="block text-xs font-medium mb-0.5">Y-Axis Metric:</label>
           <select
             id="y-axis-metric"
             value={yAxisMetric}
             onChange={e => setYAxisMetric(e.target.value as ChartYAxisMetric)}
-            className="w-full bg-gray-700 border border-gray-600 text-gray-100 sm:text-sm rounded-lg focus:ring-purple-500 focus:border-purple-500 p-2.5"
+            className="w-full bg-gray-700 border border-gray-600 text-gray-100 text-xs rounded-lg focus:ring-purple-500 focus:border-purple-500 p-1 h-7"
           >
             {Object.values(ChartYAxisMetric).map(metric => <option key={metric} value={metric}>{metric}</option>)}
           </select>
         </div>
         <div>
-          <label htmlFor="x-axis-metric" className="block text-sm font-medium mb-1">X-Axis Metric:</label>
+          <label htmlFor="x-axis-metric" className="block text-xs font-medium mb-0.5">X-Axis Metric:</label>
           <select
             id="x-axis-metric"
             value={xAxisMetric}
             onChange={e => setXAxisMetric(e.target.value as ChartXAxisMetric)}
-            className="w-full bg-gray-700 border border-gray-600 text-gray-100 sm:text-sm rounded-lg focus:ring-purple-500 focus:border-purple-500 p-2.5"
+            className="w-full bg-gray-700 border border-gray-600 text-gray-100 text-xs rounded-lg focus:ring-purple-500 focus:border-purple-500 p-1 h-7"
           >
             {Object.values(ChartXAxisMetric).map(metric => <option key={metric} value={metric}>{metric}</option>)}
           </select>
@@ -156,19 +141,18 @@ export const ChartControls: React.FC<ChartControlsProps> = ({
       </div>
        {/* Direction Filter */}
       <div>
-        <label htmlFor="direction-filter" className="block text-sm font-medium mb-1">Trade Direction:</label>
+        <label htmlFor="direction-filter" className="block text-xs font-medium mb-0.5">Trade Direction:</label>
         <select
           id="direction-filter"
           value={directionFilter}
           onChange={e => setDirectionFilter(e.target.value as TradeDirectionFilterSelection)}
-          className="w-full bg-gray-700 border border-gray-600 text-gray-100 sm:text-sm rounded-lg focus:ring-purple-500 focus:border-purple-500 p-2.5"
+          className="w-full bg-gray-700 border border-gray-600 text-gray-100 text-xs rounded-lg focus:ring-purple-500 focus:border-purple-500 p-1 h-7"
         >
           <option value="all">All Directions (Separate Lines)</option>
           <option value="long">Long Only</option>
           <option value="short">Short Only</option>
         </select>
       </div>
-      
       {/* Tag Search Bar */}
       <div>
         <Input
@@ -177,22 +161,22 @@ export const ChartControls: React.FC<ChartControlsProps> = ({
           value={tagSearch}
           onChange={e => setTagSearch(e.target.value)}
           placeholder="Type to search tags..."
+          className="h-7 text-xs p-1"
         />
       </div>
-
       {/* Tag Filter Sections */}
       <div>
-        <h4 className="text-sm font-medium mb-1">Filter by Tags:</h4>
+        <h4 className="text-xs font-medium mb-1">Filter by Tags:</h4>
         {/* Objective Tags */}
-        <div className="mb-4">
-          <div className="text-xs font-bold text-blue-400 mb-2">Objective Tags (Market's Story)</div>
+        <div className="mb-2">
+          <div className="text-xs font-bold text-blue-400 mb-1">Objective Tags (Market's Story)</div>
           {filterGroups(objectiveTagGroups).map(group => {
             const isCollapsed = collapsedGroups[group.id] || false;
             return (
-              <div key={group.id} className="bg-gray-800 border border-gray-700 rounded-xl shadow-sm mb-2">
+              <div key={group.id} className="bg-gray-800 border border-gray-700 rounded-xl shadow-sm mb-1">
                 <button
                   type="button"
-                  className="w-full flex items-center justify-between px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-t-xl"
+                  className="w-full flex items-center justify-between px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-t-xl"
                   onClick={() => setCollapsedGroups(prev => ({ ...prev, [group.id]: !prev[group.id] }))}
                   aria-expanded={!isCollapsed}
                   aria-controls={`tag-group-${group.id}`}
@@ -200,15 +184,15 @@ export const ChartControls: React.FC<ChartControlsProps> = ({
                 >
                   <span className="text-xs font-semibold text-gray-200 tracking-wide">{highlightMatch(group.name)}</span>
                   {isCollapsed ? (
-                    <ChevronDownIcon className="w-4 h-4 text-gray-400" />
+                    <ChevronDownIcon className="w-3 h-3 text-gray-400" />
                   ) : (
-                    <ChevronUpIcon className="w-4 h-4 text-gray-400" />
+                    <ChevronUpIcon className="w-3 h-3 text-gray-400" />
                   )}
                 </button>
                 {!isCollapsed && (
                   <>
-                    <div className="border-t border-gray-700 mx-2" />
-                    <div id={`tag-group-${group.id}`} className="flex flex-wrap gap-2 px-4 pb-3 pt-3">
+                    <div className="border-t border-gray-700 mx-1" />
+                    <div id={`tag-group-${group.id}`} className="flex flex-wrap gap-1 px-2 pb-2 pt-2">
                       {group.subtags.map(subtag => {
                         const isSelected = selectedTags[group.id]?.includes(subtag.id);
                         return (
@@ -216,7 +200,7 @@ export const ChartControls: React.FC<ChartControlsProps> = ({
                             key={subtag.id}
                             type="button"
                             onClick={() => handleTagSelection(group.id, subtag.id)}
-                            className={`px-3 py-1 rounded-full text-xs font-semibold transition-colors mr-2 mb-2 ${
+                            className={`px-2 py-0.5 rounded-full text-xs font-semibold transition-colors mr-1 mb-1 ${
                               isSelected ? 'ring-2 ring-blue-400' : 'hover:bg-gray-600'
                             }`}
                             style={{
@@ -237,14 +221,14 @@ export const ChartControls: React.FC<ChartControlsProps> = ({
         </div>
         {/* Subjective Tags */}
         <div>
-          <div className="text-xs font-bold text-yellow-400 mb-2">Subjective Tags (Trader's Story)</div>
+          <div className="text-xs font-bold text-yellow-400 mb-1">Subjective Tags (Trader's Story)</div>
           {filterGroups(subjectiveTagGroups).map(group => {
             const isCollapsed = collapsedGroups[group.id] || false;
             return (
-              <div key={group.id} className="bg-gray-800 border border-gray-700 rounded-xl shadow-sm mb-2">
+              <div key={group.id} className="bg-gray-800 border border-gray-700 rounded-xl shadow-sm mb-1">
                 <button
                   type="button"
-                  className="w-full flex items-center justify-between px-4 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500 rounded-t-xl"
+                  className="w-full flex items-center justify-between px-2 py-1 focus:outline-none focus:ring-2 focus:ring-yellow-500 rounded-t-xl"
                   onClick={() => setCollapsedGroups(prev => ({ ...prev, [group.id]: !prev[group.id] }))}
                   aria-expanded={!isCollapsed}
                   aria-controls={`tag-group-${group.id}`}
@@ -252,15 +236,15 @@ export const ChartControls: React.FC<ChartControlsProps> = ({
                 >
                   <span className="text-xs font-semibold text-gray-200 tracking-wide">{highlightMatch(group.name)}</span>
                   {isCollapsed ? (
-                    <ChevronDownIcon className="w-4 h-4 text-gray-400" />
+                    <ChevronDownIcon className="w-3 h-3 text-gray-400" />
                   ) : (
-                    <ChevronUpIcon className="w-4 h-4 text-gray-400" />
+                    <ChevronUpIcon className="w-3 h-3 text-gray-400" />
                   )}
                 </button>
                 {!isCollapsed && (
                   <>
-                    <div className="border-t border-gray-700 mx-2" />
-                    <div id={`tag-group-${group.id}`} className="flex flex-wrap gap-2 px-4 pb-3 pt-3">
+                    <div className="border-t border-gray-700 mx-1" />
+                    <div id={`tag-group-${group.id}`} className="flex flex-wrap gap-1 px-2 pb-2 pt-2">
                       {group.subtags.map(subtag => {
                         const isSelected = selectedTags[group.id]?.includes(subtag.id);
                         return (
@@ -268,7 +252,7 @@ export const ChartControls: React.FC<ChartControlsProps> = ({
                             key={subtag.id}
                             type="button"
                             onClick={() => handleTagSelection(group.id, subtag.id)}
-                            className={`px-3 py-1 rounded-full text-xs font-semibold transition-colors mr-2 mb-2 ${
+                            className={`px-2 py-0.5 rounded-full text-xs font-semibold transition-colors mr-1 mb-1 ${
                               isSelected ? 'ring-2 ring-yellow-400' : 'hover:bg-gray-600'
                             }`}
                             style={{
@@ -288,18 +272,18 @@ export const ChartControls: React.FC<ChartControlsProps> = ({
           })}
         </div>
         {Object.keys(selectedTags).length > 0 && (
-          <div className="mt-2">
-            <label htmlFor="tag-comparison-mode" className="block text-xs font-medium mb-1">Tag Logic (for trades with multiple tag group selections):</label>
+          <div className="mt-1">
+            <label htmlFor="tag-comparison-mode" className="block text-xs font-medium mb-0.5">Tag Logic (for trades with multiple tag group selections):</label>
             <select
               id="tag-comparison-mode"
               value={tagComparisonMode}
               onChange={e => setTagComparisonMode(e.target.value as 'AND' | 'OR')}
-              className="w-full bg-gray-700 border border-gray-600 text-gray-100 text-xs rounded-lg focus:ring-purple-500 focus:border-purple-500 p-1.5"
+              className="w-full bg-gray-700 border border-gray-600 text-gray-100 text-xs rounded-lg focus:ring-purple-500 focus:border-purple-500 p-1 h-7"
             >
               <option value="OR">Match ANY selected tag (OR logic)</option>
               <option value="AND">Match ALL selected tags per group (AND logic)</option>
             </select>
-            <p className="text-xs text-gray-500 mt-1">
+            <p className="text-xs text-gray-500 mt-0.5">
               OR: Shows lines for each selected tag individually.<br />
               AND: Filters trades that have ALL specified tags (across different groups if multiple groups selected).
             </p>

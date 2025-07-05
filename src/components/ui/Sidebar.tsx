@@ -41,7 +41,7 @@ const Sidebar: React.FC<SidebarProps> = ({
         width: sidebarCollapsed ? '5rem' : '16rem',
         paddingLeft: sidebarCollapsed ? '0.5rem' : '1rem',
         paddingRight: sidebarCollapsed ? '0.5rem' : '1rem',
-        backgroundColor: 'var(--background-secondary)',
+        backgroundColor: 'var(--background-tertiary)',
       }}
     >
       <style>{`

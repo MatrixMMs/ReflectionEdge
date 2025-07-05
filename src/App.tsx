@@ -146,6 +146,10 @@ const App: React.FC = () => {
     const file = event.target.files?.[0];
     if (!file) return;
 
+    // Debug: Log file info
+    console.log('Import Debug: File name:', file.name);
+    console.log('Import Debug: File type:', file.type);
+
     // Security validation
     if (!validateFileUpload(file)) {
       setImportNotification({
@@ -160,6 +164,8 @@ const App: React.FC = () => {
     reader.onload = (e) => {
       try {
         const content = e.target?.result as string;
+        // Debug: Log file content
+        console.log('Import Debug: File content:', content);
         let importedTrades: Trade[] = [];
 
         if (file.name.toLowerCase().endsWith('.csv')) {
@@ -187,16 +193,25 @@ const App: React.FC = () => {
             throw new Error('Unrecognized CSV format. Please ensure the file has columns for date, symbol, and profit/pnl.');
           }
         } else if (file.name.toLowerCase().endsWith('.json')) {
-          const parsed = safeJsonParse(content);
-          if (Array.isArray(parsed)) {
-            importedTrades = parsed.filter(trade => 
-              trade && typeof trade === 'object' && 
-              'id' in trade && 'date' in trade && 'symbol' in trade
-            );
+          const parsedResult = safeJsonParse(content);
+          // Debug: Log parsed result
+          console.log('Import Debug: Parsed result:', parsedResult);
+          if (parsedResult.success) {
+            const parsed = parsedResult.data;
+            if (Array.isArray(parsed)) {
+              importedTrades = parsed.filter(trade => 
+                trade && typeof trade === 'object' && 
+                'id' in trade && 'date' in trade && 'symbol' in trade
+              );
+            } else {
+              console.error('Import Debug: Parsed JSON is not an array:', parsed);
+              throw new Error('Invalid JSON format. Expected an array of trade objects.');
+            }
+          } else {
+            console.error('Import Debug: JSON parse error:', parsedResult.error);
+            throw new Error(parsedResult.error || 'Invalid JSON format.');
+          }
         } else {
-            throw new Error('Invalid JSON format. Expected an array of trade objects.');
-        }
-      } else {
           throw new Error('Unsupported file format. Please use CSV or JSON files.');
         }
 
@@ -231,7 +246,7 @@ const App: React.FC = () => {
 
       } catch (error) {
         console.error('Import error:', error);
-              setImportNotification({
+        setImportNotification({
           title: 'Import Failed',
           message: error instanceof Error ? error.message : 'Unknown error occurred during import.',
           details: 'Please check the file format and try again.'
@@ -239,7 +254,7 @@ const App: React.FC = () => {
       }
     };
 
-      reader.readAsText(file);
+    reader.readAsText(file);
     event.target.value = ''; // Reset file input
   };
 
@@ -292,7 +307,14 @@ const App: React.FC = () => {
 
   return (
     <Router>
-    <div className="flex min-h-screen" style={{ backgroundColor: 'var(--background-main)', color: 'var(--text-main)' }}>
+    <div 
+      className="flex min-h-screen" 
+      style={{ 
+        backgroundColor: 'var(--background-main)', 
+        color: 'var(--text-main)',
+        '--sidebar-width': sidebarCollapsed ? '5rem' : '16rem'
+      } as React.CSSProperties}
+    >
       {/* Hidden file input for import */}
       <input
         type="file"

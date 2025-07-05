@@ -16,6 +16,7 @@ import { processChartData, filterTradesByDateAndTags } from '../utils/chartDataP
 import { calculateFinancials } from '../utils/financialCalculations';
 import { getRandomColor, resetColorUsage } from '../utils/colorGenerator';
 import { DEFAULT_CHART_COLOR, COMPARISON_CHART_COLOR, LONG_TRADE_COLOR, SHORT_TRADE_COLOR } from '../constants';
+import { DateRangePicker } from '../components/ui/DateRangePicker';
 
 interface DashboardPageProps {
   trades: Trade[];
@@ -193,14 +194,23 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
   }, [filteredTradesForChart, tagGroups]);
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen text-gray-100 p-4" style={{ background: 'var(--background-main)' }}>
-      <div className="w-full max-w-7xl mx-auto">
-        {/* Page Header */}
-        <div className="flex items-center justify-between mb-8 mt-2">
-          <h1 className="text-3xl font-bold" style={{ color: 'var(--text-main)' }}>Dashboard</h1>
-          {/* Future: Filters, date range, etc. */}
+    <div className="min-h-screen text-gray-100" style={{ background: 'var(--background-main)' }}>
+      {/* Header Card: full width, flush with top/left/right - positioned absolutely to break out of main content constraints */}
+      <div 
+        className="bg-gray-800 p-3 flex items-center justify-between absolute top-0 left-0 right-0 z-10" 
+        style={{ 
+          background: 'var(--background-secondary)',
+          marginLeft: 'var(--sidebar-width)',
+          transition: 'margin-left 0.3s ease'
+        }}
+      >
+        <h1 className="text-3xl font-bold" style={{ color: 'var(--text-main)' }}>Dashboard</h1>
+        <div>
+          <DateRangePicker value={chartDateRange} onChange={setChartDateRange} />
         </div>
-
+      </div>
+      {/* Dashboard Content: padded, not touching sidebar or page edges - with top margin to account for header */}
+      <div className="flex flex-col pl-4 pr-4 pb-4 pt-20">
         {/* Trade Form Modal */}
         {isTradeFormModalOpen && (
           <Modal
@@ -221,45 +231,57 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
         )}
 
         {/* Main Dashboard Content */}
-        <main className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-1 space-y-6">
-            {/* Chart Controls */}
-            <div className="bg-gray-800 p-6 rounded-xl shadow-2xl" style={{ background: 'var(--background-secondary)' }}>
-              <h2 className="text-2xl font-semibold mb-4 text-purple-400 flex items-center">
-                <AdjustmentsHorizontalIcon className="w-6 h-6 mr-2" />
-                Controls
-              </h2>
-              <ChartControls
-                yAxisMetric={yAxisMetric}
-                setYAxisMetric={setYAxisMetric}
-                xAxisMetric={xAxisMetric}
-                setXAxisMetric={setXAxisMetric}
-                dateRange={chartDateRange}
-                setDateRange={setChartDateRange}
-                compareDateRange={compareDateRange}
-                setCompareDateRange={setCompareDateRange}
+        <main className="grid grid-cols-1 xl:grid-cols-3 gap-6 w-full">
+          {/* Left: Trade Log */}
+          <div className="flex flex-col h-full min-h-[600px]">
+            <div id="tradelog-container" className="bg-gray-800 p-6 rounded-xl flex-1 flex flex-col" style={{ background: 'var(--background-secondary)' }}>
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-2xl font-semibold text-purple-400 flex items-center">Trade Log</h2>
+                <button
+                  onClick={() => setTradeFiltersOpen((prev: boolean) => !prev)}
+                  aria-label={tradeFiltersOpen ? 'Hide Filters' : 'Show Filters'}
+                  className="text-gray-400 hover:text-white transition-colors focus:outline-none"
+                  style={{ background: 'none', border: 'none', padding: 0 }}
+                >
+                  <FilterIcon className="w-5 h-5" />
+                </button>
+              </div>
+              <TradeList
+                trades={trades}
                 tagGroups={tagGroups}
-                selectedTags={selectedTagsForChart}
-                setSelectedTags={setSelectedTagsForChart}
-                tagComparisonMode={tagComparisonMode}
-                setTagComparisonMode={setTagComparisonMode}
-                directionFilter={directionFilter}
-                setDirectionFilter={setDirectionFilter}
+                playbookEntries={playbookEntries}
+                onDeleteTrade={handleDeleteTrade}
+                onEditTrade={handleEditTrade}
+                onViewDetails={handleViewTradeDetails}
+                filtersOpen={tradeFiltersOpen}
+                setFiltersOpen={setTradeFiltersOpen}
               />
             </div>
+          </div>
 
-            {/* Summary */}
-            <div className="bg-gray-800 p-6 rounded-xl shadow-2xl" style={{ background: 'var(--background-secondary)' }}>
+          {/* Middle: Performance Chart (top), Summary (bottom) */}
+          <div className="flex flex-col gap-6 h-full min-h-[600px]">
+            <div id="performance-chart-container" className="bg-gray-800 p-6 rounded-xl min-h-[300px]" style={{ background: 'var(--background-secondary)' }}>
+              <h2 className="text-2xl font-semibold mb-4 text-green-400 flex items-center">
+                <ChartBarIcon className="w-6 h-6 mr-2" />
+                Performance Chart
+              </h2>
+              <LineChartRenderer 
+                data={chartData} 
+                comparisonData={comparisonChartData} 
+                yAxisMetric={yAxisMetric} 
+                xAxisMetric={xAxisMetric} 
+              />
+            </div>
+            <div className="bg-gray-800 p-6 rounded-xl flex-1" style={{ background: 'var(--background-secondary)' }}>
               <h2 className="text-2xl font-semibold mb-4 text-pink-400 flex items-center">
                 <TableCellsIcon className="w-6 h-6 mr-2" />
                 Summary
               </h2>
-              
               <div className="flex items-center space-x-2 mb-4">
                 <Button onClick={() => setSummaryDateMode('daily')} variant={summaryDateMode === 'daily' ? 'primary' : 'secondary'} size="sm">Daily</Button>
                 <Button onClick={() => setSummaryDateMode('range')} variant={summaryDateMode === 'range' ? 'primary' : 'secondary'} size="sm">Range</Button>
               </div>
-              
               <div className="mb-4">
                 {summaryDateMode === 'daily' ? (
                   <div>
@@ -300,79 +322,42 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
               <Summary trades={tradesForSummary} />
               {directionFilter !== 'all' && <p className="text-xs text-gray-400 mt-2">Showing summary for {directionFilter} trades only.</p>}
             </div>
-            
-            {/* Tag Performance */}
-            <TagPerformance 
-              trades={trades} 
-              tagGroups={tagGroups} 
-              chartDateRange={chartDateRange} 
-              directionFilter={directionFilter} 
-            />
           </div>
 
-          <div className="lg:col-span-2 space-y-6">
-            {/* Performance Chart */}
-            <div id="performance-chart-container" className="bg-gray-800 p-6 rounded-xl shadow-2xl min-h-[400px]" style={{ background: 'var(--background-secondary)' }}>
-              <h2 className="text-2xl font-semibold mb-4 text-green-400 flex items-center">
-                <ChartBarIcon className="w-6 h-6 mr-2" />
-                Performance Chart
+          {/* Right: Chart Controls (top), Tag Performance (bottom) */}
+          <div className="flex flex-col gap-6 h-full min-h-[600px]">
+            <div className="bg-gray-800 p-6 rounded-xl" style={{ background: 'var(--background-secondary)' }}>
+              <h2 className="text-2xl font-semibold mb-4 text-purple-400 flex items-center">
+                <AdjustmentsHorizontalIcon className="w-6 h-6 mr-2" />
+                Controls
               </h2>
-              <LineChartRenderer 
-                data={chartData} 
-                comparisonData={comparisonChartData} 
-                yAxisMetric={yAxisMetric} 
-                xAxisMetric={xAxisMetric} 
+              <ChartControls
+                yAxisMetric={yAxisMetric}
+                setYAxisMetric={setYAxisMetric}
+                xAxisMetric={xAxisMetric}
+                setXAxisMetric={setXAxisMetric}
+                compareDateRange={compareDateRange}
+                setCompareDateRange={setCompareDateRange}
+                tagGroups={tagGroups}
+                selectedTags={selectedTagsForChart}
+                setSelectedTags={setSelectedTagsForChart}
+                tagComparisonMode={tagComparisonMode}
+                setTagComparisonMode={setTagComparisonMode}
+                directionFilter={directionFilter}
+                setDirectionFilter={setDirectionFilter}
               />
             </div>
-
-            {/* Pie Charts */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {Object.values(pieChartDataByGroup).map(groupData => (
-                <div key={groupData.groupName} className="bg-gray-800 p-4 rounded-xl shadow-2xl" style={{ background: 'var(--background-secondary)' }}>
-                  <h3 className="text-lg font-semibold mb-2 text-center text-pink-400">
-                    {groupData.groupName}
-                  </h3>
-                  <PieChartRenderer 
-                    data={groupData.data} 
-                    height={200}
-                    outerRadius={60}
-                  />
-                  <p className="text-xs text-gray-400 mt-2 text-center">
-                    For trades in selected date range{directionFilter !== 'all' ? ` (${directionFilter} only)` : ''}.
-                  </p>
-                </div>
-              ))}
-            </div>
-
-            {/* Trade Log */}
-            <div id="tradelog-container" className="bg-gray-800 p-6 rounded-xl shadow-2xl" style={{ background: 'var(--background-secondary)' }}>
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-2xl font-semibold text-purple-400 flex items-center">
-                  Trade Log
-                </h2>
-                <button
-                  onClick={() => setTradeFiltersOpen((prev: boolean) => !prev)}
-                  aria-label={tradeFiltersOpen ? 'Hide Filters' : 'Show Filters'}
-                  className="text-gray-400 hover:text-white transition-colors focus:outline-none"
-                  style={{ background: 'none', border: 'none', padding: 0 }}
-                >
-                  <FilterIcon className="w-5 h-5" />
-                </button>
-              </div>
-              <TradeList
-                trades={trades}
-                tagGroups={tagGroups}
-                playbookEntries={playbookEntries}
-                onDeleteTrade={handleDeleteTrade}
-                onEditTrade={handleEditTrade}
-                onViewDetails={handleViewTradeDetails}
-                filtersOpen={tradeFiltersOpen}
-                setFiltersOpen={setTradeFiltersOpen}
+            <div className="flex-1">
+              <TagPerformance 
+                trades={trades} 
+                tagGroups={tagGroups} 
+                chartDateRange={chartDateRange} 
+                directionFilter={directionFilter} 
               />
             </div>
           </div>
         </main>
-          
+
         {/* Legal Disclaimer Footer */}
         {/* <FooterDisclaimer /> */}
         

@@ -420,11 +420,34 @@ export const PatternInsights: React.FC<PatternInsightsProps> = ({ trades }) => {
     // Tag-Based Performance
     const tagStats: { [tagKey: string]: { tagGroup: string; tagValue: string; trades: Trade[]; winRate: number; totalTrades: number; profitFactor: number; totalProfit: number; } } = {};
     trades.forEach(trade => {
-      Object.entries(trade.tags).forEach(([group, value]) => {
-        const key = `${group}:${value}`;
-        if (!tagStats[key]) tagStats[key] = { tagGroup: group, tagValue: value, trades: [], winRate: 0, totalTrades: 0, profitFactor: 0, totalProfit: 0 };
-        tagStats[key].trades.push(trade);
-      });
+      // Legacy tags
+      if (trade.tags) {
+        Object.entries(trade.tags).forEach(([group, value]) => {
+          const key = `${group}:${value}`;
+          if (!tagStats[key]) tagStats[key] = { tagGroup: group, tagValue: value, trades: [], winRate: 0, totalTrades: 0, profitFactor: 0, totalProfit: 0 };
+          tagStats[key].trades.push(trade);
+        });
+      }
+      // New objectiveTags
+      if (trade.objectiveTags) {
+        Object.entries(trade.objectiveTags).forEach(([group, values]) => {
+          values.forEach(value => {
+            const key = `${group}:${value}`;
+            if (!tagStats[key]) tagStats[key] = { tagGroup: group, tagValue: value, trades: [], winRate: 0, totalTrades: 0, profitFactor: 0, totalProfit: 0 };
+            tagStats[key].trades.push(trade);
+          });
+        });
+      }
+      // New subjectiveTags
+      if (trade.subjectiveTags) {
+        Object.entries(trade.subjectiveTags).forEach(([group, values]) => {
+          values.forEach(value => {
+            const key = `${group}:${value}`;
+            if (!tagStats[key]) tagStats[key] = { tagGroup: group, tagValue: value, trades: [], winRate: 0, totalTrades: 0, profitFactor: 0, totalProfit: 0 };
+            tagStats[key].trades.push(trade);
+          });
+        });
+      }
     });
     Object.values(tagStats).forEach(stat => {
       const wins = stat.trades.filter(t => t.profit > 0).length;

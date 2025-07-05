@@ -12,7 +12,7 @@ const InsightsPage: React.FC<InsightsPageProps> = ({ initialTrades }) => {
   // Add any insights-specific handlers here
 
   return (
-    <div className="min-h-screen bg-gray-900 text-gray-100 p-6" style={{ background: 'var(--background-main)', color: 'var(--text-white)' }}>
+    <div className="min-h-screen p-6" style={{ background: 'var(--background-main)', color: 'var(--text-main)' }}>
       <div className="max-w-7xl mx-auto">
         {/* Page Header */}
         <div className="flex items-center justify-between mb-8 mt-2">
