@@ -61,7 +61,11 @@ const SettingsPage: React.FC = () => {
   return (
     <div style={{ background: 'var(--background-main)', minHeight: '100vh', padding: '40px 0' }}>
       <div style={{ maxWidth: 800, margin: '0 auto', color: 'var(--text-main)' }}>
-        <div style={headerStyle}>Settings</div>
+        {/* Page Header */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 32, marginTop: 8 }}>
+          <h1 style={{ fontSize: '2.2rem', fontWeight: 700, color: 'var(--text-main)' }}>Settings</h1>
+          {/* Future: Filters, etc. */}
+        </div>
         <div style={{ display: 'flex', gap: 32, marginBottom: 32 }}>
           {tabList.map(tab => (
             <div
@@ -145,9 +149,9 @@ const SettingsPage: React.FC = () => {
           <div style={{ ...subHeaderStyle, color: 'var(--accent-red)' }}>Danger Zone</div>
           <div style={{ marginBottom: 12 }}>Delete all your data. This action cannot be undone.</div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-            <button style={dangerButtonStyle}>Delete All Trade Data</button>
-            <button style={dangerButtonStyle}>Delete All MBS Data</button>
-            <button style={dangerButtonStyle}>Delete All Custom Tag Data</button>
+            <button style={{ ...dangerButtonStyle, background: 'var(--accent-red)', color: 'var(--text-white)' }}>Delete All Trade Data</button>
+            <button style={{ ...dangerButtonStyle, background: 'var(--accent-red)', color: 'var(--text-white)' }}>Delete All MBS Data</button>
+            <button style={{ ...dangerButtonStyle, background: 'var(--accent-red)', color: 'var(--text-white)' }}>Delete All Custom Tag Data</button>
           </div>
         </div>
       </div>

@@ -380,7 +380,7 @@ const App: React.FC = () => {
             />
             <Route
               path="/mbs-history"
-              element={<MBSHistoryPage />}
+              element={<MBSHistoryPage onStartMBSSession={handleMBSClick} />}
             />
             <Route
               path="/playbook-sandbox"

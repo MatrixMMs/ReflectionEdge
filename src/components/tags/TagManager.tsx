@@ -3,7 +3,7 @@ import { TagGroup, AdvancedTagGroup, TagCategory } from '../../types';
 import { Input } from '../ui/Input';
 import { Button } from '../ui/Button';
 import { ColorPicker } from '../ui/ColorPicker';
-import { PlusCircleIcon, TrashIcon, ChevronDownIcon, ChevronUpIcon, LightBulbIcon, BrainIcon } from '../ui/Icons';
+import { PlusCircleIcon, TrashIcon, ChevronDownIcon, ChevronUpIcon, BarChartIcon, BrainIcon, SubjectiveIcon } from '../ui/Icons';
 import { ADVANCED_TAGS } from '../../constants/advancedTags';
 import { TagTemplate } from '../../types/advancedTags';
 
@@ -159,7 +159,7 @@ export const TagManager: React.FC<TagManagerProps> = ({
             ) : (
               <ChevronUpIcon className="w-5 h-5" />
             )}
-            <LightBulbIcon className="w-5 h-5" />
+            <BarChartIcon className="w-5 h-5" />
             <span>Objective Tags (Market's Story)</span>
           </button>
         </div>
@@ -169,11 +169,10 @@ export const TagManager: React.FC<TagManagerProps> = ({
             {filteredAdvancedTags
               .filter(group => group.category === 'objective')
               .map(group => (
-                <div key={group.id} className="bg-gray-800 p-4 rounded-lg border-l-4 border-blue-500" style={{ background: 'var(--background-secondary)' }}>
+                <div key={group.id} className="bg-gray-800 p-4 rounded-lg border-l-4 border-blue-500" style={{ background: 'var(--background-secondary)', borderLeftColor: group.subtags[0]?.color || 'var(--text-main)' }}>
                   <div className="flex justify-between items-center mb-3">
-                    <h4 className="text-md font-medium text-blue-300">
+                    <h4 className="text-md font-medium text-blue-300" style={{ color: group.subtags[0]?.color || 'var(--text-main)' }}>
                       {group.name}
-                      <span className="ml-2 text-xs text-gray-400">({group.subcategory.replace('_', ' ')})</span>
                     </h4>
                     <span className="text-xs text-gray-400">{group.subtags.length} tags</span>
                   </div>
@@ -213,7 +212,7 @@ export const TagManager: React.FC<TagManagerProps> = ({
             ) : (
               <ChevronUpIcon className="w-5 h-5" />
             )}
-            <BrainIcon className="w-5 h-5" />
+            <SubjectiveIcon className="w-5 h-5" />
             <span>Subjective Tags (Trader's Story)</span>
           </button>
         </div>
@@ -223,11 +222,10 @@ export const TagManager: React.FC<TagManagerProps> = ({
             {filteredAdvancedTags
               .filter(group => group.category === 'subjective')
               .map(group => (
-                <div key={group.id} className="bg-gray-800 p-4 rounded-lg border-l-4 border-orange-500" style={{ background: 'var(--background-secondary)' }}>
+                <div key={group.id} className="bg-gray-800 p-4 rounded-lg border-l-4 border-orange-500" style={{ background: 'var(--background-secondary)', borderLeftColor: group.subtags[0]?.color || 'var(--text-main)' }}>
                   <div className="flex justify-between items-center mb-3">
-                    <h4 className="text-md font-medium text-orange-300">
+                    <h4 className="text-md font-medium text-orange-300" style={{ color: group.subtags[0]?.color || 'var(--text-main)' }}>
                       {group.name}
-                      <span className="ml-2 text-xs text-gray-400">({group.subcategory.replace('_', ' ')})</span>
                     </h4>
                     <span className="text-xs text-gray-400">{group.subtags.length} tags</span>
                   </div>
@@ -295,7 +293,7 @@ export const TagManager: React.FC<TagManagerProps> = ({
 
       <div className="mb-8">
         <div className="flex items-center justify-between mb-2">
-          <h3 className="text-lg font-semibold text-purple-300">Tag Templates</h3>
+          <h3 className="text-lg font-semibold" style={{ color: 'var(--text-secondary)' }}>Tag Templates</h3>
           <Button onClick={handleCreateTemplate} variant="primary" size="sm">Create New Template</Button>
         </div>
         {templates.length === 0 ? (

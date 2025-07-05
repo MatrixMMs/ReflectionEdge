@@ -2,7 +2,7 @@ import React from 'react';
 import { XMarkIcon } from './Icons';
 
 interface ModalProps {
-  title: string;
+  title: React.ReactNode;
   children: React.ReactNode;
   onClose: () => void;
   size?: 'small' | 'medium' | 'large' | 'full';

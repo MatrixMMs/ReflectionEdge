@@ -72,23 +72,12 @@ const PlaybookPage: React.FC<PlaybookPageProps> = ({ tagGroups, initialPlaybookE
   };
 
   return (
-    <div className="min-h-screen" style={{ background: 'var(--background-main)' }}>
+    <div className="min-h-screen p-6" style={{ background: 'var(--background-main)' }}>
       <div className="max-w-7xl mx-auto">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-8">
-          <div>
-            <h1 className="text-3xl font-bold text-purple-400" style={{ color: 'var(--text-accent)' }}>Playbook</h1>
-            <p className="text-gray-400 mt-2" style={{ color: 'var(--text-secondary)' }}>Manage your trading strategies and setups</p>
-          </div>
-          <div className="flex gap-2">
-            <Button
-              onClick={handleAdd}
-              variant="primary"
-              leftIcon={<PlusCircleIcon className="w-5 h-5" />}
-            >
-              Add Strategy
-            </Button>
-          </div>
+        {/* Page Header */}
+        <div className="flex items-center justify-between mb-8 mt-2">
+          <h1 className="text-3xl font-bold" style={{ color: 'var(--text-main)' }}>Playbook</h1>
+          {/* Future: Filters, etc. */}
         </div>
         {/* Content */}
         <div className="bg-gray-800 rounded-xl shadow-2xl p-6" style={{ background: 'var(--background-secondary)' }}>

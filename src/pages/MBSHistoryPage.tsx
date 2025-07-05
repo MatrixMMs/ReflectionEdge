@@ -3,8 +3,9 @@ import { MBSSession, MBSTradeLog } from '../types';
 import { getMBSSessions, deleteMBSSession, getMBSStats, clearMBSHistory } from '../utils/mbsHistory';
 import { Button } from '../components/ui/Button';
 import { Modal } from '../components/ui/Modal';
-import { TrashIcon, EyeIcon, CalendarIcon, ClockIcon, ChartBarIcon, CustomDetailsIcon, CustomDeleteIcon, CustomWinIcon, CustomPlanIcon, CustomClockIcon, ChartIcon } from '../components/ui/Icons';
+import { TrashIcon, EyeIcon, CalendarIcon, ClockIcon, ChartBarIcon, CustomDetailsIcon, CustomDeleteIcon, CustomWinIcon, CustomPlanIcon, CustomClockIcon, ChartIcon, CustomPlayIcon } from '../components/ui/Icons';
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, BarChart, Bar, CartesianGrid, Legend } from 'recharts';
+import MbsDeleteButton from '../components/ui/MbsDeleteButton';
 
 const moodEmojis = [
   { value: 1, emoji: '😡', label: 'Very Frustrated' },
@@ -83,23 +84,32 @@ type SessionCardProps = {
     mood: string;
     planAdherence: number;
     winRate: number;
+    tradeHistory?: any[]; // allow tradeHistory to be present for expandable cards
   };
 };
-const SessionCard: React.FC<SessionCardProps & { onView: (s: any) => void; onDelete: (s: any, isLive: boolean) => void; isLive?: boolean }> = ({ session, onView, onDelete, isLive }) => {
-  // Calculate progress bar widths
+const SessionCard: React.FC<SessionCardProps & {
+  expanded: boolean;
+  onToggle: () => void;
+  onDelete: (s: any, isLive: boolean) => void;
+  isLive?: boolean;
+}> = ({ session, expanded, onToggle, onDelete, isLive }) => {
+  const hasTrades = Array.isArray(session.tradeHistory) && session.tradeHistory.length > 0;
   const planAdherenceWidth = Math.max(0, Math.min(100, session.planAdherence));
   const winRateWidth = Math.max(0, Math.min(100, session.winRate));
+
   return (
     <div
-      className="rounded-lg p-4 border flex flex-col mb-4 shadow-sm transition-shadow hover:shadow-lg focus:outline-none focus:ring-2"
-      style={{ 
-        backgroundColor: 'var(--background-secondary)', 
+      className={`rounded-lg p-4 border flex flex-col mb-4 shadow-sm transition-shadow duration-200 focus:outline-none focus:ring-2 relative group ${hasTrades ? 'cursor-pointer hover:shadow-lg' : 'cursor-default'}`}
+      style={{
+        backgroundColor: 'var(--background-secondary)',
         borderColor: 'var(--border-main)',
         boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
+        transition: 'box-shadow 0.2s',
       }}
       tabIndex={0}
       aria-label={`Session card for goal: ${session.goal}`}
       role="region"
+      onClick={hasTrades ? onToggle : undefined}
     >
       <div className="flex justify-between items-center mb-2">
         <span className="font-bold" style={{ color: 'var(--text-main)' }}>Goal: {session.goal}</span>
@@ -126,10 +136,61 @@ const SessionCard: React.FC<SessionCardProps & { onView: (s: any) => void; onDel
           </span>
           <span style={{ color: 'var(--text-green)' }} className="ml-1">{session.winRate}%</span>
         </span>
-        <div className="ml-auto flex gap-2">
-          <Button size="sm" variant="secondary" className="p-2" aria-label="View session" tabIndex={0} onClick={() => onView(session)}><CustomDetailsIcon className="w-4 h-4" /></Button>
-          <Button size="sm" variant="danger" className="p-2" aria-label="Delete session" tabIndex={0} onClick={() => onDelete(session, !!isLive)}><CustomDeleteIcon className="w-4 h-4" /></Button>
+        <div className="ml-auto flex gap-2 z-10" onClick={e => e.stopPropagation()}>
+          {hasTrades && (
+            <button
+              className="flex items-center justify-center p-2 text-gray-400 hover:text-gray-200 focus:outline-none"
+              title="Show details"
+              onClick={onToggle}
+              tabIndex={0}
+              aria-label="Expand/collapse details"
+            >
+              <CustomDetailsIcon className="w-4 h-4" />
+            </button>
+          )}
+          <MbsDeleteButton className="p-2" aria-label="Delete session" tabIndex={0} onClick={() => onDelete(session, !!isLive)} />
         </div>
+      </div>
+      {/* Expandable content with smooth animation */}
+      <div
+        className="overflow-hidden transition-[max-height] duration-500"
+        style={{
+          maxHeight: expanded ? 1000 : 0,
+        }}
+        aria-hidden={!expanded}
+      >
+        {hasTrades && expanded && (
+          <div className="mt-4 flex flex-col items-center">
+            <div className="overflow-x-auto w-full">
+              <table className="min-w-full text-sm text-left">
+                <thead>
+                  <tr className="text-gray-400 border-b border-main">
+                    <th className="py-1 pr-4">Time</th>
+                    <th className="py-1 pr-4">Type</th>
+                    <th className="py-1 pr-4">Result</th>
+                    <th className="py-1 pr-4">Plan</th>
+                    <th className="py-1 pr-4">Mood</th>
+                    <th className="py-1 pr-4">Notes</th>
+                    <th className="py-1 pr-4">Reflection</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {(session.tradeHistory ?? []).map((trade: any, idx: number) => (
+                    <tr key={trade.id || idx} className="border-b border-secondary hover:bg-gray-800">
+                      <td className="py-1 pr-4">{trade.time}</td>
+                      <td className="py-1 pr-4">{trade.type}</td>
+                      <td className={`py-1 pr-4 font-bold ${trade.result === 'win' ? 'text-green' : 'text-red'}`}>{trade.result === 'win' ? '🏆 Win' : '❌ Lose'}</td>
+                      <td className={`py-1 pr-4 ${trade.followedPlan ? 'text-green' : 'text-red'}`}>{trade.followedPlan ? 'Yes' : 'No'}</td>
+                      <td className="py-1 pr-4">{typeof trade.mood === 'number' ? moodToEmoji(trade.mood) : trade.mood}</td>
+                      <td className="py-1 pr-4">{trade.notes || '-'}</td>
+                      <td className="py-1 pr-4">{trade.reflection || '-'}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -287,7 +348,10 @@ function normalizeSession(s: any): any {
   }
 }
 
-const MBSHistoryPage: React.FC = () => {
+interface MBSHistoryPageProps {
+  onStartMBSSession?: () => void;
+}
+const MBSHistoryPage: React.FC<MBSHistoryPageProps> = ({ onStartMBSSession }) => {
   const [sessions, setSessions] = useState<MBSSession[]>([]);
   const [selectedSession, setSelectedSession] = useState<any | null>(null);
   const [showSessionDetails, setShowSessionDetails] = useState(false);
@@ -299,6 +363,7 @@ const MBSHistoryPage: React.FC = () => {
   const [sortBy, setSortBy] = useState('date');
   const [filterOpen, setFilterOpen] = useState(false);
   const [showPerformance, setShowPerformance] = useState(false);
+  const [expandedSessions, setExpandedSessions] = useState<Set<string>>(new Set());
 
   // --- LIVE DATA INTEGRATION ---
   // Get live sessions from local storage
@@ -523,13 +588,14 @@ const MBSHistoryPage: React.FC = () => {
               <ChartIcon className="w-5 h-5" />
               {showPerformance ? 'Hide Performance Overview' : 'Show Performance Overview'}
             </Button>
-            <Button
-              variant="secondary"
-              onClick={() => setShowClearConfirm(true)}
-              disabled={sessions.length === 0}
+            <button
+              className="flex items-center gap-2 px-4 py-2 rounded font-semibold shadow-md focus:outline-none focus:ring-2 focus:ring-green-500 bg-[var(--accent-green)] hover:bg-[var(--accent-green-dark)] text-white transition-colors duration-150"
+              style={{ backgroundColor: 'var(--accent-green)', color: 'var(--text-white)' }}
+              onClick={onStartMBSSession}
             >
-              Clear History
-            </Button>
+              <CustomPlayIcon className="w-5 h-5" style={{ color: 'var(--text-white)' }} />
+              Start MBS Session
+            </button>
           </div>
         </div>
 
@@ -695,7 +761,25 @@ const MBSHistoryPage: React.FC = () => {
               {todaySessions.length === 0 ? (
                 <div className="text-center py-12" style={{ color: 'var(--text-secondary)' }}>No sessions recorded today. Start a new session to begin.</div>
               ) : (
-                todaySessions.map((session, idx) => <SessionCard key={session.id || idx} session={session} onView={handleViewSession} onDelete={handleDeleteSession} isLive={!!session.id} />)
+                todaySessions.map((session, idx) => {
+                  const uniqueKey = `today-${idx}`;
+                  return (
+                    <SessionCard
+                      key={uniqueKey}
+                      session={session}
+                      expanded={expandedSessions.has(uniqueKey)}
+                      onToggle={() => {
+                        setExpandedSessions(prev => {
+                          const next = new Set(prev);
+                          if (next.has(uniqueKey)) next.delete(uniqueKey); else next.add(uniqueKey);
+                          return next;
+                        });
+                      }}
+                      onDelete={handleDeleteSession}
+                      isLive={!!session.id}
+                    />
+                  );
+                })
               )}
             </div>
           ) : (
@@ -703,114 +787,31 @@ const MBSHistoryPage: React.FC = () => {
               {filteredHistory.map(group => (
                 <div key={group.date} className="mb-8">
                   <div className="text-lg font-bold mb-2" style={{ color: 'var(--text-secondary)' }}>{group.date}</div>
-                  {group.sessions.map((session, idx) => <SessionCard key={session.id || idx} session={session} onView={handleViewSession} onDelete={handleDeleteSession} isLive={!!session.id} />)}
+                  {group.sessions.map((session, idx) => {
+                    const uniqueKey = `${group.date}-${idx}`;
+                    return (
+                      <SessionCard
+                        key={uniqueKey}
+                        session={session}
+                        expanded={expandedSessions.has(uniqueKey)}
+                        onToggle={() => {
+                          setExpandedSessions(prev => {
+                            const next = new Set(prev);
+                            if (next.has(uniqueKey)) next.delete(uniqueKey); else next.add(uniqueKey);
+                            return next;
+                          });
+                        }}
+                        onDelete={handleDeleteSession}
+                        isLive={!!session.id}
+                      />
+                    );
+                  })}
                 </div>
               ))}
             </div>
           )}
         </div>
       </div>
-
-      {/* Session Details Modal */}
-      {showSessionDetails && selectedSession && (
-        <Modal
-          title={<h2 className="text-2xl font-bold mb-4" style={{ color: 'var(--text-main)' }}>Session Details - {selectedSession.goal}</h2>}
-          onClose={() => { setShowSessionDetails(false); setSelectedSession(null); }}
-          size="large"
-        >
-          <div className="p-4 space-y-4">
-            <div className="space-y-1">
-              <div><strong>Goal:</strong> {selectedSession.goal}</div>
-              <div><strong>Start Time:</strong> {selectedSession.startTime}</div>
-              <div><strong>Trades:</strong> {selectedSession.trades}</div>
-              <div><strong>Avg Mood:</strong> {selectedSession.mood}</div>
-              <div><strong>Plan Adherence:</strong> {selectedSession.planAdherence}%</div>
-              <div><strong>Win Rate:</strong> {selectedSession.winRate}%</div>
-            </div>
-            {isLiveSession(selectedSession) ? (
-              <div className="mt-4">
-                <h3 className="text-lg font-semibold text-accent mb-2">Trade Breakdown</h3>
-                <div className="overflow-x-auto">
-                  <table className="min-w-full text-sm text-left">
-                    <thead>
-                      <tr className="text-gray-400 border-b border-main">
-                        <th className="py-1 pr-4">Time</th>
-                        <th className="py-1 pr-4">Type</th>
-                        <th className="py-1 pr-4">Result</th>
-                        <th className="py-1 pr-4">Plan</th>
-                        <th className="py-1 pr-4">Mood</th>
-                        <th className="py-1 pr-4">Notes</th>
-                        <th className="py-1 pr-4">Reflection</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {selectedSession.tradeHistory.map((trade: any, idx: number) => (
-                        <tr key={trade.id || idx} className="border-b border-secondary hover:bg-gray-800">
-                          <td className="py-1 pr-4">{trade.time}</td>
-                          <td className="py-1 pr-4">{trade.type}</td>
-                          <td className={`py-1 pr-4 font-bold ${trade.result === 'win' ? 'text-green' : 'text-red'}`}>{trade.result === 'win' ? '🏆 Win' : '❌ Lose'}</td>
-                          <td className={`py-1 pr-4 ${trade.followedPlan ? 'text-green' : 'text-red'}`}>{trade.followedPlan ? 'Yes' : 'No'}</td>
-                          <td className="py-1 pr-4">{typeof trade.mood === 'number' ? moodToEmoji(trade.mood) : trade.mood}</td>
-                          <td className="py-1 pr-4">{trade.notes || '-'}</td>
-                          <td className="py-1 pr-4">{trade.reflection || '-'}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            ) : (
-              <div className="mt-4 text-gray-400">No trade breakdown available for this session.</div>
-            )}
-          </div>
-        </Modal>
-      )}
-
-      {/* Delete Confirmation Modal */}
-      {showDeleteConfirm && sessionToDelete && (
-        <Modal
-          title="Delete Session"
-          onClose={() => setShowDeleteConfirm(false)}
-          size="small"
-        >
-          <div className="p-6">
-            <p className="text-gray-300 mb-4">
-              Are you sure you want to delete this session? This action cannot be undone.
-            </p>
-            <div className="flex gap-3 justify-end">
-              <Button variant="secondary" onClick={() => setShowDeleteConfirm(false)}>
-                Cancel
-              </Button>
-              <Button variant="danger" onClick={confirmDeleteSession}>
-                Delete
-              </Button>
-            </div>
-          </div>
-        </Modal>
-      )}
-
-      {/* Clear History Confirmation Modal */}
-      {showClearConfirm && (
-        <Modal
-          title="Clear All History"
-          onClose={() => setShowClearConfirm(false)}
-          size="small"
-        >
-          <div className="p-6">
-            <p className="text-gray-300 mb-4">
-              Are you sure you want to clear all MBS session history? This action cannot be undone.
-            </p>
-            <div className="flex gap-3 justify-end">
-              <Button variant="secondary" onClick={() => setShowClearConfirm(false)}>
-                Cancel
-              </Button>
-              <Button variant="danger" onClick={handleClearHistory}>
-                Clear All
-              </Button>
-            </div>
-          </div>
-        </Modal>
-      )}
     </div>
   );
 };

@@ -36,7 +36,11 @@ const ExportPage: React.FC<ExportPageProps> = ({ initialTrades }) => {
   return (
     <div className="min-h-screen bg-gray-900 text-gray-100 p-6" style={{ background: 'var(--background-main)', color: 'var(--text-white)' }}>
       <div className="max-w-4xl mx-auto">
-        <h1 className="text-3xl font-bold text-purple-400 mb-8" style={{ color: 'var(--text-accent)' }}>Export Data</h1>
+        {/* Page Header */}
+        <div className="flex items-center justify-between mb-8 mt-2">
+          <h1 className="text-3xl font-bold" style={{ color: 'var(--text-main)' }}>Export Data</h1>
+          {/* Future: Filters, etc. */}
+        </div>
         <div className="bg-gray-800 rounded-xl shadow-2xl p-6 flex flex-col items-center" style={{ background: 'var(--background-secondary)' }}>
           <p className="mb-4 text-gray-300">Export your trades as a CSV file for backup or analysis in other tools.</p>
           <Button onClick={handleExport} variant="primary" leftIcon={<ExportIcon className="w-5 h-5" />}>

@@ -195,6 +195,12 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
   return (
     <div className="flex flex-col items-center justify-center min-h-screen text-gray-100 p-4" style={{ background: 'var(--background-main)' }}>
       <div className="w-full max-w-7xl mx-auto">
+        {/* Page Header */}
+        <div className="flex items-center justify-between mb-8 mt-2">
+          <h1 className="text-3xl font-bold" style={{ color: 'var(--text-main)' }}>Dashboard</h1>
+          {/* Future: Filters, date range, etc. */}
+        </div>
+
         {/* Trade Form Modal */}
         {isTradeFormModalOpen && (
           <Modal
