@@ -1,0 +1,4994 @@
+[
+  {
+    "id": "trade-1-1746006803216",
+    "date": "2025-04-30",
+    "symbol": "MSFT",
+    "contracts": 1,
+    "entry": 351.92,
+    "exit": 348.87,
+    "timeIn": "2025-04-30T13:04:00.000Z",
+    "timeOut": "2025-04-30T11:08:00.000Z",
+    "timeInTrade": -116,
+    "profit": -3.05,
+    "fees": 3.05,
+    "objectiveTags": {
+      "obj1": [
+        "sub1"
+      ],
+      "obj2": [
+        "sub1"
+      ],
+      "obj3": [
+        "sub1"
+      ]
+    },
+    "subjectiveTags": {
+      "subj1": [
+        "subjtag2"
+      ],
+      "subj2": [
+        "subjtag3"
+      ],
+      "subj3": [
+        "subjtag3"
+      ]
+    },
+    "journal": "Auto-generated journal entry.",
+    "direction": "long",
+    "strategyId": "strat1",
+    "accountId": "default",
+    "execution": {
+      "checklist": {
+        "chk1": true,
+        "chk2": false,
+        "chk3": false
+      },
+      "grade": null,
+      "notes": "Auto-generated trade."
+    }
+  },
+  {
+    "id": "trade-2-1746744309062",
+    "date": "2025-05-08",
+    "symbol": "MSFT",
+    "contracts": 7,
+    "entry": 375.59,
+    "exit": 375.93,
+    "timeIn": "2025-05-08T13:28:00.000Z",
+    "timeOut": "2025-05-08T13:44:00.000Z",
+    "timeInTrade": 16,
+    "profit": 2.38,
+    "fees": 0.85,
+    "objectiveTags": {
+      "obj1": [
+        "sub2"
+      ],
+      "obj2": [
+        "sub3"
+      ],
+      "obj3": [
+        "sub1"
+      ]
+    },
+    "subjectiveTags": {
+      "subj1": [
+        "subjtag2"
+      ],
+      "subj2": [
+        "subjtag3"
+      ],
+      "subj3": [
+        "subjtag1"
+      ]
+    },
+    "journal": "Auto-generated journal entry.",
+    "direction": "long",
+    "strategyId": "strat4",
+    "accountId": "default",
+    "execution": {
+      "checklist": {
+        "chk1": false,
+        "chk2": true,
+        "chk3": false
+      },
+      "grade": "C+",
+      "notes": "Auto-generated trade."
+    }
+  },
+  {
+    "id": "trade-3-1746881336450",
+    "date": "2025-05-10",
+    "symbol": "GOOG",
+    "contracts": 6,
+    "entry": 383.76,
+    "exit": 380.91,
+    "timeIn": "2025-05-10T15:10:00.000Z",
+    "timeOut": "2025-05-10T15:45:00.000Z",
+    "timeInTrade": 35,
+    "profit": -17.1,
+    "fees": 1.86,
+    "objectiveTags": {
+      "obj1": [
+        "sub3"
+      ],
+      "obj2": [
+        "sub3"
+      ],
+      "obj3": [
+        "sub2"
+      ]
+    },
+    "subjectiveTags": {
+      "subj1": [
+        "subjtag3"
+      ],
+      "subj2": [
+        "subjtag2"
+      ],
+      "subj3": [
+        "subjtag1"
+      ]
+    },
+    "journal": "Auto-generated journal entry.",
+    "direction": "short",
+    "strategyId": "strat1",
+    "accountId": "default",
+    "execution": {
+      "checklist": {
+        "chk1": true,
+        "chk2": false,
+        "chk3": true
+      },
+      "grade": "C-",
+      "notes": "Auto-generated trade."
+    }
+  },
+  {
+    "id": "trade-4-1740461517447",
+    "date": "2025-02-24",
+    "symbol": "AAPL",
+    "contracts": 5,
+    "entry": 153.08,
+    "exit": 151.57,
+    "timeIn": "2025-02-24T15:06:00.000Z",
+    "timeOut": "2025-02-24T10:24:00.000Z",
+    "timeInTrade": -282,
+    "profit": -7.55,
+    "fees": 3.03,
+    "objectiveTags": {
+      "obj1": [
+        "sub2"
+      ],
+      "obj2": [
+        "sub1"
+      ],
+      "obj3": [
+        "sub3"
+      ]
+    },
+    "subjectiveTags": {
+      "subj1": [
+        "subjtag2"
+      ],
+      "subj2": [
+        "subjtag2"
+      ],
+      "subj3": [
+        "subjtag3"
+      ]
+    },
+    "journal": "Auto-generated journal entry.",
+    "direction": "short",
+    "strategyId": "strat3",
+    "accountId": "default",
+    "execution": {
+      "checklist": {
+        "chk1": true,
+        "chk2": false,
+        "chk3": false
+      },
+      "grade": "B",
+      "notes": "Auto-generated trade."
+    }
+  },
+  {
+    "id": "trade-5-1741614153984",
+    "date": "2025-03-10",
+    "symbol": "GOOG",
+    "contracts": 10,
+    "entry": 479.21,
+    "exit": 476.34,
+    "timeIn": "2025-03-10T15:16:00.000Z",
+    "timeOut": "2025-03-10T16:33:00.000Z",
+    "timeInTrade": 77,
+    "profit": -28.7,
+    "fees": 1.7,
+    "objectiveTags": {
+      "obj1": [
+        "sub2"
+      ],
+      "obj2": [
+        "sub2"
+      ],
+      "obj3": [
+        "sub2"
+      ]
+    },
+    "subjectiveTags": {
+      "subj1": [
+        "subjtag1"
+      ],
+      "subj2": [
+        "subjtag1"
+      ],
+      "subj3": [
+        "subjtag2"
+      ]
+    },
+    "journal": "Auto-generated journal entry.",
+    "direction": "long",
+    "strategyId": "strat3",
+    "accountId": "default",
+    "execution": {
+      "checklist": {
+        "chk1": true,
+        "chk2": true,
+        "chk3": true
+      },
+      "grade": "B+",
+      "notes": "Auto-generated trade."
+    }
+  },
+  {
+    "id": "trade-6-1750407747352",
+    "date": "2025-06-20",
+    "symbol": "NQ",
+    "contracts": 5,
+    "entry": 424.82,
+    "exit": 424.86,
+    "timeIn": "2025-06-20T10:22:00.000Z",
+    "timeOut": "2025-06-20T16:48:00.000Z",
+    "timeInTrade": 386,
+    "profit": 0.2,
+    "fees": 4.69,
+    "objectiveTags": {
+      "obj1": [
+        "sub1"
+      ],
+      "obj2": [
+        "sub1"
+      ],
+      "obj3": [
+        "sub2"
+      ]
+    },
+    "subjectiveTags": {
+      "subj1": [
+        "subjtag2"
+      ],
+      "subj2": [
+        "subjtag2"
+      ],
+      "subj3": [
+        "subjtag2"
+      ]
+    },
+    "journal": "Auto-generated journal entry.",
+    "direction": "short",
+    "strategyId": "strat3",
+    "accountId": "default",
+    "execution": {
+      "checklist": {
+        "chk1": false,
+        "chk2": true,
+        "chk3": false
+      },
+      "grade": "B",
+      "notes": "Auto-generated trade."
+    },
+    "isBestTrade": true,
+    "extendedReflection": {
+      "mindset": "Auto-generated mindset",
+      "setup": "Auto-generated setup",
+      "riskManagement": "Auto-generated risk",
+      "lessons": "Auto-generated lesson",
+      "marketContext": "Auto-generated context"
+    }
+  },
+  {
+    "id": "trade-7-1750234410344",
+    "date": "2025-06-18",
+    "symbol": "AAPL",
+    "contracts": 7,
+    "entry": 252.77,
+    "exit": 251.46,
+    "timeIn": "2025-06-18T14:37:00.000Z",
+    "timeOut": "2025-06-18T14:38:00.000Z",
+    "timeInTrade": 1,
+    "profit": -9.17,
+    "fees": 1.26,
+    "objectiveTags": {
+      "obj1": [
+        "sub3"
+      ],
+      "obj2": [
+        "sub2"
+      ],
+      "obj3": [
+        "sub3"
+      ]
+    },
+    "subjectiveTags": {
+      "subj1": [
+        "subjtag2"
+      ],
+      "subj2": [
+        "subjtag1"
+      ],
+      "subj3": [
+        "subjtag1"
+      ]
+    },
+    "journal": "Auto-generated journal entry.",
+    "direction": "short",
+    "strategyId": "strat2",
+    "accountId": "default",
+    "execution": {
+      "checklist": {
+        "chk1": true,
+        "chk2": true,
+        "chk3": true
+      },
+      "grade": "D",
+      "notes": "Auto-generated trade."
+    },
+    "isBestTrade": true,
+    "extendedReflection": {
+      "mindset": "Auto-generated mindset",
+      "setup": "Auto-generated setup",
+      "riskManagement": "Auto-generated risk",
+      "lessons": "Auto-generated lesson",
+      "marketContext": "Auto-generated context"
+    }
+  },
+  {
+    "id": "trade-8-1741783245270",
+    "date": "2025-03-12",
+    "symbol": "TSLA",
+    "contracts": 5,
+    "entry": 429.64,
+    "exit": 429.54,
+    "timeIn": "2025-03-12T09:09:00.000Z",
+    "timeOut": "2025-03-12T15:11:00.000Z",
+    "timeInTrade": 362,
+    "profit": -0.5,
+    "fees": 1.18,
+    "objectiveTags": {
+      "obj1": [
+        "sub1"
+      ],
+      "obj2": [
+        "sub3"
+      ],
+      "obj3": [
+        "sub2"
+      ]
+    },
+    "subjectiveTags": {
+      "subj1": [
+        "subjtag2"
+      ],
+      "subj2": [
+        "subjtag1"
+      ],
+      "subj3": [
+        "subjtag1"
+      ]
+    },
+    "journal": "Auto-generated journal entry.",
+    "direction": "short",
+    "strategyId": "strat3",
+    "accountId": "default",
+    "execution": {
+      "checklist": {
+        "chk1": true,
+        "chk2": false,
+        "chk3": false
+      },
+      "grade": "F",
+      "notes": "Auto-generated trade."
+    },
+    "isBestTrade": true,
+    "extendedReflection": {
+      "mindset": "Auto-generated mindset",
+      "setup": "Auto-generated setup",
+      "riskManagement": "Auto-generated risk",
+      "lessons": "Auto-generated lesson",
+      "marketContext": "Auto-generated context"
+    }
+  },
+  {
+    "id": "trade-9-1741065852781",
+    "date": "2025-03-03",
+    "symbol": "AMZN",
+    "contracts": 6,
+    "entry": 361.21,
+    "exit": 365.56,
+    "timeIn": "2025-03-03T10:19:00.000Z",
+    "timeOut": "2025-03-03T14:30:00.000Z",
+    "timeInTrade": 251,
+    "profit": 26.1,
+    "fees": 2.01,
+    "objectiveTags": {
+      "obj1": [
+        "sub1"
+      ],
+      "obj2": [
+        "sub3"
+      ],
+      "obj3": [
+        "sub3"
+      ]
+    },
+    "subjectiveTags": {
+      "subj1": [
+        "subjtag3"
+      ],
+      "subj2": [
+        "subjtag3"
+      ],
+      "subj3": [
+        "subjtag2"
+      ]
+    },
+    "journal": "Auto-generated journal entry.",
+    "direction": "short",
+    "strategyId": "strat3",
+    "accountId": "default",
+    "execution": {
+      "checklist": {
+        "chk1": false,
+        "chk2": false,
+        "chk3": true
+      },
+      "grade": null,
+      "notes": "Auto-generated trade."
+    }
+  },
+  {
+    "id": "trade-10-1742498369715",
+    "date": "2025-03-20",
+    "symbol": "AMZN",
+    "contracts": 2,
+    "entry": 251.97,
+    "exit": 255.82,
+    "timeIn": "2025-03-20T10:11:00.000Z",
+    "timeOut": "2025-03-20T12:21:00.000Z",
+    "timeInTrade": 130,
+    "profit": 7.7,
+    "fees": 1.16,
+    "objectiveTags": {
+      "obj1": [
+        "sub2"
+      ],
+      "obj2": [
+        "sub2"
+      ],
+      "obj3": [
+        "sub3"
+      ]
+    },
+    "subjectiveTags": {
+      "subj1": [
+        "subjtag1"
+      ],
+      "subj2": [
+        "subjtag3"
+      ],
+      "subj3": [
+        "subjtag2"
+      ]
+    },
+    "journal": "Auto-generated journal entry.",
+    "direction": "long",
+    "strategyId": "strat3",
+    "accountId": "default",
+    "execution": {
+      "checklist": {
+        "chk1": false,
+        "chk2": true,
+        "chk3": true
+      },
+      "grade": "F",
+      "notes": "Auto-generated trade."
+    }
+  },
+  {
+    "id": "trade-11-1749911690506",
+    "date": "2025-06-14",
+    "symbol": "MSFT",
+    "contracts": 5,
+    "entry": 25.92,
+    "exit": 25.6,
+    "timeIn": "2025-06-14T13:58:00.000Z",
+    "timeOut": "2025-06-14T14:10:00.000Z",
+    "timeInTrade": 12,
+    "profit": -1.6,
+    "fees": 2.08,
+    "objectiveTags": {
+      "obj1": [
+        "sub2"
+      ],
+      "obj2": [
+        "sub3"
+      ],
+      "obj3": [
+        "sub3"
+      ]
+    },
+    "subjectiveTags": {
+      "subj1": [
+        "subjtag1"
+      ],
+      "subj2": [
+        "subjtag1"
+      ],
+      "subj3": [
+        "subjtag1"
+      ]
+    },
+    "journal": "Auto-generated journal entry.",
+    "direction": "short",
+    "strategyId": "strat2",
+    "accountId": "default",
+    "execution": {
+      "checklist": {
+        "chk1": true,
+        "chk2": false,
+        "chk3": true
+      },
+      "grade": "F",
+      "notes": "Auto-generated trade."
+    }
+  },
+  {
+    "id": "trade-12-1737957042649",
+    "date": "2025-01-26",
+    "symbol": "NFLX",
+    "contracts": 6,
+    "entry": 91.18,
+    "exit": 86.19,
+    "timeIn": "2025-01-26T12:49:00.000Z",
+    "timeOut": "2025-01-26T10:06:00.000Z",
+    "timeInTrade": -163,
+    "profit": -29.94,
+    "fees": 0.73,
+    "objectiveTags": {
+      "obj1": [
+        "sub1"
+      ],
+      "obj2": [
+        "sub1"
+      ],
+      "obj3": [
+        "sub2"
+      ]
+    },
+    "subjectiveTags": {
+      "subj1": [
+        "subjtag3"
+      ],
+      "subj2": [
+        "subjtag3"
+      ],
+      "subj3": [
+        "subjtag2"
+      ]
+    },
+    "journal": "Auto-generated journal entry.",
+    "direction": "long",
+    "strategyId": "strat4",
+    "accountId": "default",
+    "execution": {
+      "checklist": {
+        "chk1": false,
+        "chk2": false,
+        "chk3": false
+      },
+      "grade": null,
+      "notes": "Auto-generated trade."
+    }
+  },
+  {
+    "id": "trade-13-1751043811063",
+    "date": "2025-06-27",
+    "symbol": "MSFT",
+    "contracts": 3,
+    "entry": 93.15,
+    "exit": 95.43,
+    "timeIn": "2025-06-27T11:29:00.000Z",
+    "timeOut": "2025-06-27T16:54:00.000Z",
+    "timeInTrade": 325,
+    "profit": 6.84,
+    "fees": 0.51,
+    "objectiveTags": {
+      "obj1": [
+        "sub1"
+      ],
+      "obj2": [
+        "sub3"
+      ],
+      "obj3": [
+        "sub3"
+      ]
+    },
+    "subjectiveTags": {
+      "subj1": [
+        "subjtag2"
+      ],
+      "subj2": [
+        "subjtag1"
+      ],
+      "subj3": [
+        "subjtag3"
+      ]
+    },
+    "journal": "Auto-generated journal entry.",
+    "direction": "long",
+    "strategyId": "strat3",
+    "accountId": "default",
+    "execution": {
+      "checklist": {
+        "chk1": false,
+        "chk2": true,
+        "chk3": false
+      },
+      "grade": "C+",
+      "notes": "Auto-generated trade."
+    }
+  },
+  {
+    "id": "trade-14-1742011433151",
+    "date": "2025-03-14",
+    "symbol": "META",
+    "contracts": 1,
+    "entry": 15.3,
+    "exit": 12.01,
+    "timeIn": "2025-03-14T16:33:00.000Z",
+    "timeOut": "2025-03-14T13:09:00.000Z",
+    "timeInTrade": -204,
+    "profit": -3.29,
+    "fees": 2.59,
+    "objectiveTags": {
+      "obj1": [
+        "sub2"
+      ],
+      "obj2": [
+        "sub2"
+      ],
+      "obj3": [
+        "sub2"
+      ]
+    },
+    "subjectiveTags": {
+      "subj1": [
+        "subjtag2"
+      ],
+      "subj2": [
+        "subjtag3"
+      ],
+      "subj3": [
+        "subjtag1"
+      ]
+    },
+    "journal": "Auto-generated journal entry.",
+    "direction": "short",
+    "strategyId": "strat4",
+    "accountId": "default",
+    "execution": {
+      "checklist": {
+        "chk1": false,
+        "chk2": false,
+        "chk3": false
+      },
+      "grade": "C",
+      "notes": "Auto-generated trade."
+    }
+  },
+  {
+    "id": "trade-15-1750199986503",
+    "date": "2025-06-17",
+    "symbol": "AAPL",
+    "contracts": 2,
+    "entry": 44.92,
+    "exit": 44.44,
+    "timeIn": "2025-06-17T14:30:00.000Z",
+    "timeOut": "2025-06-17T13:42:00.000Z",
+    "timeInTrade": -48,
+    "profit": -0.96,
+    "fees": 2.81,
+    "objectiveTags": {
+      "obj1": [
+        "sub1"
+      ],
+      "obj2": [
+        "sub2"
+      ],
+      "obj3": [
+        "sub1"
+      ]
+    },
+    "subjectiveTags": {
+      "subj1": [
+        "subjtag1"
+      ],
+      "subj2": [
+        "subjtag1"
+      ],
+      "subj3": [
+        "subjtag2"
+      ]
+    },
+    "journal": "Auto-generated journal entry.",
+    "direction": "long",
+    "strategyId": "strat3",
+    "accountId": "default",
+    "execution": {
+      "checklist": {
+        "chk1": false,
+        "chk2": false,
+        "chk3": false
+      },
+      "grade": null,
+      "notes": "Auto-generated trade."
+    }
+  },
+  {
+    "id": "trade-16-1748731100837",
+    "date": "2025-05-31",
+    "symbol": "GOOG",
+    "contracts": 10,
+    "entry": 129.49,
+    "exit": 129.62,
+    "timeIn": "2025-05-31T16:44:00.000Z",
+    "timeOut": "2025-05-31T12:20:00.000Z",
+    "timeInTrade": -264,
+    "profit": 1.3,
+    "fees": 1.42,
+    "objectiveTags": {
+      "obj1": [
+        "sub2"
+      ],
+      "obj2": [
+        "sub1"
+      ],
+      "obj3": [
+        "sub1"
+      ]
+    },
+    "subjectiveTags": {
+      "subj1": [
+        "subjtag2"
+      ],
+      "subj2": [
+        "subjtag1"
+      ],
+      "subj3": [
+        "subjtag1"
+      ]
+    },
+    "journal": "Auto-generated journal entry.",
+    "direction": "long",
+    "strategyId": "strat3",
+    "accountId": "default",
+    "execution": {
+      "checklist": {
+        "chk1": false,
+        "chk2": false,
+        "chk3": true
+      },
+      "grade": "C-",
+      "notes": "Auto-generated trade."
+    }
+  },
+  {
+    "id": "trade-17-1737960118907",
+    "date": "2025-01-27",
+    "symbol": "AMZN",
+    "contracts": 7,
+    "entry": 435.74,
+    "exit": 435.01,
+    "timeIn": "2025-01-27T14:51:00.000Z",
+    "timeOut": "2025-01-27T16:44:00.000Z",
+    "timeInTrade": 113,
+    "profit": -5.11,
+    "fees": 2.61,
+    "objectiveTags": {
+      "obj1": [
+        "sub1"
+      ],
+      "obj2": [
+        "sub3"
+      ],
+      "obj3": [
+        "sub1"
+      ]
+    },
+    "subjectiveTags": {
+      "subj1": [
+        "subjtag2"
+      ],
+      "subj2": [
+        "subjtag3"
+      ],
+      "subj3": [
+        "subjtag2"
+      ]
+    },
+    "journal": "Auto-generated journal entry.",
+    "direction": "long",
+    "strategyId": "strat2",
+    "accountId": "default",
+    "execution": {
+      "checklist": {
+        "chk1": true,
+        "chk2": false,
+        "chk3": false
+      },
+      "grade": "C-",
+      "notes": "Auto-generated trade."
+    }
+  },
+  {
+    "id": "trade-18-1748150232656",
+    "date": "2025-05-25",
+    "symbol": "AMZN",
+    "contracts": 5,
+    "entry": 20.07,
+    "exit": 19.73,
+    "timeIn": "2025-05-25T13:10:00.000Z",
+    "timeOut": "2025-05-25T12:19:00.000Z",
+    "timeInTrade": -51,
+    "profit": -1.7,
+    "fees": 2.42,
+    "objectiveTags": {
+      "obj1": [
+        "sub1"
+      ],
+      "obj2": [
+        "sub1"
+      ],
+      "obj3": [
+        "sub1"
+      ]
+    },
+    "subjectiveTags": {
+      "subj1": [
+        "subjtag1"
+      ],
+      "subj2": [
+        "subjtag3"
+      ],
+      "subj3": [
+        "subjtag2"
+      ]
+    },
+    "journal": "Auto-generated journal entry.",
+    "direction": "short",
+    "strategyId": "strat1",
+    "accountId": "default",
+    "execution": {
+      "checklist": {
+        "chk1": false,
+        "chk2": true,
+        "chk3": false
+      },
+      "grade": null,
+      "notes": "Auto-generated trade."
+    }
+  },
+  {
+    "id": "trade-19-1745900278213",
+    "date": "2025-04-28",
+    "symbol": "AAPL",
+    "contracts": 2,
+    "entry": 362.44,
+    "exit": 366.51,
+    "timeIn": "2025-04-28T10:58:00.000Z",
+    "timeOut": "2025-04-28T10:48:00.000Z",
+    "timeInTrade": -10,
+    "profit": 8.14,
+    "fees": 1.98,
+    "objectiveTags": {
+      "obj1": [
+        "sub2"
+      ],
+      "obj2": [
+        "sub1"
+      ],
+      "obj3": [
+        "sub1"
+      ]
+    },
+    "subjectiveTags": {
+      "subj1": [
+        "subjtag3"
+      ],
+      "subj2": [
+        "subjtag3"
+      ],
+      "subj3": [
+        "subjtag2"
+      ]
+    },
+    "journal": "Auto-generated journal entry.",
+    "direction": "short",
+    "strategyId": "strat4",
+    "accountId": "default",
+    "execution": {
+      "checklist": {
+        "chk1": true,
+        "chk2": false,
+        "chk3": true
+      },
+      "grade": "D",
+      "notes": "Auto-generated trade."
+    },
+    "isBestTrade": true,
+    "extendedReflection": {
+      "mindset": "Auto-generated mindset",
+      "setup": "Auto-generated setup",
+      "riskManagement": "Auto-generated risk",
+      "lessons": "Auto-generated lesson",
+      "marketContext": "Auto-generated context"
+    }
+  },
+  {
+    "id": "trade-20-1749337318927",
+    "date": "2025-06-07",
+    "symbol": "GOOG",
+    "contracts": 5,
+    "entry": 87.43,
+    "exit": 83.78,
+    "timeIn": "2025-06-07T13:32:00.000Z",
+    "timeOut": "2025-06-07T15:23:00.000Z",
+    "timeInTrade": 111,
+    "profit": -18.25,
+    "fees": 3.16,
+    "objectiveTags": {
+      "obj1": [
+        "sub3"
+      ],
+      "obj2": [
+        "sub2"
+      ],
+      "obj3": [
+        "sub1"
+      ]
+    },
+    "subjectiveTags": {
+      "subj1": [
+        "subjtag1"
+      ],
+      "subj2": [
+        "subjtag2"
+      ],
+      "subj3": [
+        "subjtag1"
+      ]
+    },
+    "journal": "Auto-generated journal entry.",
+    "direction": "short",
+    "strategyId": "strat1",
+    "accountId": "default",
+    "execution": {
+      "checklist": {
+        "chk1": false,
+        "chk2": false,
+        "chk3": false
+      },
+      "grade": "D",
+      "notes": "Auto-generated trade."
+    },
+    "isBestTrade": true,
+    "extendedReflection": {
+      "mindset": "Auto-generated mindset",
+      "setup": "Auto-generated setup",
+      "riskManagement": "Auto-generated risk",
+      "lessons": "Auto-generated lesson",
+      "marketContext": "Auto-generated context"
+    }
+  },
+  {
+    "id": "trade-21-1743791403073",
+    "date": "2025-04-04",
+    "symbol": "AMZN",
+    "contracts": 1,
+    "entry": 484.56,
+    "exit": 480.96,
+    "timeIn": "2025-04-04T12:32:00.000Z",
+    "timeOut": "2025-04-04T13:57:00.000Z",
+    "timeInTrade": 85,
+    "profit": -3.6,
+    "fees": 2,
+    "objectiveTags": {
+      "obj1": [
+        "sub2"
+      ],
+      "obj2": [
+        "sub2"
+      ],
+      "obj3": [
+        "sub1"
+      ]
+    },
+    "subjectiveTags": {
+      "subj1": [
+        "subjtag3"
+      ],
+      "subj2": [
+        "subjtag1"
+      ],
+      "subj3": [
+        "subjtag1"
+      ]
+    },
+    "journal": "Auto-generated journal entry.",
+    "direction": "short",
+    "strategyId": "strat4",
+    "accountId": "default",
+    "execution": {
+      "checklist": {
+        "chk1": true,
+        "chk2": false,
+        "chk3": true
+      },
+      "grade": null,
+      "notes": "Auto-generated trade."
+    }
+  },
+  {
+    "id": "trade-22-1741600728210",
+    "date": "2025-03-10",
+    "symbol": "NFLX",
+    "contracts": 4,
+    "entry": 131.74,
+    "exit": 136.55,
+    "timeIn": "2025-03-10T14:13:00.000Z",
+    "timeOut": "2025-03-10T17:26:00.000Z",
+    "timeInTrade": 193,
+    "profit": 19.24,
+    "fees": 3.53,
+    "objectiveTags": {
+      "obj1": [
+        "sub1"
+      ],
+      "obj2": [
+        "sub2"
+      ],
+      "obj3": [
+        "sub2"
+      ]
+    },
+    "subjectiveTags": {
+      "subj1": [
+        "subjtag2"
+      ],
+      "subj2": [
+        "subjtag2"
+      ],
+      "subj3": [
+        "subjtag1"
+      ]
+    },
+    "journal": "Auto-generated journal entry.",
+    "direction": "long",
+    "strategyId": "strat1",
+    "accountId": "default",
+    "execution": {
+      "checklist": {
+        "chk1": false,
+        "chk2": true,
+        "chk3": true
+      },
+      "grade": "C",
+      "notes": "Auto-generated trade."
+    }
+  },
+  {
+    "id": "trade-23-1738803033203",
+    "date": "2025-02-05",
+    "symbol": "NQ",
+    "contracts": 1,
+    "entry": 330.3,
+    "exit": 327.72,
+    "timeIn": "2025-02-05T09:57:00.000Z",
+    "timeOut": "2025-02-05T13:10:00.000Z",
+    "timeInTrade": 193,
+    "profit": -2.58,
+    "fees": 3,
+    "objectiveTags": {
+      "obj1": [
+        "sub1"
+      ],
+      "obj2": [
+        "sub1"
+      ],
+      "obj3": [
+        "sub3"
+      ]
+    },
+    "subjectiveTags": {
+      "subj1": [
+        "subjtag2"
+      ],
+      "subj2": [
+        "subjtag2"
+      ],
+      "subj3": [
+        "subjtag3"
+      ]
+    },
+    "journal": "Auto-generated journal entry.",
+    "direction": "long",
+    "strategyId": "strat1",
+    "accountId": "default",
+    "execution": {
+      "checklist": {
+        "chk1": false,
+        "chk2": false,
+        "chk3": false
+      },
+      "grade": "B",
+      "notes": "Auto-generated trade."
+    }
+  },
+  {
+    "id": "trade-24-1746459546298",
+    "date": "2025-05-05",
+    "symbol": "NQ",
+    "contracts": 6,
+    "entry": 452.75,
+    "exit": 457.21,
+    "timeIn": "2025-05-05T12:04:00.000Z",
+    "timeOut": "2025-05-05T17:44:00.000Z",
+    "timeInTrade": 340,
+    "profit": 26.76,
+    "fees": 3.89,
+    "objectiveTags": {
+      "obj1": [
+        "sub1"
+      ],
+      "obj2": [
+        "sub3"
+      ],
+      "obj3": [
+        "sub3"
+      ]
+    },
+    "subjectiveTags": {
+      "subj1": [
+        "subjtag2"
+      ],
+      "subj2": [
+        "subjtag3"
+      ],
+      "subj3": [
+        "subjtag2"
+      ]
+    },
+    "journal": "Auto-generated journal entry.",
+    "direction": "short",
+    "strategyId": "strat2",
+    "accountId": "default",
+    "execution": {
+      "checklist": {
+        "chk1": false,
+        "chk2": true,
+        "chk3": false
+      },
+      "grade": null,
+      "notes": "Auto-generated trade."
+    }
+  },
+  {
+    "id": "trade-25-1749264016635",
+    "date": "2025-06-06",
+    "symbol": "GOOG",
+    "contracts": 3,
+    "entry": 461.99,
+    "exit": 464.63,
+    "timeIn": "2025-06-06T14:25:00.000Z",
+    "timeOut": "2025-06-06T13:55:00.000Z",
+    "timeInTrade": -30,
+    "profit": 7.92,
+    "fees": 0.3,
+    "objectiveTags": {
+      "obj1": [
+        "sub3"
+      ],
+      "obj2": [
+        "sub3"
+      ],
+      "obj3": [
+        "sub1"
+      ]
+    },
+    "subjectiveTags": {
+      "subj1": [
+        "subjtag2"
+      ],
+      "subj2": [
+        "subjtag1"
+      ],
+      "subj3": [
+        "subjtag3"
+      ]
+    },
+    "journal": "Auto-generated journal entry.",
+    "direction": "long",
+    "strategyId": "strat4",
+    "accountId": "default",
+    "execution": {
+      "checklist": {
+        "chk1": false,
+        "chk2": true,
+        "chk3": true
+      },
+      "grade": "B+",
+      "notes": "Auto-generated trade."
+    }
+  },
+  {
+    "id": "trade-26-1748086491852",
+    "date": "2025-05-24",
+    "symbol": "MSFT",
+    "contracts": 6,
+    "entry": 150.75,
+    "exit": 154.11,
+    "timeIn": "2025-05-24T10:00:00.000Z",
+    "timeOut": "2025-05-24T12:12:00.000Z",
+    "timeInTrade": 132,
+    "profit": 20.16,
+    "fees": 2.69,
+    "objectiveTags": {
+      "obj1": [
+        "sub1"
+      ],
+      "obj2": [
+        "sub3"
+      ],
+      "obj3": [
+        "sub3"
+      ]
+    },
+    "subjectiveTags": {
+      "subj1": [
+        "subjtag3"
+      ],
+      "subj2": [
+        "subjtag3"
+      ],
+      "subj3": [
+        "subjtag2"
+      ]
+    },
+    "journal": "Auto-generated journal entry.",
+    "direction": "short",
+    "strategyId": "strat1",
+    "accountId": "default",
+    "execution": {
+      "checklist": {
+        "chk1": true,
+        "chk2": true,
+        "chk3": false
+      },
+      "grade": "B+",
+      "notes": "Auto-generated trade."
+    }
+  },
+  {
+    "id": "trade-27-1745956006843",
+    "date": "2025-04-29",
+    "symbol": "NVDA",
+    "contracts": 7,
+    "entry": 378.3,
+    "exit": 382.51,
+    "timeIn": "2025-04-29T14:44:00.000Z",
+    "timeOut": "2025-04-29T12:21:00.000Z",
+    "timeInTrade": -143,
+    "profit": 29.47,
+    "fees": 0.95,
+    "objectiveTags": {
+      "obj1": [
+        "sub2"
+      ],
+      "obj2": [
+        "sub3"
+      ],
+      "obj3": [
+        "sub3"
+      ]
+    },
+    "subjectiveTags": {
+      "subj1": [
+        "subjtag2"
+      ],
+      "subj2": [
+        "subjtag3"
+      ],
+      "subj3": [
+        "subjtag2"
+      ]
+    },
+    "journal": "Auto-generated journal entry.",
+    "direction": "short",
+    "strategyId": "strat4",
+    "accountId": "default",
+    "execution": {
+      "checklist": {
+        "chk1": false,
+        "chk2": true,
+        "chk3": true
+      },
+      "grade": null,
+      "notes": "Auto-generated trade."
+    }
+  },
+  {
+    "id": "trade-28-1737089572795",
+    "date": "2025-01-16",
+    "symbol": "AAPL",
+    "contracts": 6,
+    "entry": 304.85,
+    "exit": 300.7,
+    "timeIn": "2025-01-16T11:10:00.000Z",
+    "timeOut": "2025-01-16T12:36:00.000Z",
+    "timeInTrade": 86,
+    "profit": -24.9,
+    "fees": 4.97,
+    "objectiveTags": {
+      "obj1": [
+        "sub3"
+      ],
+      "obj2": [
+        "sub3"
+      ],
+      "obj3": [
+        "sub1"
+      ]
+    },
+    "subjectiveTags": {
+      "subj1": [
+        "subjtag2"
+      ],
+      "subj2": [
+        "subjtag2"
+      ],
+      "subj3": [
+        "subjtag2"
+      ]
+    },
+    "journal": "Auto-generated journal entry.",
+    "direction": "long",
+    "strategyId": "strat2",
+    "accountId": "default",
+    "execution": {
+      "checklist": {
+        "chk1": true,
+        "chk2": false,
+        "chk3": true
+      },
+      "grade": "C-",
+      "notes": "Auto-generated trade."
+    }
+  },
+  {
+    "id": "trade-29-1748743847940",
+    "date": "2025-05-31",
+    "symbol": "AAPL",
+    "contracts": 10,
+    "entry": 321.74,
+    "exit": 319.4,
+    "timeIn": "2025-05-31T09:33:00.000Z",
+    "timeOut": "2025-05-31T14:20:00.000Z",
+    "timeInTrade": 287,
+    "profit": -23.4,
+    "fees": 4.34,
+    "objectiveTags": {
+      "obj1": [
+        "sub2"
+      ],
+      "obj2": [
+        "sub1"
+      ],
+      "obj3": [
+        "sub2"
+      ]
+    },
+    "subjectiveTags": {
+      "subj1": [
+        "subjtag1"
+      ],
+      "subj2": [
+        "subjtag3"
+      ],
+      "subj3": [
+        "subjtag1"
+      ]
+    },
+    "journal": "Auto-generated journal entry.",
+    "direction": "long",
+    "strategyId": "strat3",
+    "accountId": "default",
+    "execution": {
+      "checklist": {
+        "chk1": true,
+        "chk2": false,
+        "chk3": false
+      },
+      "grade": "C",
+      "notes": "Auto-generated trade."
+    }
+  },
+  {
+    "id": "trade-30-1748490241279",
+    "date": "2025-05-28",
+    "symbol": "META",
+    "contracts": 6,
+    "entry": 209.9,
+    "exit": 213.59,
+    "timeIn": "2025-05-28T11:52:00.000Z",
+    "timeOut": "2025-05-28T10:54:00.000Z",
+    "timeInTrade": -58,
+    "profit": 22.14,
+    "fees": 0.12,
+    "objectiveTags": {
+      "obj1": [
+        "sub1"
+      ],
+      "obj2": [
+        "sub1"
+      ],
+      "obj3": [
+        "sub3"
+      ]
+    },
+    "subjectiveTags": {
+      "subj1": [
+        "subjtag2"
+      ],
+      "subj2": [
+        "subjtag2"
+      ],
+      "subj3": [
+        "subjtag2"
+      ]
+    },
+    "journal": "Auto-generated journal entry.",
+    "direction": "short",
+    "strategyId": "strat4",
+    "accountId": "default",
+    "execution": {
+      "checklist": {
+        "chk1": false,
+        "chk2": false,
+        "chk3": false
+      },
+      "grade": "C",
+      "notes": "Auto-generated trade."
+    }
+  },
+  {
+    "id": "trade-31-1741346590747",
+    "date": "2025-03-07",
+    "symbol": "NQ",
+    "contracts": 6,
+    "entry": 12.97,
+    "exit": 9.13,
+    "timeIn": "2025-03-07T16:11:00.000Z",
+    "timeOut": "2025-03-07T11:17:00.000Z",
+    "timeInTrade": -294,
+    "profit": -23.04,
+    "fees": 4.01,
+    "objectiveTags": {
+      "obj1": [
+        "sub2"
+      ],
+      "obj2": [
+        "sub1"
+      ],
+      "obj3": [
+        "sub1"
+      ]
+    },
+    "subjectiveTags": {
+      "subj1": [
+        "subjtag2"
+      ],
+      "subj2": [
+        "subjtag3"
+      ],
+      "subj3": [
+        "subjtag2"
+      ]
+    },
+    "journal": "Auto-generated journal entry.",
+    "direction": "short",
+    "strategyId": "strat3",
+    "accountId": "default",
+    "execution": {
+      "checklist": {
+        "chk1": true,
+        "chk2": true,
+        "chk3": false
+      },
+      "grade": "C-",
+      "notes": "Auto-generated trade."
+    }
+  },
+  {
+    "id": "trade-32-1748535899453",
+    "date": "2025-05-29",
+    "symbol": "NFLX",
+    "contracts": 5,
+    "entry": 414.95,
+    "exit": 411.74,
+    "timeIn": "2025-05-29T09:03:00.000Z",
+    "timeOut": "2025-05-29T14:30:00.000Z",
+    "timeInTrade": 327,
+    "profit": -16.05,
+    "fees": 1.45,
+    "objectiveTags": {
+      "obj1": [
+        "sub1"
+      ],
+      "obj2": [
+        "sub3"
+      ],
+      "obj3": [
+        "sub2"
+      ]
+    },
+    "subjectiveTags": {
+      "subj1": [
+        "subjtag2"
+      ],
+      "subj2": [
+        "subjtag1"
+      ],
+      "subj3": [
+        "subjtag3"
+      ]
+    },
+    "journal": "Auto-generated journal entry.",
+    "direction": "long",
+    "strategyId": "strat4",
+    "accountId": "default",
+    "execution": {
+      "checklist": {
+        "chk1": false,
+        "chk2": false,
+        "chk3": false
+      },
+      "grade": null,
+      "notes": "Auto-generated trade."
+    }
+  },
+  {
+    "id": "trade-33-1747853249464",
+    "date": "2025-05-21",
+    "symbol": "NFLX",
+    "contracts": 10,
+    "entry": 385.66,
+    "exit": 384.19,
+    "timeIn": "2025-05-21T16:12:00.000Z",
+    "timeOut": "2025-05-21T15:18:00.000Z",
+    "timeInTrade": -54,
+    "profit": -14.7,
+    "fees": 2.59,
+    "objectiveTags": {
+      "obj1": [
+        "sub3"
+      ],
+      "obj2": [
+        "sub3"
+      ],
+      "obj3": [
+        "sub2"
+      ]
+    },
+    "subjectiveTags": {
+      "subj1": [
+        "subjtag2"
+      ],
+      "subj2": [
+        "subjtag1"
+      ],
+      "subj3": [
+        "subjtag1"
+      ]
+    },
+    "journal": "Auto-generated journal entry.",
+    "direction": "long",
+    "strategyId": "strat4",
+    "accountId": "default",
+    "execution": {
+      "checklist": {
+        "chk1": false,
+        "chk2": false,
+        "chk3": true
+      },
+      "grade": "A",
+      "notes": "Auto-generated trade."
+    }
+  },
+  {
+    "id": "trade-34-1740212525997",
+    "date": "2025-02-22",
+    "symbol": "AAPL",
+    "contracts": 8,
+    "entry": 419.78,
+    "exit": 417.17,
+    "timeIn": "2025-02-22T11:54:00.000Z",
+    "timeOut": "2025-02-22T12:38:00.000Z",
+    "timeInTrade": 44,
+    "profit": -20.88,
+    "fees": 4.5,
+    "objectiveTags": {
+      "obj1": [
+        "sub2"
+      ],
+      "obj2": [
+        "sub3"
+      ],
+      "obj3": [
+        "sub1"
+      ]
+    },
+    "subjectiveTags": {
+      "subj1": [
+        "subjtag3"
+      ],
+      "subj2": [
+        "subjtag1"
+      ],
+      "subj3": [
+        "subjtag1"
+      ]
+    },
+    "journal": "Auto-generated journal entry.",
+    "direction": "long",
+    "strategyId": "strat2",
+    "accountId": "default",
+    "execution": {
+      "checklist": {
+        "chk1": false,
+        "chk2": false,
+        "chk3": false
+      },
+      "grade": "C-",
+      "notes": "Auto-generated trade."
+    }
+  },
+  {
+    "id": "trade-35-1741768621428",
+    "date": "2025-03-12",
+    "symbol": "ES",
+    "contracts": 3,
+    "entry": 196.6,
+    "exit": 201.18,
+    "timeIn": "2025-03-12T16:02:00.000Z",
+    "timeOut": "2025-03-12T14:35:00.000Z",
+    "timeInTrade": -87,
+    "profit": 13.74,
+    "fees": 4.03,
+    "objectiveTags": {
+      "obj1": [
+        "sub1"
+      ],
+      "obj2": [
+        "sub1"
+      ],
+      "obj3": [
+        "sub1"
+      ]
+    },
+    "subjectiveTags": {
+      "subj1": [
+        "subjtag2"
+      ],
+      "subj2": [
+        "subjtag1"
+      ],
+      "subj3": [
+        "subjtag2"
+      ]
+    },
+    "journal": "Auto-generated journal entry.",
+    "direction": "long",
+    "strategyId": "strat2",
+    "accountId": "default",
+    "execution": {
+      "checklist": {
+        "chk1": true,
+        "chk2": true,
+        "chk3": false
+      },
+      "grade": "A+",
+      "notes": "Auto-generated trade."
+    }
+  },
+  {
+    "id": "trade-36-1745142151928",
+    "date": "2025-04-20",
+    "symbol": "NVDA",
+    "contracts": 1,
+    "entry": 385.21,
+    "exit": 386.83,
+    "timeIn": "2025-04-20T12:25:00.000Z",
+    "timeOut": "2025-04-20T16:18:00.000Z",
+    "timeInTrade": 233,
+    "profit": 1.62,
+    "fees": 0.12,
+    "objectiveTags": {
+      "obj1": [
+        "sub3"
+      ],
+      "obj2": [
+        "sub2"
+      ],
+      "obj3": [
+        "sub2"
+      ]
+    },
+    "subjectiveTags": {
+      "subj1": [
+        "subjtag1"
+      ],
+      "subj2": [
+        "subjtag1"
+      ],
+      "subj3": [
+        "subjtag3"
+      ]
+    },
+    "journal": "Auto-generated journal entry.",
+    "direction": "long",
+    "strategyId": "strat4",
+    "accountId": "default",
+    "execution": {
+      "checklist": {
+        "chk1": false,
+        "chk2": false,
+        "chk3": true
+      },
+      "grade": "B+",
+      "notes": "Auto-generated trade."
+    }
+  },
+  {
+    "id": "trade-37-1737637416852",
+    "date": "2025-01-23",
+    "symbol": "TSLA",
+    "contracts": 5,
+    "entry": 274.16,
+    "exit": 276.24,
+    "timeIn": "2025-01-23T13:21:00.000Z",
+    "timeOut": "2025-01-23T10:07:00.000Z",
+    "timeInTrade": -194,
+    "profit": 10.4,
+    "fees": 1.32,
+    "objectiveTags": {
+      "obj1": [
+        "sub3"
+      ],
+      "obj2": [
+        "sub1"
+      ],
+      "obj3": [
+        "sub3"
+      ]
+    },
+    "subjectiveTags": {
+      "subj1": [
+        "subjtag1"
+      ],
+      "subj2": [
+        "subjtag3"
+      ],
+      "subj3": [
+        "subjtag2"
+      ]
+    },
+    "journal": "Auto-generated journal entry.",
+    "direction": "long",
+    "strategyId": "strat1",
+    "accountId": "default",
+    "execution": {
+      "checklist": {
+        "chk1": true,
+        "chk2": false,
+        "chk3": false
+      },
+      "grade": "F",
+      "notes": "Auto-generated trade."
+    }
+  },
+  {
+    "id": "trade-38-1740213108232",
+    "date": "2025-02-22",
+    "symbol": "NQ",
+    "contracts": 5,
+    "entry": 167.25,
+    "exit": 164.15,
+    "timeIn": "2025-02-22T15:25:00.000Z",
+    "timeOut": "2025-02-22T12:02:00.000Z",
+    "timeInTrade": -203,
+    "profit": -15.5,
+    "fees": 1.65,
+    "objectiveTags": {
+      "obj1": [
+        "sub3"
+      ],
+      "obj2": [
+        "sub3"
+      ],
+      "obj3": [
+        "sub3"
+      ]
+    },
+    "subjectiveTags": {
+      "subj1": [
+        "subjtag2"
+      ],
+      "subj2": [
+        "subjtag1"
+      ],
+      "subj3": [
+        "subjtag1"
+      ]
+    },
+    "journal": "Auto-generated journal entry.",
+    "direction": "long",
+    "strategyId": "strat2",
+    "accountId": "default",
+    "execution": {
+      "checklist": {
+        "chk1": true,
+        "chk2": false,
+        "chk3": true
+      },
+      "grade": "C",
+      "notes": "Auto-generated trade."
+    }
+  },
+  {
+    "id": "trade-39-1748649268442",
+    "date": "2025-05-30",
+    "symbol": "ES",
+    "contracts": 5,
+    "entry": 315.02,
+    "exit": 312.74,
+    "timeIn": "2025-05-30T09:14:00.000Z",
+    "timeOut": "2025-05-30T13:23:00.000Z",
+    "timeInTrade": 249,
+    "profit": -11.4,
+    "fees": 1.7,
+    "objectiveTags": {
+      "obj1": [
+        "sub1"
+      ],
+      "obj2": [
+        "sub1"
+      ],
+      "obj3": [
+        "sub3"
+      ]
+    },
+    "subjectiveTags": {
+      "subj1": [
+        "subjtag2"
+      ],
+      "subj2": [
+        "subjtag3"
+      ],
+      "subj3": [
+        "subjtag1"
+      ]
+    },
+    "journal": "Auto-generated journal entry.",
+    "direction": "long",
+    "strategyId": "strat3",
+    "accountId": "default",
+    "execution": {
+      "checklist": {
+        "chk1": true,
+        "chk2": false,
+        "chk3": true
+      },
+      "grade": "B",
+      "notes": "Auto-generated trade."
+    },
+    "isBestTrade": true,
+    "extendedReflection": {
+      "mindset": "Auto-generated mindset",
+      "setup": "Auto-generated setup",
+      "riskManagement": "Auto-generated risk",
+      "lessons": "Auto-generated lesson",
+      "marketContext": "Auto-generated context"
+    }
+  },
+  {
+    "id": "trade-40-1741277161088",
+    "date": "2025-03-06",
+    "symbol": "META",
+    "contracts": 2,
+    "entry": 259.07,
+    "exit": 256.2,
+    "timeIn": "2025-03-06T12:17:00.000Z",
+    "timeOut": "2025-03-06T14:38:00.000Z",
+    "timeInTrade": 141,
+    "profit": -5.74,
+    "fees": 4.9,
+    "objectiveTags": {
+      "obj1": [
+        "sub3"
+      ],
+      "obj2": [
+        "sub2"
+      ],
+      "obj3": [
+        "sub3"
+      ]
+    },
+    "subjectiveTags": {
+      "subj1": [
+        "subjtag3"
+      ],
+      "subj2": [
+        "subjtag3"
+      ],
+      "subj3": [
+        "subjtag3"
+      ]
+    },
+    "journal": "Auto-generated journal entry.",
+    "direction": "short",
+    "strategyId": "strat4",
+    "accountId": "default",
+    "execution": {
+      "checklist": {
+        "chk1": false,
+        "chk2": false,
+        "chk3": true
+      },
+      "grade": "A+",
+      "notes": "Auto-generated trade."
+    }
+  },
+  {
+    "id": "trade-41-1736834104241",
+    "date": "2025-01-13",
+    "symbol": "NVDA",
+    "contracts": 9,
+    "entry": 265.48,
+    "exit": 260.96,
+    "timeIn": "2025-01-13T16:08:00.000Z",
+    "timeOut": "2025-01-13T10:32:00.000Z",
+    "timeInTrade": -336,
+    "profit": -40.68,
+    "fees": 4.61,
+    "objectiveTags": {
+      "obj1": [
+        "sub1"
+      ],
+      "obj2": [
+        "sub2"
+      ],
+      "obj3": [
+        "sub2"
+      ]
+    },
+    "subjectiveTags": {
+      "subj1": [
+        "subjtag2"
+      ],
+      "subj2": [
+        "subjtag1"
+      ],
+      "subj3": [
+        "subjtag1"
+      ]
+    },
+    "journal": "Auto-generated journal entry.",
+    "direction": "short",
+    "strategyId": "strat2",
+    "accountId": "default",
+    "execution": {
+      "checklist": {
+        "chk1": true,
+        "chk2": true,
+        "chk3": false
+      },
+      "grade": "A",
+      "notes": "Auto-generated trade."
+    }
+  },
+  {
+    "id": "trade-42-1747263355020",
+    "date": "2025-05-14",
+    "symbol": "TSLA",
+    "contracts": 1,
+    "entry": 459.83,
+    "exit": 463.89,
+    "timeIn": "2025-05-14T10:31:00.000Z",
+    "timeOut": "2025-05-14T16:10:00.000Z",
+    "timeInTrade": 339,
+    "profit": 4.06,
+    "fees": 3.62,
+    "objectiveTags": {
+      "obj1": [
+        "sub3"
+      ],
+      "obj2": [
+        "sub1"
+      ],
+      "obj3": [
+        "sub2"
+      ]
+    },
+    "subjectiveTags": {
+      "subj1": [
+        "subjtag3"
+      ],
+      "subj2": [
+        "subjtag1"
+      ],
+      "subj3": [
+        "subjtag1"
+      ]
+    },
+    "journal": "Auto-generated journal entry.",
+    "direction": "short",
+    "strategyId": "strat3",
+    "accountId": "default",
+    "execution": {
+      "checklist": {
+        "chk1": false,
+        "chk2": false,
+        "chk3": false
+      },
+      "grade": "B-",
+      "notes": "Auto-generated trade."
+    },
+    "isWorstTrade": true,
+    "extendedReflection": {
+      "mindset": "Auto-generated mindset",
+      "setup": "Auto-generated setup",
+      "riskManagement": "Auto-generated risk",
+      "lessons": "Auto-generated lesson",
+      "marketContext": "Auto-generated context"
+    }
+  },
+  {
+    "id": "trade-43-1748512034342",
+    "date": "2025-05-29",
+    "symbol": "AAPL",
+    "contracts": 10,
+    "entry": 157.54,
+    "exit": 158.5,
+    "timeIn": "2025-05-29T11:57:00.000Z",
+    "timeOut": "2025-05-29T14:15:00.000Z",
+    "timeInTrade": 138,
+    "profit": 9.6,
+    "fees": 0,
+    "objectiveTags": {
+      "obj1": [
+        "sub3"
+      ],
+      "obj2": [
+        "sub1"
+      ],
+      "obj3": [
+        "sub1"
+      ]
+    },
+    "subjectiveTags": {
+      "subj1": [
+        "subjtag1"
+      ],
+      "subj2": [
+        "subjtag1"
+      ],
+      "subj3": [
+        "subjtag1"
+      ]
+    },
+    "journal": "Auto-generated journal entry.",
+    "direction": "short",
+    "strategyId": "strat1",
+    "accountId": "default",
+    "execution": {
+      "checklist": {
+        "chk1": true,
+        "chk2": true,
+        "chk3": false
+      },
+      "grade": "A+",
+      "notes": "Auto-generated trade."
+    }
+  },
+  {
+    "id": "trade-44-1749098621161",
+    "date": "2025-06-04",
+    "symbol": "NFLX",
+    "contracts": 9,
+    "entry": 275.19,
+    "exit": 274.33,
+    "timeIn": "2025-06-04T09:31:00.000Z",
+    "timeOut": "2025-06-04T14:27:00.000Z",
+    "timeInTrade": 296,
+    "profit": -7.74,
+    "fees": 2.81,
+    "objectiveTags": {
+      "obj1": [
+        "sub2"
+      ],
+      "obj2": [
+        "sub2"
+      ],
+      "obj3": [
+        "sub1"
+      ]
+    },
+    "subjectiveTags": {
+      "subj1": [
+        "subjtag1"
+      ],
+      "subj2": [
+        "subjtag3"
+      ],
+      "subj3": [
+        "subjtag3"
+      ]
+    },
+    "journal": "Auto-generated journal entry.",
+    "direction": "short",
+    "strategyId": "strat3",
+    "accountId": "default",
+    "execution": {
+      "checklist": {
+        "chk1": false,
+        "chk2": true,
+        "chk3": false
+      },
+      "grade": "A",
+      "notes": "Auto-generated trade."
+    }
+  },
+  {
+    "id": "trade-45-1736540003717",
+    "date": "2025-01-10",
+    "symbol": "GOOG",
+    "contracts": 5,
+    "entry": 486.38,
+    "exit": 490.77,
+    "timeIn": "2025-01-10T12:15:00.000Z",
+    "timeOut": "2025-01-10T14:48:00.000Z",
+    "timeInTrade": 153,
+    "profit": 21.95,
+    "fees": 1.19,
+    "objectiveTags": {
+      "obj1": [
+        "sub3"
+      ],
+      "obj2": [
+        "sub1"
+      ],
+      "obj3": [
+        "sub1"
+      ]
+    },
+    "subjectiveTags": {
+      "subj1": [
+        "subjtag1"
+      ],
+      "subj2": [
+        "subjtag2"
+      ],
+      "subj3": [
+        "subjtag2"
+      ]
+    },
+    "journal": "Auto-generated journal entry.",
+    "direction": "short",
+    "strategyId": "strat1",
+    "accountId": "default",
+    "execution": {
+      "checklist": {
+        "chk1": false,
+        "chk2": true,
+        "chk3": false
+      },
+      "grade": "C+",
+      "notes": "Auto-generated trade."
+    }
+  },
+  {
+    "id": "trade-46-1743301618006",
+    "date": "2025-03-29",
+    "symbol": "META",
+    "contracts": 8,
+    "entry": 117.18,
+    "exit": 115.54,
+    "timeIn": "2025-03-29T09:41:00.000Z",
+    "timeOut": "2025-03-29T16:40:00.000Z",
+    "timeInTrade": 419,
+    "profit": -13.12,
+    "fees": 2.01,
+    "objectiveTags": {
+      "obj1": [
+        "sub1"
+      ],
+      "obj2": [
+        "sub3"
+      ],
+      "obj3": [
+        "sub1"
+      ]
+    },
+    "subjectiveTags": {
+      "subj1": [
+        "subjtag1"
+      ],
+      "subj2": [
+        "subjtag3"
+      ],
+      "subj3": [
+        "subjtag2"
+      ]
+    },
+    "journal": "Auto-generated journal entry.",
+    "direction": "short",
+    "strategyId": "strat3",
+    "accountId": "default",
+    "execution": {
+      "checklist": {
+        "chk1": true,
+        "chk2": false,
+        "chk3": true
+      },
+      "grade": "A+",
+      "notes": "Auto-generated trade."
+    }
+  },
+  {
+    "id": "trade-47-1746340491778",
+    "date": "2025-05-04",
+    "symbol": "NFLX",
+    "contracts": 8,
+    "entry": 343.07,
+    "exit": 346.79,
+    "timeIn": "2025-05-04T09:01:00.000Z",
+    "timeOut": "2025-05-04T15:32:00.000Z",
+    "timeInTrade": 391,
+    "profit": 29.76,
+    "fees": 1.71,
+    "objectiveTags": {
+      "obj1": [
+        "sub3"
+      ],
+      "obj2": [
+        "sub1"
+      ],
+      "obj3": [
+        "sub3"
+      ]
+    },
+    "subjectiveTags": {
+      "subj1": [
+        "subjtag1"
+      ],
+      "subj2": [
+        "subjtag2"
+      ],
+      "subj3": [
+        "subjtag2"
+      ]
+    },
+    "journal": "Auto-generated journal entry.",
+    "direction": "short",
+    "strategyId": "strat4",
+    "accountId": "default",
+    "execution": {
+      "checklist": {
+        "chk1": true,
+        "chk2": false,
+        "chk3": true
+      },
+      "grade": "D",
+      "notes": "Auto-generated trade."
+    }
+  },
+  {
+    "id": "trade-48-1745212319426",
+    "date": "2025-04-21",
+    "symbol": "AMZN",
+    "contracts": 5,
+    "entry": 346.29,
+    "exit": 348.68,
+    "timeIn": "2025-04-21T12:25:00.000Z",
+    "timeOut": "2025-04-21T11:57:00.000Z",
+    "timeInTrade": -28,
+    "profit": 11.95,
+    "fees": 2.46,
+    "objectiveTags": {
+      "obj1": [
+        "sub3"
+      ],
+      "obj2": [
+        "sub1"
+      ],
+      "obj3": [
+        "sub3"
+      ]
+    },
+    "subjectiveTags": {
+      "subj1": [
+        "subjtag2"
+      ],
+      "subj2": [
+        "subjtag3"
+      ],
+      "subj3": [
+        "subjtag1"
+      ]
+    },
+    "journal": "Auto-generated journal entry.",
+    "direction": "short",
+    "strategyId": "strat2",
+    "accountId": "default",
+    "execution": {
+      "checklist": {
+        "chk1": true,
+        "chk2": true,
+        "chk3": true
+      },
+      "grade": "F",
+      "notes": "Auto-generated trade."
+    },
+    "isBestTrade": true,
+    "extendedReflection": {
+      "mindset": "Auto-generated mindset",
+      "setup": "Auto-generated setup",
+      "riskManagement": "Auto-generated risk",
+      "lessons": "Auto-generated lesson",
+      "marketContext": "Auto-generated context"
+    }
+  },
+  {
+    "id": "trade-49-1742602974575",
+    "date": "2025-03-21",
+    "symbol": "NFLX",
+    "contracts": 2,
+    "entry": 317.23,
+    "exit": 322.02,
+    "timeIn": "2025-03-21T10:40:00.000Z",
+    "timeOut": "2025-03-21T10:32:00.000Z",
+    "timeInTrade": -8,
+    "profit": 9.58,
+    "fees": 1.53,
+    "objectiveTags": {
+      "obj1": [
+        "sub2"
+      ],
+      "obj2": [
+        "sub2"
+      ],
+      "obj3": [
+        "sub3"
+      ]
+    },
+    "subjectiveTags": {
+      "subj1": [
+        "subjtag3"
+      ],
+      "subj2": [
+        "subjtag2"
+      ],
+      "subj3": [
+        "subjtag3"
+      ]
+    },
+    "journal": "Auto-generated journal entry.",
+    "direction": "long",
+    "strategyId": "strat2",
+    "accountId": "default",
+    "execution": {
+      "checklist": {
+        "chk1": true,
+        "chk2": true,
+        "chk3": true
+      },
+      "grade": null,
+      "notes": "Auto-generated trade."
+    }
+  },
+  {
+    "id": "trade-50-1750373571282",
+    "date": "2025-06-19",
+    "symbol": "MSFT",
+    "contracts": 6,
+    "entry": 171.19,
+    "exit": 168.54,
+    "timeIn": "2025-06-19T12:28:00.000Z",
+    "timeOut": "2025-06-19T15:11:00.000Z",
+    "timeInTrade": 163,
+    "profit": -15.9,
+    "fees": 4.05,
+    "objectiveTags": {
+      "obj1": [
+        "sub1"
+      ],
+      "obj2": [
+        "sub3"
+      ],
+      "obj3": [
+        "sub3"
+      ]
+    },
+    "subjectiveTags": {
+      "subj1": [
+        "subjtag1"
+      ],
+      "subj2": [
+        "subjtag2"
+      ],
+      "subj3": [
+        "subjtag1"
+      ]
+    },
+    "journal": "Auto-generated journal entry.",
+    "direction": "short",
+    "strategyId": "strat1",
+    "accountId": "default",
+    "execution": {
+      "checklist": {
+        "chk1": true,
+        "chk2": true,
+        "chk3": true
+      },
+      "grade": null,
+      "notes": "Auto-generated trade."
+    },
+    "isWorstTrade": true,
+    "extendedReflection": {
+      "mindset": "Auto-generated mindset",
+      "setup": "Auto-generated setup",
+      "riskManagement": "Auto-generated risk",
+      "lessons": "Auto-generated lesson",
+      "marketContext": "Auto-generated context"
+    }
+  },
+  {
+    "id": "trade-51-1740941205489",
+    "date": "2025-03-02",
+    "symbol": "GOOG",
+    "contracts": 5,
+    "entry": 324.78,
+    "exit": 320.62,
+    "timeIn": "2025-03-02T09:42:00.000Z",
+    "timeOut": "2025-03-02T12:52:00.000Z",
+    "timeInTrade": 190,
+    "profit": -20.8,
+    "fees": 2.96,
+    "objectiveTags": {
+      "obj1": [
+        "sub3"
+      ],
+      "obj2": [
+        "sub2"
+      ],
+      "obj3": [
+        "sub1"
+      ]
+    },
+    "subjectiveTags": {
+      "subj1": [
+        "subjtag2"
+      ],
+      "subj2": [
+        "subjtag1"
+      ],
+      "subj3": [
+        "subjtag3"
+      ]
+    },
+    "journal": "Auto-generated journal entry.",
+    "direction": "short",
+    "strategyId": "strat2",
+    "accountId": "default",
+    "execution": {
+      "checklist": {
+        "chk1": true,
+        "chk2": false,
+        "chk3": true
+      },
+      "grade": "A+",
+      "notes": "Auto-generated trade."
+    }
+  },
+  {
+    "id": "trade-52-1740199903619",
+    "date": "2025-02-21",
+    "symbol": "META",
+    "contracts": 6,
+    "entry": 87.37,
+    "exit": 87.32,
+    "timeIn": "2025-02-21T14:40:00.000Z",
+    "timeOut": "2025-02-21T10:47:00.000Z",
+    "timeInTrade": -233,
+    "profit": -0.3,
+    "fees": 4.82,
+    "objectiveTags": {
+      "obj1": [
+        "sub2"
+      ],
+      "obj2": [
+        "sub3"
+      ],
+      "obj3": [
+        "sub2"
+      ]
+    },
+    "subjectiveTags": {
+      "subj1": [
+        "subjtag3"
+      ],
+      "subj2": [
+        "subjtag2"
+      ],
+      "subj3": [
+        "subjtag2"
+      ]
+    },
+    "journal": "Auto-generated journal entry.",
+    "direction": "long",
+    "strategyId": "strat3",
+    "accountId": "default",
+    "execution": {
+      "checklist": {
+        "chk1": true,
+        "chk2": false,
+        "chk3": true
+      },
+      "grade": "B",
+      "notes": "Auto-generated trade."
+    }
+  },
+  {
+    "id": "trade-53-1741677397098",
+    "date": "2025-03-11",
+    "symbol": "AMZN",
+    "contracts": 3,
+    "entry": 11.82,
+    "exit": 8.2,
+    "timeIn": "2025-03-11T15:19:00.000Z",
+    "timeOut": "2025-03-11T14:04:00.000Z",
+    "timeInTrade": -75,
+    "profit": -10.86,
+    "fees": 2.8,
+    "objectiveTags": {
+      "obj1": [
+        "sub3"
+      ],
+      "obj2": [
+        "sub2"
+      ],
+      "obj3": [
+        "sub3"
+      ]
+    },
+    "subjectiveTags": {
+      "subj1": [
+        "subjtag2"
+      ],
+      "subj2": [
+        "subjtag3"
+      ],
+      "subj3": [
+        "subjtag2"
+      ]
+    },
+    "journal": "Auto-generated journal entry.",
+    "direction": "short",
+    "strategyId": "strat4",
+    "accountId": "default",
+    "execution": {
+      "checklist": {
+        "chk1": false,
+        "chk2": false,
+        "chk3": false
+      },
+      "grade": "A-",
+      "notes": "Auto-generated trade."
+    },
+    "isBestTrade": true,
+    "extendedReflection": {
+      "mindset": "Auto-generated mindset",
+      "setup": "Auto-generated setup",
+      "riskManagement": "Auto-generated risk",
+      "lessons": "Auto-generated lesson",
+      "marketContext": "Auto-generated context"
+    }
+  },
+  {
+    "id": "trade-54-1742293836114",
+    "date": "2025-03-18",
+    "symbol": "TSLA",
+    "contracts": 8,
+    "entry": 21.25,
+    "exit": 17.95,
+    "timeIn": "2025-03-18T13:18:00.000Z",
+    "timeOut": "2025-03-18T15:18:00.000Z",
+    "timeInTrade": 120,
+    "profit": -26.4,
+    "fees": 2.85,
+    "objectiveTags": {
+      "obj1": [
+        "sub2"
+      ],
+      "obj2": [
+        "sub1"
+      ],
+      "obj3": [
+        "sub3"
+      ]
+    },
+    "subjectiveTags": {
+      "subj1": [
+        "subjtag3"
+      ],
+      "subj2": [
+        "subjtag3"
+      ],
+      "subj3": [
+        "subjtag2"
+      ]
+    },
+    "journal": "Auto-generated journal entry.",
+    "direction": "long",
+    "strategyId": "strat4",
+    "accountId": "default",
+    "execution": {
+      "checklist": {
+        "chk1": false,
+        "chk2": true,
+        "chk3": false
+      },
+      "grade": "C-",
+      "notes": "Auto-generated trade."
+    }
+  },
+  {
+    "id": "trade-55-1743892811030",
+    "date": "2025-04-05",
+    "symbol": "GOOG",
+    "contracts": 4,
+    "entry": 85.47,
+    "exit": 81.73,
+    "timeIn": "2025-04-05T10:05:00.000Z",
+    "timeOut": "2025-04-05T17:13:00.000Z",
+    "timeInTrade": 428,
+    "profit": -14.96,
+    "fees": 4.23,
+    "objectiveTags": {
+      "obj1": [
+        "sub3"
+      ],
+      "obj2": [
+        "sub2"
+      ],
+      "obj3": [
+        "sub2"
+      ]
+    },
+    "subjectiveTags": {
+      "subj1": [
+        "subjtag1"
+      ],
+      "subj2": [
+        "subjtag1"
+      ],
+      "subj3": [
+        "subjtag1"
+      ]
+    },
+    "journal": "Auto-generated journal entry.",
+    "direction": "long",
+    "strategyId": "strat1",
+    "accountId": "default",
+    "execution": {
+      "checklist": {
+        "chk1": false,
+        "chk2": false,
+        "chk3": false
+      },
+      "grade": "B-",
+      "notes": "Auto-generated trade."
+    },
+    "isBestTrade": true,
+    "extendedReflection": {
+      "mindset": "Auto-generated mindset",
+      "setup": "Auto-generated setup",
+      "riskManagement": "Auto-generated risk",
+      "lessons": "Auto-generated lesson",
+      "marketContext": "Auto-generated context"
+    }
+  },
+  {
+    "id": "trade-56-1742150739234",
+    "date": "2025-03-16",
+    "symbol": "ES",
+    "contracts": 2,
+    "entry": 175.44,
+    "exit": 173.96,
+    "timeIn": "2025-03-16T09:16:00.000Z",
+    "timeOut": "2025-03-16T12:43:00.000Z",
+    "timeInTrade": 207,
+    "profit": -2.96,
+    "fees": 0.45,
+    "objectiveTags": {
+      "obj1": [
+        "sub1"
+      ],
+      "obj2": [
+        "sub2"
+      ],
+      "obj3": [
+        "sub2"
+      ]
+    },
+    "subjectiveTags": {
+      "subj1": [
+        "subjtag1"
+      ],
+      "subj2": [
+        "subjtag3"
+      ],
+      "subj3": [
+        "subjtag1"
+      ]
+    },
+    "journal": "Auto-generated journal entry.",
+    "direction": "short",
+    "strategyId": "strat3",
+    "accountId": "default",
+    "execution": {
+      "checklist": {
+        "chk1": true,
+        "chk2": true,
+        "chk3": false
+      },
+      "grade": "A+",
+      "notes": "Auto-generated trade."
+    }
+  },
+  {
+    "id": "trade-57-1746592002718",
+    "date": "2025-05-06",
+    "symbol": "ES",
+    "contracts": 9,
+    "entry": 149.64,
+    "exit": 147.23,
+    "timeIn": "2025-05-06T09:00:00.000Z",
+    "timeOut": "2025-05-06T16:22:00.000Z",
+    "timeInTrade": 442,
+    "profit": -21.69,
+    "fees": 0.38,
+    "objectiveTags": {
+      "obj1": [
+        "sub2"
+      ],
+      "obj2": [
+        "sub1"
+      ],
+      "obj3": [
+        "sub1"
+      ]
+    },
+    "subjectiveTags": {
+      "subj1": [
+        "subjtag1"
+      ],
+      "subj2": [
+        "subjtag3"
+      ],
+      "subj3": [
+        "subjtag3"
+      ]
+    },
+    "journal": "Auto-generated journal entry.",
+    "direction": "long",
+    "strategyId": "strat4",
+    "accountId": "default",
+    "execution": {
+      "checklist": {
+        "chk1": false,
+        "chk2": true,
+        "chk3": false
+      },
+      "grade": "B+",
+      "notes": "Auto-generated trade."
+    }
+  },
+  {
+    "id": "trade-58-1738169479249",
+    "date": "2025-01-29",
+    "symbol": "ES",
+    "contracts": 5,
+    "entry": 248.44,
+    "exit": 250.03,
+    "timeIn": "2025-01-29T12:03:00.000Z",
+    "timeOut": "2025-01-29T10:57:00.000Z",
+    "timeInTrade": -66,
+    "profit": 7.95,
+    "fees": 1.28,
+    "objectiveTags": {
+      "obj1": [
+        "sub2"
+      ],
+      "obj2": [
+        "sub3"
+      ],
+      "obj3": [
+        "sub2"
+      ]
+    },
+    "subjectiveTags": {
+      "subj1": [
+        "subjtag2"
+      ],
+      "subj2": [
+        "subjtag3"
+      ],
+      "subj3": [
+        "subjtag1"
+      ]
+    },
+    "journal": "Auto-generated journal entry.",
+    "direction": "short",
+    "strategyId": "strat2",
+    "accountId": "default",
+    "execution": {
+      "checklist": {
+        "chk1": false,
+        "chk2": false,
+        "chk3": true
+      },
+      "grade": "A",
+      "notes": "Auto-generated trade."
+    }
+  },
+  {
+    "id": "trade-59-1749251834449",
+    "date": "2025-06-06",
+    "symbol": "AMZN",
+    "contracts": 10,
+    "entry": 186.84,
+    "exit": 183.67,
+    "timeIn": "2025-06-06T14:41:00.000Z",
+    "timeOut": "2025-06-06T16:43:00.000Z",
+    "timeInTrade": 122,
+    "profit": -31.7,
+    "fees": 3.99,
+    "objectiveTags": {
+      "obj1": [
+        "sub1"
+      ],
+      "obj2": [
+        "sub2"
+      ],
+      "obj3": [
+        "sub3"
+      ]
+    },
+    "subjectiveTags": {
+      "subj1": [
+        "subjtag2"
+      ],
+      "subj2": [
+        "subjtag2"
+      ],
+      "subj3": [
+        "subjtag1"
+      ]
+    },
+    "journal": "Auto-generated journal entry.",
+    "direction": "short",
+    "strategyId": "strat1",
+    "accountId": "default",
+    "execution": {
+      "checklist": {
+        "chk1": true,
+        "chk2": true,
+        "chk3": true
+      },
+      "grade": "B-",
+      "notes": "Auto-generated trade."
+    }
+  },
+  {
+    "id": "trade-60-1750136716352",
+    "date": "2025-06-17",
+    "symbol": "NQ",
+    "contracts": 4,
+    "entry": 495.5,
+    "exit": 495.25,
+    "timeIn": "2025-06-17T15:50:00.000Z",
+    "timeOut": "2025-06-17T12:33:00.000Z",
+    "timeInTrade": -197,
+    "profit": -1,
+    "fees": 4.74,
+    "objectiveTags": {
+      "obj1": [
+        "sub1"
+      ],
+      "obj2": [
+        "sub1"
+      ],
+      "obj3": [
+        "sub1"
+      ]
+    },
+    "subjectiveTags": {
+      "subj1": [
+        "subjtag1"
+      ],
+      "subj2": [
+        "subjtag2"
+      ],
+      "subj3": [
+        "subjtag2"
+      ]
+    },
+    "journal": "Auto-generated journal entry.",
+    "direction": "long",
+    "strategyId": "strat3",
+    "accountId": "default",
+    "execution": {
+      "checklist": {
+        "chk1": true,
+        "chk2": false,
+        "chk3": true
+      },
+      "grade": "A-",
+      "notes": "Auto-generated trade."
+    },
+    "isWorstTrade": true,
+    "extendedReflection": {
+      "mindset": "Auto-generated mindset",
+      "setup": "Auto-generated setup",
+      "riskManagement": "Auto-generated risk",
+      "lessons": "Auto-generated lesson",
+      "marketContext": "Auto-generated context"
+    }
+  },
+  {
+    "id": "trade-61-1744981963441",
+    "date": "2025-04-18",
+    "symbol": "NQ",
+    "contracts": 5,
+    "entry": 146.46,
+    "exit": 148.29,
+    "timeIn": "2025-04-18T11:14:00.000Z",
+    "timeOut": "2025-04-18T15:41:00.000Z",
+    "timeInTrade": 267,
+    "profit": 9.15,
+    "fees": 4.58,
+    "objectiveTags": {
+      "obj1": [
+        "sub3"
+      ],
+      "obj2": [
+        "sub3"
+      ],
+      "obj3": [
+        "sub2"
+      ]
+    },
+    "subjectiveTags": {
+      "subj1": [
+        "subjtag3"
+      ],
+      "subj2": [
+        "subjtag2"
+      ],
+      "subj3": [
+        "subjtag3"
+      ]
+    },
+    "journal": "Auto-generated journal entry.",
+    "direction": "short",
+    "strategyId": "strat2",
+    "accountId": "default",
+    "execution": {
+      "checklist": {
+        "chk1": false,
+        "chk2": false,
+        "chk3": true
+      },
+      "grade": "B-",
+      "notes": "Auto-generated trade."
+    }
+  },
+  {
+    "id": "trade-62-1747862797305",
+    "date": "2025-05-21",
+    "symbol": "NVDA",
+    "contracts": 5,
+    "entry": 449.07,
+    "exit": 449.62,
+    "timeIn": "2025-05-21T12:31:00.000Z",
+    "timeOut": "2025-05-21T16:40:00.000Z",
+    "timeInTrade": 249,
+    "profit": 2.75,
+    "fees": 2.02,
+    "objectiveTags": {
+      "obj1": [
+        "sub1"
+      ],
+      "obj2": [
+        "sub2"
+      ],
+      "obj3": [
+        "sub3"
+      ]
+    },
+    "subjectiveTags": {
+      "subj1": [
+        "subjtag2"
+      ],
+      "subj2": [
+        "subjtag3"
+      ],
+      "subj3": [
+        "subjtag2"
+      ]
+    },
+    "journal": "Auto-generated journal entry.",
+    "direction": "long",
+    "strategyId": "strat4",
+    "accountId": "default",
+    "execution": {
+      "checklist": {
+        "chk1": false,
+        "chk2": true,
+        "chk3": true
+      },
+      "grade": "F",
+      "notes": "Auto-generated trade."
+    },
+    "isBestTrade": true,
+    "extendedReflection": {
+      "mindset": "Auto-generated mindset",
+      "setup": "Auto-generated setup",
+      "riskManagement": "Auto-generated risk",
+      "lessons": "Auto-generated lesson",
+      "marketContext": "Auto-generated context"
+    }
+  },
+  {
+    "id": "trade-63-1750106752260",
+    "date": "2025-06-16",
+    "symbol": "NFLX",
+    "contracts": 9,
+    "entry": 164.73,
+    "exit": 161.34,
+    "timeIn": "2025-06-16T11:43:00.000Z",
+    "timeOut": "2025-06-16T14:35:00.000Z",
+    "timeInTrade": 172,
+    "profit": -30.51,
+    "fees": 2.9,
+    "objectiveTags": {
+      "obj1": [
+        "sub3"
+      ],
+      "obj2": [
+        "sub2"
+      ],
+      "obj3": [
+        "sub3"
+      ]
+    },
+    "subjectiveTags": {
+      "subj1": [
+        "subjtag2"
+      ],
+      "subj2": [
+        "subjtag2"
+      ],
+      "subj3": [
+        "subjtag3"
+      ]
+    },
+    "journal": "Auto-generated journal entry.",
+    "direction": "short",
+    "strategyId": "strat3",
+    "accountId": "default",
+    "execution": {
+      "checklist": {
+        "chk1": false,
+        "chk2": false,
+        "chk3": true
+      },
+      "grade": "B-",
+      "notes": "Auto-generated trade."
+    }
+  },
+  {
+    "id": "trade-64-1750230500899",
+    "date": "2025-06-18",
+    "symbol": "AAPL",
+    "contracts": 9,
+    "entry": 354.38,
+    "exit": 351.68,
+    "timeIn": "2025-06-18T10:46:00.000Z",
+    "timeOut": "2025-06-18T12:57:00.000Z",
+    "timeInTrade": 131,
+    "profit": -24.3,
+    "fees": 1.27,
+    "objectiveTags": {
+      "obj1": [
+        "sub2"
+      ],
+      "obj2": [
+        "sub2"
+      ],
+      "obj3": [
+        "sub3"
+      ]
+    },
+    "subjectiveTags": {
+      "subj1": [
+        "subjtag2"
+      ],
+      "subj2": [
+        "subjtag3"
+      ],
+      "subj3": [
+        "subjtag3"
+      ]
+    },
+    "journal": "Auto-generated journal entry.",
+    "direction": "long",
+    "strategyId": "strat2",
+    "accountId": "default",
+    "execution": {
+      "checklist": {
+        "chk1": true,
+        "chk2": true,
+        "chk3": false
+      },
+      "grade": null,
+      "notes": "Auto-generated trade."
+    }
+  },
+  {
+    "id": "trade-65-1743117581939",
+    "date": "2025-03-27",
+    "symbol": "NVDA",
+    "contracts": 4,
+    "entry": 491.26,
+    "exit": 488.77,
+    "timeIn": "2025-03-27T14:05:00.000Z",
+    "timeOut": "2025-03-27T11:44:00.000Z",
+    "timeInTrade": -141,
+    "profit": -9.96,
+    "fees": 2.29,
+    "objectiveTags": {
+      "obj1": [
+        "sub1"
+      ],
+      "obj2": [
+        "sub2"
+      ],
+      "obj3": [
+        "sub3"
+      ]
+    },
+    "subjectiveTags": {
+      "subj1": [
+        "subjtag1"
+      ],
+      "subj2": [
+        "subjtag1"
+      ],
+      "subj3": [
+        "subjtag1"
+      ]
+    },
+    "journal": "Auto-generated journal entry.",
+    "direction": "short",
+    "strategyId": "strat1",
+    "accountId": "default",
+    "execution": {
+      "checklist": {
+        "chk1": true,
+        "chk2": true,
+        "chk3": true
+      },
+      "grade": "B+",
+      "notes": "Auto-generated trade."
+    }
+  },
+  {
+    "id": "trade-66-1736439038696",
+    "date": "2025-01-09",
+    "symbol": "NFLX",
+    "contracts": 10,
+    "entry": 234.95,
+    "exit": 230.46,
+    "timeIn": "2025-01-09T14:28:00.000Z",
+    "timeOut": "2025-01-09T17:35:00.000Z",
+    "timeInTrade": 187,
+    "profit": -44.9,
+    "fees": 2.81,
+    "objectiveTags": {
+      "obj1": [
+        "sub3"
+      ],
+      "obj2": [
+        "sub1"
+      ],
+      "obj3": [
+        "sub2"
+      ]
+    },
+    "subjectiveTags": {
+      "subj1": [
+        "subjtag3"
+      ],
+      "subj2": [
+        "subjtag2"
+      ],
+      "subj3": [
+        "subjtag3"
+      ]
+    },
+    "journal": "Auto-generated journal entry.",
+    "direction": "long",
+    "strategyId": "strat4",
+    "accountId": "default",
+    "execution": {
+      "checklist": {
+        "chk1": true,
+        "chk2": false,
+        "chk3": true
+      },
+      "grade": null,
+      "notes": "Auto-generated trade."
+    }
+  },
+  {
+    "id": "trade-67-1736046282629",
+    "date": "2025-01-04",
+    "symbol": "AMZN",
+    "contracts": 2,
+    "entry": 87.43,
+    "exit": 89.95,
+    "timeIn": "2025-01-04T15:19:00.000Z",
+    "timeOut": "2025-01-04T14:22:00.000Z",
+    "timeInTrade": -57,
+    "profit": 5.04,
+    "fees": 0.72,
+    "objectiveTags": {
+      "obj1": [
+        "sub1"
+      ],
+      "obj2": [
+        "sub1"
+      ],
+      "obj3": [
+        "sub2"
+      ]
+    },
+    "subjectiveTags": {
+      "subj1": [
+        "subjtag3"
+      ],
+      "subj2": [
+        "subjtag3"
+      ],
+      "subj3": [
+        "subjtag3"
+      ]
+    },
+    "journal": "Auto-generated journal entry.",
+    "direction": "short",
+    "strategyId": "strat1",
+    "accountId": "default",
+    "execution": {
+      "checklist": {
+        "chk1": false,
+        "chk2": true,
+        "chk3": false
+      },
+      "grade": "A+",
+      "notes": "Auto-generated trade."
+    }
+  },
+  {
+    "id": "trade-68-1740878812392",
+    "date": "2025-03-01",
+    "symbol": "AMZN",
+    "contracts": 3,
+    "entry": 138.54,
+    "exit": 142.34,
+    "timeIn": "2025-03-01T16:38:00.000Z",
+    "timeOut": "2025-03-01T14:56:00.000Z",
+    "timeInTrade": -102,
+    "profit": 11.4,
+    "fees": 4.12,
+    "objectiveTags": {
+      "obj1": [
+        "sub3"
+      ],
+      "obj2": [
+        "sub2"
+      ],
+      "obj3": [
+        "sub1"
+      ]
+    },
+    "subjectiveTags": {
+      "subj1": [
+        "subjtag1"
+      ],
+      "subj2": [
+        "subjtag2"
+      ],
+      "subj3": [
+        "subjtag3"
+      ]
+    },
+    "journal": "Auto-generated journal entry.",
+    "direction": "short",
+    "strategyId": "strat4",
+    "accountId": "default",
+    "execution": {
+      "checklist": {
+        "chk1": false,
+        "chk2": false,
+        "chk3": true
+      },
+      "grade": "A-",
+      "notes": "Auto-generated trade."
+    },
+    "isWorstTrade": true,
+    "extendedReflection": {
+      "mindset": "Auto-generated mindset",
+      "setup": "Auto-generated setup",
+      "riskManagement": "Auto-generated risk",
+      "lessons": "Auto-generated lesson",
+      "marketContext": "Auto-generated context"
+    }
+  },
+  {
+    "id": "trade-69-1737578713283",
+    "date": "2025-01-22",
+    "symbol": "GOOG",
+    "contracts": 2,
+    "entry": 337.8,
+    "exit": 341.17,
+    "timeIn": "2025-01-22T10:40:00.000Z",
+    "timeOut": "2025-01-22T14:49:00.000Z",
+    "timeInTrade": 249,
+    "profit": 6.74,
+    "fees": 2.46,
+    "objectiveTags": {
+      "obj1": [
+        "sub2"
+      ],
+      "obj2": [
+        "sub1"
+      ],
+      "obj3": [
+        "sub1"
+      ]
+    },
+    "subjectiveTags": {
+      "subj1": [
+        "subjtag2"
+      ],
+      "subj2": [
+        "subjtag1"
+      ],
+      "subj3": [
+        "subjtag2"
+      ]
+    },
+    "journal": "Auto-generated journal entry.",
+    "direction": "short",
+    "strategyId": "strat4",
+    "accountId": "default",
+    "execution": {
+      "checklist": {
+        "chk1": true,
+        "chk2": false,
+        "chk3": false
+      },
+      "grade": "B+",
+      "notes": "Auto-generated trade."
+    }
+  },
+  {
+    "id": "trade-70-1745511179614",
+    "date": "2025-04-24",
+    "symbol": "NQ",
+    "contracts": 5,
+    "entry": 310.2,
+    "exit": 309.05,
+    "timeIn": "2025-04-24T14:50:00.000Z",
+    "timeOut": "2025-04-24T11:29:00.000Z",
+    "timeInTrade": -201,
+    "profit": -5.75,
+    "fees": 1.62,
+    "objectiveTags": {
+      "obj1": [
+        "sub3"
+      ],
+      "obj2": [
+        "sub2"
+      ],
+      "obj3": [
+        "sub2"
+      ]
+    },
+    "subjectiveTags": {
+      "subj1": [
+        "subjtag2"
+      ],
+      "subj2": [
+        "subjtag1"
+      ],
+      "subj3": [
+        "subjtag2"
+      ]
+    },
+    "journal": "Auto-generated journal entry.",
+    "direction": "long",
+    "strategyId": "strat2",
+    "accountId": "default",
+    "execution": {
+      "checklist": {
+        "chk1": true,
+        "chk2": true,
+        "chk3": true
+      },
+      "grade": "B+",
+      "notes": "Auto-generated trade."
+    },
+    "isWorstTrade": true,
+    "extendedReflection": {
+      "mindset": "Auto-generated mindset",
+      "setup": "Auto-generated setup",
+      "riskManagement": "Auto-generated risk",
+      "lessons": "Auto-generated lesson",
+      "marketContext": "Auto-generated context"
+    }
+  },
+  {
+    "id": "trade-71-1737351202097",
+    "date": "2025-01-19",
+    "symbol": "AAPL",
+    "contracts": 8,
+    "entry": 15.49,
+    "exit": 12.63,
+    "timeIn": "2025-01-19T11:08:00.000Z",
+    "timeOut": "2025-01-19T10:15:00.000Z",
+    "timeInTrade": -53,
+    "profit": -22.88,
+    "fees": 3.85,
+    "objectiveTags": {
+      "obj1": [
+        "sub3"
+      ],
+      "obj2": [
+        "sub2"
+      ],
+      "obj3": [
+        "sub3"
+      ]
+    },
+    "subjectiveTags": {
+      "subj1": [
+        "subjtag2"
+      ],
+      "subj2": [
+        "subjtag2"
+      ],
+      "subj3": [
+        "subjtag2"
+      ]
+    },
+    "journal": "Auto-generated journal entry.",
+    "direction": "short",
+    "strategyId": "strat4",
+    "accountId": "default",
+    "execution": {
+      "checklist": {
+        "chk1": true,
+        "chk2": true,
+        "chk3": true
+      },
+      "grade": "B+",
+      "notes": "Auto-generated trade."
+    }
+  },
+  {
+    "id": "trade-72-1745278146888",
+    "date": "2025-04-21",
+    "symbol": "AAPL",
+    "contracts": 9,
+    "entry": 491.05,
+    "exit": 489.04,
+    "timeIn": "2025-04-21T10:57:00.000Z",
+    "timeOut": "2025-04-21T11:03:00.000Z",
+    "timeInTrade": 6,
+    "profit": -18.09,
+    "fees": 4.45,
+    "objectiveTags": {
+      "obj1": [
+        "sub3"
+      ],
+      "obj2": [
+        "sub2"
+      ],
+      "obj3": [
+        "sub2"
+      ]
+    },
+    "subjectiveTags": {
+      "subj1": [
+        "subjtag3"
+      ],
+      "subj2": [
+        "subjtag1"
+      ],
+      "subj3": [
+        "subjtag1"
+      ]
+    },
+    "journal": "Auto-generated journal entry.",
+    "direction": "long",
+    "strategyId": "strat2",
+    "accountId": "default",
+    "execution": {
+      "checklist": {
+        "chk1": true,
+        "chk2": true,
+        "chk3": false
+      },
+      "grade": "B",
+      "notes": "Auto-generated trade."
+    }
+  },
+  {
+    "id": "trade-73-1738903222810",
+    "date": "2025-02-06",
+    "symbol": "AAPL",
+    "contracts": 10,
+    "entry": 325.96,
+    "exit": 321.52,
+    "timeIn": "2025-02-06T12:22:00.000Z",
+    "timeOut": "2025-02-06T16:22:00.000Z",
+    "timeInTrade": 240,
+    "profit": -44.4,
+    "fees": 1.22,
+    "objectiveTags": {
+      "obj1": [
+        "sub1"
+      ],
+      "obj2": [
+        "sub2"
+      ],
+      "obj3": [
+        "sub1"
+      ]
+    },
+    "subjectiveTags": {
+      "subj1": [
+        "subjtag3"
+      ],
+      "subj2": [
+        "subjtag2"
+      ],
+      "subj3": [
+        "subjtag3"
+      ]
+    },
+    "journal": "Auto-generated journal entry.",
+    "direction": "short",
+    "strategyId": "strat3",
+    "accountId": "default",
+    "execution": {
+      "checklist": {
+        "chk1": false,
+        "chk2": false,
+        "chk3": false
+      },
+      "grade": "A-",
+      "notes": "Auto-generated trade."
+    }
+  },
+  {
+    "id": "trade-74-1747345191235",
+    "date": "2025-05-15",
+    "symbol": "META",
+    "contracts": 1,
+    "entry": 501.31,
+    "exit": 501.36,
+    "timeIn": "2025-05-15T10:18:00.000Z",
+    "timeOut": "2025-05-15T13:55:00.000Z",
+    "timeInTrade": 217,
+    "profit": 0.05,
+    "fees": 1.09,
+    "objectiveTags": {
+      "obj1": [
+        "sub3"
+      ],
+      "obj2": [
+        "sub1"
+      ],
+      "obj3": [
+        "sub2"
+      ]
+    },
+    "subjectiveTags": {
+      "subj1": [
+        "subjtag1"
+      ],
+      "subj2": [
+        "subjtag3"
+      ],
+      "subj3": [
+        "subjtag2"
+      ]
+    },
+    "journal": "Auto-generated journal entry.",
+    "direction": "long",
+    "strategyId": "strat2",
+    "accountId": "default",
+    "execution": {
+      "checklist": {
+        "chk1": false,
+        "chk2": true,
+        "chk3": true
+      },
+      "grade": null,
+      "notes": "Auto-generated trade."
+    }
+  },
+  {
+    "id": "trade-75-1747701693702",
+    "date": "2025-05-19",
+    "symbol": "GOOG",
+    "contracts": 6,
+    "entry": 439.49,
+    "exit": 434.71,
+    "timeIn": "2025-05-19T16:09:00.000Z",
+    "timeOut": "2025-05-19T13:18:00.000Z",
+    "timeInTrade": -171,
+    "profit": -28.68,
+    "fees": 2.23,
+    "objectiveTags": {
+      "obj1": [
+        "sub2"
+      ],
+      "obj2": [
+        "sub3"
+      ],
+      "obj3": [
+        "sub3"
+      ]
+    },
+    "subjectiveTags": {
+      "subj1": [
+        "subjtag3"
+      ],
+      "subj2": [
+        "subjtag3"
+      ],
+      "subj3": [
+        "subjtag2"
+      ]
+    },
+    "journal": "Auto-generated journal entry.",
+    "direction": "long",
+    "strategyId": "strat4",
+    "accountId": "default",
+    "execution": {
+      "checklist": {
+        "chk1": false,
+        "chk2": false,
+        "chk3": true
+      },
+      "grade": "B-",
+      "notes": "Auto-generated trade."
+    },
+    "isWorstTrade": true,
+    "extendedReflection": {
+      "mindset": "Auto-generated mindset",
+      "setup": "Auto-generated setup",
+      "riskManagement": "Auto-generated risk",
+      "lessons": "Auto-generated lesson",
+      "marketContext": "Auto-generated context"
+    }
+  },
+  {
+    "id": "trade-76-1737761276120",
+    "date": "2025-01-24",
+    "symbol": "GOOG",
+    "contracts": 9,
+    "entry": 234.61,
+    "exit": 236.65,
+    "timeIn": "2025-01-24T14:35:00.000Z",
+    "timeOut": "2025-01-24T11:30:00.000Z",
+    "timeInTrade": -185,
+    "profit": 18.36,
+    "fees": 2.49,
+    "objectiveTags": {
+      "obj1": [
+        "sub3"
+      ],
+      "obj2": [
+        "sub1"
+      ],
+      "obj3": [
+        "sub3"
+      ]
+    },
+    "subjectiveTags": {
+      "subj1": [
+        "subjtag3"
+      ],
+      "subj2": [
+        "subjtag3"
+      ],
+      "subj3": [
+        "subjtag2"
+      ]
+    },
+    "journal": "Auto-generated journal entry.",
+    "direction": "short",
+    "strategyId": "strat1",
+    "accountId": "default",
+    "execution": {
+      "checklist": {
+        "chk1": true,
+        "chk2": false,
+        "chk3": true
+      },
+      "grade": "B-",
+      "notes": "Auto-generated trade."
+    }
+  },
+  {
+    "id": "trade-77-1745548745689",
+    "date": "2025-04-24",
+    "symbol": "MSFT",
+    "contracts": 7,
+    "entry": 59.59,
+    "exit": 62.23,
+    "timeIn": "2025-04-24T10:01:00.000Z",
+    "timeOut": "2025-04-24T12:16:00.000Z",
+    "timeInTrade": 135,
+    "profit": 18.48,
+    "fees": 2.3,
+    "objectiveTags": {
+      "obj1": [
+        "sub2"
+      ],
+      "obj2": [
+        "sub3"
+      ],
+      "obj3": [
+        "sub2"
+      ]
+    },
+    "subjectiveTags": {
+      "subj1": [
+        "subjtag3"
+      ],
+      "subj2": [
+        "subjtag1"
+      ],
+      "subj3": [
+        "subjtag2"
+      ]
+    },
+    "journal": "Auto-generated journal entry.",
+    "direction": "long",
+    "strategyId": "strat1",
+    "accountId": "default",
+    "execution": {
+      "checklist": {
+        "chk1": true,
+        "chk2": false,
+        "chk3": true
+      },
+      "grade": "C+",
+      "notes": "Auto-generated trade."
+    }
+  },
+  {
+    "id": "trade-78-1744382884920",
+    "date": "2025-04-11",
+    "symbol": "NQ",
+    "contracts": 7,
+    "entry": 433.41,
+    "exit": 435.6,
+    "timeIn": "2025-04-11T16:01:00.000Z",
+    "timeOut": "2025-04-11T11:52:00.000Z",
+    "timeInTrade": -249,
+    "profit": 15.33,
+    "fees": 3.52,
+    "objectiveTags": {
+      "obj1": [
+        "sub1"
+      ],
+      "obj2": [
+        "sub3"
+      ],
+      "obj3": [
+        "sub3"
+      ]
+    },
+    "subjectiveTags": {
+      "subj1": [
+        "subjtag1"
+      ],
+      "subj2": [
+        "subjtag2"
+      ],
+      "subj3": [
+        "subjtag1"
+      ]
+    },
+    "journal": "Auto-generated journal entry.",
+    "direction": "long",
+    "strategyId": "strat2",
+    "accountId": "default",
+    "execution": {
+      "checklist": {
+        "chk1": false,
+        "chk2": false,
+        "chk3": true
+      },
+      "grade": "B",
+      "notes": "Auto-generated trade."
+    }
+  },
+  {
+    "id": "trade-79-1744538813947",
+    "date": "2025-04-13",
+    "symbol": "AAPL",
+    "contracts": 5,
+    "entry": 150.66,
+    "exit": 154.61,
+    "timeIn": "2025-04-13T15:38:00.000Z",
+    "timeOut": "2025-04-13T14:08:00.000Z",
+    "timeInTrade": -90,
+    "profit": 19.75,
+    "fees": 3.55,
+    "objectiveTags": {
+      "obj1": [
+        "sub1"
+      ],
+      "obj2": [
+        "sub1"
+      ],
+      "obj3": [
+        "sub1"
+      ]
+    },
+    "subjectiveTags": {
+      "subj1": [
+        "subjtag1"
+      ],
+      "subj2": [
+        "subjtag1"
+      ],
+      "subj3": [
+        "subjtag3"
+      ]
+    },
+    "journal": "Auto-generated journal entry.",
+    "direction": "short",
+    "strategyId": "strat3",
+    "accountId": "default",
+    "execution": {
+      "checklist": {
+        "chk1": true,
+        "chk2": true,
+        "chk3": true
+      },
+      "grade": "B-",
+      "notes": "Auto-generated trade."
+    },
+    "isWorstTrade": true,
+    "extendedReflection": {
+      "mindset": "Auto-generated mindset",
+      "setup": "Auto-generated setup",
+      "riskManagement": "Auto-generated risk",
+      "lessons": "Auto-generated lesson",
+      "marketContext": "Auto-generated context"
+    }
+  },
+  {
+    "id": "trade-80-1746394131348",
+    "date": "2025-05-04",
+    "symbol": "NQ",
+    "contracts": 4,
+    "entry": 400.51,
+    "exit": 397.18,
+    "timeIn": "2025-05-04T10:20:00.000Z",
+    "timeOut": "2025-05-04T16:49:00.000Z",
+    "timeInTrade": 389,
+    "profit": -13.32,
+    "fees": 4.97,
+    "objectiveTags": {
+      "obj1": [
+        "sub3"
+      ],
+      "obj2": [
+        "sub2"
+      ],
+      "obj3": [
+        "sub3"
+      ]
+    },
+    "subjectiveTags": {
+      "subj1": [
+        "subjtag2"
+      ],
+      "subj2": [
+        "subjtag3"
+      ],
+      "subj3": [
+        "subjtag2"
+      ]
+    },
+    "journal": "Auto-generated journal entry.",
+    "direction": "short",
+    "strategyId": "strat4",
+    "accountId": "default",
+    "execution": {
+      "checklist": {
+        "chk1": true,
+        "chk2": true,
+        "chk3": false
+      },
+      "grade": "B-",
+      "notes": "Auto-generated trade."
+    }
+  },
+  {
+    "id": "trade-81-1740557246706",
+    "date": "2025-02-26",
+    "symbol": "NQ",
+    "contracts": 4,
+    "entry": 242.8,
+    "exit": 241.94,
+    "timeIn": "2025-02-26T11:49:00.000Z",
+    "timeOut": "2025-02-26T10:23:00.000Z",
+    "timeInTrade": -86,
+    "profit": -3.44,
+    "fees": 4.83,
+    "objectiveTags": {
+      "obj1": [
+        "sub3"
+      ],
+      "obj2": [
+        "sub3"
+      ],
+      "obj3": [
+        "sub3"
+      ]
+    },
+    "subjectiveTags": {
+      "subj1": [
+        "subjtag3"
+      ],
+      "subj2": [
+        "subjtag3"
+      ],
+      "subj3": [
+        "subjtag1"
+      ]
+    },
+    "journal": "Auto-generated journal entry.",
+    "direction": "long",
+    "strategyId": "strat4",
+    "accountId": "default",
+    "execution": {
+      "checklist": {
+        "chk1": true,
+        "chk2": true,
+        "chk3": true
+      },
+      "grade": "D",
+      "notes": "Auto-generated trade."
+    },
+    "isBestTrade": true,
+    "extendedReflection": {
+      "mindset": "Auto-generated mindset",
+      "setup": "Auto-generated setup",
+      "riskManagement": "Auto-generated risk",
+      "lessons": "Auto-generated lesson",
+      "marketContext": "Auto-generated context"
+    }
+  },
+  {
+    "id": "trade-82-1744865631476",
+    "date": "2025-04-16",
+    "symbol": "NVDA",
+    "contracts": 3,
+    "entry": 39.73,
+    "exit": 35.18,
+    "timeIn": "2025-04-16T12:19:00.000Z",
+    "timeOut": "2025-04-16T13:05:00.000Z",
+    "timeInTrade": 46,
+    "profit": -13.65,
+    "fees": 1.95,
+    "objectiveTags": {
+      "obj1": [
+        "sub3"
+      ],
+      "obj2": [
+        "sub1"
+      ],
+      "obj3": [
+        "sub2"
+      ]
+    },
+    "subjectiveTags": {
+      "subj1": [
+        "subjtag1"
+      ],
+      "subj2": [
+        "subjtag2"
+      ],
+      "subj3": [
+        "subjtag2"
+      ]
+    },
+    "journal": "Auto-generated journal entry.",
+    "direction": "long",
+    "strategyId": "strat1",
+    "accountId": "default",
+    "execution": {
+      "checklist": {
+        "chk1": true,
+        "chk2": true,
+        "chk3": false
+      },
+      "grade": "D",
+      "notes": "Auto-generated trade."
+    }
+  },
+  {
+    "id": "trade-83-1737455606264",
+    "date": "2025-01-21",
+    "symbol": "TSLA",
+    "contracts": 1,
+    "entry": 286.24,
+    "exit": 289.13,
+    "timeIn": "2025-01-21T14:48:00.000Z",
+    "timeOut": "2025-01-21T15:06:00.000Z",
+    "timeInTrade": 18,
+    "profit": 2.89,
+    "fees": 3.52,
+    "objectiveTags": {
+      "obj1": [
+        "sub2"
+      ],
+      "obj2": [
+        "sub2"
+      ],
+      "obj3": [
+        "sub3"
+      ]
+    },
+    "subjectiveTags": {
+      "subj1": [
+        "subjtag2"
+      ],
+      "subj2": [
+        "subjtag2"
+      ],
+      "subj3": [
+        "subjtag2"
+      ]
+    },
+    "journal": "Auto-generated journal entry.",
+    "direction": "short",
+    "strategyId": "strat3",
+    "accountId": "default",
+    "execution": {
+      "checklist": {
+        "chk1": true,
+        "chk2": true,
+        "chk3": true
+      },
+      "grade": "C-",
+      "notes": "Auto-generated trade."
+    }
+  },
+  {
+    "id": "trade-84-1745000557664",
+    "date": "2025-04-18",
+    "symbol": "GOOG",
+    "contracts": 4,
+    "entry": 50.5,
+    "exit": 52.55,
+    "timeIn": "2025-04-18T09:35:00.000Z",
+    "timeOut": "2025-04-18T17:41:00.000Z",
+    "timeInTrade": 486,
+    "profit": 8.2,
+    "fees": 1.38,
+    "objectiveTags": {
+      "obj1": [
+        "sub2"
+      ],
+      "obj2": [
+        "sub2"
+      ],
+      "obj3": [
+        "sub2"
+      ]
+    },
+    "subjectiveTags": {
+      "subj1": [
+        "subjtag2"
+      ],
+      "subj2": [
+        "subjtag2"
+      ],
+      "subj3": [
+        "subjtag3"
+      ]
+    },
+    "journal": "Auto-generated journal entry.",
+    "direction": "long",
+    "strategyId": "strat1",
+    "accountId": "default",
+    "execution": {
+      "checklist": {
+        "chk1": true,
+        "chk2": true,
+        "chk3": true
+      },
+      "grade": "C-",
+      "notes": "Auto-generated trade."
+    },
+    "isBestTrade": true,
+    "extendedReflection": {
+      "mindset": "Auto-generated mindset",
+      "setup": "Auto-generated setup",
+      "riskManagement": "Auto-generated risk",
+      "lessons": "Auto-generated lesson",
+      "marketContext": "Auto-generated context"
+    }
+  },
+  {
+    "id": "trade-85-1744024313520",
+    "date": "2025-04-07",
+    "symbol": "AAPL",
+    "contracts": 7,
+    "entry": 492.53,
+    "exit": 496.19,
+    "timeIn": "2025-04-07T15:10:00.000Z",
+    "timeOut": "2025-04-07T10:50:00.000Z",
+    "timeInTrade": -260,
+    "profit": 25.62,
+    "fees": 1.48,
+    "objectiveTags": {
+      "obj1": [
+        "sub2"
+      ],
+      "obj2": [
+        "sub3"
+      ],
+      "obj3": [
+        "sub3"
+      ]
+    },
+    "subjectiveTags": {
+      "subj1": [
+        "subjtag1"
+      ],
+      "subj2": [
+        "subjtag3"
+      ],
+      "subj3": [
+        "subjtag1"
+      ]
+    },
+    "journal": "Auto-generated journal entry.",
+    "direction": "short",
+    "strategyId": "strat2",
+    "accountId": "default",
+    "execution": {
+      "checklist": {
+        "chk1": true,
+        "chk2": false,
+        "chk3": true
+      },
+      "grade": null,
+      "notes": "Auto-generated trade."
+    },
+    "isWorstTrade": true,
+    "extendedReflection": {
+      "mindset": "Auto-generated mindset",
+      "setup": "Auto-generated setup",
+      "riskManagement": "Auto-generated risk",
+      "lessons": "Auto-generated lesson",
+      "marketContext": "Auto-generated context"
+    }
+  },
+  {
+    "id": "trade-86-1749561274194",
+    "date": "2025-06-10",
+    "symbol": "NQ",
+    "contracts": 10,
+    "entry": 72.52,
+    "exit": 72.51,
+    "timeIn": "2025-06-10T12:04:00.000Z",
+    "timeOut": "2025-06-10T13:10:00.000Z",
+    "timeInTrade": 66,
+    "profit": -0.1,
+    "fees": 2.8,
+    "objectiveTags": {
+      "obj1": [
+        "sub3"
+      ],
+      "obj2": [
+        "sub3"
+      ],
+      "obj3": [
+        "sub3"
+      ]
+    },
+    "subjectiveTags": {
+      "subj1": [
+        "subjtag2"
+      ],
+      "subj2": [
+        "subjtag1"
+      ],
+      "subj3": [
+        "subjtag1"
+      ]
+    },
+    "journal": "Auto-generated journal entry.",
+    "direction": "short",
+    "strategyId": "strat2",
+    "accountId": "default",
+    "execution": {
+      "checklist": {
+        "chk1": true,
+        "chk2": true,
+        "chk3": false
+      },
+      "grade": "F",
+      "notes": "Auto-generated trade."
+    },
+    "isWorstTrade": true,
+    "extendedReflection": {
+      "mindset": "Auto-generated mindset",
+      "setup": "Auto-generated setup",
+      "riskManagement": "Auto-generated risk",
+      "lessons": "Auto-generated lesson",
+      "marketContext": "Auto-generated context"
+    }
+  },
+  {
+    "id": "trade-87-1741067215958",
+    "date": "2025-03-03",
+    "symbol": "TSLA",
+    "contracts": 2,
+    "entry": 298.11,
+    "exit": 297.35,
+    "timeIn": "2025-03-03T10:06:00.000Z",
+    "timeOut": "2025-03-03T14:27:00.000Z",
+    "timeInTrade": 261,
+    "profit": -1.52,
+    "fees": 0.67,
+    "objectiveTags": {
+      "obj1": [
+        "sub1"
+      ],
+      "obj2": [
+        "sub3"
+      ],
+      "obj3": [
+        "sub1"
+      ]
+    },
+    "subjectiveTags": {
+      "subj1": [
+        "subjtag2"
+      ],
+      "subj2": [
+        "subjtag1"
+      ],
+      "subj3": [
+        "subjtag1"
+      ]
+    },
+    "journal": "Auto-generated journal entry.",
+    "direction": "long",
+    "strategyId": "strat1",
+    "accountId": "default",
+    "execution": {
+      "checklist": {
+        "chk1": true,
+        "chk2": true,
+        "chk3": false
+      },
+      "grade": "B",
+      "notes": "Auto-generated trade."
+    }
+  },
+  {
+    "id": "trade-88-1735933499285",
+    "date": "2025-01-03",
+    "symbol": "META",
+    "contracts": 4,
+    "entry": 59.83,
+    "exit": 57.14,
+    "timeIn": "2025-01-03T10:00:00.000Z",
+    "timeOut": "2025-01-03T17:15:00.000Z",
+    "timeInTrade": 435,
+    "profit": -10.76,
+    "fees": 3.35,
+    "objectiveTags": {
+      "obj1": [
+        "sub2"
+      ],
+      "obj2": [
+        "sub3"
+      ],
+      "obj3": [
+        "sub2"
+      ]
+    },
+    "subjectiveTags": {
+      "subj1": [
+        "subjtag1"
+      ],
+      "subj2": [
+        "subjtag3"
+      ],
+      "subj3": [
+        "subjtag1"
+      ]
+    },
+    "journal": "Auto-generated journal entry.",
+    "direction": "short",
+    "strategyId": "strat2",
+    "accountId": "default",
+    "execution": {
+      "checklist": {
+        "chk1": true,
+        "chk2": true,
+        "chk3": false
+      },
+      "grade": "A-",
+      "notes": "Auto-generated trade."
+    }
+  },
+  {
+    "id": "trade-89-1741159304041",
+    "date": "2025-03-05",
+    "symbol": "NQ",
+    "contracts": 8,
+    "entry": 240.67,
+    "exit": 240.34,
+    "timeIn": "2025-03-05T13:15:00.000Z",
+    "timeOut": "2025-03-05T16:09:00.000Z",
+    "timeInTrade": 174,
+    "profit": -2.64,
+    "fees": 0.34,
+    "objectiveTags": {
+      "obj1": [
+        "sub1"
+      ],
+      "obj2": [
+        "sub2"
+      ],
+      "obj3": [
+        "sub1"
+      ]
+    },
+    "subjectiveTags": {
+      "subj1": [
+        "subjtag2"
+      ],
+      "subj2": [
+        "subjtag2"
+      ],
+      "subj3": [
+        "subjtag1"
+      ]
+    },
+    "journal": "Auto-generated journal entry.",
+    "direction": "long",
+    "strategyId": "strat2",
+    "accountId": "default",
+    "execution": {
+      "checklist": {
+        "chk1": false,
+        "chk2": true,
+        "chk3": false
+      },
+      "grade": "A-",
+      "notes": "Auto-generated trade."
+    }
+  },
+  {
+    "id": "trade-90-1740374722834",
+    "date": "2025-02-23",
+    "symbol": "META",
+    "contracts": 8,
+    "entry": 44.55,
+    "exit": 47.17,
+    "timeIn": "2025-02-23T11:08:00.000Z",
+    "timeOut": "2025-02-23T14:53:00.000Z",
+    "timeInTrade": 225,
+    "profit": 20.96,
+    "fees": 4.44,
+    "objectiveTags": {
+      "obj1": [
+        "sub3"
+      ],
+      "obj2": [
+        "sub3"
+      ],
+      "obj3": [
+        "sub3"
+      ]
+    },
+    "subjectiveTags": {
+      "subj1": [
+        "subjtag2"
+      ],
+      "subj2": [
+        "subjtag1"
+      ],
+      "subj3": [
+        "subjtag3"
+      ]
+    },
+    "journal": "Auto-generated journal entry.",
+    "direction": "short",
+    "strategyId": "strat2",
+    "accountId": "default",
+    "execution": {
+      "checklist": {
+        "chk1": true,
+        "chk2": false,
+        "chk3": false
+      },
+      "grade": "A",
+      "notes": "Auto-generated trade."
+    }
+  },
+  {
+    "id": "trade-91-1741098032623",
+    "date": "2025-03-04",
+    "symbol": "AAPL",
+    "contracts": 2,
+    "entry": 156.11,
+    "exit": 152.42,
+    "timeIn": "2025-03-04T15:29:00.000Z",
+    "timeOut": "2025-03-04T17:56:00.000Z",
+    "timeInTrade": 147,
+    "profit": -7.38,
+    "fees": 3.45,
+    "objectiveTags": {
+      "obj1": [
+        "sub3"
+      ],
+      "obj2": [
+        "sub1"
+      ],
+      "obj3": [
+        "sub1"
+      ]
+    },
+    "subjectiveTags": {
+      "subj1": [
+        "subjtag2"
+      ],
+      "subj2": [
+        "subjtag2"
+      ],
+      "subj3": [
+        "subjtag2"
+      ]
+    },
+    "journal": "Auto-generated journal entry.",
+    "direction": "long",
+    "strategyId": "strat1",
+    "accountId": "default",
+    "execution": {
+      "checklist": {
+        "chk1": true,
+        "chk2": true,
+        "chk3": true
+      },
+      "grade": null,
+      "notes": "Auto-generated trade."
+    },
+    "isBestTrade": true,
+    "extendedReflection": {
+      "mindset": "Auto-generated mindset",
+      "setup": "Auto-generated setup",
+      "riskManagement": "Auto-generated risk",
+      "lessons": "Auto-generated lesson",
+      "marketContext": "Auto-generated context"
+    }
+  },
+  {
+    "id": "trade-92-1745607663661",
+    "date": "2025-04-25",
+    "symbol": "AMZN",
+    "contracts": 6,
+    "entry": 263.23,
+    "exit": 262.69,
+    "timeIn": "2025-04-25T15:53:00.000Z",
+    "timeOut": "2025-04-25T12:28:00.000Z",
+    "timeInTrade": -205,
+    "profit": -3.24,
+    "fees": 2.21,
+    "objectiveTags": {
+      "obj1": [
+        "sub1"
+      ],
+      "obj2": [
+        "sub1"
+      ],
+      "obj3": [
+        "sub3"
+      ]
+    },
+    "subjectiveTags": {
+      "subj1": [
+        "subjtag1"
+      ],
+      "subj2": [
+        "subjtag1"
+      ],
+      "subj3": [
+        "subjtag1"
+      ]
+    },
+    "journal": "Auto-generated journal entry.",
+    "direction": "short",
+    "strategyId": "strat2",
+    "accountId": "default",
+    "execution": {
+      "checklist": {
+        "chk1": true,
+        "chk2": true,
+        "chk3": false
+      },
+      "grade": "A-",
+      "notes": "Auto-generated trade."
+    }
+  },
+  {
+    "id": "trade-93-1736519595882",
+    "date": "2025-01-10",
+    "symbol": "AMZN",
+    "contracts": 6,
+    "entry": 294.07,
+    "exit": 293.53,
+    "timeIn": "2025-01-10T14:47:00.000Z",
+    "timeOut": "2025-01-10T17:26:00.000Z",
+    "timeInTrade": 159,
+    "profit": -3.24,
+    "fees": 3.67,
+    "objectiveTags": {
+      "obj1": [
+        "sub3"
+      ],
+      "obj2": [
+        "sub1"
+      ],
+      "obj3": [
+        "sub2"
+      ]
+    },
+    "subjectiveTags": {
+      "subj1": [
+        "subjtag2"
+      ],
+      "subj2": [
+        "subjtag2"
+      ],
+      "subj3": [
+        "subjtag3"
+      ]
+    },
+    "journal": "Auto-generated journal entry.",
+    "direction": "short",
+    "strategyId": "strat4",
+    "accountId": "default",
+    "execution": {
+      "checklist": {
+        "chk1": false,
+        "chk2": true,
+        "chk3": true
+      },
+      "grade": "A+",
+      "notes": "Auto-generated trade."
+    }
+  },
+  {
+    "id": "trade-94-1749261122556",
+    "date": "2025-06-06",
+    "symbol": "META",
+    "contracts": 10,
+    "entry": 46.72,
+    "exit": 48.31,
+    "timeIn": "2025-06-06T11:21:00.000Z",
+    "timeOut": "2025-06-06T14:46:00.000Z",
+    "timeInTrade": 205,
+    "profit": 15.9,
+    "fees": 3.1,
+    "objectiveTags": {
+      "obj1": [
+        "sub2"
+      ],
+      "obj2": [
+        "sub2"
+      ],
+      "obj3": [
+        "sub3"
+      ]
+    },
+    "subjectiveTags": {
+      "subj1": [
+        "subjtag3"
+      ],
+      "subj2": [
+        "subjtag3"
+      ],
+      "subj3": [
+        "subjtag2"
+      ]
+    },
+    "journal": "Auto-generated journal entry.",
+    "direction": "short",
+    "strategyId": "strat1",
+    "accountId": "default",
+    "execution": {
+      "checklist": {
+        "chk1": true,
+        "chk2": false,
+        "chk3": false
+      },
+      "grade": "A",
+      "notes": "Auto-generated trade."
+    }
+  },
+  {
+    "id": "trade-95-1742560201226",
+    "date": "2025-03-21",
+    "symbol": "ES",
+    "contracts": 1,
+    "entry": 77.4,
+    "exit": 78.28,
+    "timeIn": "2025-03-21T13:19:00.000Z",
+    "timeOut": "2025-03-21T11:46:00.000Z",
+    "timeInTrade": -93,
+    "profit": 0.88,
+    "fees": 1.76,
+    "objectiveTags": {
+      "obj1": [
+        "sub1"
+      ],
+      "obj2": [
+        "sub1"
+      ],
+      "obj3": [
+        "sub1"
+      ]
+    },
+    "subjectiveTags": {
+      "subj1": [
+        "subjtag1"
+      ],
+      "subj2": [
+        "subjtag3"
+      ],
+      "subj3": [
+        "subjtag3"
+      ]
+    },
+    "journal": "Auto-generated journal entry.",
+    "direction": "short",
+    "strategyId": "strat4",
+    "accountId": "default",
+    "execution": {
+      "checklist": {
+        "chk1": true,
+        "chk2": false,
+        "chk3": false
+      },
+      "grade": "A-",
+      "notes": "Auto-generated trade."
+    },
+    "isBestTrade": true,
+    "extendedReflection": {
+      "mindset": "Auto-generated mindset",
+      "setup": "Auto-generated setup",
+      "riskManagement": "Auto-generated risk",
+      "lessons": "Auto-generated lesson",
+      "marketContext": "Auto-generated context"
+    }
+  },
+  {
+    "id": "trade-96-1738405012668",
+    "date": "2025-02-01",
+    "symbol": "NFLX",
+    "contracts": 8,
+    "entry": 365.63,
+    "exit": 367.1,
+    "timeIn": "2025-02-01T14:42:00.000Z",
+    "timeOut": "2025-02-01T11:02:00.000Z",
+    "timeInTrade": -220,
+    "profit": 11.76,
+    "fees": 1.6,
+    "objectiveTags": {
+      "obj1": [
+        "sub3"
+      ],
+      "obj2": [
+        "sub1"
+      ],
+      "obj3": [
+        "sub2"
+      ]
+    },
+    "subjectiveTags": {
+      "subj1": [
+        "subjtag2"
+      ],
+      "subj2": [
+        "subjtag2"
+      ],
+      "subj3": [
+        "subjtag3"
+      ]
+    },
+    "journal": "Auto-generated journal entry.",
+    "direction": "long",
+    "strategyId": "strat2",
+    "accountId": "default",
+    "execution": {
+      "checklist": {
+        "chk1": true,
+        "chk2": true,
+        "chk3": true
+      },
+      "grade": "C",
+      "notes": "Auto-generated trade."
+    }
+  },
+  {
+    "id": "trade-97-1743331503010",
+    "date": "2025-03-30",
+    "symbol": "AMZN",
+    "contracts": 4,
+    "entry": 55.69,
+    "exit": 52.35,
+    "timeIn": "2025-03-30T14:22:00.000Z",
+    "timeOut": "2025-03-30T13:34:00.000Z",
+    "timeInTrade": -48,
+    "profit": -13.36,
+    "fees": 1.1,
+    "objectiveTags": {
+      "obj1": [
+        "sub3"
+      ],
+      "obj2": [
+        "sub3"
+      ],
+      "obj3": [
+        "sub3"
+      ]
+    },
+    "subjectiveTags": {
+      "subj1": [
+        "subjtag2"
+      ],
+      "subj2": [
+        "subjtag1"
+      ],
+      "subj3": [
+        "subjtag1"
+      ]
+    },
+    "journal": "Auto-generated journal entry.",
+    "direction": "short",
+    "strategyId": "strat1",
+    "accountId": "default",
+    "execution": {
+      "checklist": {
+        "chk1": true,
+        "chk2": true,
+        "chk3": true
+      },
+      "grade": "A+",
+      "notes": "Auto-generated trade."
+    }
+  },
+  {
+    "id": "trade-98-1741083788184",
+    "date": "2025-03-04",
+    "symbol": "NQ",
+    "contracts": 5,
+    "entry": 195.2,
+    "exit": 196.36,
+    "timeIn": "2025-03-04T14:53:00.000Z",
+    "timeOut": "2025-03-04T15:04:00.000Z",
+    "timeInTrade": 11,
+    "profit": 5.8,
+    "fees": 3.7,
+    "objectiveTags": {
+      "obj1": [
+        "sub2"
+      ],
+      "obj2": [
+        "sub1"
+      ],
+      "obj3": [
+        "sub3"
+      ]
+    },
+    "subjectiveTags": {
+      "subj1": [
+        "subjtag1"
+      ],
+      "subj2": [
+        "subjtag3"
+      ],
+      "subj3": [
+        "subjtag1"
+      ]
+    },
+    "journal": "Auto-generated journal entry.",
+    "direction": "long",
+    "strategyId": "strat2",
+    "accountId": "default",
+    "execution": {
+      "checklist": {
+        "chk1": true,
+        "chk2": false,
+        "chk3": true
+      },
+      "grade": "B",
+      "notes": "Auto-generated trade."
+    }
+  },
+  {
+    "id": "trade-99-1747617625797",
+    "date": "2025-05-18",
+    "symbol": "AAPL",
+    "contracts": 4,
+    "entry": 30.62,
+    "exit": 34.57,
+    "timeIn": "2025-05-18T11:14:00.000Z",
+    "timeOut": "2025-05-18T13:39:00.000Z",
+    "timeInTrade": 145,
+    "profit": 15.8,
+    "fees": 1.01,
+    "objectiveTags": {
+      "obj1": [
+        "sub3"
+      ],
+      "obj2": [
+        "sub1"
+      ],
+      "obj3": [
+        "sub3"
+      ]
+    },
+    "subjectiveTags": {
+      "subj1": [
+        "subjtag1"
+      ],
+      "subj2": [
+        "subjtag1"
+      ],
+      "subj3": [
+        "subjtag2"
+      ]
+    },
+    "journal": "Auto-generated journal entry.",
+    "direction": "short",
+    "strategyId": "strat2",
+    "accountId": "default",
+    "execution": {
+      "checklist": {
+        "chk1": false,
+        "chk2": false,
+        "chk3": true
+      },
+      "grade": "A+",
+      "notes": "Auto-generated trade."
+    }
+  },
+  {
+    "id": "trade-100-1740898610040",
+    "date": "2025-03-02",
+    "symbol": "NVDA",
+    "contracts": 4,
+    "entry": 265.32,
+    "exit": 263.66,
+    "timeIn": "2025-03-02T10:04:00.000Z",
+    "timeOut": "2025-03-02T10:32:00.000Z",
+    "timeInTrade": 28,
+    "profit": -6.64,
+    "fees": 4.84,
+    "objectiveTags": {
+      "obj1": [
+        "sub3"
+      ],
+      "obj2": [
+        "sub1"
+      ],
+      "obj3": [
+        "sub3"
+      ]
+    },
+    "subjectiveTags": {
+      "subj1": [
+        "subjtag1"
+      ],
+      "subj2": [
+        "subjtag3"
+      ],
+      "subj3": [
+        "subjtag2"
+      ]
+    },
+    "journal": "Auto-generated journal entry.",
+    "direction": "short",
+    "strategyId": "strat2",
+    "accountId": "default",
+    "execution": {
+      "checklist": {
+        "chk1": false,
+        "chk2": false,
+        "chk3": false
+      },
+      "grade": "A+",
+      "notes": "Auto-generated trade."
+    },
+    "isBestTrade": true,
+    "extendedReflection": {
+      "mindset": "Auto-generated mindset",
+      "setup": "Auto-generated setup",
+      "riskManagement": "Auto-generated risk",
+      "lessons": "Auto-generated lesson",
+      "marketContext": "Auto-generated context"
+    }
+  }
+]
