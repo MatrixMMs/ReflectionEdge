@@ -59,7 +59,7 @@ const ReviewDashboard: React.FC<ReviewDashboardProps> = ({ trades, cards, setTra
           {filtered.map(trade => (
             <tr key={trade.id}>
               <td>{trade.date}</td>
-              <td>{trade.symbol}</td>
+                              <td style={{ color: 'var(--text-main)' }}>{trade.symbol}</td>
               <td>{trade.direction}</td>
               <td>{trade.pnl}</td>
               <td>{cards.find(c => c.id === trade.playbookCardId)?.name || '-'}</td>

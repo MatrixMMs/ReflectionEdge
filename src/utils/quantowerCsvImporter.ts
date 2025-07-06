@@ -72,7 +72,7 @@ const formatDateToYYYYMMDD = (date: Date): string => {
   const year = date.getFullYear();
   const month = (date.getMonth() + 1).toString().padStart(2, '0');
   const day = date.getDate().toString().padStart(2, '0');
-  return `${year}-${month}-${day}`;
+  return `${month}/${day}/${year}`;
 };
 
 // Consistent with App.tsx's normalizeHeader
@@ -141,7 +141,7 @@ export const parseQuantowerCSVToTrades = (csvContent: string): CSVParseResult =>
       const dateTime = parseQuantowerDateTime(dateTimeStr);
       if (!dateTime) throw new Error(`Invalid Date/Time format: "${dateTimeStr}"`);
 
-      const symbol = values[headerIndices.symbol].trim();
+      const symbol = values[headerIndices.symbol].trim().toUpperCase();
       if (!symbol) throw new Error("Symbol is missing.");
 
       const sideStr = values[headerIndices.side].trim().toLowerCase();

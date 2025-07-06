@@ -202,7 +202,10 @@ const App: React.FC = () => {
               importedTrades = parsed.filter(trade => 
                 trade && typeof trade === 'object' && 
                 'id' in trade && 'date' in trade && 'symbol' in trade
-              );
+              ).map(trade => ({
+                ...trade,
+                symbol: trade.symbol.toUpperCase()
+              }));
             } else {
               console.error('Import Debug: Parsed JSON is not an array:', parsed);
               throw new Error('Invalid JSON format. Expected an array of trade objects.');

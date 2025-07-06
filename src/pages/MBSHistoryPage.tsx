@@ -576,28 +576,35 @@ const MBSHistoryPage: React.FC<MBSHistoryPageProps> = ({ onStartMBSSession }) =>
   const panelBg = 'var(--background-main)';
 
   return (
-    <div className="min-h-screen p-6" style={{ backgroundColor: 'var(--background-main)', color: 'var(--text-white)' }}>
-      <div className="max-w-7xl mx-auto">
-        {/* Header and Top Controls */}
-        <div className="mb-8 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-          <div>
-            <h1 className="text-3xl font-bold" style={{ color: 'var(--text-main)' }}>MBS Session History</h1>
-          </div>
-          <div className="flex gap-2 items-center">
-            <Button variant="primary" onClick={() => setShowPerformance(v => !v)} className="flex items-center gap-2">
-              <ChartIcon className="w-5 h-5" />
-              {showPerformance ? 'Hide Performance Overview' : 'Show Performance Overview'}
-            </Button>
-            <button
-              className="flex items-center gap-2 px-4 py-2 rounded font-semibold shadow-md focus:outline-none focus:ring-2 focus:ring-green-500 bg-[var(--accent-green)] hover:bg-[var(--accent-green-dark)] text-white transition-colors duration-150"
-              style={{ backgroundColor: 'var(--accent-green)', color: 'var(--text-white)' }}
-              onClick={onStartMBSSession}
-            >
-              <CustomPlayIcon className="w-5 h-5" style={{ color: 'var(--text-white)' }} />
-              Start MBS Session
-            </button>
-          </div>
+    <div className="min-h-screen text-gray-100" style={{ backgroundColor: 'var(--background-main)' }}>
+      {/* Header Card: full width, flush with top/left/right - positioned absolutely to break out of main content constraints */}
+      <div 
+        className="bg-gray-800 p-3 flex items-center justify-between absolute top-0 left-0 right-0 z-10" 
+        style={{ 
+          background: 'var(--background-secondary)',
+          marginLeft: 'var(--sidebar-width)',
+          transition: 'margin-left 0.3s ease'
+        }}
+      >
+        <h1 className="text-3xl font-bold" style={{ color: 'var(--text-main)', marginLeft: '1rem' }}>MBS Session History</h1>
+        <div className="flex gap-2 items-center">
+          <Button variant="primary" onClick={() => setShowPerformance(v => !v)} className="flex items-center gap-2">
+            <ChartIcon className="w-5 h-5" />
+            {showPerformance ? 'Hide Performance Overview' : 'Show Performance Overview'}
+          </Button>
+          <button
+            className="flex items-center gap-2 px-4 py-2 rounded font-semibold shadow-md focus:outline-none focus:ring-2 focus:ring-green-500 bg-[var(--accent-green)] hover:bg-[var(--accent-green-dark)] text-white transition-colors duration-150"
+            style={{ backgroundColor: 'var(--accent-green)', color: 'var(--text-white)' }}
+            onClick={onStartMBSSession}
+          >
+            <CustomPlayIcon className="w-5 h-5" style={{ color: 'var(--text-white)' }} />
+            Start MBS Session
+          </button>
         </div>
+      </div>
+      {/* Page Content: padded, not touching sidebar or page edges - with top margin to account for header */}
+      <div className="p-6 pt-20">
+        <div className="max-w-7xl mx-auto">
 
         {/* Performance Overview Panel */}
         <div
@@ -810,6 +817,7 @@ const MBSHistoryPage: React.FC<MBSHistoryPageProps> = ({ onStartMBSSession }) =>
               ))}
             </div>
           )}
+        </div>
         </div>
       </div>
     </div>

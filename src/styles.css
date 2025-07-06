@@ -111,4 +111,9 @@
   animation-name: fadeInDown;
   animation-duration: 0.3s;
   animation-fill-mode: both;
+}
+
+/* Utility classes for theme variables */
+.text-main {
+  color: var(--text-main);
 } 

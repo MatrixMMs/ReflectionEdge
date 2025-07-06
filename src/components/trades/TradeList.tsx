@@ -151,8 +151,8 @@ export const TradeList: React.FC<TradeListProps> = ({ trades, tagGroups, onEditT
           <Tbody>
             {sortedTrades.map(trade => (
               <Tr key={trade.id}>
-                <Td>{trade.date}</Td>
-                <Td>{trade.symbol || 'N/A'}</Td>
+                <Td>{trade.date ? new Date(trade.date).toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' }) : ''}</Td>
+                <Td className="text-main">{trade.symbol || 'N/A'}</Td>
                 <Td>{trade.entry != null ? trade.entry : '-'}</Td>
                 <Td>{trade.exit != null ? trade.exit : '-'}</Td>
                 <Td>

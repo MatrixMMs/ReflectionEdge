@@ -66,7 +66,7 @@ const formatDateToYYYYMMDD = (date: Date): string => {
   const year = date.getFullYear();
   const month = (date.getMonth() + 1).toString().padStart(2, '0');
   const day = date.getDate().toString().padStart(2, '0');
-  return `${year}-${month}-${day}`;
+  return `${month}/${day}/${year}`;
 };
 
 const parsePnl = (pnlStr: string): number | null => {
@@ -122,7 +122,7 @@ export const parseCSVToTrades = (csvContent: string, _existingTagGroups: TagGrou
     const getRowData = (headerName: string): string => values[headerMap[headerName.toLowerCase().replace(/\s+/g, '')]]?.trim() || '';
 
     try {
-      const symbol = getRowData('symbol');
+      const symbol = getRowData('symbol').toUpperCase();
       if (!symbol) {
         throw new Error("Symbol is required.");
       }

@@ -16,7 +16,6 @@ import { processChartData, filterTradesByDateAndTags } from '../utils/chartDataP
 import { calculateFinancials } from '../utils/financialCalculations';
 import { getRandomColor, resetColorUsage } from '../utils/colorGenerator';
 import { DEFAULT_CHART_COLOR, COMPARISON_CHART_COLOR, LONG_TRADE_COLOR, SHORT_TRADE_COLOR } from '../constants';
-import { DateRangePicker } from '../components/ui/DateRangePicker';
 
 interface DashboardPageProps {
   trades: Trade[];
@@ -204,10 +203,7 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
           transition: 'margin-left 0.3s ease'
         }}
       >
-        <h1 className="text-3xl font-bold" style={{ color: 'var(--text-main)' }}>Dashboard</h1>
-        <div>
-          <DateRangePicker value={chartDateRange} onChange={setChartDateRange} />
-        </div>
+        <h1 className="text-3xl font-bold" style={{ color: 'var(--text-main)', marginLeft: '1rem' }}>Dashboard</h1>
       </div>
       {/* Dashboard Content: padded, not touching sidebar or page edges - with top margin to account for header */}
       <div className="flex flex-col pl-4 pr-4 pb-4 pt-20">

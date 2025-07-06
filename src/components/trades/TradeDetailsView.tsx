@@ -51,7 +51,7 @@ export const TradeDetailsView: React.FC<TradeDetailsViewProps> = ({ trade, playb
     <div className="p-4 bg-gray-800 text-gray-200 rounded-lg max-h-[80vh] overflow-y-auto">
       <header className="mb-6">
         <div className="flex justify-between items-center">
-          <h2 className="text-2xl font-bold text-white">{trade.symbol}</h2>
+          <h2 className="text-2xl font-bold text-main">{trade.symbol}</h2>
           <div className="flex items-center gap-2">
             {trade.isBestTrade && (
               <span className="text-2xl" title="Best Trade">⭐</span>
@@ -64,7 +64,7 @@ export const TradeDetailsView: React.FC<TradeDetailsViewProps> = ({ trade, playb
             </span>
           </div>
         </div>
-        <p className="text-sm text-gray-400">{new Date(trade.date).toLocaleDateString()}</p>
+        <p className="text-sm text-gray-400">{new Date(trade.date).toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' })}</p>
       </header>
 
       {/* Trade Analysis */}

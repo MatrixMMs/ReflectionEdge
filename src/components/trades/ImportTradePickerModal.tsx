@@ -42,7 +42,7 @@ const ImportTradePickerModal: React.FC<ImportTradePickerModalProps> = ({ trades,
                 className="accent-purple-500"
               />
               <span className="flex-1 text-gray-200 text-sm">
-                {trade.date} | {trade.symbol} | {trade.direction} | {trade.profit}
+                {trade.date} | <span className="text-main">{trade.symbol}</span> | {trade.direction} | {trade.profit}
               </span>
               {trade.journal && <span className="text-xs text-gray-400 italic">{trade.journal.slice(0, 30)}</span>}
             </label>

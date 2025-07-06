@@ -14,13 +14,24 @@ const KellyPage: React.FC<KellyPageProps> = ({ initialTrades, initialTagGroups =
   const [tagGroups, setTagGroups] = useState<AdvancedTagGroup[]>(initialTagGroups);
 
   return (
-    <div className="min-h-screen p-6" style={{ background: 'var(--background-main)', color: 'var(--text-main)' }}>
-      <div className="max-w-7xl mx-auto">
-        {/* Page Header */}
-        <div className="flex items-center justify-between mb-8 mt-2">
-          <h1 className="text-3xl font-bold" style={{ color: 'var(--text-main)' }}>Kelly Criterion</h1>
+    <div className="min-h-screen text-gray-100" style={{ background: 'var(--background-main)' }}>
+      {/* Header Card: full width, flush with top/left/right - positioned absolutely to break out of main content constraints */}
+      <div 
+        className="bg-gray-800 p-3 flex items-center justify-between absolute top-0 left-0 right-0 z-10" 
+        style={{ 
+          background: 'var(--background-secondary)',
+          marginLeft: 'var(--sidebar-width)',
+          transition: 'margin-left 0.3s ease'
+        }}
+      >
+        <h1 className="text-3xl font-bold" style={{ color: 'var(--text-main)', marginLeft: '1rem' }}>Kelly Criterion</h1>
+        <div>
           {/* Future: Filters, etc. */}
         </div>
+      </div>
+      {/* Page Content: padded, not touching sidebar or page edges - with top margin to account for header */}
+      <div className="p-6 pt-20">
+        <div className="max-w-7xl mx-auto">
 
         {/* Advanced Tags Badge */}
         <div className="flex items-center space-x-2 px-3 py-1 mb-8" style={{ background: 'var(--background-secondary)', border: '1px solid var(--border-main)', borderRadius: '0.5rem' }}>
@@ -47,6 +58,7 @@ const KellyPage: React.FC<KellyPageProps> = ({ initialTrades, initialTagGroups =
             trades={trades} 
             tagGroups={tagGroups}
           />
+        </div>
         </div>
       </div>
     </div>
