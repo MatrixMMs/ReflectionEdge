@@ -59,8 +59,12 @@ export const TradeDetailsView: React.FC<TradeDetailsViewProps> = ({ trade, playb
             {trade.isWorstTrade && (
               <span className="text-2xl" title="Worst Trade">👎</span>
             )}
-            <span className={`px-3 py-1 text-sm font-semibold rounded-full ${trade.direction === 'long' ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'}`}>
-              {trade.direction.toUpperCase()}
+            <span className={`inline-flex items-center text-left text-sm font-semibold border font-mono w-16 h-7 ${
+              trade.direction === 'long' 
+                ? 'text-blue-400 border-blue-400' 
+                : 'text-orange-400 border-orange-400'
+            }`} style={{ borderRadius: 0, background: 'none', justifyContent: 'flex-start' }}>
+              {trade.direction === 'long' ? 'LONG' : 'SHORT'}
             </span>
           </div>
         </div>

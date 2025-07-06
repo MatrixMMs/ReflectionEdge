@@ -156,10 +156,12 @@ export const TradeList: React.FC<TradeListProps> = ({ trades, tagGroups, onEditT
                 <Td>{trade.entry != null ? trade.entry : '-'}</Td>
                 <Td>{trade.exit != null ? trade.exit : '-'}</Td>
                 <Td>
-                  <span className={`px-2 py-1 text-xs font-semibold rounded-full ${
-                    trade.direction === 'long' ? 'bg-green-900 text-green-300' : 'bg-red-900 text-red-300'
-                  }`}>
-                    {trade.direction === 'long' ? 'Long' : 'Short'}
+                  <span className={`inline-flex items-center text-left text-xs font-semibold border w-14 h-6 px-2 py-0.5 tracking-wide uppercase ${
+                    trade.direction === 'long' 
+                      ? 'text-blue-400 border-blue-400' 
+                      : 'text-orange-400 border-orange-400'
+                  }`} style={{ borderRadius: 0, background: 'none', fontFamily: 'inherit', justifyContent: 'flex-start' }}>
+                    {trade.direction === 'long' ? 'LONG' : 'SHORT'}
                   </span>
                 </Td>
                 <Td>{trade.contracts != null ? trade.contracts : '-'}</Td>

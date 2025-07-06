@@ -31,11 +31,16 @@ function formatDate(date: Date) {
   return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
 }
 
+const today = new Date();
+today.setHours(0, 0, 0, 0);
+
 function parseDate(str: string | null): Date | null {
   if (!str) return null;
   const [y, m, d] = str.split('-').map(Number);
   if (!y || !m || !d) return null;
-  return new Date(y, m - 1, d);
+  const date = new Date(y, m - 1, d);
+  if (isNaN(date.getTime())) return null;
+  return date;
 }
 
 export const DateRangePicker: React.FC<DateRangePickerProps> = ({ value, onChange, minDate, maxDate, className }) => {
@@ -45,11 +50,28 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = ({ value, onChang
   const wrapperRef = useRef<HTMLDivElement>(null);
 
   // Calendar state
-  const today = new Date();
   const startDate = parseDate(value.start || '');
   const endDate = parseDate(value.end || '');
-  const [viewYear, setViewYear] = useState(startDate?.getFullYear() || today.getFullYear());
-  const [viewMonth, setViewMonth] = useState(startDate?.getMonth() || today.getMonth());
+  // Always open to startDate if valid and not in the future, otherwise today
+  const initialDate = (startDate && startDate <= today) ? startDate : today;
+  const [viewYear, setViewYear] = useState(initialDate.getFullYear());
+  const [viewMonth, setViewMonth] = useState(initialDate.getMonth());
+
+  // When opening the calendar, reset view to selected start date or today
+  useEffect(() => {
+    if (open) {
+      const newInitialDate = (startDate && startDate <= today) ? startDate : today;
+      setViewYear(newInitialDate.getFullYear());
+      setViewMonth(newInitialDate.getMonth());
+    }
+  }, [open]);
+
+  // If startDate is in the future, reset selection to today
+  useEffect(() => {
+    if (startDate && startDate > today) {
+      onChange({ start: formatDate(today), end: '' });
+    }
+  }, [value.start]);
 
   // Close on outside click
   useEffect(() => {
@@ -70,7 +92,18 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = ({ value, onChang
     return dateStr > value.start && dateStr < value.end;
   };
   const isSelected = (dateStr: string) => value.start === dateStr || value.end === dateStr;
-  const isHovered = (dateStr: string) => hoveredDate && value.start && !value.end && ((dateStr > value.start && dateStr <= hoveredDate) || (dateStr < value.start && dateStr >= hoveredDate));
+  const isHovered = (dateStr: string) => hoveredDate && value.start && !value.end && dateStr > value.start && dateStr <= hoveredDate;
+  
+  // Check if date should be disabled (before start date or future date)
+  const isDateDisabled = (dateStr: string) => {
+    const date = parseDate(dateStr);
+    console.log('DISABLE CHECK:', { dateStr, date, today });
+    if (!date) return true;
+    if (date > today) return true;
+    // Only disable dates before start date if picking end date
+    if (value.start && !value.end && dateStr < value.start) return true;
+    return false;
+  };
 
   // Navigation
   const prevMonth = () => {
@@ -92,16 +125,17 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = ({ value, onChang
 
   // Date selection logic
   const handleDayClick = (dateStr: string) => {
+    // If no start date, or both start and end are set, start a new selection
     if (!value.start || (value.start && value.end)) {
       onChange({ start: dateStr, end: '' });
-    } else if (dateStr < value.start) {
-      onChange({ start: dateStr, end: value.start });
-      setOpen(false);
-    } else if (dateStr === value.start) {
-      onChange({ start: dateStr, end: '' });
-    } else {
-      onChange({ start: value.start, end: dateStr });
-      setOpen(false);
+    } else if (value.start && !value.end) {
+      // If picking end date, only allow if after or equal to start
+      if (dateStr >= value.start) {
+        onChange({ start: value.start, end: dateStr });
+      } else {
+        // If clicked before start, start a new selection
+        onChange({ start: dateStr, end: '' });
+      }
     }
   };
 
@@ -200,14 +234,14 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = ({ value, onChang
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 2 }}>
           {days.map((dateStr, i) => {
             if (!dateStr) return <div key={i} />;
-            const isDisabled = (minDate && dateStr < minDate) || (maxDate && dateStr > maxDate);
+            const disabled = isDateDisabled(dateStr);
             const selected = isSelected(dateStr);
             const inRange = isInRange(dateStr) || isHovered(dateStr);
             return (
               <div
                 key={dateStr}
-                onClick={() => !isDisabled && handleDayClick(dateStr)}
-                onMouseEnter={() => setHoveredDate(dateStr)}
+                onClick={() => !disabled && handleDayClick(dateStr)}
+                onMouseEnter={() => !disabled && setHoveredDate(dateStr)}
                 onMouseLeave={() => setHoveredDate(null)}
                 style={{
                   margin: 1,
@@ -219,10 +253,10 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = ({ value, onChang
                     : undefined,
                   color: selected
                     ? 'var(--text-white)'
-                    : isDisabled
-                    ? 'var(--text-muted)'
+                    : disabled
+                    ? '#6B7280'
                     : 'var(--text-main)',
-                  cursor: isDisabled ? 'not-allowed' : 'pointer',
+                  cursor: disabled ? 'not-allowed' : 'pointer',
                   fontWeight: selected ? 600 : 400,
                   height: 32,
                   display: 'flex',

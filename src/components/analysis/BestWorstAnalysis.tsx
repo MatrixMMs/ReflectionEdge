@@ -53,10 +53,12 @@ export const BestWorstAnalysis: React.FC<BestWorstAnalysisProps> = ({ trades, on
           <span className="text-2xl">{type === 'best' ? '⭐' : '👎'}</span>
                           <span className="font-semibold text-lg text-main">{trade.symbol}</span>
         </div>
-        <span className={`px-2 py-1 text-xs font-semibold rounded-full ${
-          trade.direction === 'long' ? 'bg-green-900 text-green-300' : 'bg-red-900 text-red-300'
-        }`}>
-          {trade.direction.toUpperCase()}
+        <span className={`inline-flex items-center text-left text-xs font-semibold border font-mono w-16 h-7 ${
+          trade.direction === 'long' 
+            ? 'text-blue-400 border-blue-400' 
+            : 'text-orange-400 border-orange-400'
+        }`} style={{ borderRadius: 0, background: 'none', justifyContent: 'flex-start' }}>
+          {trade.direction === 'long' ? 'LONG' : 'SHORT'}
         </span>
       </div>
       

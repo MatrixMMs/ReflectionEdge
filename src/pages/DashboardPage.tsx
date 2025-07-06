@@ -210,10 +210,7 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
         <div style={{ marginRight: '1.5rem', maxWidth: 340, minWidth: 220, width: '100%' }}>
           <DateRangePicker
             value={summaryDateRange}
-            onChange={range => setSummaryDateRange({
-              start: range.start || new Date().toISOString().split('T')[0],
-              end: range.end || new Date().toISOString().split('T')[0],
-            })}
+            onChange={setSummaryDateRange}
             minDate={undefined}
             maxDate={undefined}
           />
