@@ -468,3 +468,31 @@ export const CustomPlayIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) =
     </g>
   </svg>
 );
+
+// DateRangePicker icons
+export const CustomCalendarIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
+  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" {...props}>
+    <rect x="3" y="5" width="18" height="16" rx="2" stroke="currentColor" strokeWidth="1.5" fill="var(--background-tertiary)" />
+    <path d="M3 9h18" stroke="var(--border-main)" strokeWidth="1.5" />
+    <rect x="7" y="13" width="2" height="2" rx="1" fill="var(--accent-blue)" />
+    <rect x="11" y="13" width="2" height="2" rx="1" fill="var(--accent-blue)" />
+    <rect x="15" y="13" width="2" height="2" rx="1" fill="var(--accent-blue)" />
+    <rect x="7" y="17" width="2" height="2" rx="1" fill="var(--accent-blue)" />
+    <rect x="11" y="17" width="2" height="2" rx="1" fill="var(--accent-blue)" />
+    <rect x="15" y="17" width="2" height="2" rx="1" fill="var(--accent-blue)" />
+    <rect x="7" y="5" width="2" height="-2" rx="1" fill="var(--accent-blue)" />
+    <rect x="15" y="5" width="2" height="-2" rx="1" fill="var(--accent-blue)" />
+  </svg>
+);
+
+export const CustomChevronLeftIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
+  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" {...props}>
+    <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
+  </svg>
+);
+
+export const CustomChevronRightIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
+  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" {...props}>
+    <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+  </svg>
+);

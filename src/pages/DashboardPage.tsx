@@ -16,6 +16,7 @@ import { processChartData, filterTradesByDateAndTags } from '../utils/chartDataP
 import { calculateFinancials } from '../utils/financialCalculations';
 import { getRandomColor, resetColorUsage } from '../utils/colorGenerator';
 import { DEFAULT_CHART_COLOR, COMPARISON_CHART_COLOR, LONG_TRADE_COLOR, SHORT_TRADE_COLOR } from '../constants';
+import { DateRangePicker } from '../components/ui/DateRangePicker';
 
 interface DashboardPageProps {
   trades: Trade[];
@@ -200,10 +201,23 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
         style={{ 
           background: 'var(--background-secondary)',
           marginLeft: 'var(--sidebar-width)',
-          transition: 'margin-left 0.3s ease'
+          transition: 'margin-left 0.3s ease',
+          maxWidth: 'calc(100vw - var(--sidebar-width))',
+          boxSizing: 'border-box',
         }}
       >
         <h1 className="text-3xl font-bold" style={{ color: 'var(--text-main)', marginLeft: '1rem' }}>Dashboard</h1>
+        <div style={{ marginRight: '1.5rem', maxWidth: 340, minWidth: 220, width: '100%' }}>
+          <DateRangePicker
+            value={summaryDateRange}
+            onChange={range => setSummaryDateRange({
+              start: range.start || new Date().toISOString().split('T')[0],
+              end: range.end || new Date().toISOString().split('T')[0],
+            })}
+            minDate={undefined}
+            maxDate={undefined}
+          />
+        </div>
       </div>
       {/* Dashboard Content: padded, not touching sidebar or page edges - with top margin to account for header */}
       <div className="flex flex-col pl-4 pr-4 pb-4 pt-20">
@@ -281,7 +295,7 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
               <div className="mb-4">
                 {summaryDateMode === 'daily' ? (
                   <div>
-                    <label htmlFor="summary-date" className="block text-sm font-medium text-gray-300 mb-1">Select Date:</label>
+                    <label htmlFor="summary-date" className="block text-sm font-medium mb-1" style={{ color: 'var(--text-secondary)' }}>Select Date:</label>
                     <input
                       type="date"
                       id="summary-date"
@@ -290,30 +304,7 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
                       className="w-full bg-gray-700 border border-gray-600 text-gray-100 sm:text-sm rounded-lg focus:ring-purple-500 focus:border-purple-500 p-2.5"
                     />
                   </div>
-                ) : (
-                  <div className="flex items-center space-x-2">
-                    <div>
-                      <label htmlFor="summary-start-date" className="block text-sm font-medium text-gray-300 mb-1">Start Date:</label>
-                      <input
-                        type="date"
-                        id="summary-start-date"
-                        value={summaryDateRange.start}
-                        onChange={(e) => setSummaryDateRange(prev => ({ ...prev, start: e.target.value }))}
-                        className="w-full bg-gray-700 border border-gray-600 text-gray-100 sm:text-sm rounded-lg focus:ring-purple-500 focus:border-purple-500 p-2.5"
-                      />
-                    </div>
-                    <div>
-                      <label htmlFor="summary-end-date" className="block text-sm font-medium text-gray-300 mb-1">End Date:</label>
-                      <input
-                        type="date"
-                        id="summary-end-date"
-                        value={summaryDateRange.end}
-                        onChange={(e) => setSummaryDateRange(prev => ({ ...prev, end: e.target.value }))}
-                        className="w-full bg-gray-700 border border-gray-600 text-gray-100 sm:text-sm rounded-lg focus:ring-purple-500 focus:border-purple-500 p-2.5"
-                      />
-                    </div>
-                  </div>
-                )}
+                ) : null}
               </div>
               <Summary trades={tradesForSummary} />
               {directionFilter !== 'all' && <p className="text-xs text-gray-400 mt-2">Showing summary for {directionFilter} trades only.</p>}
