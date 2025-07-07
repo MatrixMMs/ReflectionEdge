@@ -3,7 +3,7 @@ import { Trade } from './types';
 export const sampleTrades: Trade[] = [
   {
     "id": "es_001",
-    "date": "2024-01-15",
+    "date": "01/15/2024",
     "symbol": "/ES",
     "contracts": 1,
     "entry": 4842.25,
@@ -23,7 +23,7 @@ export const sampleTrades: Trade[] = [
   },
   {
     "id": "es_002",
-    "date": "2024-01-15",
+    "date": "01/15/2024",
     "symbol": "/ES",
     "contracts": 1,
     "entry": 4857.5,
@@ -43,7 +43,7 @@ export const sampleTrades: Trade[] = [
   },
   {
     "id": "es_003",
-    "date": "2024-01-15",
+    "date": "01/15/2024",
     "symbol": "/ES",
     "contracts": 1,
     "entry": 4845,
@@ -63,7 +63,7 @@ export const sampleTrades: Trade[] = [
   },
   {
     "id": "es_004",
-    "date": "2024-01-15",
+    "date": "01/15/2024",
     "symbol": "/ES",
     "contracts": 1,
     "entry": 4852.25,
@@ -83,7 +83,7 @@ export const sampleTrades: Trade[] = [
   },
   {
     "id": "es_005",
-    "date": "2024-01-15",
+    "date": "01/15/2024",
     "symbol": "/ES",
     "contracts": 1,
     "entry": 4856,

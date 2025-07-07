@@ -228,8 +228,8 @@ AAPL,100,150.50,155.25,475.00,1/15/2024 9:30,1/15/2024 14:45`;
       const quantowerResult = parseQuantowerCSVToTrades(quantowerCSV);
       const brokerResult = parseBrokerExportCSV(brokerCSV, mockTagGroups);
 
-      expect(quantowerResult.successfulTrades[0].date).toBe('2024-01-15');
-      expect(brokerResult.successfulTrades[0].date).toBe('2024-01-15');
+      expect(quantowerResult.successfulTrades[0].date).toBe('01/15/2024');
+      expect(brokerResult.successfulTrades[0].date).toBe('01/15/2024');
     });
   });
 

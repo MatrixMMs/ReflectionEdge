@@ -19,7 +19,7 @@ describe('Quantower CSV Importer', () => {
       expect(trade.entry).toBe(150.50);
       expect(trade.exit).toBe(155.25);
       expect(trade.profit).toBeCloseTo(970.00, 2); // 497.50 + 472.50
-      expect(trade.date).toBe('2024-01-15');
+      expect(trade.date).toBe('01/15/2024');
     });
 
     it('should parse valid Quantower CSV with simple short trade correctly', () => {

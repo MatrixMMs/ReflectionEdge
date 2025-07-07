@@ -66,45 +66,47 @@ const PlaybookPage: React.FC<PlaybookPageProps> = ({ tagGroups, initialPlaybookE
   };
 
   const handleAdd = () => {
-    setIsAddingPlaybook(true);
+    setIsAddingPlaybook(false);
     setIsEditingPlaybook(false);
     setSelectedPlaybookEntry(null);
   };
 
   return (
-    <div className="min-h-screen bg-gray-900 text-gray-100 p-6">
-      <div className="max-w-7xl mx-auto">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-8">
-          <div>
-            <h1 className="text-3xl font-bold text-purple-400">Playbook</h1>
-            <p className="text-gray-400 mt-2">Manage your trading strategies and setups</p>
-          </div>
-          <Button
-            onClick={handleAdd}
-            variant="primary"
-            leftIcon={<PlusCircleIcon className="w-5 h-5" />}
-          >
-            Add Strategy
-          </Button>
+    <div className="min-h-screen text-gray-100" style={{ background: 'var(--background-main)' }}>
+      {/* Header Card: full width, flush with top/left/right - positioned absolutely to break out of main content constraints */}
+      <div 
+        className="bg-gray-800 p-3 flex items-center justify-between absolute top-0 left-0 right-0 z-10" 
+        style={{ 
+          background: 'var(--background-secondary)',
+          marginLeft: 'var(--sidebar-width)',
+          transition: 'margin-left 0.3s ease'
+        }}
+      >
+        <h1 className="text-3xl font-[550]" style={{ color: 'var(--text-main)', marginLeft: '1rem', fontWeight: 550 }}>Playbook</h1>
+        <div>
+          {/* Future: Filters, etc. */}
         </div>
-        {/* Content */}
-        <div className="bg-gray-800 rounded-xl shadow-2xl p-6">
-          {isAddingPlaybook || isEditingPlaybook || selectedPlaybookEntry ? (
-            <PlaybookEditor
-              entry={selectedPlaybookEntry || undefined}
-              tagGroups={tagGroups}
-              onSave={handleSave}
-              onCancel={handleCancel}
-            />
-          ) : (
-            <PlaybookList
-              entries={playbookEntries}
-              onSelect={(entry) => setSelectedPlaybookEntry(entry)}
-              onAdd={handleAdd}
-              onEdit={handleEditPlaybookEntry}
-            />
-          )}
+      </div>
+      {/* Page Content: padded, not touching sidebar or page edges - with top margin to account for header */}
+      <div className="p-6 pt-20">
+        <div className="max-w-7xl mx-auto">
+          {/* Content */}
+          <div className="bg-gray-800 rounded-xl shadow-2xl p-6" style={{ background: 'var(--background-secondary)' }}>
+            {isAddingPlaybook || isEditingPlaybook || selectedPlaybookEntry ? (
+              <PlaybookEditor
+                entry={selectedPlaybookEntry || undefined}
+                onSave={handleSave}
+                onCancel={handleCancel}
+              />
+            ) : (
+              <PlaybookList
+                entries={playbookEntries}
+                onSelect={(entry) => setSelectedPlaybookEntry(entry)}
+                onAdd={handleAdd}
+                onEdit={handleEditPlaybookEntry}
+              />
+            )}
+          </div>
         </div>
       </div>
     </div>

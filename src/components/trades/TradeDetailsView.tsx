@@ -51,7 +51,7 @@ export const TradeDetailsView: React.FC<TradeDetailsViewProps> = ({ trade, playb
     <div className="p-4 bg-gray-800 text-gray-200 rounded-lg max-h-[80vh] overflow-y-auto">
       <header className="mb-6">
         <div className="flex justify-between items-center">
-          <h2 className="text-2xl font-bold text-white">{trade.symbol}</h2>
+          <h2 className="text-2xl font-bold text-main">{trade.symbol}</h2>
           <div className="flex items-center gap-2">
             {trade.isBestTrade && (
               <span className="text-2xl" title="Best Trade">⭐</span>
@@ -59,12 +59,16 @@ export const TradeDetailsView: React.FC<TradeDetailsViewProps> = ({ trade, playb
             {trade.isWorstTrade && (
               <span className="text-2xl" title="Worst Trade">👎</span>
             )}
-            <span className={`px-3 py-1 text-sm font-semibold rounded-full ${trade.direction === 'long' ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'}`}>
-              {trade.direction.toUpperCase()}
+            <span className={`inline-flex items-center text-left text-sm font-semibold border font-mono w-16 h-7 ${
+              trade.direction === 'long' 
+                ? 'text-blue-400 border-blue-400' 
+                : 'text-orange-400 border-orange-400'
+            }`} style={{ borderRadius: 0, background: 'none', justifyContent: 'flex-start' }}>
+              {trade.direction === 'long' ? 'LONG' : 'SHORT'}
             </span>
           </div>
         </div>
-        <p className="text-sm text-gray-400">{new Date(trade.date).toLocaleDateString()}</p>
+        <p className="text-sm text-gray-400">{new Date(trade.date).toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' })}</p>
       </header>
 
       {/* Trade Analysis */}

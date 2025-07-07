@@ -10,7 +10,7 @@ export const LegalDisclaimer: React.FC<LegalDisclaimerProps> = ({
   onClose 
 }) => {
   const compactDisclaimer = (
-    <div className="text-xs text-gray-400 bg-gray-800 p-3 rounded-lg border border-gray-700">
+    <div className="text-xs text-gray-400 bg-gray-800 p-3 rounded-lg border border-gray-700" style={{ background: 'var(--background-secondary)' }}>
       <p className="font-semibold text-gray-300 mb-1">⚠️ Important Disclaimers</p>
       <p>
         Reflection Edge is for educational and analytical purposes only. 
@@ -21,7 +21,7 @@ export const LegalDisclaimer: React.FC<LegalDisclaimerProps> = ({
   );
 
   const fullDisclaimer = (
-    <div className="bg-gray-800 p-6 rounded-xl border border-gray-700 max-w-4xl mx-auto">
+    <div className="bg-gray-800 p-6 rounded-xl border border-gray-700 max-w-4xl mx-auto" style={{ background: 'var(--background-secondary)' }}>
       <h2 className="text-2xl font-bold text-red-400 mb-4 flex items-center">
         ⚠️ Important Legal Disclaimers
       </h2>
@@ -160,7 +160,7 @@ export const LegalDisclaimer: React.FC<LegalDisclaimerProps> = ({
 
   const modalDisclaimer = (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-      <div className="bg-gray-800 p-6 rounded-xl border border-gray-700 max-w-4xl max-h-[90vh] overflow-y-auto">
+      <div className="bg-gray-800 p-6 rounded-xl border border-gray-700 max-w-4xl max-h-[90vh] overflow-y-auto" style={{ background: 'var(--background-secondary)' }}>
         {fullDisclaimer}
       </div>
     </div>
@@ -179,7 +179,7 @@ export const LegalDisclaimer: React.FC<LegalDisclaimerProps> = ({
 
 // Footer disclaimer component for persistent display
 export const FooterDisclaimer: React.FC = () => (
-  <div className="text-xs text-gray-500 text-center py-2 border-t border-gray-700 bg-gray-900">
+  <div className="text-xs text-gray-500 text-center py-2 border-t border-gray-700 bg-gray-900" style={{ background: 'var(--background-secondary)' }}>
     <p>
       Reflection Edge is for educational purposes only. Not financial advice. 
       Past performance doesn't guarantee future results. 
@@ -192,7 +192,7 @@ export const FooterDisclaimer: React.FC = () => (
 
 // Terms of Service component
 export const TermsOfService: React.FC = () => (
-  <div className="bg-gray-800 p-6 rounded-xl border border-gray-700 max-w-4xl mx-auto">
+  <div className="bg-gray-800 p-6 rounded-xl border border-gray-700 max-w-4xl mx-auto" style={{ background: 'var(--background-secondary)' }}>
     <h2 className="text-2xl font-bold text-gray-200 mb-4">Terms of Service</h2>
     
     <div className="space-y-4 text-sm text-gray-300">

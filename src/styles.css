@@ -1,0 +1,120 @@
+/* Global CSS Variables */
+:root {
+  /* Colors - Backgrounds */
+  --background-main: #0C0E12;
+  --background-secondary: #1A1D23;
+  --background-tertiary: #343A46;
+  --background-sidebar: #07080B;
+  
+  /* Colors - Text */
+  --text-main: #E6E6E6;
+  --text-secondary: #A8B2C2;
+  --text-accent: #5A95E3;
+  --text-blue: #5A95E3;
+  --text-green: #2DCF7A;
+  --text-red: #E55A5A;
+  --text-white: #FFFFFF;
+  
+  /* Colors - Accent/Buttons */
+  --accent-blue: #5A95E3;
+  --accent-blue-dark: #487AC1;
+  --accent-green: #2DCF7A;
+  --accent-green-dark: #24A662;
+  --accent-yellow: #F59E0B;
+  
+  /* Colors - Status */
+  --success: #2DCF7A;
+  --error: #E55A5A;
+  
+  /* Colors - Gradients */
+  --gradient-green-from: #2DCF7A;
+  --gradient-green-to: #27AB66;
+  --gradient-green: linear-gradient(90deg, var(--gradient-green-from), var(--gradient-green-to));
+  
+  /* Colors - Borders */
+  --border-main: #3E4450;
+  --border-blue: #5A95E3;
+  
+  /* Colors - Scrollbar */
+  --scrollbar-thumb: #343A46;
+  --scrollbar-thumb-hover: #484F5C;
+  
+  /* Typography */
+  --font-family-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  --font-size-xs: 0.75rem;
+  --font-size-sm: 0.875rem;
+  --font-size-base: 1rem;
+  --font-size-lg: 1.125rem;
+  --font-size-xl: 1.25rem;
+  --font-size-2xl: 1.5rem;
+  
+  /* Spacing */
+  --spacing-1: 0.25rem;
+  --spacing-2: 0.5rem;
+  --spacing-3: 0.75rem;
+  --spacing-4: 1rem;
+  --spacing-6: 1.5rem;
+  --spacing-8: 2rem;
+  
+  /* Border Radius */
+  --border-radius-sm: 0.125rem;
+  --border-radius: 0.25rem;
+  --border-radius-md: 0.375rem;
+  --border-radius-lg: 0.5rem;
+  
+  /* Shadows */
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  
+  /* Layout */
+  --sidebar-width: 18rem;
+  --sidebar-width-collapsed: 6rem;
+}
+
+/* Tailwind CSS imports */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom scrollbar styles */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--background-secondary);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--scrollbar-thumb);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--scrollbar-thumb-hover);
+}
+
+/* Notification Popup Animation */
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translate3d(0, -20px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+.animate-fadeInDown {
+  animation-name: fadeInDown;
+  animation-duration: 0.3s;
+  animation-fill-mode: both;
+}
+
+/* Utility classes for theme variables */
+.text-main {
+  color: var(--text-main);
+} 

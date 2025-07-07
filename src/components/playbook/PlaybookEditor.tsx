@@ -1,16 +1,16 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { PlaybookEntry, TagGroup } from '../../types';
+import { PlaybookEntry } from '../../types';
+import { ADVANCED_TAGS } from '../../constants/advancedTags';
 import { generateSecureId } from '../../utils/security';
 import { ChevronDownIcon, ChevronUpIcon } from '../ui/Icons';
 
 interface PlaybookEditorProps {
   entry?: PlaybookEntry;
-  tagGroups: TagGroup[];
   onSave: (entry: Omit<PlaybookEntry, 'id' | 'createdAt' | 'updatedAt'>) => void;
   onCancel: () => void;
 }
 
-export const PlaybookEditor: React.FC<PlaybookEditorProps> = ({ entry, tagGroups, onSave, onCancel }) => {
+export const PlaybookEditor: React.FC<PlaybookEditorProps> = ({ entry, onSave, onCancel }) => {
   const [name, setName] = useState(entry?.name || '');
   const [description, setDescription] = useState(entry?.description || '');
   const [tags, setTags] = useState<{ [groupId: string]: string[] }>(entry?.tags || {});
@@ -110,7 +110,7 @@ export const PlaybookEditor: React.FC<PlaybookEditorProps> = ({ entry, tagGroups
         />
       </div>
       <div className="space-y-3">
-        {tagGroups.map(group => {
+        {ADVANCED_TAGS.map(group => {
           const isCollapsed = collapsedGroups[group.id] || false;
           return (
             <div key={group.id} className="bg-gray-800 border border-gray-700 rounded-xl shadow-sm">
@@ -124,29 +124,34 @@ export const PlaybookEditor: React.FC<PlaybookEditorProps> = ({ entry, tagGroups
               >
                 <span className="text-xs font-semibold text-gray-200 tracking-wide">{group.name}</span>
                 {isCollapsed ? (
-                  <ChevronDownIcon className="w-4 h-4 text-gray-400" />
+                  <ChevronDownIcon className="w-5 h-5 text-gray-400" />
                 ) : (
-                  <ChevronUpIcon className="w-4 h-4 text-gray-400" />
+                  <ChevronUpIcon className="w-5 h-5 text-gray-400" />
                 )}
               </button>
               {!isCollapsed && (
                 <>
                   <div className="border-t border-gray-700 mx-2" />
                   <div id={`tag-group-${group.id}`} className="flex flex-wrap gap-2 px-4 pb-3 pt-3">
-                    {group.subtags.map(subtag => (
-                      <button
-                        key={subtag.id}
-                        type="button"
-                        onClick={() => handleTagToggle(group.id, subtag.id)}
-                        className={`px-3 py-1 rounded-full text-sm font-semibold transition-colors border border-gray-600 focus:outline-none ${
-                          tags[group.id]?.includes(subtag.id)
-                            ? 'bg-gray-700 text-white'
-                            : 'bg-gray-600 text-white hover:bg-gray-500'
-                        }`}
-                      >
-                        {subtag.name}
-                      </button>
-                    ))}
+                    {group.subtags.map(subtag => {
+                      const isSelected = tags[group.id]?.includes(subtag.id);
+                      return (
+                        <button
+                          key={subtag.id}
+                          type="button"
+                          onClick={() => handleTagToggle(group.id, subtag.id)}
+                          className={`px-3 py-1 rounded-full text-sm font-semibold transition-colors focus:outline-none mr-2 mb-2 ${
+                            isSelected ? 'ring-2 ring-purple-400' : 'hover:bg-gray-600'
+                          }`}
+                          style={{
+                            background: isSelected ? subtag.color : '#374151',
+                            color: isSelected ? '#fff' : '#9CA3AF'
+                          }}
+                        >
+                          {subtag.name}
+                        </button>
+                      );
+                    })}
                   </div>
                 </>
               )}

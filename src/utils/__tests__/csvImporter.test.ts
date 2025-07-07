@@ -32,7 +32,7 @@ TSLA,50,200.00,210.00,500.00,1/16/2024 10:00,1/16/2024 15:30`;
       expect(firstTrade.entry).toBe(150.50);
       expect(firstTrade.exit).toBe(155.25);
       expect(firstTrade.profit).toBe(475.00);
-      expect(firstTrade.date).toBe('2024-01-15');
+      expect(firstTrade.date).toBe('01/15/2024');
     });
 
     it('should parse valid CSV with short trades correctly', () => {

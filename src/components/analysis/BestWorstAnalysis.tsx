@@ -51,12 +51,14 @@ export const BestWorstAnalysis: React.FC<BestWorstAnalysisProps> = ({ trades, on
       <div className="flex items-center justify-between mb-2">
         <div className="flex items-center gap-2">
           <span className="text-2xl">{type === 'best' ? '⭐' : '👎'}</span>
-          <span className="font-semibold text-lg">{trade.symbol}</span>
+                          <span className="font-semibold text-lg text-main">{trade.symbol}</span>
         </div>
-        <span className={`px-2 py-1 text-xs font-semibold rounded-full ${
-          trade.direction === 'long' ? 'bg-green-900 text-green-300' : 'bg-red-900 text-red-300'
-        }`}>
-          {trade.direction.toUpperCase()}
+        <span className={`inline-flex items-center text-left text-xs font-semibold border font-mono w-16 h-7 ${
+          trade.direction === 'long' 
+            ? 'text-blue-400 border-blue-400' 
+            : 'text-orange-400 border-orange-400'
+        }`} style={{ borderRadius: 0, background: 'none', justifyContent: 'flex-start' }}>
+          {trade.direction === 'long' ? 'LONG' : 'SHORT'}
         </span>
       </div>
       
@@ -69,7 +71,7 @@ export const BestWorstAnalysis: React.FC<BestWorstAnalysisProps> = ({ trades, on
         </div>
         <div>
           <span className="text-gray-400">Date:</span>
-          <span className="ml-1">{new Date(trade.date).toLocaleDateString()}</span>
+                      <span className="ml-1">{new Date(trade.date).toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' })}</span>
         </div>
       </div>
 
@@ -130,7 +132,7 @@ export const BestWorstAnalysis: React.FC<BestWorstAnalysisProps> = ({ trades, on
             ← Back to List
           </Button>
           <h2 className="text-xl font-bold">
-            {selectedTrade.isBestTrade ? '⭐' : '👎'} {selectedTrade.symbol} - {new Date(selectedTrade.date).toLocaleDateString()}
+            {selectedTrade.isBestTrade ? '⭐' : '👎'} <span className="text-main">{selectedTrade.symbol}</span> - {new Date(selectedTrade.date).toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' })}
           </h2>
         </div>
         <div className="flex-1 overflow-y-auto">

@@ -14,11 +14,27 @@ const ExecutionPage: React.FC<ExecutionPageProps> = ({ initialTrades, initialPla
   // Add any execution-specific handlers here
 
   return (
-    <div className="min-h-screen bg-gray-900 text-gray-100 p-6">
-      <div className="max-w-7xl mx-auto">
-        <h1 className="text-3xl font-bold text-purple-400 mb-8">Execution</h1>
-        <div className="bg-gray-800 rounded-xl shadow-2xl p-6">
-          <ExecutionDashboard trades={trades} playbookEntries={playbookEntries} />
+    <div className="min-h-screen text-gray-100" style={{ background: 'var(--background-main)' }}>
+      {/* Header Card: full width, flush with top/left/right - positioned absolutely to break out of main content constraints */}
+      <div 
+        className="bg-gray-800 p-3 flex items-center justify-between absolute top-0 left-0 right-0 z-10" 
+        style={{ 
+          background: 'var(--background-secondary)',
+          marginLeft: 'var(--sidebar-width)',
+          transition: 'margin-left 0.3s ease'
+        }}
+      >
+        <h1 className="text-3xl font-[550]" style={{ color: 'var(--text-main)', marginLeft: '1rem', fontWeight: 550 }}>Execution Analysis</h1>
+        <div>
+          {/* Future: Filters, etc. */}
+        </div>
+      </div>
+      {/* Page Content: padded, not touching sidebar or page edges - with top margin to account for header */}
+      <div className="p-6 pt-20">
+        <div className="max-w-7xl mx-auto">
+          <div className="bg-gray-800 rounded-xl shadow-2xl p-6" style={{ background: 'var(--background-secondary)' }}>
+            <ExecutionDashboard trades={trades} playbookEntries={playbookEntries} />
+          </div>
         </div>
       </div>
     </div>

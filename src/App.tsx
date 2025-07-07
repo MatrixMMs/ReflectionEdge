@@ -31,7 +31,7 @@ import SettingsPage from './pages/SettingsPage';
 import MBSHistoryPage from './pages/MBSHistoryPage';
 import { TradeForm } from './components/trades/TradeForm';
 import { createMBSSession, saveMBSSession } from './utils/mbsHistory';
-import DashboardTestPage from './pages/DashboardTestPage';
+import PlaybookSandboxPage from './pages/PlaybookSandboxPage';
 
 // Helper to normalize CSV headers for detection
 const normalizeHeader = (header: string): string => header.toLowerCase().replace(/\s+/g, '').replace(/\//g, '');
@@ -145,6 +145,10 @@ const App: React.FC = () => {
     const file = event.target.files?.[0];
     if (!file) return;
 
+    // Debug: Log file info
+    console.log('Import Debug: File name:', file.name);
+    console.log('Import Debug: File type:', file.type);
+
     // Security validation
     if (!validateFileUpload(file)) {
       setImportNotification({
@@ -159,6 +163,8 @@ const App: React.FC = () => {
     reader.onload = (e) => {
       try {
         const content = e.target?.result as string;
+        // Debug: Log file content
+        console.log('Import Debug: File content:', content);
         let importedTrades: Trade[] = [];
 
         if (file.name.toLowerCase().endsWith('.csv')) {
@@ -186,16 +192,28 @@ const App: React.FC = () => {
             throw new Error('Unrecognized CSV format. Please ensure the file has columns for date, symbol, and profit/pnl.');
           }
         } else if (file.name.toLowerCase().endsWith('.json')) {
-          const parsed = safeJsonParse(content);
-          if (Array.isArray(parsed)) {
-            importedTrades = parsed.filter(trade => 
-              trade && typeof trade === 'object' && 
-              'id' in trade && 'date' in trade && 'symbol' in trade
-            );
+          const parsedResult = safeJsonParse(content);
+          // Debug: Log parsed result
+          console.log('Import Debug: Parsed result:', parsedResult);
+          if (parsedResult.success) {
+            const parsed = parsedResult.data;
+            if (Array.isArray(parsed)) {
+              importedTrades = parsed.filter(trade => 
+                trade && typeof trade === 'object' && 
+                'id' in trade && 'date' in trade && 'symbol' in trade
+              ).map(trade => ({
+                ...trade,
+                symbol: trade.symbol.toUpperCase()
+              }));
+            } else {
+              console.error('Import Debug: Parsed JSON is not an array:', parsed);
+              throw new Error('Invalid JSON format. Expected an array of trade objects.');
+            }
+          } else {
+            console.error('Import Debug: JSON parse error:', parsedResult.error);
+            throw new Error(parsedResult.error || 'Invalid JSON format.');
+          }
         } else {
-            throw new Error('Invalid JSON format. Expected an array of trade objects.');
-        }
-      } else {
           throw new Error('Unsupported file format. Please use CSV or JSON files.');
         }
 
@@ -230,7 +248,7 @@ const App: React.FC = () => {
 
       } catch (error) {
         console.error('Import error:', error);
-              setImportNotification({
+        setImportNotification({
           title: 'Import Failed',
           message: error instanceof Error ? error.message : 'Unknown error occurred during import.',
           details: 'Please check the file format and try again.'
@@ -238,7 +256,7 @@ const App: React.FC = () => {
       }
     };
 
-      reader.readAsText(file);
+    reader.readAsText(file);
     event.target.value = ''; // Reset file input
   };
 
@@ -291,7 +309,14 @@ const App: React.FC = () => {
 
   return (
     <Router>
-    <div className="flex min-h-screen bg-gray-900 text-gray-100">
+    <div 
+      className="flex min-h-screen" 
+      style={{ 
+        backgroundColor: 'var(--background-main)', 
+        color: 'var(--text-main)',
+        '--sidebar-width': sidebarCollapsed ? '6rem' : '18rem'
+      } as React.CSSProperties}
+    >
       {/* Hidden file input for import */}
       <input
         type="file"
@@ -311,7 +336,7 @@ const App: React.FC = () => {
         />
 
         {/* Main Content */}
-        <div className={`flex-1 ${sidebarCollapsed ? 'ml-20' : 'ml-72'}`}>
+        <div className="flex-1" style={{ marginLeft: 'var(--sidebar-width)' }}>
           <Routes>
             <Route
               path="/"
@@ -327,7 +352,6 @@ const App: React.FC = () => {
                 />
               }
             />
-            <Route path="/dashboard-test" element={<DashboardTestPage />} />
             <Route
               path="/playbook"
               element={
@@ -379,7 +403,11 @@ const App: React.FC = () => {
             />
             <Route
               path="/mbs-history"
-              element={<MBSHistoryPage />}
+              element={<MBSHistoryPage onStartMBSSession={handleMBSClick} />}
+            />
+            <Route
+              path="/playbook-sandbox"
+              element={<PlaybookSandboxPage />}
             />
             <Route path="*" element={<Navigate to="/" />} />
           </Routes>
@@ -491,10 +519,11 @@ const App: React.FC = () => {
                   onChange={e => setDontShowAgain(e.target.checked)}
                   className="mr-2"
                 />
-                <label htmlFor="dontShowAgain" className="text-gray-300">Don't show this again</label>
+                <label htmlFor="dontShowAgain" style={{ color: 'var(--text-secondary)' }}>Don't show this again</label>
           </div>
               <button
-                className="mt-4 px-6 py-2 bg-green-600 text-white rounded disabled:opacity-50"
+                className="mt-4 px-6 py-2 rounded disabled:opacity-50"
+                style={{ backgroundColor: 'var(--accent-green)', color: 'var(--text-white)' }}
                 disabled={!dontShowAgain}
                 onClick={() => {
                   if (dontShowAgain) {

@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Input } from './Input';
 
@@ -46,7 +45,7 @@ export const ColorPicker: React.FC<ColorPickerProps> = ({ initialColor, onChange
       />
       <input
         type="color"
-        value={/#[0-9A-F]{6}/i.test(color) ? color : '#000000'} // Native picker needs valid 6-digit hex
+        value={/#[0-9A-F]{6}/i.test(color) ? color : 'var(--text-main)'} // Native picker needs valid 6-digit hex
         onChange={(e) => {
             setColor(e.target.value);
             onChange(e.target.value);

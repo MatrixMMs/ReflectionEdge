@@ -116,7 +116,7 @@ export const TagPerformance: React.FC<TagPerformanceProps> = ({
               <div className="flex items-center space-x-2">
                 <span 
                   className="font-semibold text-md px-3 py-1 rounded-full"
-                  style={{ background: '#374151', color: item.subTag.color, border: `1.5px solid ${item.subTag.color}` }}
+                  style={{ background: 'var(--background-secondary)', color: item.subTag.color, border: `1.5px solid ${item.subTag.color}` }}
                 >
                   {item.subTag.name}
                 </span>

@@ -280,7 +280,7 @@ export const MBSPostSessionReview: React.FC<MBSPostSessionReviewProps> = ({ isOp
     <Modal onClose={onClose} title="Session Review & Coach Feedback" size="full">
       <div className="space-y-8 p-8">
         {/* Session Summary */}
-        <div className="bg-gray-800 rounded-lg p-6 flex flex-col gap-4">
+        <div className="bg-gray-800 rounded-lg p-6 flex flex-col gap-4" style={{ background: 'var(--background-secondary)' }}>
           <div className="text-xl font-bold text-blue-300">Session Summary</div>
           <div className="flex flex-wrap gap-6 items-center">
             <div><span className="font-semibold">Goal:</span> {sessionGoal}</div>
@@ -298,11 +298,11 @@ export const MBSPostSessionReview: React.FC<MBSPostSessionReviewProps> = ({ isOp
           </div>
         </div>
         {/* Trade List */}
-        <div className="bg-gray-800 rounded-lg p-6">
+        <div className="bg-gray-800 rounded-lg p-6" style={{ background: 'var(--background-secondary)' }}>
           <div className="text-lg font-semibold text-blue-200 mb-4">Session Trades</div>
           <div className="space-y-3">
             {tradeHistory.map(trade => (
-              <div key={trade.id} className="bg-gray-700 rounded p-4 flex flex-col gap-1 border-2 border-gray-600">
+              <div key={trade.id} className="bg-gray-700 rounded p-4 flex flex-col gap-1 border-2 border-gray-600" style={{ background: 'var(--background-secondary)' }}>
                 <div className="flex gap-4 text-sm text-gray-300">
                   <span>{trade.time}</span>
                   <span>{trade.type}</span>
@@ -320,11 +320,11 @@ export const MBSPostSessionReview: React.FC<MBSPostSessionReviewProps> = ({ isOp
         </div>
         {/* Best/Worst Trade Analysis */}
         {(bestTrade || worstTrade) && (
-          <div className="bg-gray-800 rounded-lg p-4 border border-gray-700">
+          <div className="bg-gray-800 rounded-lg p-4 border border-gray-700" style={{ background: 'var(--background-secondary)' }}>
             <h3 className="text-lg font-semibold text-blue-300 mb-4">Best & Worst Trade Analysis</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {bestTrade && (
-                <div className="bg-green-900/30 border border-green-500 rounded p-3">
+                <div className="bg-green-900/30 border border-green-500 rounded p-3" style={{ background: 'var(--background-secondary)' }}>
                   <div className="flex items-center gap-2 mb-2">
                     <span className="text-2xl">⭐</span>
                     <span className="font-semibold text-green-300">Best Trade</span>
@@ -355,7 +355,7 @@ export const MBSPostSessionReview: React.FC<MBSPostSessionReviewProps> = ({ isOp
               )}
               
               {worstTrade && (
-                <div className="bg-red-900/30 border border-red-500 rounded p-3">
+                <div className="bg-red-900/30 border border-red-500 rounded p-3" style={{ background: 'var(--background-secondary)' }}>
                   <div className="flex items-center gap-2 mb-2">
                     <span className="text-2xl">👎</span>
                     <span className="font-semibold text-red-300">Worst Trade</span>
@@ -388,7 +388,7 @@ export const MBSPostSessionReview: React.FC<MBSPostSessionReviewProps> = ({ isOp
           </div>
         )}
         {/* Coach & Risk Manager Feedback */}
-        <div className="bg-blue-900/80 border border-blue-500 rounded-lg p-6">
+        <div className="bg-blue-900/80 border border-blue-500 rounded-lg p-6" style={{ background: 'var(--background-secondary)' }}>
           <div className="text-lg font-bold text-blue-200 mb-2">Coach & Risk Manager Feedback</div>
           <ul className="list-disc pl-6 space-y-2">
             {sessionFeedback.map((f, i) => (
@@ -397,7 +397,7 @@ export const MBSPostSessionReview: React.FC<MBSPostSessionReviewProps> = ({ isOp
           </ul>
         </div>
         {/* Guided Reflection */}
-        <div className="bg-gray-800 rounded-lg p-6 flex flex-col gap-4">
+        <div className="bg-gray-800 rounded-lg p-6 flex flex-col gap-4" style={{ background: 'var(--background-secondary)' }}>
           <div className="text-lg font-semibold text-blue-200">Guided Reflection</div>
           <Input type="text" value={nextGoal} onChange={e => setNextGoal(e.target.value)} placeholder="What will you focus on next session?" />
           <Button onClick={() => { onSetNextSessionGoal(nextGoal); onClose(); }} disabled={!nextGoal.trim()}>Save & Close</Button>

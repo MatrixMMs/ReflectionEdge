@@ -26,6 +26,11 @@ export const NotificationPopup: React.FC<NotificationPopupProps> = ({
   return (
     <div 
       className="fixed top-5 right-5 w-auto max-w-sm bg-gray-800 border border-purple-500 text-gray-100 p-4 rounded-lg shadow-2xl z-[100] animate-fadeInDown"
+      style={{ 
+        background: 'var(--background-secondary)', 
+        borderColor: 'var(--accent-purple)', 
+        color: 'var(--text-white)' 
+      }}
       role="alert"
       aria-live="assertive"
     >
