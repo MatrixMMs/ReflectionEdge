@@ -120,6 +120,10 @@ export const TagManager: React.FC<TagManagerProps> = ({
     alert('Apply template: ' + template.name);
   };
 
+  // Helper to get a faded gradient for a group, starting from top right, using the group color
+  const getGroupGradient = (color: string) =>
+    `radial-gradient(circle at 90% 0%, ${color} 0%, ${color}33 40%, transparent 60%)`;
+
   return (
     <div className="space-y-6 text-gray-200">
       {/* Header */}
@@ -169,14 +173,14 @@ export const TagManager: React.FC<TagManagerProps> = ({
             {filteredAdvancedTags
               .filter(group => group.category === 'objective')
               .map(group => (
-                <div key={group.id} className="bg-gray-800 p-4 rounded-lg border-l-4 border-blue-500" style={{ background: 'var(--background-secondary)', borderLeftColor: group.subtags[0]?.color || 'var(--text-main)' }}>
+                <div key={group.id} className="bg-gray-800 p-4 rounded-lg border-l-4 border-blue-500" style={{ background: getGroupGradient(group.subtags[0]?.color || 'var(--text-main)'), borderLeft: `8px solid ${group.subtags[0]?.color || 'var(--text-main)'}` }}>
                   <div className="flex justify-between items-center mb-3">
                     <h4 className="text-md font-medium text-blue-300" style={{ color: group.subtags[0]?.color || 'var(--text-main)' }}>
                       {group.name}
                     </h4>
-                    <span className="text-xs text-gray-400">{group.subtags.length} tags</span>
+                    <span className="text-xs" style={{ color: 'var(--text-secondary)', fontWeight: 600 }}>{group.subtags.length} tags</span>
                   </div>
-                  <p className="text-sm text-gray-400 mb-3">{group.description}</p>
+                  <p className="text-sm mb-3" style={{ color: 'var(--text-main)', opacity: 0.85, fontWeight: 500 }}>{group.description}</p>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
                     {group.subtags.filter(tag => !tag.isDeprecated).map(tag => (
                       <button
@@ -187,7 +191,7 @@ export const TagManager: React.FC<TagManagerProps> = ({
                             ? 'ring-2 ring-blue-400 ring-offset-2 ring-offset-gray-800'
                             : 'hover:bg-gray-700'
                         }`}
-                        style={{ backgroundColor: tag.color }}
+                        style={{ background: 'var(--background-tertiary)', color: 'var(--text-main)', border: '1px solid var(--border-main)', borderRadius: '9999px', fontWeight: 500 }}
                         title={tag.description}
                       >
                         {tag.name}
@@ -222,14 +226,14 @@ export const TagManager: React.FC<TagManagerProps> = ({
             {filteredAdvancedTags
               .filter(group => group.category === 'subjective')
               .map(group => (
-                <div key={group.id} className="bg-gray-800 p-4 rounded-lg border-l-4 border-orange-500" style={{ background: 'var(--background-secondary)', borderLeftColor: group.subtags[0]?.color || 'var(--text-main)' }}>
+                <div key={group.id} className="bg-gray-800 p-4 rounded-lg border-l-4 border-orange-500" style={{ background: getGroupGradient(group.subtags[0]?.color || 'var(--text-main)'), borderLeft: `8px solid ${group.subtags[0]?.color || 'var(--text-main)'}` }}>
                   <div className="flex justify-between items-center mb-3">
                     <h4 className="text-md font-medium text-orange-300" style={{ color: group.subtags[0]?.color || 'var(--text-main)' }}>
                       {group.name}
                     </h4>
-                    <span className="text-xs text-gray-400">{group.subtags.length} tags</span>
+                    <span className="text-xs" style={{ color: 'var(--text-secondary)', fontWeight: 600 }}>{group.subtags.length} tags</span>
                   </div>
-                  <p className="text-sm text-gray-400 mb-3">{group.description}</p>
+                  <p className="text-sm mb-3" style={{ color: 'var(--text-main)', opacity: 0.85, fontWeight: 500 }}>{group.description}</p>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
                     {group.subtags.filter(tag => !tag.isDeprecated).map(tag => (
                       <button
@@ -240,7 +244,7 @@ export const TagManager: React.FC<TagManagerProps> = ({
                             ? 'ring-2 ring-orange-400 ring-offset-2 ring-offset-gray-800'
                             : 'hover:bg-gray-700'
                         }`}
-                        style={{ backgroundColor: tag.color }}
+                        style={{ background: 'var(--background-tertiary)', color: 'var(--text-main)', border: '1px solid var(--border-main)', borderRadius: '9999px', fontWeight: 500 }}
                         title={tag.description}
                       >
                         {tag.name}

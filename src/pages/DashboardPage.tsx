@@ -49,7 +49,8 @@ import {
   CustomDeleteIcon,
   CustomPlayIcon,
   CustomChevronLeftIcon,
-  CustomChevronRightIcon
+  CustomChevronRightIcon,
+  InfoIcon
 } from '../components/ui/Icons';
 import { processChartData, filterTradesByDateAndTags } from '../utils/chartDataProcessor';
 import { calculateFinancials } from '../utils/financialCalculations';
@@ -57,6 +58,8 @@ import { getRandomColor, resetColorUsage } from '../utils/colorGenerator';
 import { DEFAULT_CHART_COLOR, COMPARISON_CHART_COLOR, LONG_TRADE_COLOR, SHORT_TRADE_COLOR } from '../constants';
 import { DateRangePicker } from '../components/ui/DateRangePicker';
 import { CircularProgress } from '../components/ui/CircularProgress';
+// @ts-ignore: If you have not installed react-minimal-pie-chart, run: npm install react-minimal-pie-chart
+import { PieChart } from 'react-minimal-pie-chart';
 
 interface DashboardPageProps {
   trades: Trade[];
@@ -68,10 +71,20 @@ interface DashboardPageProps {
   onShowLegalDisclaimer: () => void;
 }
 
+const KPI_NUMBER_STYLE = { fontSize: '1.8rem' };
+
+// Helper for formatting numbers with commas and currency
+function formatCurrency(value: number, decimals = 2) {
+  return value.toLocaleString(undefined, { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
+}
+function formatNumber(value: number, decimals = 0) {
+  return value.toLocaleString(undefined, { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
+}
+
 const DashboardPage: React.FC<DashboardPageProps> = ({ 
   trades, 
   setTrades, 
-  tagGroups, 
+  tagGroups,
   setTagGroups, 
   playbookEntries, 
   setPlaybookEntries,
@@ -330,6 +343,45 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
     return sessions;
   }, [tradesForSummary]);
 
+  // Calculate breakeven trades for WinRateProgressCircle
+  const breakevenCount = kpiMetrics.financials.totalTrades - Math.round(kpiMetrics.financials.totalTrades * kpiMetrics.financials.winRate / 100) - Math.round(kpiMetrics.financials.totalTrades * kpiMetrics.financials.lossRate / 100);
+  const breakevenRate = kpiMetrics.financials.totalTrades > 0 ? (breakevenCount / kpiMetrics.financials.totalTrades) * 100 : 0;
+
+  // PieChart tooltip state
+  const [pieTooltip, setPieTooltip] = React.useState<null | {
+    label: string;
+    count: number;
+    amount: number;
+    color: string;
+    x: number;
+    y: number;
+  }>(null);
+
+  const hidePieTooltip = () => setPieTooltip(null);
+
+  // PieChart data calculations
+  const pieData = [
+    { value: kpiMetrics.financials.winRate, color: 'var(--success-main, #22c55e)', label: 'Wins', count: Math.round(kpiMetrics.financials.totalTrades * kpiMetrics.financials.winRate / 100), amount: kpiMetrics.financials.grossPnl },
+    { value: breakevenRate, color: 'var(--accent-yellow, #eab308)', label: 'Breakeven', count: breakevenCount, amount: 0 },
+    { value: kpiMetrics.financials.lossRate, color: 'var(--error-main, #ef4444)', label: 'Losses', count: Math.round(kpiMetrics.financials.totalTrades * kpiMetrics.financials.lossRate / 100), amount: kpiMetrics.financials.grossPnl - kpiMetrics.financials.netPnl },
+  ];
+
+  // Restore info popup state for InfoIcon tooltips
+  const [infoTooltip, setInfoTooltip] = React.useState<string | null>(null);
+  const [infoAnchor, setInfoAnchor] = React.useState<{ x: number, y: number } | null>(null);
+  const showInfo = (text: string, e: any) => {
+    setInfoTooltip(text);
+    if (e && typeof e.clientX === 'number' && typeof e.clientY === 'number') {
+      setInfoAnchor({ x: e.clientX, y: e.clientY });
+    } else {
+      setInfoAnchor(null);
+    }
+  };
+  const hideInfo = () => {
+    setInfoTooltip(null);
+    setInfoAnchor(null);
+  };
+
   return (
     <div className="min-h-screen text-gray-100" style={{ background: 'var(--background-main)' }}>
       {/* Header Card: full width, flush with top/left/right - positioned absolutely to break out of main content constraints */}
@@ -379,9 +431,14 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
           <div className="bg-gray-800 p-4 rounded-xl" style={{ background: 'var(--background-secondary)', minHeight: 120 }}>
             <div className="flex items-center justify-between h-full">
               <div>
-                <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>Net P&L</p>
-                <p className={`text-2xl font-bold ${kpiMetrics.financials.netPnl >= 0 ? 'text-green-500' : 'text-red-500'}`}>
-                  ${kpiMetrics.financials.netPnl.toFixed(2)}
+                <p className="text-sm" style={{ color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: 4 }}>
+                  Net P&L
+                  <span style={{ display: 'inline-flex', alignItems: 'center', cursor: 'pointer' }} onMouseEnter={e => showInfo('Net profit or loss after all trades and fees.', e)} onMouseLeave={hideInfo}>
+                    <InfoIcon style={{ width: 16, height: 16, color: 'var(--text-secondary)' }} />
+                  </span>
+                </p>
+                <p className={`text-4xl font-bold ${kpiMetrics.financials.netPnl >= 0 ? 'text-green-500' : 'text-red-500'}`} style={KPI_NUMBER_STYLE}>
+                  {formatCurrency(kpiMetrics.financials.netPnl)}
                 </p>
               </div>
             </div>
@@ -391,19 +448,41 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
           <div className="bg-gray-800 p-4 rounded-xl" style={{ background: 'var(--background-secondary)', minHeight: 120, position: 'relative' }}>
             <div className="flex items-center justify-between h-full">
               <div>
-                <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>Win Rate</p>
-                <p className={`text-2xl font-bold ${kpiMetrics.financials.winRate >= 50 ? 'text-green-500' : 'text-red-500'}`}>{kpiMetrics.financials.winRate.toFixed(1)}%</p>
+                <p className="text-sm" style={{ color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: 4 }}>
+                  Win Rate
+                  <span style={{ display: 'inline-flex', alignItems: 'center', cursor: 'pointer' }} onMouseEnter={e => showInfo('Percentage of trades with positive profit.', e)} onMouseLeave={hideInfo}>
+                    <InfoIcon style={{ width: 16, height: 16, color: 'var(--text-secondary)' }} />
+                  </span>
+                </p>
+                <p className={`text-4xl font-bold ${kpiMetrics.financials.winRate >= 50 ? 'text-green-500' : 'text-red-500'}`} style={KPI_NUMBER_STYLE}>
+                  {kpiMetrics.financials.winRate.toFixed(1)}%
+                </p>
               </div>
               <div className="ml-2" style={{ position: 'relative' }}>
-                <WinRateProgressCircle
-                  winRate={kpiMetrics.financials.winRate}
-                  lossRate={kpiMetrics.financials.lossRate}
-                  winCount={kpiMetrics.financials.totalTrades * kpiMetrics.financials.winRate / 100}
-                  lossCount={kpiMetrics.financials.totalTrades * kpiMetrics.financials.lossRate / 100}
-                  winAmount={kpiMetrics.financials.grossPnl}
-                  lossAmount={kpiMetrics.financials.grossPnl - kpiMetrics.financials.netPnl}
-                  size={48}
-                  strokeWidth={6}
+                <PieChart
+                  data={pieData}
+                  lineWidth={12}
+                  startAngle={-90}
+                  paddingAngle={2}
+                  rounded={false}
+                  style={{ width: 48, height: 48 }}
+                  segmentsStyle={{ cursor: 'pointer' }}
+                  animate
+                  label={() => ''}
+                  onMouseOver={(event: any, idx: number) => {
+                    const d = pieData[idx];
+                    if (d && event && typeof event.clientX === 'number' && typeof event.clientY === 'number') {
+                      setPieTooltip({
+                        label: d.label,
+                        count: d.count,
+                        amount: d.amount,
+                        color: d.color,
+                        x: event.clientX,
+                        y: event.clientY
+                      });
+                    }
+                  }}
+                  onMouseOut={hidePieTooltip}
                 />
               </div>
             </div>
@@ -413,9 +492,14 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
           <div className="bg-gray-800 p-4 rounded-xl" style={{ background: 'var(--background-secondary)', minHeight: 120 }}>
             <div className="flex items-center justify-between h-full">
               <div>
-                <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>Profit Factor</p>
-                <p className="text-2xl font-bold" style={{ color: 'var(--text-main)' }}>
-                  {kpiMetrics.financials.profitFactor.toFixed(2)}
+                <p className="text-sm" style={{ color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: 4 }}>
+                  Profit Factor
+                  <span style={{ display: 'inline-flex', alignItems: 'center', cursor: 'pointer' }} onMouseEnter={e => showInfo('Gross profit divided by gross loss.', e)} onMouseLeave={hideInfo}>
+                    <InfoIcon style={{ width: 16, height: 16, color: 'var(--text-secondary)' }} />
+                  </span>
+                </p>
+                <p className="text-4xl font-bold" style={{ color: 'var(--text-main)', ...KPI_NUMBER_STYLE }}>
+                  {formatNumber(kpiMetrics.financials.profitFactor, 2)}
                 </p>
               </div>
             </div>
@@ -425,9 +509,14 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
           <div className="bg-gray-800 p-4 rounded-xl" style={{ background: 'var(--background-secondary)', minHeight: 120 }}>
             <div className="flex items-center justify-between h-full">
               <div>
-                <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>Max Drawdown</p>
-                <p className="text-2xl font-bold text-red-500">
-                  ${drawdown.max.toFixed(2)}
+                <p className="text-sm" style={{ color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: 4 }}>
+                  Max Drawdown
+                  <span style={{ display: 'inline-flex', alignItems: 'center', cursor: 'pointer' }} onMouseEnter={e => showInfo('Largest drop from a peak to a trough in cumulative P&L.', e)} onMouseLeave={hideInfo}>
+                    <InfoIcon style={{ width: 16, height: 16, color: 'var(--text-secondary)' }} />
+                  </span>
+                </p>
+                <p className="text-4xl font-bold text-red-500" style={KPI_NUMBER_STYLE}>
+                  {formatCurrency(drawdown.max)}
                 </p>
               </div>
             </div>
@@ -482,11 +571,11 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
                     </div>
                     <div className="text-right">
                       <p className={`font-bold ${trade.profit >= 0 ? 'text-green-500' : 'text-red-500'}`}>
-                        ${trade.profit.toFixed(2)}
+                        {formatCurrency(trade.profit)}
                       </p>
-                                             <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
-                         {trade.contracts} contracts
-                       </p>
+                      <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
+                        {formatNumber(trade.contracts)} contracts
+                      </p>
                     </div>
                   </div>
                 ))}
@@ -519,9 +608,9 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="text-center p-4 rounded-lg" style={{ background: 'var(--background-main)' }}>
                   <h3 className="font-semibold mb-2" style={{ color: 'var(--text-main)' }}>Pre-Market</h3>
-                  <p className="text-2xl font-bold" style={{ color: 'var(--text-main)' }}>{sessionPerformance.preMarket.trades}</p>
+                  <p className="text-2xl font-bold" style={{ color: 'var(--text-main)', ...KPI_NUMBER_STYLE }}>{formatNumber(sessionPerformance.preMarket.trades)}</p>
                   <p className={`text-sm ${sessionPerformance.preMarket.pnl >= 0 ? 'text-green-500' : 'text-red-500'}`}>
-                    ${sessionPerformance.preMarket.pnl.toFixed(2)}
+                    {formatCurrency(sessionPerformance.preMarket.pnl)}
                   </p>
                   <p className="text-xs" style={{ color: 'var(--text-secondary)' }}>
                     {sessionPerformance.preMarket.winRate.toFixed(1)}% win rate
@@ -529,9 +618,9 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
                 </div>
                 <div className="text-center p-4 rounded-lg" style={{ background: 'var(--background-main)' }}>
                   <h3 className="font-semibold mb-2" style={{ color: 'var(--text-main)' }}>Regular Hours</h3>
-                  <p className="text-2xl font-bold" style={{ color: 'var(--text-main)' }}>{sessionPerformance.regular.trades}</p>
+                  <p className="text-2xl font-bold" style={{ color: 'var(--text-main)', ...KPI_NUMBER_STYLE }}>{formatNumber(sessionPerformance.regular.trades)}</p>
                   <p className={`text-sm ${sessionPerformance.regular.pnl >= 0 ? 'text-green-500' : 'text-red-500'}`}>
-                    ${sessionPerformance.regular.pnl.toFixed(2)}
+                    {formatCurrency(sessionPerformance.regular.pnl)}
                   </p>
                   <p className="text-xs" style={{ color: 'var(--text-secondary)' }}>
                     {sessionPerformance.regular.winRate.toFixed(1)}% win rate
@@ -539,9 +628,9 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
                 </div>
                 <div className="text-center p-4 rounded-lg" style={{ background: 'var(--background-main)' }}>
                   <h3 className="font-semibold mb-2" style={{ color: 'var(--text-main)' }}>After Hours</h3>
-                  <p className="text-2xl font-bold" style={{ color: 'var(--text-main)' }}>{sessionPerformance.afterHours.trades}</p>
+                  <p className="text-2xl font-bold" style={{ color: 'var(--text-main)', ...KPI_NUMBER_STYLE }}>{formatNumber(sessionPerformance.afterHours.trades)}</p>
                   <p className={`text-sm ${sessionPerformance.afterHours.pnl >= 0 ? 'text-green-500' : 'text-red-500'}`}>
-                    ${sessionPerformance.afterHours.pnl.toFixed(2)}
+                    {formatCurrency(sessionPerformance.afterHours.pnl)}
                   </p>
                   <p className="text-xs" style={{ color: 'var(--text-secondary)' }}>
                     {sessionPerformance.afterHours.winRate.toFixed(1)}% win rate
@@ -637,110 +726,68 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
             <TradeDetailsView trade={viewingTrade} playbookEntries={playbookEntries} />
           </Modal>
         )}
+
+        {/* PieChart tooltip */}
+        {pieTooltip && (
+          <div style={{
+            position: 'fixed',
+            left: pieTooltip.x,
+            top: pieTooltip.y - 36,
+            background: 'var(--background-main, #18181b)',
+            color: pieTooltip.color,
+            border: `1.5px solid ${pieTooltip.color}`,
+            borderRadius: 8,
+            padding: '10px 16px',
+            fontSize: 14,
+            fontWeight: 600,
+            zIndex: 1000,
+            pointerEvents: 'none',
+            whiteSpace: 'nowrap',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.12)'
+          }}>
+            <div style={{ color: pieTooltip.color, fontWeight: 700 }}>{pieTooltip.label}</div>
+            <div style={{ color: 'var(--text-main, #e5e7eb)', fontWeight: 500, fontSize: 15 }}>
+              Trades: <span style={{ color: pieTooltip.color, fontWeight: 700 }}>{pieTooltip.count}</span>
+            </div>
+            {pieTooltip.label === 'Wins' && (
+              <div style={{ color: 'var(--text-main, #e5e7eb)', fontWeight: 500, fontSize: 15 }}>
+                Total Won: <span style={{ color: pieTooltip.color, fontWeight: 700 }}>${formatCurrency(pieTooltip.amount)}</span>
+              </div>
+            )}
+            {pieTooltip.label === 'Losses' && (
+              <div style={{ color: 'var(--text-main, #e5e7eb)', fontWeight: 500, fontSize: 15 }}>
+                Total Lost: <span style={{ color: pieTooltip.color, fontWeight: 700 }}>${formatCurrency(pieTooltip.amount)}</span>
+              </div>
+            )}
+            {pieTooltip.label === 'Breakeven' && (
+              <div style={{ color: 'var(--text-main, #e5e7eb)', fontWeight: 500, fontSize: 15 }}>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Render the info popup (separate from pie chart tooltip) */}
+        {infoTooltip && infoAnchor && (
+          <div style={{
+            position: 'fixed',
+            left: infoAnchor.x,
+            top: infoAnchor.y - 36,
+            background: 'var(--background-main, #18181b)',
+            color: 'var(--text-main, #e5e7eb)',
+            border: '1.5px solid var(--border-main, #333)',
+            borderRadius: 8,
+            padding: '8px 14px',
+            fontSize: 13,
+            fontWeight: 500,
+            zIndex: 1000,
+            pointerEvents: 'none',
+            whiteSpace: 'nowrap',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.12)'
+          }}>
+            {infoTooltip}
+          </div>
+        )}
       </div>
-    </div>
-  );
-};
-
-type WinRateProgressCircleProps = {
-  winRate: number;
-  lossRate: number;
-  winCount: number;
-  lossCount: number;
-  winAmount: number;
-  lossAmount: number;
-  size?: number;
-  strokeWidth?: number;
-};
-
-const WinRateProgressCircle = ({ winRate, lossRate, winCount, lossCount, winAmount, lossAmount, size = 48, strokeWidth = 6 }: WinRateProgressCircleProps) => {
-  const [hovered, setHovered] = React.useState<'win' | 'loss' | null>(null);
-  const radius = (size - strokeWidth) / 2;
-  const circumference = 2 * Math.PI * radius;
-  const winFraction = Math.max(0, Math.min(1, winRate / 100));
-  const lossFraction = Math.max(0, Math.min(1, lossRate / 100));
-  // Tooltip position: above the arc, centered
-  const tooltipStyle: React.CSSProperties = {
-    position: 'absolute',
-    left: '50%',
-    top: -38,
-    transform: 'translateX(-50%)',
-    minWidth: 90,
-    padding: '6px 12px',
-    borderRadius: 8,
-    background: 'var(--background-main, #18181b)',
-    color: 'var(--text-main, #e5e7eb)',
-    fontSize: 13,
-    fontWeight: 600,
-    boxShadow: '0 2px 8px rgba(0,0,0,0.12)',
-    pointerEvents: 'none',
-    zIndex: 10,
-    textAlign: 'left',
-    border: `1.5px solid ${hovered === 'win' ? 'var(--success-main, #22c55e)' : 'var(--error-main, #ef4444)'}`,
-    opacity: hovered ? 1 : 0,
-    transition: 'opacity 0.15s',
-  };
-  return (
-    <div style={{ position: 'relative', width: size, height: size }}>
-      <svg width={size} height={size} style={{ display: 'block' }}>
-        {/* Background circle */}
-        <circle
-          cx={size / 2}
-          cy={size / 2}
-          r={radius}
-          fill="none"
-          stroke="var(--background-tertiary, #e5e7eb)"
-          strokeWidth={strokeWidth}
-        />
-        {/* Win arc (green) */}
-        {winFraction > 0 && (
-          <circle
-            cx={size / 2}
-            cy={size / 2}
-            r={radius}
-            fill="none"
-            stroke="var(--success-main, #22c55e)"
-            strokeWidth={strokeWidth}
-            strokeDasharray={`${circumference * winFraction} ${circumference * (1 - winFraction)}`}
-            strokeDashoffset={0}
-            strokeLinecap="butt"
-            style={{ transition: 'stroke-dasharray 0.5s', cursor: 'pointer' }}
-            transform={`rotate(-90 ${size / 2} ${size / 2})`}
-            onMouseEnter={() => setHovered('win')}
-            onMouseLeave={() => setHovered(null)}
-          />
-        )}
-        {/* Loss arc (red) */}
-        {lossFraction > 0 && (
-          <circle
-            cx={size / 2}
-            cy={size / 2}
-            r={radius}
-            fill="none"
-            stroke="var(--error-main, #ef4444)"
-            strokeWidth={strokeWidth}
-            strokeDasharray={`${circumference * lossFraction} ${circumference * (1 - lossFraction)}`}
-            strokeDashoffset={-circumference * winFraction}
-            strokeLinecap="butt"
-            style={{ transition: 'stroke-dasharray 0.5s', cursor: 'pointer' }}
-            transform={`rotate(-90 ${size / 2} ${size / 2})`}
-            onMouseEnter={() => setHovered('loss')}
-            onMouseLeave={() => setHovered(null)}
-          />
-        )}
-      </svg>
-      {hovered === 'win' && (
-        <div style={tooltipStyle}>
-          <div>Wins: <span style={{ color: 'var(--success-main, #22c55e)' }}>{Math.round(winCount)}</span></div>
-          <div>Total Won: <span style={{ color: 'var(--success-main, #22c55e)' }}>${winAmount.toFixed(2)}</span></div>
-        </div>
-      )}
-      {hovered === 'loss' && (
-        <div style={tooltipStyle}>
-          <div>Losses: <span style={{ color: 'var(--error-main, #ef4444)' }}>{Math.round(lossCount)}</span></div>
-          <div>Total Lost: <span style={{ color: 'var(--error-main, #ef4444)' }}>${lossAmount.toFixed(2)}</span></div>
-        </div>
-      )}
     </div>
   );
 };

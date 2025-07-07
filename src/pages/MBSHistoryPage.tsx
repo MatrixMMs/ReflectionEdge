@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { MBSSession, MBSTradeLog } from '../types';
+import { MBSSession, MBSTradeLog } from '../types/mbs';
 import { getMBSSessions, deleteMBSSession, getMBSStats, clearMBSHistory } from '../utils/mbsHistory';
 import { Button } from '../components/ui/Button';
 import { Modal } from '../components/ui/Modal';
 import { TrashIcon, EyeIcon, CalendarIcon, ClockIcon, ChartBarIcon, CustomDetailsIcon, CustomDeleteIcon, CustomWinIcon, CustomPlanIcon, CustomClockIcon, ChartIcon, CustomPlayIcon } from '../components/ui/Icons';
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, BarChart, Bar, CartesianGrid, Legend } from 'recharts';
-import MbsDeleteButton from '../components/ui/MbsDeleteButton';
+import MbsDeleteButton from '../components/mbs/MbsDeleteButton';
 
 const moodEmojis = [
   { value: 1, emoji: '😡', label: 'Very Frustrated' },

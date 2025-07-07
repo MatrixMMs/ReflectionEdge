@@ -1,4 +1,4 @@
-import { MBSSession, MBSTradeLog } from '../types';
+import { MBSSession, MBSTradeLog } from '../types/mbs';
 
 const MBS_HISTORY_KEY = 'mbs_session_history';
 
