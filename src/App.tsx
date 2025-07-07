@@ -31,7 +31,6 @@ import SettingsPage from './pages/SettingsPage';
 import MBSHistoryPage from './pages/MBSHistoryPage';
 import { TradeForm } from './components/trades/TradeForm';
 import { createMBSSession, saveMBSSession } from './utils/mbsHistory';
-import DashboardTestPage from './pages/DashboardTestPage';
 import PlaybookSandboxPage from './pages/PlaybookSandboxPage';
 
 // Helper to normalize CSV headers for detection
@@ -353,7 +352,6 @@ const App: React.FC = () => {
                 />
               }
             />
-            <Route path="/dashboard-test" element={<DashboardTestPage />} />
             <Route
               path="/playbook"
               element={

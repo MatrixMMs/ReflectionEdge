@@ -180,11 +180,6 @@ const Sidebar: React.FC<SidebarProps> = ({
             <span className={`sidebar-label ${SIDEBAR_LABEL_MARGIN} ${sidebarCollapsed ? 'collapsed' : 'expanded'}`}>Dashboard</span>
             {sidebarCollapsed && <span className="sidebar-tooltip">Dashboard</span>}
           </Link>
-          <Link to="/dashboard-test" className={`group relative sidebar-nav-link ${isActive('/dashboard-test') ? 'active' : ''}`}>
-            <CustomDashboardIcon className={`${SIDEBAR_ICON_SIZE} flex-shrink-0 transition-all duration-300 ${sidebarCollapsed ? SIDEBAR_ICON_MARGIN_COLLAPSED : SIDEBAR_ICON_MARGIN_EXPANDED}`} />
-            <span className={`sidebar-label ${SIDEBAR_LABEL_MARGIN} ${sidebarCollapsed ? 'collapsed' : 'expanded'}`}>Dashboard Test</span>
-            {sidebarCollapsed && <span className="sidebar-tooltip">Dashboard Test</span>}
-          </Link>
         </nav>
         
         {/* Divider below Dashboard */}
