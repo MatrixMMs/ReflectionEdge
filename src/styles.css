@@ -1,10 +1,10 @@
 /* Global CSS Variables */
 :root {
   /* Colors - Backgrounds */
-  --background-main: #1A1D23;
-  --background-secondary: #252932;
+  --background-main: #0C0E12;
+  --background-secondary: #1A1D23;
   --background-tertiary: #343A46;
-  --background-dashboard: #08090a;
+  --background-sidebar: #07080B;
   
   /* Colors - Text */
   --text-main: #E6E6E6;
