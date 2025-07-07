@@ -37,13 +37,38 @@ export const TagPerformance: React.FC<TagPerformanceProps> = ({
   const performanceData: TagPerformanceData[] = [];
 
   const tradesInDateRange = trades.filter(trade => {
+    // If no date range is selected (empty start/end), include all trades
+    if (!chartDateRange.start && !chartDateRange.end) {
+      return true;
+    }
+    
     const tradeDate = new Date(trade.date);
-    const startDate = new Date(chartDateRange.start);
-    const endDate = new Date(chartDateRange.end);
     tradeDate.setUTCHours(0,0,0,0);
-    startDate.setUTCHours(0,0,0,0);
-    endDate.setUTCHours(0,0,0,0);
-    return tradeDate >= startDate && tradeDate <= endDate;
+    
+    // If only start date is provided, filter from start date onwards
+    if (chartDateRange.start && !chartDateRange.end) {
+      const startDate = new Date(chartDateRange.start);
+      startDate.setUTCHours(0,0,0,0);
+      return tradeDate >= startDate;
+    }
+    
+    // If only end date is provided, filter up to end date
+    if (!chartDateRange.start && chartDateRange.end) {
+      const endDate = new Date(chartDateRange.end);
+      endDate.setUTCHours(0,0,0,0);
+      return tradeDate <= endDate;
+    }
+    
+    // If both dates are provided, filter within range
+    if (chartDateRange.start && chartDateRange.end) {
+      const startDate = new Date(chartDateRange.start);
+      const endDate = new Date(chartDateRange.end);
+      startDate.setUTCHours(0,0,0,0);
+      endDate.setUTCHours(0,0,0,0);
+      return tradeDate >= startDate && tradeDate <= endDate;
+    }
+    
+    return true; // Fallback: include all trades
   });
 
   tagGroups.forEach(group => {
@@ -88,7 +113,7 @@ export const TagPerformance: React.FC<TagPerformanceProps> = ({
           <span className="text-sm text-blue-400 ml-2">(Advanced)</span>
         </h2>
         <p className="text-gray-500 text-sm">
-          No trades with tags found in the selected date range {directionFilter !== 'all' ? `(${directionFilter} only)`: ''}.
+          No trades with tags found {!chartDateRange.start && !chartDateRange.end ? '' : 'in the selected date range'} {directionFilter !== 'all' ? `(${directionFilter} only)`: ''}.
         </p>
       </div>
     );
@@ -152,7 +177,7 @@ export const TagPerformance: React.FC<TagPerformanceProps> = ({
         ))}
       </div>
        <p className="text-xs text-gray-400 mt-2 text-center">
-        For trades in selected date range{directionFilter !== 'all' ? ` (${directionFilter} only)` : ''}. Sharpe Ratio based on P&Ls. Advanced tagging system active.
+        {!chartDateRange.start && !chartDateRange.end ? 'For all trades' : 'For trades in selected date range'}{directionFilter !== 'all' ? ` (${directionFilter} only)` : ''}. Sharpe Ratio based on P&Ls. Advanced tagging system active.
        </p>
     </div>
   );

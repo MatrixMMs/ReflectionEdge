@@ -16,14 +16,40 @@ export const filterTradesByDateAndTags = (
   tagComparisonMode: 'AND' | 'OR'
 ): Trade[] => {
   
+  // If no date range is selected (empty start/end), include all trades
   const tradesInDateRange = trades.filter(trade => {
+    // If both start and end are empty, include all trades
+    if (!dateRange.start && !dateRange.end) {
+      return true;
+    }
+    
     const tradeDate = new Date(trade.date);
-    const startDate = new Date(dateRange.start);
-    const endDate = new Date(dateRange.end);
     tradeDate.setUTCHours(0,0,0,0);
-    startDate.setUTCHours(0,0,0,0);
-    endDate.setUTCHours(0,0,0,0);
-    return tradeDate >= startDate && tradeDate <= endDate;
+    
+    // If only start date is provided, filter from start date onwards
+    if (dateRange.start && !dateRange.end) {
+      const startDate = new Date(dateRange.start);
+      startDate.setUTCHours(0,0,0,0);
+      return tradeDate >= startDate;
+    }
+    
+    // If only end date is provided, filter up to end date
+    if (!dateRange.start && dateRange.end) {
+      const endDate = new Date(dateRange.end);
+      endDate.setUTCHours(0,0,0,0);
+      return tradeDate <= endDate;
+    }
+    
+    // If both dates are provided, filter within range
+    if (dateRange.start && dateRange.end) {
+      const startDate = new Date(dateRange.start);
+      const endDate = new Date(dateRange.end);
+      startDate.setUTCHours(0,0,0,0);
+      endDate.setUTCHours(0,0,0,0);
+      return tradeDate >= startDate && tradeDate <= endDate;
+    }
+    
+    return true; // Fallback: include all trades
   });
 
   const activeTagGroupIds = Object.keys(selectedTags).filter(groupId => selectedTags[groupId]?.length > 0);

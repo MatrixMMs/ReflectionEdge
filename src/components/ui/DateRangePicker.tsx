@@ -28,7 +28,7 @@ function pad(n: number) {
 }
 
 function formatDate(date: Date) {
-  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
+  return `${date.getFullYear()}/${pad(date.getMonth() + 1)}/${pad(date.getDate())}`;
 }
 
 const today = new Date();
@@ -36,7 +36,7 @@ today.setHours(0, 0, 0, 0);
 
 function parseDate(str: string | null): Date | null {
   if (!str) return null;
-  const [y, m, d] = str.split('-').map(Number);
+  const [y, m, d] = str.split('/').map(Number);
   if (!y || !m || !d) return null;
   const date = new Date(y, m - 1, d);
   if (isNaN(date.getTime())) return null;
@@ -185,9 +185,9 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = ({ value, onChang
       onClick={() => setOpen(o => !o)}
       tabIndex={0}
     >
-      <CustomCalendarIcon style={{ width: 20, height: 20, marginRight: 8, color: 'var(--accent-blue)' }} />
+      <CustomCalendarIcon style={{ width: 20, height: 20, marginRight: 8, color: value.start ? 'var(--text-main)' : '#6B7280' }} />
       <span style={{ flex: 1, color: value.start ? 'var(--text-main)' : '#6B7280' }}>
-        {value.start && value.end ? `${value.start} - ${value.end}` : 'Select date range'}
+        {value.start && value.end ? `${value.start} - ${value.end}` : 'All Trades'}
       </span>
       <ChevronDownIcon open={open} />
     </div>
@@ -328,19 +328,21 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = ({ value, onChang
         </button>
       </div>
       {pickerMode === 'monthYear' ? renderMonthYearPicker() : renderCalendarGrid()}
-      <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 12 }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 12 }}>
         <button
           onClick={() => { onChange({ start: '', end: '' }); setOpen(false); }}
-          style={{ background: 'none', border: 'none', color: 'var(--text-link)', cursor: 'pointer', fontSize: 13, marginRight: 8 }}
+          style={{ background: 'none', border: 'none', color: 'var(--text-link)', cursor: 'pointer', fontSize: 13 }}
         >
-          Clear
+          Show All Trades
         </button>
-        <button
-          onClick={() => setOpen(false)}
-          style={{ background: 'var(--button-primary)', color: 'var(--button-text)', border: 'none', borderRadius: 6, padding: '6px 16px', fontWeight: 600, cursor: 'pointer', fontSize: 13 }}
-        >
-          Done
-        </button>
+        <div>
+          <button
+            onClick={() => setOpen(false)}
+            style={{ background: 'var(--button-primary)', color: 'var(--button-text)', border: 'none', borderRadius: 6, padding: '6px 16px', fontWeight: 600, cursor: 'pointer', fontSize: 13 }}
+          >
+            Done
+          </button>
+        </div>
       </div>
     </div>
   );

@@ -108,8 +108,8 @@ export const ChartControls: React.FC<ChartControlsProps> = ({
         </label>
         {compareDateRange && (
           <div className="grid grid-cols-2 gap-2 mt-1 pl-4">
-            <Input label="Compare Start" type="date" value={compareDateRange.start} onChange={e => setCompareDateRange({ ...compareDateRange, start: e.target.value })} className="h-7 text-xs p-1" />
-            <Input label="Compare End" type="date" value={compareDateRange.end} onChange={e => setCompareDateRange({ ...compareDateRange, end: e.target.value })} className="h-7 text-xs p-1" />
+            <Input label="Compare Start" type="date" value={compareDateRange.start || ''} onChange={e => setCompareDateRange({ ...compareDateRange, start: e.target.value })} className="h-7 text-xs p-1" />
+            <Input label="Compare End" type="date" value={compareDateRange.end || ''} onChange={e => setCompareDateRange({ ...compareDateRange, end: e.target.value })} className="h-7 text-xs p-1" />
           </div>
         )}
       </div>

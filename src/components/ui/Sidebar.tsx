@@ -48,6 +48,7 @@ const Sidebar: React.FC<SidebarProps> = ({
         paddingLeft: sidebarCollapsed ? '0.5rem' : '1rem',
         paddingRight: sidebarCollapsed ? '0.5rem' : '1rem',
         backgroundColor: 'var(--background-sidebar)',
+        borderRight: '2px solid var(--border-main)',
       }}
     >
       <style>{`
@@ -151,12 +152,13 @@ const Sidebar: React.FC<SidebarProps> = ({
           width: 2.25rem;
           height: 2.25rem;
           border-radius: 50%;
-          background-color: var(--background-dashboard);
+          background-color: var(--background-sidebar);
           color: var(--text-secondary);
           transition: all 0.2s;
           border: none;
           padding: 0;
           outline: none;
+          border-right: 1px solid var(--border-main);
         }
         .collapse-button:hover {
           color: var(--text-white);
