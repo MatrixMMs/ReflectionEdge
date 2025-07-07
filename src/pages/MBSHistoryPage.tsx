@@ -586,7 +586,7 @@ const MBSHistoryPage: React.FC<MBSHistoryPageProps> = ({ onStartMBSSession }) =>
           transition: 'margin-left 0.3s ease'
         }}
       >
-        <h1 className="text-3xl font-bold" style={{ color: 'var(--text-main)', marginLeft: '1rem' }}>MBS Session History</h1>
+        <h1 className="text-3xl font-[550]" style={{ color: 'var(--text-main)', marginLeft: '1rem', fontWeight: 550 }}>MBS Session History</h1>
         <div className="flex gap-2 items-center">
           <Button variant="primary" onClick={() => setShowPerformance(v => !v)} className="flex items-center gap-2">
             <ChartIcon className="w-5 h-5" />

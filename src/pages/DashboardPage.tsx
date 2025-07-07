@@ -206,7 +206,7 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
           boxSizing: 'border-box',
         }}
       >
-        <h1 className="text-3xl font-bold" style={{ color: 'var(--text-main)', marginLeft: '1rem' }}>Dashboard</h1>
+        <h1 className="text-3xl font-[550]" style={{ color: 'var(--text-main)', marginLeft: '1rem', fontWeight: 550 }}>Dashboard</h1>
         <div style={{ marginRight: '1.5rem', maxWidth: 340, minWidth: 220, width: '100%' }}>
           <DateRangePicker
             value={summaryDateRange}
@@ -243,7 +243,7 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
           <div className="flex flex-col h-full min-h-[600px]">
             <div id="tradelog-container" className="bg-gray-800 p-6 rounded-xl flex-1 flex flex-col" style={{ background: 'var(--background-secondary)' }}>
               <div className="flex items-center justify-between mb-4">
-                <h2 className="text-2xl font-semibold text-purple-400 flex items-center">Trade Log</h2>
+                <h2 className="text-2xl font-[550] text-purple-400 flex items-center">Trade Log</h2>
                 <button
                   onClick={() => setTradeFiltersOpen((prev: boolean) => !prev)}
                   aria-label={tradeFiltersOpen ? 'Hide Filters' : 'Show Filters'}
@@ -269,7 +269,7 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
           {/* Middle: Performance Chart (top), Summary (bottom) */}
           <div className="flex flex-col gap-6 h-full min-h-[600px]">
             <div id="performance-chart-container" className="bg-gray-800 p-6 rounded-xl min-h-[300px]" style={{ background: 'var(--background-secondary)' }}>
-              <h2 className="text-2xl font-semibold mb-4 text-green-400 flex items-center">
+              <h2 className="text-2xl font-[550] mb-4 text-green-400 flex items-center">
                 <ChartBarIcon className="w-6 h-6 mr-2" />
                 Performance Chart
               </h2>
@@ -281,7 +281,7 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
               />
             </div>
             <div className="bg-gray-800 p-6 rounded-xl flex-1" style={{ background: 'var(--background-secondary)' }}>
-              <h2 className="text-2xl font-semibold mb-4 text-pink-400 flex items-center">
+              <h2 className="text-2xl font-[550] mb-4 text-pink-400 flex items-center">
                 <TableCellsIcon className="w-6 h-6 mr-2" />
                 Summary
               </h2>
@@ -311,7 +311,7 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
           {/* Right: Chart Controls (top), Tag Performance (bottom) */}
           <div className="flex flex-col gap-6 h-full min-h-[600px]">
             <div className="bg-gray-800 p-6 rounded-xl" style={{ background: 'var(--background-secondary)' }}>
-              <h2 className="text-2xl font-semibold mb-4 text-purple-400 flex items-center">
+              <h2 className="text-2xl font-[550] mb-4 text-purple-400 flex items-center">
                 <AdjustmentsHorizontalIcon className="w-6 h-6 mr-2" />
                 Controls
               </h2>

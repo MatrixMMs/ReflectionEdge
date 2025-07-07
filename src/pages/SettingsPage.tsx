@@ -63,7 +63,7 @@ const SettingsPage: React.FC = () => {
       <div style={{ maxWidth: 800, margin: '0 auto', color: 'var(--text-main)' }}>
         {/* Page Header */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 32, marginTop: 8 }}>
-          <h1 style={{ fontSize: '2.2rem', fontWeight: 700, color: 'var(--text-main)' }}>Settings</h1>
+          <h1 style={{ fontSize: '2.2rem', fontWeight: 550, color: 'var(--text-main)' }}>Settings</h1>
           {/* Future: Filters, etc. */}
         </div>
         <div style={{ display: 'flex', gap: 32, marginBottom: 32 }}>

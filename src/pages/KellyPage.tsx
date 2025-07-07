@@ -24,7 +24,7 @@ const KellyPage: React.FC<KellyPageProps> = ({ initialTrades, initialTagGroups =
           transition: 'margin-left 0.3s ease'
         }}
       >
-        <h1 className="text-3xl font-bold" style={{ color: 'var(--text-main)', marginLeft: '1rem' }}>Kelly Criterion</h1>
+        <h1 className="text-3xl font-[550]" style={{ color: 'var(--text-main)', marginLeft: '1rem', fontWeight: 550 }}>Kelly Criterion</h1>
         <div>
           {/* Future: Filters, etc. */}
         </div>

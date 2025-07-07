@@ -4,6 +4,7 @@
   --background-main: #1A1D23;
   --background-secondary: #252932;
   --background-tertiary: #343A46;
+  --background-dashboard: #08090a;
   
   /* Colors - Text */
   --text-main: #E6E6E6;
@@ -67,8 +68,8 @@
   --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
   
   /* Layout */
-  --sidebar-width: 16rem;
-  --sidebar-width-collapsed: 5rem;
+  --sidebar-width: 18rem;
+  --sidebar-width-collapsed: 6rem;
 }
 
 /* Tailwind CSS imports */

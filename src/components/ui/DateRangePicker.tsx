@@ -43,6 +43,26 @@ function parseDate(str: string | null): Date | null {
   return date;
 }
 
+// Add a ChevronDownIcon SVG
+const ChevronDownIcon = ({ open }: { open: boolean }) => (
+  <svg
+    style={{
+      width: 18,
+      height: 18,
+      marginLeft: 8,
+      transition: 'transform 0.2s',
+      transform: open ? 'rotate(180deg)' : 'rotate(0deg)',
+      color: 'var(--text-main)',
+      flexShrink: 0,
+    }}
+    viewBox="0 0 20 20"
+    fill="currentColor"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <path fillRule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 10.584l3.71-3.354a.75.75 0 111.02 1.1l-4.25 3.846a.75.75 0 01-1.02 0l-4.25-3.846a.75.75 0 01.02-1.06z" clipRule="evenodd" />
+  </svg>
+);
+
 export const DateRangePicker: React.FC<DateRangePickerProps> = ({ value, onChange, minDate, maxDate, className }) => {
   const [open, setOpen] = useState(false);
   const [pickerMode, setPickerMode] = useState<'calendar' | 'monthYear'>('calendar');
@@ -160,14 +180,16 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = ({ value, onChang
         minWidth: 220,
         outline: open ? '2px solid var(--accent-blue)' : undefined,
         transition: 'outline 0.2s',
+        position: 'relative',
       }}
       onClick={() => setOpen(o => !o)}
       tabIndex={0}
     >
       <CustomCalendarIcon style={{ width: 20, height: 20, marginRight: 8, color: 'var(--accent-blue)' }} />
-      <span style={{ flex: 1, color: value.start ? 'var(--text-main)' : 'var(--text-muted)' }}>
+      <span style={{ flex: 1, color: value.start ? 'var(--text-main)' : '#6B7280' }}>
         {value.start && value.end ? `${value.start} - ${value.end}` : 'Select date range'}
       </span>
+      <ChevronDownIcon open={open} />
     </div>
   );
 

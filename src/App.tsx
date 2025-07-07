@@ -315,7 +315,7 @@ const App: React.FC = () => {
       style={{ 
         backgroundColor: 'var(--background-main)', 
         color: 'var(--text-main)',
-        '--sidebar-width': sidebarCollapsed ? '5rem' : '16rem'
+        '--sidebar-width': sidebarCollapsed ? '6rem' : '18rem'
       } as React.CSSProperties}
     >
       {/* Hidden file input for import */}
@@ -337,7 +337,7 @@ const App: React.FC = () => {
         />
 
         {/* Main Content */}
-        <div className={`flex-1 ${sidebarCollapsed ? 'ml-20' : 'ml-72'}`}>
+        <div className="flex-1" style={{ marginLeft: 'var(--sidebar-width)' }}>
           <Routes>
             <Route
               path="/"

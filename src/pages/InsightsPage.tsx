@@ -22,7 +22,7 @@ const InsightsPage: React.FC<InsightsPageProps> = ({ initialTrades }) => {
           transition: 'margin-left 0.3s ease'
         }}
       >
-        <h1 className="text-3xl font-bold" style={{ color: 'var(--text-main)', marginLeft: '1rem' }}>Insights</h1>
+        <h1 className="text-3xl font-[550]" style={{ color: 'var(--text-main)', marginLeft: '1rem', fontWeight: 550 }}>Insights</h1>
         <div>
           {/* Future: Filters, etc. */}
         </div>

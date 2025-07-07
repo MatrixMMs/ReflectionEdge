@@ -2,6 +2,12 @@ import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { PlusCircleIcon, CustomCalculatorIcon, CustomDashboardIcon, CustomPlaybookIcon, CustomSettingsIcon, CustomBestWorstIcon, CustomExecutionIcon, CustomInsightsIcon, CustomPatternIcon, CustomTagsIcon, CustomMBSIcon, CustomMBSHistoryIcon, CustomExportIcon, CustomImportIcon, CustomEdgeIcon } from './Icons';
 
+// Sidebar icon and label spacing variables
+const SIDEBAR_ICON_SIZE = 'w-5 h-5';
+const SIDEBAR_ICON_MARGIN_COLLAPSED = 'ml-4';
+const SIDEBAR_ICON_MARGIN_EXPANDED = '';
+const SIDEBAR_LABEL_MARGIN = 'ml-3';
+
 // Add custom ChevronLeft and ChevronRight icons
 const ChevronLeft: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
   <svg {...props} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" /></svg>
@@ -38,10 +44,10 @@ const Sidebar: React.FC<SidebarProps> = ({
     <aside
       className="flex flex-col justify-between py-6 min-h-screen fixed left-0 top-0 z-40 shadow-xl transition-[width,padding] duration-300"
       style={{
-        width: sidebarCollapsed ? '5rem' : '16rem',
+        width: sidebarCollapsed ? '6rem' : '18rem',
         paddingLeft: sidebarCollapsed ? '0.5rem' : '1rem',
         paddingRight: sidebarCollapsed ? '0.5rem' : '1rem',
-        backgroundColor: 'var(--background-tertiary)',
+        backgroundColor: 'var(--background-dashboard)',
       }}
     >
       <style>{`
@@ -145,7 +151,7 @@ const Sidebar: React.FC<SidebarProps> = ({
           width: 2.25rem;
           height: 2.25rem;
           border-radius: 50%;
-          background-color: var(--background-secondary);
+          background-color: var(--background-dashboard);
           color: var(--text-secondary);
           transition: all 0.2s;
           border: none;
@@ -160,8 +166,8 @@ const Sidebar: React.FC<SidebarProps> = ({
       <div>
         {/* Logo/Title */}
         <div className="flex items-center mb-6 justify-start">
-          <span className={`inline-block w-8 h-8 bg-gradient-to-tr from-purple-400 via-pink-400 to-yellow-400 rounded-lg flex-shrink-0 transition-all duration-300 ${sidebarCollapsed ? 'ml-3.5' : 'ml-1'}`} />
-          <span className={`sidebar-label ml-3 ${sidebarCollapsed ? 'collapsed' : 'expanded'} text-2xl font-bold tracking-tight align-middle`} style={{ color: 'var(--text-main)' }}>Reflection Edge</span>
+          <span className={`inline-block w-8 h-8 bg-gradient-to-tr from-purple-400 via-pink-400 to-yellow-400 rounded-lg flex-shrink-0 transition-all duration-300 ${sidebarCollapsed ? 'ml-5' : 'ml-1'}`} />
+          <span className={`sidebar-label ${SIDEBAR_LABEL_MARGIN} ${sidebarCollapsed ? 'collapsed' : 'expanded'} text-2xl font-bold tracking-tight align-middle`} style={{ color: 'var(--text-main)' }}>Reflection Edge</span>
         </div>
         
         {/* Divider above Dashboard */}
@@ -170,13 +176,13 @@ const Sidebar: React.FC<SidebarProps> = ({
         {/* Dashboard Link */}
         <nav className="space-y-2">
           <Link to="/" className={`group relative sidebar-nav-link ${isActive('/') ? 'active' : ''}`}>
-            <CustomDashboardIcon className={`w-5 h-5 flex-shrink-0 transition-all duration-300 ${sidebarCollapsed ? 'ml-2' : ''}`} />
-            <span className={`sidebar-label ml-3 ${sidebarCollapsed ? 'collapsed' : 'expanded'}`}>Dashboard</span>
+            <CustomDashboardIcon className={`${SIDEBAR_ICON_SIZE} flex-shrink-0 transition-all duration-300 ${sidebarCollapsed ? SIDEBAR_ICON_MARGIN_COLLAPSED : SIDEBAR_ICON_MARGIN_EXPANDED}`} />
+            <span className={`sidebar-label ${SIDEBAR_LABEL_MARGIN} ${sidebarCollapsed ? 'collapsed' : 'expanded'}`}>Dashboard</span>
             {sidebarCollapsed && <span className="sidebar-tooltip">Dashboard</span>}
           </Link>
           <Link to="/dashboard-test" className={`group relative sidebar-nav-link ${isActive('/dashboard-test') ? 'active' : ''}`}>
-            <CustomDashboardIcon className={`w-5 h-5 flex-shrink-0 transition-all duration-300 ${sidebarCollapsed ? 'ml-2' : ''}`} />
-            <span className={`sidebar-label ml-3 ${sidebarCollapsed ? 'collapsed' : 'expanded'}`}>Dashboard Test</span>
+            <CustomDashboardIcon className={`${SIDEBAR_ICON_SIZE} flex-shrink-0 transition-all duration-300 ${sidebarCollapsed ? SIDEBAR_ICON_MARGIN_COLLAPSED : SIDEBAR_ICON_MARGIN_EXPANDED}`} />
+            <span className={`sidebar-label ${SIDEBAR_LABEL_MARGIN} ${sidebarCollapsed ? 'collapsed' : 'expanded'}`}>Dashboard Test</span>
             {sidebarCollapsed && <span className="sidebar-tooltip">Dashboard Test</span>}
           </Link>
         </nav>
@@ -189,18 +195,18 @@ const Sidebar: React.FC<SidebarProps> = ({
           {/* Section 1: Playbook & Tags */}
           <div>
             <Link to="/playbook" className={`group relative sidebar-nav-link ${isActive('/playbook') ? 'active' : ''}`}>
-              <CustomPlaybookIcon className={`w-5 h-5 flex-shrink-0 transition-all duration-300 ${sidebarCollapsed ? 'ml-2' : ''}`} />
-              <span className={`sidebar-label ml-3 ${sidebarCollapsed ? 'collapsed' : 'expanded'}`}>Playbook</span>
+              <CustomPlaybookIcon className={`${SIDEBAR_ICON_SIZE} flex-shrink-0 transition-all duration-300 ${sidebarCollapsed ? SIDEBAR_ICON_MARGIN_COLLAPSED : SIDEBAR_ICON_MARGIN_EXPANDED}`} />
+              <span className={`sidebar-label ${SIDEBAR_LABEL_MARGIN} ${sidebarCollapsed ? 'collapsed' : 'expanded'}`}>Playbook</span>
               {sidebarCollapsed && <span className="sidebar-tooltip">Playbook</span>}
             </Link>
             <Link to="/playbook-sandbox" className={`group relative sidebar-nav-link ${isActive('/playbook-sandbox') ? 'active' : ''}`}>
-              <CustomPlaybookIcon className={`w-5 h-5 flex-shrink-0 transition-all duration-300 ${sidebarCollapsed ? 'ml-2' : ''}`} />
-              <span className={`sidebar-label ml-3 ${sidebarCollapsed ? 'collapsed' : 'expanded'}`}>Playbook Sandbox</span>
+              <CustomPlaybookIcon className={`${SIDEBAR_ICON_SIZE} flex-shrink-0 transition-all duration-300 ${sidebarCollapsed ? SIDEBAR_ICON_MARGIN_COLLAPSED : SIDEBAR_ICON_MARGIN_EXPANDED}`} />
+              <span className={`sidebar-label ${SIDEBAR_LABEL_MARGIN} ${sidebarCollapsed ? 'collapsed' : 'expanded'}`}>Playbook Sandbox</span>
               {sidebarCollapsed && <span className="sidebar-tooltip">Playbook Sandbox</span>}
             </Link>
             <Link to="/tags" className={`group relative sidebar-nav-link ${isActive('/tags') ? 'active' : ''}`}>
-              <CustomTagsIcon className={`w-5 h-5 flex-shrink-0 transition-all duration-300 ${sidebarCollapsed ? 'ml-2' : ''}`} />
-              <span className={`sidebar-label ml-3 ${sidebarCollapsed ? 'collapsed' : 'expanded'}`}>Tags</span>
+              <CustomTagsIcon className={`${SIDEBAR_ICON_SIZE} flex-shrink-0 transition-all duration-300 ${sidebarCollapsed ? SIDEBAR_ICON_MARGIN_COLLAPSED : SIDEBAR_ICON_MARGIN_EXPANDED}`} />
+              <span className={`sidebar-label ${SIDEBAR_LABEL_MARGIN} ${sidebarCollapsed ? 'collapsed' : 'expanded'}`}>Tags</span>
               {sidebarCollapsed && <span className="sidebar-tooltip">Tags</span>}
             </Link>
           </div>
@@ -210,33 +216,33 @@ const Sidebar: React.FC<SidebarProps> = ({
           {/* Section 2: Performance & Analysis */}
           <div>
             <Link to="/patterns" className={`group relative sidebar-nav-link ${isActive('/patterns') ? 'active' : ''}`}>
-              <CustomPatternIcon className={`w-5 h-5 flex-shrink-0 transition-all duration-300 ${sidebarCollapsed ? 'ml-2' : ''}`} />
-              <span className={`sidebar-label ml-3 ${sidebarCollapsed ? 'collapsed' : 'expanded'}`}>Patterns</span>
+              <CustomPatternIcon className={`${SIDEBAR_ICON_SIZE} flex-shrink-0 transition-all duration-300 ${sidebarCollapsed ? SIDEBAR_ICON_MARGIN_COLLAPSED : SIDEBAR_ICON_MARGIN_EXPANDED}`} />
+              <span className={`sidebar-label ${SIDEBAR_LABEL_MARGIN} ${sidebarCollapsed ? 'collapsed' : 'expanded'}`}>Patterns</span>
               {sidebarCollapsed && <span className="sidebar-tooltip">Patterns</span>}
             </Link>
             <Link to="/insights" className={`group relative sidebar-nav-link ${isActive('/insights') ? 'active' : ''}`}>
-              <CustomInsightsIcon className={`w-5 h-5 flex-shrink-0 transition-all duration-300 ${sidebarCollapsed ? 'ml-2' : ''}`} />
-              <span className={`sidebar-label ml-3 ${sidebarCollapsed ? 'collapsed' : 'expanded'}`}>Insights</span>
+              <CustomInsightsIcon className={`${SIDEBAR_ICON_SIZE} flex-shrink-0 transition-all duration-300 ${sidebarCollapsed ? SIDEBAR_ICON_MARGIN_COLLAPSED : SIDEBAR_ICON_MARGIN_EXPANDED}`} />
+              <span className={`sidebar-label ${SIDEBAR_LABEL_MARGIN} ${sidebarCollapsed ? 'collapsed' : 'expanded'}`}>Insights</span>
               {sidebarCollapsed && <span className="sidebar-tooltip">Insights</span>}
             </Link>
             <Link to="/edge" className={`group relative sidebar-nav-link ${isActive('/edge') ? 'active' : ''}`}>
-              <CustomEdgeIcon className={`w-5 h-5 flex-shrink-0 transition-all duration-300 ${sidebarCollapsed ? 'ml-2' : ''}`} />
-              <span className={`sidebar-label ml-3 ${sidebarCollapsed ? 'collapsed' : 'expanded'}`}>Edge</span>
+              <CustomEdgeIcon className={`${SIDEBAR_ICON_SIZE} flex-shrink-0 transition-all duration-300 ${sidebarCollapsed ? SIDEBAR_ICON_MARGIN_COLLAPSED : SIDEBAR_ICON_MARGIN_EXPANDED}`} />
+              <span className={`sidebar-label ${SIDEBAR_LABEL_MARGIN} ${sidebarCollapsed ? 'collapsed' : 'expanded'}`}>Edge</span>
               {sidebarCollapsed && <span className="sidebar-tooltip">Edge</span>}
             </Link>
             <Link to="/kelly" className={`group relative sidebar-nav-link ${isActive('/kelly') ? 'active' : ''}`}>
-              <CustomCalculatorIcon className={`w-5 h-5 flex-shrink-0 transition-all duration-300 ${sidebarCollapsed ? 'ml-2' : ''}`} />
-              <span className={`sidebar-label ml-3 ${sidebarCollapsed ? 'collapsed' : 'expanded'}`}>Kelly</span>
+              <CustomCalculatorIcon className={`${SIDEBAR_ICON_SIZE} flex-shrink-0 transition-all duration-300 ${sidebarCollapsed ? SIDEBAR_ICON_MARGIN_COLLAPSED : SIDEBAR_ICON_MARGIN_EXPANDED}`} />
+              <span className={`sidebar-label ${SIDEBAR_LABEL_MARGIN} ${sidebarCollapsed ? 'collapsed' : 'expanded'}`}>Kelly</span>
               {sidebarCollapsed && <span className="sidebar-tooltip">Kelly</span>}
             </Link>
             <Link to="/execution" className={`group relative sidebar-nav-link ${isActive('/execution') ? 'active' : ''}`}>
-              <CustomExecutionIcon className={`w-5 h-5 flex-shrink-0 transition-all duration-300 ${sidebarCollapsed ? 'ml-2' : ''}`} />
-              <span className={`sidebar-label ml-3 ${sidebarCollapsed ? 'collapsed' : 'expanded'}`}>Execution</span>
+              <CustomExecutionIcon className={`${SIDEBAR_ICON_SIZE} flex-shrink-0 transition-all duration-300 ${sidebarCollapsed ? SIDEBAR_ICON_MARGIN_COLLAPSED : SIDEBAR_ICON_MARGIN_EXPANDED}`} />
+              <span className={`sidebar-label ${SIDEBAR_LABEL_MARGIN} ${sidebarCollapsed ? 'collapsed' : 'expanded'}`}>Execution</span>
               {sidebarCollapsed && <span className="sidebar-tooltip">Execution</span>}
             </Link>
             <Link to="/bestworst" className={`group relative sidebar-nav-link ${isActive('/bestworst') ? 'active' : ''}`}>
-              <CustomBestWorstIcon className={`w-5 h-5 flex-shrink-0 transition-all duration-300 ${sidebarCollapsed ? 'ml-2' : ''}`} />
-              <span className={`sidebar-label ml-3 ${sidebarCollapsed ? 'collapsed' : 'expanded'}`}>Best & Worst</span>
+              <CustomBestWorstIcon className={`${SIDEBAR_ICON_SIZE} flex-shrink-0 transition-all duration-300 ${sidebarCollapsed ? SIDEBAR_ICON_MARGIN_COLLAPSED : SIDEBAR_ICON_MARGIN_EXPANDED}`} />
+              <span className={`sidebar-label ${SIDEBAR_LABEL_MARGIN} ${sidebarCollapsed ? 'collapsed' : 'expanded'}`}>Best & Worst</span>
               {sidebarCollapsed && <span className="sidebar-tooltip">Best & Worst</span>}
             </Link>
           </div>
@@ -249,13 +255,13 @@ const Sidebar: React.FC<SidebarProps> = ({
               onClick={onMBSClick} 
               className="group relative sidebar-nav-link text-left"
             >
-              <CustomMBSIcon className={`w-5 h-5 flex-shrink-0 transition-all duration-300 ${sidebarCollapsed ? 'ml-2' : ''}`} />
-              <span className={`sidebar-label ml-3 ${sidebarCollapsed ? 'collapsed' : 'expanded'}`}>MBS</span>
+              <CustomMBSIcon className={`${SIDEBAR_ICON_SIZE} flex-shrink-0 transition-all duration-300 ${sidebarCollapsed ? SIDEBAR_ICON_MARGIN_COLLAPSED : SIDEBAR_ICON_MARGIN_EXPANDED}`} />
+              <span className={`sidebar-label ${SIDEBAR_LABEL_MARGIN} ${sidebarCollapsed ? 'collapsed' : 'expanded'}`}>MBS</span>
               {sidebarCollapsed && <span className="sidebar-tooltip">MBS</span>}
             </button>
             <Link to="/mbs-history" className={`group relative sidebar-nav-link ${isActive('/mbs-history') ? 'active' : ''}`}>
-              <CustomMBSHistoryIcon className={`w-5 h-5 flex-shrink-0 transition-all duration-300 ${sidebarCollapsed ? 'ml-2' : ''}`} />
-              <span className={`sidebar-label ml-3 ${sidebarCollapsed ? 'collapsed' : 'expanded'}`}>MBS History</span>
+              <CustomMBSHistoryIcon className={`${SIDEBAR_ICON_SIZE} flex-shrink-0 transition-all duration-300 ${sidebarCollapsed ? SIDEBAR_ICON_MARGIN_COLLAPSED : SIDEBAR_ICON_MARGIN_EXPANDED}`} />
+              <span className={`sidebar-label ${SIDEBAR_LABEL_MARGIN} ${sidebarCollapsed ? 'collapsed' : 'expanded'}`}>MBS History</span>
               {sidebarCollapsed && <span className="sidebar-tooltip">MBS History</span>}
             </Link>
           </div>
@@ -268,18 +274,18 @@ const Sidebar: React.FC<SidebarProps> = ({
               onClick={onImportClick} 
               className="group relative sidebar-nav-link text-left"
             >
-              <CustomImportIcon className={`w-5 h-5 flex-shrink-0 transition-all duration-300 ${sidebarCollapsed ? 'ml-2' : ''}`} />
-              <span className={`sidebar-label ml-3 ${sidebarCollapsed ? 'collapsed' : 'expanded'}`}>Import</span>
+              <CustomImportIcon className={`${SIDEBAR_ICON_SIZE} flex-shrink-0 transition-all duration-300 ${sidebarCollapsed ? SIDEBAR_ICON_MARGIN_COLLAPSED : SIDEBAR_ICON_MARGIN_EXPANDED}`} />
+              <span className={`sidebar-label ${SIDEBAR_LABEL_MARGIN} ${sidebarCollapsed ? 'collapsed' : 'expanded'}`}>Import</span>
               {sidebarCollapsed && <span className="sidebar-tooltip">Import</span>}
             </button>
             <Link to="/export" className={`group relative sidebar-nav-link ${isActive('/export') ? 'active' : ''}`}>
-              <CustomExportIcon className={`w-5 h-5 flex-shrink-0 transition-all duration-300 ${sidebarCollapsed ? 'ml-2' : ''}`} />
-              <span className={`sidebar-label ml-3 ${sidebarCollapsed ? 'collapsed' : 'expanded'}`}>Export</span>
+              <CustomExportIcon className={`${SIDEBAR_ICON_SIZE} flex-shrink-0 transition-all duration-300 ${sidebarCollapsed ? SIDEBAR_ICON_MARGIN_COLLAPSED : SIDEBAR_ICON_MARGIN_EXPANDED}`} />
+              <span className={`sidebar-label ${SIDEBAR_LABEL_MARGIN} ${sidebarCollapsed ? 'collapsed' : 'expanded'}`}>Export</span>
               {sidebarCollapsed && <span className="sidebar-tooltip">Export</span>}
             </Link>
             <Link to="/settings" className={`group relative sidebar-nav-link ${isActive('/settings') ? 'active' : ''}`}>
-              <CustomSettingsIcon className={`w-5 h-5 flex-shrink-0 transition-all duration-300 ${sidebarCollapsed ? 'ml-2' : ''}`} />
-              <span className={`sidebar-label ml-3 ${sidebarCollapsed ? 'collapsed' : 'expanded'}`}>Settings</span>
+              <CustomSettingsIcon className={`${SIDEBAR_ICON_SIZE} flex-shrink-0 transition-all duration-300 ${sidebarCollapsed ? SIDEBAR_ICON_MARGIN_COLLAPSED : SIDEBAR_ICON_MARGIN_EXPANDED}`} />
+              <span className={`sidebar-label ${SIDEBAR_LABEL_MARGIN} ${sidebarCollapsed ? 'collapsed' : 'expanded'}`}>Settings</span>
               {sidebarCollapsed && <span className="sidebar-tooltip">Settings</span>}
             </Link>
             <div className="flex justify-center w-full" style={{ position: 'relative' }}>

@@ -23,7 +23,7 @@ const PatternsPage: React.FC<PatternsPageProps> = ({ initialTrades }) => {
           transition: 'margin-left 0.3s ease'
         }}
       >
-        <h1 className="text-3xl font-bold" style={{ color: 'var(--text-main)', marginLeft: '1rem' }}>Pattern Analysis</h1>
+        <h1 className="text-3xl font-[550]" style={{ color: 'var(--text-main)', marginLeft: '1rem', fontWeight: 550 }}>Pattern Analysis</h1>
         <div>
           {/* Future: Filters, etc. */}
         </div>
