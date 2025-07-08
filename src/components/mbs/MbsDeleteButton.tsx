@@ -1,5 +1,5 @@
 import React from 'react';
-import { CustomDeleteIcon } from './Icons';
+import { CustomDeleteIcon } from '../ui/Icons';
 
 interface MbsDeleteButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   className?: string;

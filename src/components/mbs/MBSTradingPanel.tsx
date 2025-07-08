@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Button } from './ui/Button';
-import { Input } from './ui/Input';
-import { Modal } from './ui/Modal';
-import { MBSTradeLog } from '../types';
+import { Button } from '../ui/Button';
+import { Input } from '../ui/Input';
+import { Modal } from '../ui/Modal';
+import { MBSTradeLog } from '../../types/mbs';
 
 interface MBSTradingPanelProps {
   isOpen: boolean;

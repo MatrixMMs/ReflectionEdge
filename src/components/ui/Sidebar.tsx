@@ -48,6 +48,7 @@ const Sidebar: React.FC<SidebarProps> = ({
         paddingLeft: sidebarCollapsed ? '0.5rem' : '1rem',
         paddingRight: sidebarCollapsed ? '0.5rem' : '1rem',
         backgroundColor: 'var(--background-sidebar)',
+        borderRight: '2px solid var(--border-main)',
       }}
     >
       <style>{`
@@ -106,18 +107,9 @@ const Sidebar: React.FC<SidebarProps> = ({
           color: var(--text-main);
         }
         .sidebar-nav-link.active {
-          background: linear-gradient(135deg, rgba(45, 207, 122, 0.15) 0%, rgba(36, 166, 98, 0.1) 50%, transparent 100%);
-          color: var(--text-main);
-        }
-        .sidebar-nav-link.active::before {
-          content: '';
-          position: absolute;
-          left: 0;
-          top: 0;
-          bottom: 0;
-          width: 3px;
-          background-color: var(--accent-green);
-          border-radius: 0.5rem 0 0 0.5rem;
+          background: rgba(22, 163, 74, 0.25); /* dark green, more transparent */
+          color: var(--text-white);
+          box-shadow: none;
         }
         .sidebar-divider {
           margin: 0.5rem 0;
@@ -151,12 +143,13 @@ const Sidebar: React.FC<SidebarProps> = ({
           width: 2.25rem;
           height: 2.25rem;
           border-radius: 50%;
-          background-color: var(--background-dashboard);
+          background-color: var(--background-sidebar);
           color: var(--text-secondary);
           transition: all 0.2s;
           border: none;
           padding: 0;
           outline: none;
+          border-right: 1px solid var(--border-main);
         }
         .collapse-button:hover {
           color: var(--text-white);

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { Modal } from './ui/Modal';
-import { Button } from './ui/Button';
+import { Modal } from '../ui/Modal';
+import { Button } from '../ui/Button';
 
 interface MBSPreTradingChecklistProps {
   isOpen: boolean;
