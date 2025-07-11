@@ -227,7 +227,7 @@ export const TradeFilters: React.FC<TradeFiltersProps> = ({
                 {hasSelectedTags() && (
                   <button
                     onClick={clearAllFilters}
-                    className="text-red-500"
+                    className="text-error"
                     style={{ background: 'none', border: 'none', padding: 0, minWidth: 0 }}
                   >
                     Clear All

@@ -380,7 +380,7 @@ describe('TagPerformance', () => {
       render(<TagPerformance {...defaultProps} />);
       
       const positivePnl = screen.getByText('$875.00');
-      expect(positivePnl).toHaveClass('text-green-400');
+      expect(positivePnl).toHaveClass('text-success');
     });
 
     it('displays negative P&L in red', () => {
@@ -388,7 +388,7 @@ describe('TagPerformance', () => {
       
       const negativePnlElements = screen.getAllByText('$-250.00');
       expect(negativePnlElements.length).toBeGreaterThan(0);
-      expect(negativePnlElements[0]).toHaveClass('text-red-400');
+      expect(negativePnlElements[0]).toHaveClass('text-error');
     });
   });
 

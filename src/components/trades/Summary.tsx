@@ -43,22 +43,22 @@ export const Summary: React.FC<SummaryProps> = ({ trades }) => {
     );
   }
 
-  const pnlColor = netPnl >= 0 ? 'text-green-400' : 'text-red-400';
+  const pnlColor = netPnl >= 0 ? 'text-success' : 'text-error';
 
   const summaryItems = [
     { label: 'Total Trades', value: totalTrades },
     { label: 'Net P&L', value: `${netPnl >= 0 ? '+' : ''}${netPnl.toFixed(2)}`, color: pnlColor, isBold: true },
     { label: 'Win Rate', value: `${winRate.toFixed(1)}%` },
     { label: 'Profit Factor', value: profitFactor === Infinity ? '∞' : profitFactor.toFixed(2) },
-    { label: 'Avg Win / Loss', value: `$${avgWin.toFixed(2)} / $${avgLoss.toFixed(2)}`, color: 'text-green-400/text-red-400' },
+    { label: 'Avg Win / Loss', value: `$${avgWin.toFixed(2)} / $${avgLoss.toFixed(2)}`, color: 'text-success/text-error' },
   ];
 
   const advancedSummaryItems = [
     { label: 'Expectancy', value: `$${expectancy.toFixed(2)}` },
     { label: 'Avg W/L Ratio', value: avgWinLossRatio === Infinity ? '∞' : avgWinLossRatio.toFixed(2) },
     { label: 'Sharpe Ratio', value: formatSharpeRatioValue(sharpeRatio) },
-    { label: 'Max Win', value: `$${maxWin.toFixed(2)}`, color: 'text-green-400' },
-    { label: 'Max Loss', value: `$${maxLoss.toFixed(2)}`, color: 'text-red-400' },
+    { label: 'Max Win', value: `$${maxWin.toFixed(2)}`, color: 'text-success' },
+    { label: 'Max Loss', value: `$${maxLoss.toFixed(2)}`, color: 'text-error' },
     { label: 'Total Fees', value: `-$${totalFees.toFixed(2)}`, condition: totalFees > 0 },
   ];
 

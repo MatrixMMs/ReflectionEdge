@@ -5,10 +5,18 @@ const strategies = ['strat1', 'strat2', 'strat3', 'strat4'];
 const directions = ['long', 'short'];
 const grades = ['A+', 'A', 'A-', 'B+', 'B', 'B-', 'C+', 'C', 'C-', 'D', 'F', null];
 const checklistIds = ['chk1', 'chk2', 'chk3'];
-const objTagGroups = ['obj1', 'obj2', 'obj3'];
-const subjTagGroups = ['subj1', 'subj2', 'subj3'];
-const objSubTags = ['sub1', 'sub2', 'sub3'];
-const subjSubTags = ['subjtag1', 'subjtag2', 'subjtag3'];
+
+// Hardcoded real tag groups and tag IDs from the app
+const objTagGroups = [
+  { id: 'macro_environment', tags: ['pre_fomc_drift', 'post_fomc_volatility', 'major_data_release', 'fed_speak', 'geopolitical_event', 'fomc', 'nfp', 'gdp', 'eom_rebalance', 'cpi'] },
+  { id: 'time_session', tags: ['globex_session', 'london_open_crossover', 'pre_market', 'rth_open_drive', 'rth_mid_day_chop', 'rth_closing_hour', 'opening_range_breakout', 'first_hour_high_low', 'morning_reversal', 'midday_fade', 'vwap_test_morning', 'vwap_test_afternoon', 'lunchtime_chop', 'afternoon_trend', 'closing_ramp', 'end_of_day_reversal', 'pre_news_pause', 'post_news_volatility', 'opex', 'vixex', 'mopex'] },
+  { id: 'market_structure', tags: ['inside_value', 'outside_value', 'value_area_migration', 'p_shaped_profile', 'b_shaped_profile', 'balance', 'multi_day_balance', 'trend_day_open_drive', 'failed_breakout', 'gap_rules', 'ib_break', 'poc_acceptance_rejection', 'opening_range_breakout'] }
+];
+const subjTagGroups = [
+  { id: 'mental_state', tags: ['focused', 'distracted', 'confident', 'hesitant', 'overtrading', 'in_flow', 'fatigued'] },
+  { id: 'emotional_state', tags: ['calm', 'anxious', 'excited', 'fearful', 'frustrated', 'greedy', 'disciplined'] },
+  { id: 'execution_quality', tags: ['perfect_execution', 'late_entry', 'early_exit', 'missed_trade', 'chased', 'hesitated', 'followed_plan'] }
+];
 
 function randomDate(start, end) {
   const date = new Date(start.getTime() + Math.random() * (end.getTime() - start.getTime()));
@@ -16,6 +24,11 @@ function randomDate(start, end) {
 }
 
 function pad(n) { return n < 10 ? '0' + n : n; }
+
+function pickRandom(arr, n = 1) {
+  const shuffled = arr.slice().sort(() => 0.5 - Math.random());
+  return shuffled.slice(0, n);
+}
 
 function randomTrade(i) {
   const dateObj = randomDate(new Date('2025-01-01'), new Date('2025-06-30'));
@@ -46,8 +59,9 @@ function randomTrade(i) {
     lessons: 'Auto-generated lesson',
     marketContext: 'Auto-generated context'
   } : undefined;
-  const objectiveTags = Object.fromEntries(objTagGroups.map(g => [g, [objSubTags[Math.floor(Math.random() * objSubTags.length)]]]));
-  const subjectiveTags = Object.fromEntries(subjTagGroups.map(g => [g, [subjSubTags[Math.floor(Math.random() * subjSubTags.length)]]]));
+  // Assign 1-2 random tags from each group
+  const objectiveTags = Object.fromEntries(objTagGroups.map(g => [g.id, pickRandom(g.tags, Math.random() < 0.5 ? 1 : 2)]));
+  const subjectiveTags = Object.fromEntries(subjTagGroups.map(g => [g.id, pickRandom(g.tags, Math.random() < 0.5 ? 1 : 2)]));
   return {
     id: `trade-${i}-${dateObj.getTime()}`,
     date,

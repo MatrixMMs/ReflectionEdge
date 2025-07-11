@@ -66,16 +66,16 @@ export const EdgeDiscoveryDashboard: React.FC<EdgeDiscoveryDashboardProps> = ({
   const analysisResult = discoverEdges(filteredTrades);
 
   const getConfidenceColor = (confidence: number) => {
-    if (confidence > 0.7) return 'text-green-400';
+    if (confidence > 0.7) return 'text-success';
     if (confidence > 0.5) return 'text-yellow-400';
-    return 'text-red-400';
+    return 'text-error';
   };
 
   const getRiskColor = (risk: 'low' | 'medium' | 'high') => {
     switch (risk) {
-      case 'low': return 'text-green-400';
+      case 'low': return 'text-success';
       case 'medium': return 'text-yellow-400';
-      case 'high': return 'text-red-400';
+      case 'high': return 'text-error';
     }
   };
 
@@ -108,8 +108,8 @@ export const EdgeDiscoveryDashboard: React.FC<EdgeDiscoveryDashboardProps> = ({
         <h4 className="font-semibold text-purple-400">{pattern.pattern}</h4>
         <div className="mt-2 text-xs space-y-1">
             <p>Success Rate: <span className="font-bold">{(pattern.successRate * 100).toFixed(1)}%</span></p>
-            <p>Avg Profit: <span className="font-bold text-green-400">${pattern.avgProfit.toFixed(2)}</span></p>
-            <p>Avg Loss: <span className="font-bold text-red-400">${pattern.avgLoss.toFixed(2)}</span></p>
+            <p>Avg Profit: <span className="font-bold text-success">${pattern.avgProfit.toFixed(2)}</span></p>
+            <p>Avg Loss: <span className="font-bold text-error">${pattern.avgLoss.toFixed(2)}</span></p>
             <p>Consistency: <span className="font-bold">{pattern.consistency.toFixed(2)}</span></p>
         </div>
     </div>
@@ -355,7 +355,7 @@ export const EdgeDiscoveryDashboard: React.FC<EdgeDiscoveryDashboardProps> = ({
         {/* Right Column: Risk & Behavioral */}
         <div className="space-y-6">
           <div className="bg-gray-800 p-6 rounded-lg">
-            <h3 className="text-xl font-semibold mb-4 text-red-400">Risk Assessment</h3>
+            <h3 className="text-xl font-semibold mb-4 text-error">Risk Assessment</h3>
             <div className="flex justify-between items-center mb-3">
                 <span className="font-semibold">Overall Risk:</span>
                 <span className={`font-bold text-lg flex items-center gap-1 ${getRiskColor(analysisResult.riskAssessment.overallRisk)}`}>

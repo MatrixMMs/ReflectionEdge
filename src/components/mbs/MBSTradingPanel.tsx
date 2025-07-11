@@ -337,8 +337,8 @@ export const MBSTradingPanel: React.FC<MBSTradingPanelProps> = ({ isOpen, onEndS
       <div className="flex flex-row items-center justify-between px-8 py-3 bg-gray-800 border-b border-gray-700">
         <div className="flex gap-6 items-center">
           <span className="text-blue-200 font-semibold">Trades: {totalTrades}</span>
-          <span className="text-green-400">Wins: {wins}</span>
-          <span className="text-red-400">Losses: {losses}</span>
+                      <span className="text-success">Wins: {wins}</span>
+            <span className="text-error">Losses: {losses}</span>
           <span className="text-yellow-300">Avg Mood: {moodToEmoji(avgMood)}</span>
         </div>
         <div className="flex items-center gap-2">
@@ -501,7 +501,7 @@ export const MBSTradingPanel: React.FC<MBSTradingPanelProps> = ({ isOpen, onEndS
                             </button>
                             <button
                               onClick={() => handleFlagTrade(trade.id, 'worst')}
-                              className={`text-lg ${trade.isWorstTrade ? 'text-red-400' : 'text-gray-400 hover:text-red-300'}`}
+                              className={`text-lg ${trade.isWorstTrade ? 'text-error' : 'text-gray-400 hover:text-error'}`}
                               title={trade.isWorstTrade ? 'Remove worst trade flag' : 'Mark as worst trade'}
                             >
                               {trade.isWorstTrade ? '👎' : '👍'}

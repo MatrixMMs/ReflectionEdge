@@ -84,7 +84,7 @@ export const MBSPreTradingChecklist: React.FC<MBSPreTradingChecklistProps> = ({ 
           </Button>
         </div>
         {!canBegin && (
-          <div className="text-xs text-red-400 text-center mt-2">
+                      <div className="text-xs text-error text-center mt-2">
             Please complete all required items before starting your trading session.
           </div>
         )}

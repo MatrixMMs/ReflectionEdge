@@ -18,11 +18,11 @@ export const TradeDetailsView: React.FC<TradeDetailsViewProps> = ({ trade, playb
 
   const getGradeColor = (grade: string | null) => {
     if (!grade) return 'text-gray-400';
-    if (grade.startsWith('A')) return 'text-green-400';
-    if (grade.startsWith('B')) return 'text-blue-400';
-    if (grade.startsWith('C')) return 'text-yellow-400';
-    if (grade.startsWith('D')) return 'text-orange-400';
-    if (grade.startsWith('F')) return 'text-red-500';
+      if (grade.startsWith('A')) return 'text-success';
+  if (grade.startsWith('B')) return 'text-blue-400';
+  if (grade.startsWith('C')) return 'text-yellow-400';
+  if (grade.startsWith('D')) return 'text-orange-400';
+  if (grade.startsWith('F')) return 'text-error';
     return 'text-gray-400';
   };
 
@@ -118,7 +118,7 @@ export const TradeDetailsView: React.FC<TradeDetailsViewProps> = ({ trade, playb
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
           <div className="bg-gray-700 p-3 rounded-lg">
             <p className="text-sm text-gray-400">Profit/Loss</p>
-            <p className={`text-xl font-bold ${trade.profit >= 0 ? 'text-green-400' : 'text-red-400'}`}>${trade.profit.toFixed(2)}</p>
+            <p className={`text-xl font-bold ${trade.profit >= 0 ? 'text-success' : 'text-error'}`}>${trade.profit.toFixed(2)}</p>
           </div>
           <div className="bg-gray-700 p-3 rounded-lg">
             <p className="text-sm text-gray-400">Entry Price</p>
@@ -156,9 +156,9 @@ export const TradeDetailsView: React.FC<TradeDetailsViewProps> = ({ trade, playb
               {strategy.checklist.map(item => (
                 <li key={item.id} className={`flex items-center text-sm p-2 rounded-md ${trade.execution?.checklist[item.id] ? 'bg-green-500/10' : 'bg-red-500/10'}`}>
                   {trade.execution?.checklist[item.id] ? (
-                    <CheckIcon className="w-5 h-5 mr-3 text-green-400 flex-shrink-0" />
+                    <CheckIcon className="w-5 h-5 mr-3 text-success flex-shrink-0" />
                   ) : (
-                    <XCircleIcon className="w-5 h-5 mr-3 text-red-400 flex-shrink-0" />
+                    <XCircleIcon className="w-5 h-5 mr-3 text-error flex-shrink-0" />
                   )}
                   <span className={trade.execution?.checklist[item.id] ? 'text-gray-300' : 'text-gray-400 line-through'}>
                     {item.item}
@@ -214,7 +214,7 @@ export const TradeDetailsView: React.FC<TradeDetailsViewProps> = ({ trade, playb
       {/* Reflection Journal Section */}
       <section>
         <div className="flex items-center justify-between mb-2">
-          <h3 className="text-lg font-semibold text-green-400">Reflection Journal</h3>
+          <h3 className="text-lg font-semibold text-success">Reflection Journal</h3>
           {!isEditing ? (
             <Button variant="secondary" size="sm" onClick={() => setIsEditing(true)}>
               Edit

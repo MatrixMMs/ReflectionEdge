@@ -17,14 +17,14 @@ export const Input: React.FC<InputProps> = ({ label, id, error, className, ...pr
         className={`${baseClasses} ${error ? errorClasses : ''} ${className || ''}`}
         style={{
           backgroundColor: 'var(--background-tertiary)',
-          borderColor: error ? 'var(--accent-red)' : 'var(--border-main)',
+          borderColor: error ? 'var(--text-error)' : 'var(--border-main)',
           color: 'var(--text-white)',
           borderWidth: '1px',
           borderStyle: 'solid'
         }}
         {...props}
       />
-      {error && <p className="mt-1 text-xs" style={{ color: 'var(--accent-red)' }}>{error}</p>}
+      {error && <p className="mt-1 text-xs" style={{ color: 'var(--text-error)' }}>{error}</p>}
     </div>
   );
 };
@@ -46,7 +46,7 @@ export const Textarea: React.FC<TextareaProps> = ({ label, id, error, className,
         className={`${baseClasses} ${error ? errorClasses : ''} ${className || ''}`}
         style={{
           backgroundColor: 'var(--background-tertiary)',
-          borderColor: error ? 'var(--accent-red)' : 'var(--border-main)',
+          borderColor: error ? 'var(--text-error)' : 'var(--border-main)',
           color: 'var(--text-white)',
           borderWidth: '1px',
           borderStyle: 'solid'
@@ -54,7 +54,7 @@ export const Textarea: React.FC<TextareaProps> = ({ label, id, error, className,
         rows={3}
         {...props}
       />
-      {error && <p className="mt-1 text-xs" style={{ color: 'var(--accent-red)' }}>{error}</p>}
+      {error && <p className="mt-1 text-xs" style={{ color: 'var(--text-error)' }}>{error}</p>}
     </div>
   );
 };

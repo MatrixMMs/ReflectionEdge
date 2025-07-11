@@ -341,12 +341,12 @@ export const PatternAnalysisDashboard: React.FC<PatternAnalysisDashboardProps> =
   const renderRecommendations = () => (
     <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-lg border border-blue-200">
       <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
-        <ClockIcon className="w-5 h-5 mr-2 text-green-600" />
+                        <ClockIcon className="w-5 h-5 mr-2 text-success" />
         Current Time Recommendations
       </h3>
       <div className="space-y-3">
         <div className="flex items-center p-3 bg-white rounded-lg shadow-sm">
-          <TrendingUpIcon className="w-4 h-4 mr-2 text-green-600" />
+                          <TrendingUpIcon className="w-4 h-4 mr-2 text-success" />
           <span className="text-sm font-medium text-gray-700">{recommendations.currentHourRecommendation}</span>
         </div>
         <div className="flex items-center p-3 bg-white rounded-lg shadow-sm">
@@ -365,14 +365,14 @@ export const PatternAnalysisDashboard: React.FC<PatternAnalysisDashboardProps> =
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
       <div className="bg-white p-6 rounded-lg shadow-sm border">
         <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
-          <TrendingUpIcon className="w-5 h-5 mr-2 text-green-600" />
+                          <TrendingUpIcon className="w-5 h-5 mr-2 text-success" />
           Best Performing Hours
         </h3>
         <div className="space-y-2">
           {patternAnalysis.bestPerformingHours.map((pattern, index) => (
             <div key={pattern.id} className="flex justify-between items-center p-2 bg-green-50 rounded">
               <span className="font-medium text-black">{pattern.value}:00</span>
-              <span className="text-green-700 font-bold">{pattern.winRate.toFixed(1)}%</span>
+                              <span className="text-success font-bold">{pattern.winRate.toFixed(1)}%</span>
             </div>
           ))}
         </div>
@@ -380,14 +380,14 @@ export const PatternAnalysisDashboard: React.FC<PatternAnalysisDashboardProps> =
       
       <div className="bg-white p-6 rounded-lg shadow-sm border">
         <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
-          <TrendingDownIcon className="w-5 h-5 mr-2 text-red-600" />
+                          <TrendingDownIcon className="w-5 h-5 mr-2 text-error" />
           Worst Performing Hours
         </h3>
         <div className="space-y-2">
           {patternAnalysis.worstPerformingHours.map((pattern, index) => (
             <div key={pattern.id} className="flex justify-between items-center p-2 bg-red-50 rounded">
               <span className="font-medium text-black">{pattern.value}:00</span>
-              <span className="text-red-700 font-bold">{pattern.winRate.toFixed(1)}%</span>
+                              <span className="text-error font-bold">{pattern.winRate.toFixed(1)}%</span>
             </div>
           ))}
         </div>
@@ -475,7 +475,7 @@ export const PatternAnalysisDashboard: React.FC<PatternAnalysisDashboardProps> =
             <div className="text-sm text-gray-600">Hour Patterns</div>
           </div>
           <div className="text-center p-4 bg-green-50 rounded-lg">
-            <div className="text-2xl font-bold text-green-600">{patternAnalysis.dayOfWeekPatterns.length}</div>
+                            <div className="text-2xl font-bold text-success">{patternAnalysis.dayOfWeekPatterns.length}</div>
             <div className="text-sm text-gray-600">Day Patterns</div>
           </div>
           <div className="text-center p-4 bg-purple-50 rounded-lg">

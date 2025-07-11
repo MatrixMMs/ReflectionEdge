@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Trade, AdvancedTagGroup, PlaybookEntry, Profile } from './types';
 import { DEFAULT_TAG_GROUPS, DEFAULT_PLAYBOOK_ENTRIES } from './constants';
+import { ADVANCED_OBJECTIVE_TAGS, ADVANCED_SUBJECTIVE_TAGS } from './constants/advancedTags';
 import { parseCSVToTrades as parseBrokerExportCSV } from './utils/csvImporter';
 import { parseQuantowerCSVToTrades } from './utils/quantowerCsvImporter';
 import { validateFileUpload, safeJsonParse, rateLimiter } from './utils/security';
@@ -32,6 +33,10 @@ import MBSHistoryPage from './pages/MBSHistoryPage';
 import { TradeForm } from './components/trades/TradeForm';
 import { createMBSSession, saveMBSSession } from './utils/mbsHistory';
 import PlaybookSandboxPage from './pages/PlaybookSandboxPage';
+import AllTagsPage from './pages/AllTagsPage';
+
+// Load generated trade data for tags pages
+import futureTrades2025 from './test_data/future_trades_2025.json';
 
 // Helper to normalize CSV headers for detection
 const normalizeHeader = (header: string): string => header.toLowerCase().replace(/\s+/g, '').replace(/\//g, '');
@@ -307,6 +312,8 @@ const App: React.FC = () => {
     setAddTradeLoading(false);
   };
 
+  const allTagGroups = [...ADVANCED_OBJECTIVE_TAGS, ...ADVANCED_SUBJECTIVE_TAGS];
+
   return (
     <Router>
     <div 
@@ -365,9 +372,14 @@ const App: React.FC = () => {
               path="/tags"
               element={
                 <TagsPage
-                  initialTagGroups={tagGroups}
+                  trades={futureTrades2025}
+                  tagGroups={allTagGroups}
                 />
               }
+            />
+            <Route
+              path="/tags/all"
+              element={<AllTagsPage tagGroups={allTagGroups} />}
             />
             <Route
               path="/patterns"

@@ -92,7 +92,7 @@ export const ExecutionDashboard: React.FC<ExecutionDashboardProps> = ({ trades, 
                     <span>Grade <strong className="font-bold text-white">{grade}</strong></span>
                     <div className="text-right">
                       <div>{stats.tradeCount} trades</div>
-                      <div className={stats.totalPnl >= 0 ? 'text-green-400' : 'text-red-400'}>
+                      <div className={stats.totalPnl >= 0 ? 'text-success' : 'text-error'}>
                         ${stats.totalPnl.toFixed(2)}
                       </div>
                     </div>

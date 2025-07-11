@@ -661,9 +661,9 @@ export const PatternInsights: React.FC<PatternInsightsProps> = ({ trades }) => {
   const getInsightIcon = (type: Insight['type']) => {
     switch (type) {
       case 'positive':
-        return <TrendingUpIcon className="w-5 h-5 text-green-600" />;
+        return <TrendingUpIcon className="w-5 h-5 text-success" />;
       case 'negative':
-        return <TrendingDownIcon className="w-5 h-5 text-red-600" />;
+        return <TrendingDownIcon className="w-5 h-5 text-error" />;
       case 'warning':
         return <ExclamationTriangleIcon className="w-5 h-5 text-yellow-600" />;
       case 'opportunity':
@@ -727,7 +727,7 @@ export const PatternInsights: React.FC<PatternInsightsProps> = ({ trades }) => {
       {/* Sticky Summary Bar */}
       <div className="sticky top-0 z-10 bg-white text-gray-900 p-4 rounded-lg shadow-sm border mb-4 flex flex-wrap gap-4 justify-center">
         <div className="text-center p-2 bg-green-50 rounded-lg min-w-[100px]">
-          <div className="text-xl font-bold text-green-600">
+          <div className="text-xl font-bold text-success">
             {insights.filter(i => i.type === 'positive').length}
           </div>
           <div className="text-xs text-gray-600">Positive</div>
@@ -745,7 +745,7 @@ export const PatternInsights: React.FC<PatternInsightsProps> = ({ trades }) => {
           <div className="text-xs text-gray-600">Warnings</div>
         </div>
         <div className="text-center p-2 bg-red-50 rounded-lg min-w-[100px]">
-          <div className="text-xl font-bold text-red-600">
+          <div className="text-xl font-bold text-error">
             {insights.filter(i => i.type === 'negative').length}
           </div>
           <div className="text-xs text-gray-600">Issues</div>

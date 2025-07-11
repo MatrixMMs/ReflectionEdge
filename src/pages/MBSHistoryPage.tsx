@@ -134,7 +134,7 @@ const SessionCard: React.FC<SessionCardProps & {
               style={{ width: `${winRateWidth}%`, backgroundColor: 'var(--accent-green)' }}
             />
           </span>
-          <span style={{ color: 'var(--text-green)' }} className="ml-1">{session.winRate}%</span>
+                          <span style={{ color: 'var(--text-success)' }} className="ml-1">{session.winRate}%</span>
         </span>
         <div className="ml-auto flex gap-2 z-10" onClick={e => e.stopPropagation()}>
           {hasTrades && (
@@ -179,8 +179,8 @@ const SessionCard: React.FC<SessionCardProps & {
                     <tr key={trade.id || idx} className="border-b border-secondary hover:bg-gray-800">
                       <td className="py-1 pr-4">{trade.time}</td>
                       <td className="py-1 pr-4">{trade.type}</td>
-                      <td className={`py-1 pr-4 font-bold ${trade.result === 'win' ? 'text-green' : 'text-red'}`}>{trade.result === 'win' ? '🏆 Win' : '❌ Lose'}</td>
-                      <td className={`py-1 pr-4 ${trade.followedPlan ? 'text-green' : 'text-red'}`}>{trade.followedPlan ? 'Yes' : 'No'}</td>
+                                      <td className={`py-1 pr-4 font-bold ${trade.result === 'win' ? 'text-success' : 'text-error'}`}>{trade.result === 'win' ? '🏆 Win' : '❌ Lose'}</td>
+                <td className={`py-1 pr-4 ${trade.followedPlan ? 'text-success' : 'text-error'}`}>{trade.followedPlan ? 'Yes' : 'No'}</td>
                       <td className="py-1 pr-4">{typeof trade.mood === 'number' ? moodToEmoji(trade.mood) : trade.mood}</td>
                       <td className="py-1 pr-4">{trade.notes || '-'}</td>
                       <td className="py-1 pr-4">{trade.reflection || '-'}</td>
@@ -689,7 +689,7 @@ const MBSHistoryPage: React.FC<MBSHistoryPageProps> = ({ onStartMBSSession }) =>
                 <CustomWinIcon className="w-5 h-5" style={{ color: 'var(--accent-green)' }} />
                 <span style={{ color: 'var(--text-secondary)' }}>Win Rate</span>
               </div>
-              <div className="text-2xl font-bold flex items-baseline" style={{ color: 'var(--text-green)' }}>
+                              <div className="text-2xl font-bold flex items-baseline" style={{ color: 'var(--text-success)' }}>
                 {winRate.toFixed(1)}%
                 {winRateChange !== null && <ArrowIndicator change={winRateChange} />}
               </div>

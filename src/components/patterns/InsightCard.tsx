@@ -9,9 +9,9 @@ interface InsightCardProps {
 const getInsightIcon = (type: Insight['type']) => {
   switch (type) {
     case 'positive':
-      return <TrendingUpIcon className="w-5 h-5 text-green-600" />;
+      return <TrendingUpIcon className="w-5 h-5 text-success" />;
     case 'negative':
-      return <TrendingDownIcon className="w-5 h-5 text-red-600" />;
+      return <TrendingDownIcon className="w-5 h-5 text-error" />;
     case 'warning':
       return <ExclamationTriangleIcon className="w-5 h-5 text-yellow-600" />;
     case 'opportunity':
@@ -95,7 +95,7 @@ export const InsightCard: React.FC<InsightCardProps> = ({ insight }) => {
               {insight.data.winRate !== undefined && (
                 <div>
                   <span className="text-gray-500">Win Rate:</span>
-                  <span className="ml-1 font-bold text-green-700">{insight.data.winRate.toFixed(1)}%</span>
+                  <span className="ml-1 font-bold text-success">{insight.data.winRate.toFixed(1)}%</span>
                 </div>
               )}
               {insight.data.totalTrades !== undefined && (

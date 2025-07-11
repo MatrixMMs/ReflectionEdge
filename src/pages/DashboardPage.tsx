@@ -75,7 +75,7 @@ const KPI_NUMBER_STYLE = { fontSize: '1.8rem' };
 
 // Helper for formatting numbers with commas and currency
 function formatCurrency(value: number, decimals = 2) {
-  return value.toLocaleString(undefined, { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
+  return `$${value.toLocaleString(undefined, { minimumFractionDigits: decimals, maximumFractionDigits: decimals })}`;
 }
 function formatNumber(value: number, decimals = 0) {
   return value.toLocaleString(undefined, { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
@@ -382,6 +382,16 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
     setInfoAnchor(null);
   };
 
+  const getGroupGradient = (color: string) =>
+    `radial-gradient(circle at 90% 0%,
+      ${color} 0%,
+      ${color}33 10%,
+      ${color}22 20%,
+      ${color}11 32%,
+      ${color}08 44%,
+      ${color}04 56%,
+      transparent 65%)`;
+
   return (
     <div className="min-h-screen text-gray-100" style={{ background: 'var(--background-main)' }}>
       {/* Header Card: full width, flush with top/left/right - positioned absolutely to break out of main content constraints */}
@@ -437,7 +447,7 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
                     <InfoIcon style={{ width: 16, height: 16, color: 'var(--text-secondary)' }} />
                   </span>
                 </p>
-                <p className={`text-4xl font-bold ${kpiMetrics.financials.netPnl >= 0 ? 'text-green-500' : 'text-red-500'}`} style={KPI_NUMBER_STYLE}>
+                <p className={`text-4xl font-bold ${kpiMetrics.financials.netPnl >= 0 ? 'text-success' : 'text-error'}`} style={KPI_NUMBER_STYLE}>
                   {formatCurrency(kpiMetrics.financials.netPnl)}
                 </p>
               </div>
@@ -454,7 +464,7 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
                     <InfoIcon style={{ width: 16, height: 16, color: 'var(--text-secondary)' }} />
                   </span>
                 </p>
-                <p className={`text-4xl font-bold ${kpiMetrics.financials.winRate >= 50 ? 'text-green-500' : 'text-red-500'}`} style={KPI_NUMBER_STYLE}>
+                <p className={`text-4xl font-bold ${kpiMetrics.financials.winRate >= 50 ? 'text-success' : 'text-error'}`} style={KPI_NUMBER_STYLE}>
                   {kpiMetrics.financials.winRate.toFixed(1)}%
                 </p>
               </div>
@@ -515,7 +525,7 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
                     <InfoIcon style={{ width: 16, height: 16, color: 'var(--text-secondary)' }} />
                   </span>
                 </p>
-                <p className="text-4xl font-bold text-red-500" style={KPI_NUMBER_STYLE}>
+                <p className="text-4xl font-bold text-error" style={KPI_NUMBER_STYLE}>
                   {formatCurrency(drawdown.max)}
                 </p>
               </div>
@@ -570,7 +580,7 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
                       </div>
                     </div>
                     <div className="text-right">
-                      <p className={`font-bold ${trade.profit >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+                      <p className={`font-bold ${trade.profit >= 0 ? 'text-success' : 'text-error'}`}>
                         {formatCurrency(trade.profit)}
                       </p>
                       <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
@@ -609,7 +619,7 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
                 <div className="text-center p-4 rounded-lg" style={{ background: 'var(--background-main)' }}>
                   <h3 className="font-semibold mb-2" style={{ color: 'var(--text-main)' }}>Pre-Market</h3>
                   <p className="text-2xl font-bold" style={{ color: 'var(--text-main)', ...KPI_NUMBER_STYLE }}>{formatNumber(sessionPerformance.preMarket.trades)}</p>
-                  <p className={`text-sm ${sessionPerformance.preMarket.pnl >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+                  <p className={`text-sm ${sessionPerformance.preMarket.pnl >= 0 ? 'text-success' : 'text-error'}`}>
                     {formatCurrency(sessionPerformance.preMarket.pnl)}
                   </p>
                   <p className="text-xs" style={{ color: 'var(--text-secondary)' }}>
@@ -619,7 +629,7 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
                 <div className="text-center p-4 rounded-lg" style={{ background: 'var(--background-main)' }}>
                   <h3 className="font-semibold mb-2" style={{ color: 'var(--text-main)' }}>Regular Hours</h3>
                   <p className="text-2xl font-bold" style={{ color: 'var(--text-main)', ...KPI_NUMBER_STYLE }}>{formatNumber(sessionPerformance.regular.trades)}</p>
-                  <p className={`text-sm ${sessionPerformance.regular.pnl >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+                  <p className={`text-sm ${sessionPerformance.regular.pnl >= 0 ? 'text-success' : 'text-error'}`}>
                     {formatCurrency(sessionPerformance.regular.pnl)}
                   </p>
                   <p className="text-xs" style={{ color: 'var(--text-secondary)' }}>
@@ -629,7 +639,7 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
                 <div className="text-center p-4 rounded-lg" style={{ background: 'var(--background-main)' }}>
                   <h3 className="font-semibold mb-2" style={{ color: 'var(--text-main)' }}>After Hours</h3>
                   <p className="text-2xl font-bold" style={{ color: 'var(--text-main)', ...KPI_NUMBER_STYLE }}>{formatNumber(sessionPerformance.afterHours.trades)}</p>
-                  <p className={`text-sm ${sessionPerformance.afterHours.pnl >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+                  <p className={`text-sm ${sessionPerformance.afterHours.pnl >= 0 ? 'text-success' : 'text-error'}`}>
                     {formatCurrency(sessionPerformance.afterHours.pnl)}
                   </p>
                   <p className="text-xs" style={{ color: 'var(--text-secondary)' }}>
@@ -691,16 +701,6 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
                 setTagComparisonMode={setTagComparisonMode}
                 directionFilter={directionFilter}
                 setDirectionFilter={setDirectionFilter}
-              />
-            </div>
-
-            {/* Tag Performance */}
-            <div className="flex-1">
-              <TagPerformance 
-                trades={trades} 
-                tagGroups={tagGroups} 
-                chartDateRange={chartDateRange} 
-                directionFilter={directionFilter} 
               />
             </div>
           </div>

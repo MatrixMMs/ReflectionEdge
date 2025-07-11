@@ -35,7 +35,7 @@ export const NotificationPopup: React.FC<NotificationPopupProps> = ({
       aria-live="assertive"
     >
       <div className="flex items-start">
-        <CheckCircleIcon className="h-6 w-6 text-green-400 mr-3 flex-shrink-0" />
+        <CheckCircleIcon className="h-6 w-6 text-success mr-3 flex-shrink-0" />
         <div className="flex-grow">
           <p className="font-semibold text-purple-400">{title}</p>
           <p className="text-sm">{message}</p>

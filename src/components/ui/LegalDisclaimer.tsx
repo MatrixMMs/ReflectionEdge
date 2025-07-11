@@ -22,14 +22,14 @@ export const LegalDisclaimer: React.FC<LegalDisclaimerProps> = ({
 
   const fullDisclaimer = (
     <div className="bg-gray-800 p-6 rounded-xl border border-gray-700 max-w-4xl mx-auto" style={{ background: 'var(--background-secondary)' }}>
-      <h2 className="text-2xl font-bold text-red-400 mb-4 flex items-center">
+              <h2 className="text-2xl font-bold text-error mb-4 flex items-center">
         ⚠️ Important Legal Disclaimers
       </h2>
       
       <div className="space-y-6 text-sm text-gray-300">
         {/* Financial Advice Disclaimer */}
         <section>
-          <h3 className="text-lg font-semibold text-red-300 mb-2">
+          <h3 className="text-lg font-semibold text-error mb-2">
             Not Financial Advice
           </h3>
           <p className="mb-2">
@@ -80,7 +80,7 @@ export const LegalDisclaimer: React.FC<LegalDisclaimerProps> = ({
 
         {/* Risk Warning */}
         <section>
-          <h3 className="text-lg font-semibold text-red-300 mb-2">
+          <h3 className="text-lg font-semibold text-error mb-2">
             Risk Warning
           </h3>
           <p>
@@ -93,7 +93,7 @@ export const LegalDisclaimer: React.FC<LegalDisclaimerProps> = ({
 
         {/* No Guarantee */}
         <section>
-          <h3 className="text-lg font-semibold text-red-300 mb-2">
+          <h3 className="text-lg font-semibold text-error mb-2">
             No Guarantees
           </h3>
           <p>
@@ -117,7 +117,7 @@ export const LegalDisclaimer: React.FC<LegalDisclaimerProps> = ({
 
         {/* Limitation of Liability */}
         <section>
-          <h3 className="text-lg font-semibold text-red-300 mb-2">
+          <h3 className="text-lg font-semibold text-error mb-2">
             Limitation of Liability
           </h3>
           <p>
@@ -129,7 +129,7 @@ export const LegalDisclaimer: React.FC<LegalDisclaimerProps> = ({
 
         {/* User Responsibility */}
         <section>
-          <h3 className="text-lg font-semibold text-green-300 mb-2">
+          <h3 className="text-lg font-semibold text-success mb-2">
             Your Responsibility
           </h3>
           <p>

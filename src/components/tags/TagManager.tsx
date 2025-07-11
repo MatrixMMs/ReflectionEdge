@@ -178,7 +178,7 @@ export const TagManager: React.FC<TagManagerProps> = ({
                     <h4 className="text-md font-medium text-blue-300" style={{ color: group.subtags[0]?.color || 'var(--text-main)' }}>
                       {group.name}
                     </h4>
-                    <span className="text-xs" style={{ color: 'var(--text-secondary)', fontWeight: 600 }}>{group.subtags.length} tags</span>
+                    <span className="text-xs" style={{ color: 'var(--text-primary)', fontWeight: 600 }}>{group.subtags.length} tags</span>
                   </div>
                   <p className="text-sm mb-3" style={{ color: 'var(--text-main)', opacity: 0.85, fontWeight: 500 }}>{group.description}</p>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">

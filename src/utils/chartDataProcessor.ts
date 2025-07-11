@@ -61,12 +61,12 @@ export const filterTradesByDateAndTags = (
   return tradesInDateRange.filter(trade => {
     if (tagComparisonMode === 'AND') {
       return activeTagGroupIds.every(groupId => {
-        const tradeSubTagIdForGroup = trade.tags[groupId];
+        const tradeSubTagIdForGroup = (trade.tags || {})[groupId];
         return tradeSubTagIdForGroup && selectedTags[groupId].includes(tradeSubTagIdForGroup);
       });
     } else { 
       return activeTagGroupIds.some(groupId => {
-        const tradeSubTagIdForGroup = trade.tags[groupId];
+        const tradeSubTagIdForGroup = (trade.tags || {})[groupId];
         return tradeSubTagIdForGroup && selectedTags[groupId].includes(tradeSubTagIdForGroup);
       });
     }
@@ -107,7 +107,7 @@ export const processChartData = (
                 name: subTag.name,
                 color: subTag.color,
                 keySuffix: subTag.id,
-                tagFilterFn: (trade: Trade) => Object.values(trade.tags).includes(subTagId)
+                tagFilterFn: (trade: Trade) => Object.values((trade.tags || {})).includes(subTagId)
             });
         }
     });

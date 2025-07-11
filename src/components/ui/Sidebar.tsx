@@ -107,7 +107,7 @@ const Sidebar: React.FC<SidebarProps> = ({
           color: var(--text-main);
         }
         .sidebar-nav-link.active {
-          background: rgba(22, 163, 74, 0.25); /* dark green, more transparent */
+          background: var(--background-selected, #33363D); /* bright grey for selected */
           color: var(--text-white);
           box-shadow: none;
         }

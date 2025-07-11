@@ -327,14 +327,14 @@ export const MBSPostSessionReview: React.FC<MBSPostSessionReviewProps> = ({ isOp
                 <div className="bg-green-900/30 border border-green-500 rounded p-3" style={{ background: 'var(--background-secondary)' }}>
                   <div className="flex items-center gap-2 mb-2">
                     <span className="text-2xl">⭐</span>
-                    <span className="font-semibold text-green-300">Best Trade</span>
+                    <span className="font-semibold text-success">Best Trade</span>
                   </div>
                   <div className="text-sm text-gray-300 mb-2">
-                    <span className="text-green-400">{bestTrade.type}</span> • 
-                    <span className={bestTrade.result === 'win' ? 'text-green-400' : 'text-red-400'}>
+                                          <span className="text-success">{bestTrade.type}</span> •
+                      <span className={bestTrade.result === 'win' ? 'text-success' : 'text-error'}>
                       {bestTrade.result === 'win' ? ' Win' : ' Loss'}
                     </span> • 
-                    <span className={bestTrade.followedPlan ? 'text-green-400' : 'text-yellow-400'}>
+                                          <span className={bestTrade.followedPlan ? 'text-success' : 'text-yellow-400'}>
                       Plan: {bestTrade.followedPlan ? 'Yes' : 'No'}
                     </span>
                   </div>
@@ -358,14 +358,14 @@ export const MBSPostSessionReview: React.FC<MBSPostSessionReviewProps> = ({ isOp
                 <div className="bg-red-900/30 border border-red-500 rounded p-3" style={{ background: 'var(--background-secondary)' }}>
                   <div className="flex items-center gap-2 mb-2">
                     <span className="text-2xl">👎</span>
-                    <span className="font-semibold text-red-300">Worst Trade</span>
+                    <span className="font-semibold text-error">Worst Trade</span>
                   </div>
                   <div className="text-sm text-gray-300 mb-2">
-                    <span className="text-red-400">{worstTrade.type}</span> • 
-                    <span className={worstTrade.result === 'win' ? 'text-green-400' : 'text-red-400'}>
+                                          <span className="text-error">{worstTrade.type}</span> •
+                      <span className={worstTrade.result === 'win' ? 'text-success' : 'text-error'}>
                       {worstTrade.result === 'win' ? ' Win' : ' Loss'}
                     </span> • 
-                    <span className={worstTrade.followedPlan ? 'text-green-400' : 'text-yellow-400'}>
+                                          <span className={worstTrade.followedPlan ? 'text-success' : 'text-yellow-400'}>
                       Plan: {worstTrade.followedPlan ? 'Yes' : 'No'}
                     </span>
                   </div>

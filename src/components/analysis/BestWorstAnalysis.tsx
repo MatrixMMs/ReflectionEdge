@@ -65,7 +65,7 @@ export const BestWorstAnalysis: React.FC<BestWorstAnalysisProps> = ({ trades, on
       <div className="grid grid-cols-2 gap-4 text-sm mb-3">
         <div>
           <span className="text-gray-400">P&L:</span>
-          <span className={`ml-1 font-semibold ${trade.profit >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                          <span className={`ml-1 font-semibold ${trade.profit >= 0 ? 'text-success' : 'text-error'}`}>
             ${trade.profit.toFixed(2)}
           </span>
         </div>
@@ -179,7 +179,7 @@ export const BestWorstAnalysis: React.FC<BestWorstAnalysisProps> = ({ trades, on
           <h3 className="text-lg font-semibold mb-3">Quick Insights</h3>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
             <div>
-              <strong className="text-green-400">Best Trade Patterns:</strong>
+              <strong className="text-success">Best Trade Patterns:</strong>
               <ul className="mt-1 space-y-1 text-gray-300">
                 {bestTrades.length > 0 && (
                   <>
@@ -197,7 +197,7 @@ export const BestWorstAnalysis: React.FC<BestWorstAnalysisProps> = ({ trades, on
               </ul>
             </div>
             <div>
-              <strong className="text-red-400">Worst Trade Patterns:</strong>
+              <strong className="text-error">Worst Trade Patterns:</strong>
               <ul className="mt-1 space-y-1 text-gray-300">
                 {worstTrades.length > 0 && (
                   <>

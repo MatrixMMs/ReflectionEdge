@@ -16,6 +16,8 @@ interface TradeListProps {
   onViewDetails: (trade: Trade) => void;
   filtersOpen: boolean;
   setFiltersOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  filterTagId?: string;
+  onClearTagFilter?: () => void;
 }
 
 const getGradeColor = (grade: Grade): string => {
@@ -35,7 +37,7 @@ const getGradeColor = (grade: Grade): string => {
   }
 };
 
-export const TradeList: React.FC<TradeListProps> = ({ trades, tagGroups, onEditTrade, onDeleteTrade, onViewDetails, filtersOpen, setFiltersOpen }) => {
+export const TradeList: React.FC<TradeListProps> = ({ trades, tagGroups, onEditTrade, onDeleteTrade, onViewDetails, filtersOpen, setFiltersOpen, filterTagId, onClearTagFilter }) => {
   const [filters, setFilters] = useState<TradeFiltersType>({
     direction: 'all',
     grade: 'all',
@@ -54,8 +56,17 @@ export const TradeList: React.FC<TradeListProps> = ({ trades, tagGroups, onEditT
   const availableSymbols = useMemo(() => getAvailableSymbols(trades), [trades]);
   
   const filteredTrades = useMemo(() => {
-    return filterTrades(trades, filters);
-  }, [trades, filters]);
+    let base = filterTrades(trades, filters);
+    if (filterTagId) {
+      base = base.filter(trade => {
+        const objectiveTags = trade.objectiveTags || {};
+        const subjectiveTags = trade.subjectiveTags || {};
+        const allTagGroups = { ...objectiveTags, ...subjectiveTags };
+        return Object.values(allTagGroups).flat().includes(filterTagId);
+      });
+    }
+    return base;
+  }, [trades, filters, filterTagId]);
 
   const sortedTrades = useMemo(() => {
     const arr = [...filteredTrades];
@@ -119,6 +130,12 @@ export const TradeList: React.FC<TradeListProps> = ({ trades, tagGroups, onEditT
 
   return (
     <div>
+      {filterTagId && (
+        <div className="mb-2 flex items-center gap-2">
+          <span className="text-xs bg-gray-700 px-2 py-1 rounded-full text-main font-semibold">Tag Filter Active</span>
+          <Button size="xs" variant="secondary" onClick={onClearTagFilter}>Clear Filter</Button>
+        </div>
+      )}
       <TradeFilters
         filters={filters}
         onFiltersChange={setFilters}
@@ -165,7 +182,7 @@ export const TradeList: React.FC<TradeListProps> = ({ trades, tagGroups, onEditT
                   </span>
                 </Td>
                 <Td>{trade.contracts != null ? trade.contracts : '-'}</Td>
-                <Td className={trade.profit >= 0 ? 'text-green-400' : 'text-red-400'}>
+                <Td className={trade.profit >= 0 ? 'text-success' : 'text-error'}>
                   ${trade.profit.toFixed(2)}
                 </Td>
                 <Td className="relative">
@@ -193,7 +210,7 @@ export const TradeList: React.FC<TradeListProps> = ({ trades, tagGroups, onEditT
                         </button>
                         <button
                           onClick={() => { onDeleteTrade(trade.id); setMenuOpenId(null); }}
-                          className="block w-full text-left px-4 py-2 text-sm text-red-500 hover:bg-gray-700"
+                          className="block w-full text-left px-4 py-2 text-sm text-error hover:bg-gray-700"
                         >
                           Delete
                         </button>

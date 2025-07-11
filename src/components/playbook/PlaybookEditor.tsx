@@ -192,7 +192,7 @@ export const PlaybookEditor: React.FC<PlaybookEditorProps> = ({ entry, onSave, o
               )}
               <button 
                 type="button" 
-                className="text-red-500 hover:text-red-400 font-bold" 
+                className="text-error hover:text-error font-bold" 
                 onClick={() => handleRemoveChecklistItem(checklistItem.id)}
                 aria-label="Remove checklist item"
               >

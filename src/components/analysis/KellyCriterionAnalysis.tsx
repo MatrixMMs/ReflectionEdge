@@ -93,9 +93,9 @@ export const KellyCriterionAnalysis: React.FC<KellyCriterionAnalysisProps> = ({
 
   const getConfidenceColor = (confidence: string) => {
     switch (confidence) {
-      case 'high': return 'text-green-400';
-      case 'medium': return 'text-yellow-400';
-      case 'low': return 'text-red-400';
+          case 'high': return 'text-success';
+    case 'medium': return 'text-yellow-400';
+    case 'low': return 'text-error';
       default: return 'text-gray-400';
     }
   };
@@ -110,9 +110,9 @@ export const KellyCriterionAnalysis: React.FC<KellyCriterionAnalysisProps> = ({
   };
 
   const getRiskOfRuinColor = (risk: number) => {
-    if (risk < 0.1) return 'text-green-400';
+    if (risk < 0.1) return 'text-success';
     if (risk < 0.3) return 'text-yellow-400';
-    return 'text-red-400';
+    return 'text-error';
   };
 
   const toggleCategoryCollapse = (category: string) => {
@@ -204,7 +204,7 @@ export const KellyCriterionAnalysis: React.FC<KellyCriterionAnalysisProps> = ({
             <button
               type="button"
               onClick={() => setSelectedTags({})}
-              className="text-red-500"
+              className="text-error"
               style={{ background: 'none', border: 'none', padding: 0, minWidth: 0 }}
             >
               Clear All
@@ -345,8 +345,8 @@ export const KellyCriterionAnalysis: React.FC<KellyCriterionAnalysisProps> = ({
               <div className="space-y-4">
                 <div className="bg-gray-700 p-4 rounded-lg">
                   <div className="flex justify-between items-center mb-2">
-                    <span className="font-semibold text-green-400">Full Kelly</span>
-                    <span className="text-2xl font-bold text-green-400">
+                                    <span className="font-semibold text-success">Full Kelly</span>
+                <span className="text-2xl font-bold text-success">
                       {currentAnalysis.fullKelly.recommendedPositionSize.toFixed(1)}%
                     </span>
                   </div>
@@ -375,8 +375,8 @@ export const KellyCriterionAnalysis: React.FC<KellyCriterionAnalysisProps> = ({
 
                 <div className="bg-gray-700 p-4 rounded-lg">
                   <div className="flex justify-between items-center mb-2">
-                    <span className="font-semibold text-red-400">Conservative</span>
-                    <span className="text-2xl font-bold text-red-400">
+                                    <span className="font-semibold text-error">Conservative</span>
+                <span className="text-2xl font-bold text-error">
                       {currentAnalysis.conservativeKelly.recommendedPositionSize.toFixed(1)}%
                     </span>
                   </div>
@@ -390,7 +390,7 @@ export const KellyCriterionAnalysis: React.FC<KellyCriterionAnalysisProps> = ({
               <h3 className="text-xl font-semibold mb-4 text-purple-400">Performance Metrics</h3>
               <div className="grid grid-cols-2 gap-4">
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-green-400">
+                  <div className="text-2xl font-bold text-success">
                     {(currentAnalysis.fullKelly.winRate * 100).toFixed(1)}%
                   </div>
                   <div className="text-sm text-gray-400">Win Rate</div>
@@ -408,7 +408,7 @@ export const KellyCriterionAnalysis: React.FC<KellyCriterionAnalysisProps> = ({
                   <div className="text-sm text-gray-400">Avg Win</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-red-400">
+                  <div className="text-2xl font-bold text-error">
                     ${Math.abs(currentAnalysis.fullKelly.averageLoss).toFixed(2)}
                   </div>
                   <div className="text-sm text-gray-400">Avg Loss</div>
@@ -422,7 +422,7 @@ export const KellyCriterionAnalysis: React.FC<KellyCriterionAnalysisProps> = ({
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-gray-400">Net Profit:</span>
-                  <span className={`font-semibold ${currentAnalysis.fullKelly.netProfit >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                  <span className={`font-semibold ${currentAnalysis.fullKelly.netProfit >= 0 ? 'text-success' : 'text-error'}`}>
                     ${currentAnalysis.fullKelly.netProfit.toFixed(2)}
                   </span>
                 </div>
@@ -466,7 +466,7 @@ export const KellyCriterionAnalysis: React.FC<KellyCriterionAnalysisProps> = ({
                       <div key={tagId} className="text-center">
                         <div className="text-2xl font-bold text-yellow-400 mb-1">#{index + 1}</div>
                         <div className="font-semibold text-gray-100 mb-1">{metadata.name}</div>
-                        <div className="text-lg font-bold text-green-400">
+                        <div className="text-lg font-bold text-success">
                           {(analysis.fullKelly.kellyPercentage * 100).toFixed(1)}% Kelly
                         </div>
                         <div className="text-sm text-gray-400">
@@ -488,7 +488,7 @@ export const KellyCriterionAnalysis: React.FC<KellyCriterionAnalysisProps> = ({
                     <div className="space-y-2 text-sm">
                       <div className="flex justify-between">
                         <span className="text-gray-400">Kelly %:</span>
-                        <span className={`font-semibold ${analysis.fullKelly.kellyPercentage > 0.1 ? 'text-green-400' : analysis.fullKelly.kellyPercentage > 0.05 ? 'text-yellow-400' : 'text-red-400'}`}>
+                        <span className={`font-semibold ${analysis.fullKelly.kellyPercentage > 0.1 ? 'text-success' : analysis.fullKelly.kellyPercentage > 0.05 ? 'text-yellow-400' : 'text-error'}`}>
                           {(analysis.fullKelly.kellyPercentage * 100).toFixed(1)}%
                         </span>
                       </div>
@@ -506,7 +506,7 @@ export const KellyCriterionAnalysis: React.FC<KellyCriterionAnalysisProps> = ({
                       </div>
                       <div className="flex justify-between">
                         <span className="text-gray-400">Net Profit:</span>
-                        <span className={`font-semibold ${analysis.fullKelly.netProfit >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                        <span className={`font-semibold ${analysis.fullKelly.netProfit >= 0 ? 'text-success' : 'text-error'}`}>
                           ${analysis.fullKelly.netProfit.toFixed(2)}
                         </span>
                       </div>

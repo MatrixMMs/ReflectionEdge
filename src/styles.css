@@ -11,9 +11,9 @@
   --text-secondary: #A8B2C2;
   --text-accent: #5A95E3;
   --text-blue: #5A95E3;
-  --text-green: #2DCF7A;
-  --text-red: #E55A5A;
   --text-white: #FFFFFF;
+  --text-success: var(--success);
+  --text-error: var(--error);
   
   /* Colors - Accent/Buttons */
   --accent-blue: #5A95E3;
@@ -23,8 +23,8 @@
   --accent-yellow: #F59E0B;
   
   /* Colors - Status */
-  --success: #2DCF7A;
-  --error: #E55A5A;
+  --success: #27ae60;
+  --error: #e4202c;
   
   /* Colors - Gradients */
   --gradient-green-from: #2DCF7A;
@@ -117,4 +117,12 @@
 /* Utility classes for theme variables */
 .text-main {
   color: var(--text-main);
+}
+
+.text-success {
+  color: var(--text-success);
+}
+
+.text-error {
+  color: var(--text-error);
 } 
